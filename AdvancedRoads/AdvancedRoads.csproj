@@ -28,7 +28,32 @@
     <RootNamespace>AdvancedRoads</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="KianCommons\KianCommons\Properties\**" />
+    <Compile Remove="KianCommons\libs\**" />
+    <EmbeddedResource Remove="KianCommons\KianCommons\Properties\**" />
+    <EmbeddedResource Remove="KianCommons\libs\**" />
+    <None Remove="KianCommons\KianCommons\Properties\**" />
+    <None Remove="KianCommons\libs\**" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Remove="DecompiledSources\NetNode.cs" />
+    <Compile Remove="KianCommons\KianCommons\Patches\PrefixUtils.cs" />
+    <Compile Remove="KianCommons\KianCommons\Util\CSURUtil.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="KianCommons\.git" />
+    <None Remove="KianCommons\.gitattributes" />
+    <None Remove="KianCommons\.gitignore" />
+    <None Remove="Resources\cursor.png" />
+    <None Remove="Resources\cursor_crossing.png" />
+    <None Remove="Resources\cursor_edit.png" />
+    <None Remove="Resources\sprites.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\cursor.png" />
+    <EmbeddedResource Include="Resources\cursor_crossing.png" />
+    <EmbeddedResource Include="Resources\cursor_edit.png" />
+    <EmbeddedResource Include="Resources\sprites.png" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CitiesHarmony.API" Version="1.0.4" />
@@ -83,6 +108,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="DecompiledSources\NetNode.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Util\" />
   </ItemGroup>
   <Target Name="DeployToModDirectory" AfterTargets="Build">
     <GetAssemblyIdentity AssemblyFiles="$(TargetPath)">
