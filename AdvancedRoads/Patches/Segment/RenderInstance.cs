@@ -6,13 +6,13 @@ using System.Collections.Generic;
 using KianCommons;
 using KianCommons.Patches;
 
-namespace AdvancedRoads.Patches.NetNodePatches {
+namespace AdvancedRoads.Patches.Segment {
     using JetBrains.Annotations;
     using Util;
 
     [HarmonyPatch()]
-    public static class CalculateGroupData {
-        static string logPrefix_ = "NetNode_CalculateGroupData Transpiler: ";
+    public static class RenderInstance {
+        static string logPrefix_ = "NetNode.RenderInstance Transpiler: ";
 
         // RenderInstance(RenderManager.CameraInfo cameraInfo, ushort nodeID, NetInfo info, int iter, Flags flags, ref uint instanceIndex, ref RenderManager.Instance data)
         static MethodInfo Target => typeof(global::NetNode).GetMethod("RenderInstance", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -20,7 +20,7 @@ namespace AdvancedRoads.Patches.NetNodePatches {
         public static MethodBase TargetMethod() {
             var ret = Target;
             HelpersExtensions.Assert(ret != null, "did not manage to find original function to patch");
-            Log.Info(logPrefix_+"aquired method " + ret);
+            Log.Info(logPrefix_ + "aquired method " + ret);
             return ret;
         }
 
@@ -28,10 +28,13 @@ namespace AdvancedRoads.Patches.NetNodePatches {
         public static IEnumerable<CodeInstruction> Transpiler(ILGenerator il, IEnumerable<CodeInstruction> instructions) {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
-                CheckNodeFlagsCommons.PatchAllCheckFlags(codes, Target);
-                Log.Info(logPrefix_+"successfully patched NetNode.RenderInstance");
+                //CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 1, counterGetSegment: 2); //DC
+                CheckSegmentFlagsCommons.PatchCheckFlags(codes, Target, occurance: 2, counterGetSegment: 1); //Junction
+
+                Log.Info(logPrefix_ + "successfully patched NetNode.RenderInstance");
                 return codes;
-            }catch(Exception e) {
+            }
+            catch (Exception e) {
                 Log.Error(e.ToString());
                 throw e;
             }

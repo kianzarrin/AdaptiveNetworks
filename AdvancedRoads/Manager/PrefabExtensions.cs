@@ -30,13 +30,43 @@ namespace AdvancedRoads.Manager {
         }
 
         [Serializable]
-        public class SegmentInfoExt {
-            public SegmentInfoFlags Flags;
-            public bool CheckFlags(NetSegmentExt.Flags flags) => Flags.CheckFlags(flags);
+        public class Segment {
+            public class FlagsT {
+                SegmentInfoFlags Flags;
+                SegmentEndInfoFlags Start, End;
+                public bool CheckFlags(
+                    NetSegmentExt.Flags flags,
+                    NetSegmentEnd.Flags startFlags,
+                    NetSegmentEnd.Flags endFlags) {
+                    return
+                        Flags.CheckFlags(flags) &
+                        Start.CheckFlags(startFlags) &
+                        End.CheckFlags(endFlags);
+                }
+            }
 
-            public SegmentInfoExt(NetInfo.Segment template) { }
+            public FlagsT ForwardFlags, BackwardFlags;
 
-            public static SegmentInfoExt Get(NetInfoExtension.Segment IndexExt) {
+            public bool CheckFlags(NetSegmentExt.Flags flags,
+                    NetSegmentEnd.Flags startFlags,
+                    NetSegmentEnd.Flags endFlags,
+                    bool turnAround) {
+                if (!turnAround)
+                    return ForwardFlags.CheckFlags(flags, startFlags, endFlags);
+                else
+                    return BackwardFlags.CheckFlags(flags, startFlags, endFlags);
+            }
+
+            public static bool CheckFlags(NetInfo.Segment segmentInfo, NetSegment.Flags flags, bool turnAround) {
+                if (!turnAround)
+                    return flags.CheckFlags(segmentInfo.m_forwardRequired, segmentInfo.m_forwardForbidden);
+                else
+                    return flags.CheckFlags(segmentInfo.m_backwardRequired, segmentInfo.m_backwardForbidden);
+            }
+
+            public Segment(NetInfo.Segment template) { }
+
+            public static Segment Get(NetInfoExtension.Segment IndexExt) {
                 if (IndexExt == null) return null;
                 return Buffer[IndexExt.PrefabIndex].SegmentInfoExts[IndexExt.Index];
             }
@@ -109,15 +139,15 @@ namespace AdvancedRoads.Manager {
 
         public Node[] NodeInfoExts;
 
-        public SegmentInfoExt[] SegmentInfoExts;
+        public Segment[] SegmentInfoExts;
 
         public LaneInfoExt[] LaneInfoExts;
 
         public NetInfoExt(NetInfo template) {
             Version = HelpersExtensions.VersionOf(this);
-            SegmentInfoExts = new SegmentInfoExt[template.m_segments.Length];
+            SegmentInfoExts = new Segment[template.m_segments.Length];
             for (int i = 0; i < LaneInfoExts.Length; ++i) {
-                SegmentInfoExts[i] = new SegmentInfoExt(template.m_segments[i]);
+                SegmentInfoExts[i] = new Segment(template.m_segments[i]);
             }
 
             NodeInfoExts = new Node[template.m_nodes.Length];
