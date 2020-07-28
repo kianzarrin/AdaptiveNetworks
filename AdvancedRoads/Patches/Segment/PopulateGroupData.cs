@@ -12,10 +12,11 @@ namespace AdvancedRoads.Patches.Segment {
 
     [HarmonyPatch()]
     public static class PopulateGroupData {
-        static string logPrefix_ = "NetNode.PopulateGroupData Transpiler: ";
+        static string logPrefix_ = "NetSegment.PopulateGroupData Transpiler: ";
 
-        //public void PopulateGroupData(ushort nodeID, int groupX, int groupZ, int layer, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData data, ref Vector3 min, ref Vector3 max, ref float maxRenderDistance, ref float maxInstanceDistance, ref bool requireSurfaceMaps)
-        static MethodInfo Target => typeof(global::NetNode).
+        //public void PopulateGroupData(ushort segmentID, int groupX, int groupZ, int layer, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition,
+        // RenderGroup.MeshData data, ref Vector3 min, ref Vector3 max, ref float maxRenderDistance, ref float maxInstanceDistance, ref bool requireSurfaceMaps)
+        static MethodInfo Target => typeof(global::NetSegment).
             GetMethod("PopulateGroupData", BindingFlags.Public | BindingFlags.Instance);
 
         public static MethodBase TargetMethod() {
@@ -25,16 +26,10 @@ namespace AdvancedRoads.Patches.Segment {
             return ret;
         }
 
-        //static bool Prefix(ushort nodeID){}
         public static IEnumerable<CodeInstruction> Transpiler(ILGenerator il, IEnumerable<CodeInstruction> instructions) {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
-                //CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 1, counterGetSegment: 2); //DC
-                //CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 2, counterGetSegment: 1); //DC
-
-                // Unlike RenderInstance and CalculateGroupData, counterGetSegment for PopulateGroupData Junction is 2:
-                CheckSegmentFlagsCommons.PatchCheckFlags(codes, Target, occurance: 3, counterGetSegment: 2 ); //Junction
-
+                CheckSegmentFlagsCommons.PatchCheckFlags(codes, Target);
                 Log.Info(logPrefix_ + "successfully patched " + Target);
                 return codes;
             }

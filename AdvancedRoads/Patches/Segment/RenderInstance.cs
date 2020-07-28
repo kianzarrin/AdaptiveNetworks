@@ -12,10 +12,10 @@ namespace AdvancedRoads.Patches.Segment {
 
     [HarmonyPatch()]
     public static class RenderInstance {
-        static string logPrefix_ = "NetNode.RenderInstance Transpiler: ";
+        static string logPrefix_ = "NetSegment.RenderInstance Transpiler: ";
 
-        // RenderInstance(RenderManager.CameraInfo cameraInfo, ushort nodeID, NetInfo info, int iter, Flags flags, ref uint instanceIndex, ref RenderManager.Instance data)
-        static MethodInfo Target => typeof(global::NetNode).GetMethod("RenderInstance", BindingFlags.NonPublic | BindingFlags.Instance);
+        // private void NetSegment.RenderInstance(RenderManager.CameraInfo cameraInfo, ushort segmentID, int layerMask, NetInfo info, ref RenderManager.Instance data)
+        static MethodInfo Target => typeof(global::NetSegment).GetMethod("RenderInstance", BindingFlags.NonPublic | BindingFlags.Instance);
 
         public static MethodBase TargetMethod() {
             var ret = Target;
@@ -24,14 +24,11 @@ namespace AdvancedRoads.Patches.Segment {
             return ret;
         }
 
-        //static bool Prefix(ushort nodeID){}
         public static IEnumerable<CodeInstruction> Transpiler(ILGenerator il, IEnumerable<CodeInstruction> instructions) {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
-                //CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 1, counterGetSegment: 2); //DC
-                CheckSegmentFlagsCommons.PatchCheckFlags(codes, Target, occurance: 2, counterGetSegment: 1); //Junction
-
-                Log.Info(logPrefix_ + "successfully patched NetNode.RenderInstance");
+                CheckSegmentFlagsCommons.PatchCheckFlags(codes, Target);
+                Log.Info(logPrefix_ + "successfully patched NetSegment.RenderInstance");
                 return codes;
             }
             catch (Exception e) {

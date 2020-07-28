@@ -12,10 +12,10 @@ namespace AdvancedRoads.Patches.Segment {
 
     [HarmonyPatch()]
     public static class CalculateGroupData {
-        static string logPrefix_ = "NetNode.CalculateGroupData Transpiler: ";
+        static string logPrefix_ = "NetSegment.CalculateGroupData Transpiler: ";
 
-        //public bool CalculateGroupData(ushort nodeID, int layer, ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays)
-        static MethodInfo Target => typeof(global::NetNode).
+        //public bool CalculateGroupData(ushort segmentID, int layer, ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays)
+        static MethodInfo Target => typeof(global::NetSegment).
             GetMethod("CalculateGroupData", BindingFlags.Public | BindingFlags.Instance);
 
         public static MethodBase TargetMethod() {
@@ -25,14 +25,10 @@ namespace AdvancedRoads.Patches.Segment {
             return ret;
         }
 
-        //static bool Prefix(ushort nodeID){}
         public static IEnumerable<CodeInstruction> Transpiler(ILGenerator il, IEnumerable<CodeInstruction> instructions) {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
-                //CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 1, counterGetSegment: 2); //DC
-                //CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 2, counterGetSegment: 1); //DC
-                CheckSegmentFlagsCommons.PatchCheckFlags(codes, Target, occurance: 3, counterGetSegment: 1); //Junction
-
+                CheckSegmentFlagsCommons.PatchCheckFlags(codes, Target);
                 Log.Info(logPrefix_ + "successfully patched " + Target);
                 return codes;
             }

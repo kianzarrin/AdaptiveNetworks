@@ -16,7 +16,7 @@ namespace AdvancedRoads.Patches {
         public static bool CheckFlags(NetInfo.Node node, ushort nodeID, ushort segmentID) {
             var nodeInfoExt = NetInfoExt.Node.Get(node as NetInfoExtension.Node);
             if (nodeInfoExt == null) return true;
-             NetNodeExt netNodeExt = NetworkExtensionManager.Instance.NodeBuffer[nodeID];
+            NetNodeExt netNodeExt = NetworkExtensionManager.Instance.NodeBuffer[nodeID];
             NetSegmentExt netSegmentExt = NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
             NetSegmentEnd netSegmentEnd = netSegmentExt.GetEnd(nodeID);
 
@@ -48,7 +48,7 @@ namespace AdvancedRoads.Patches {
                     new CodeInstruction(OpCodes.Call, mCheckFlags2),
                     new CodeInstruction(OpCodes.And),
                 };
-                ReplaceInstructions(codes, newInstructions, index);
+                InsertInstructions(codes, newInstructions, index + 1);
             } // end block
         }
 
