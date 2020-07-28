@@ -59,7 +59,7 @@ namespace AdvancedRoads.GUI {
         }
 
         public void Apply() {
-            NodeData data = UIAdvancedRoadsPanel.Instance.NodeData;
+            NetNodeExt data = UIAdvancedRoadsPanel.Instance.NodeData;
             if (data == null)
                 return;
             data.CornerOffset = value;
@@ -70,7 +70,7 @@ namespace AdvancedRoads.GUI {
         }
 
         public void Refresh() {
-            NodeData data = UIAdvancedRoadsPanel.Instance.NodeData;
+            NetNodeExt data = UIAdvancedRoadsPanel.Instance.NodeData;
             if (data == null) {
                 Disable();
                 return;

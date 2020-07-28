@@ -43,10 +43,10 @@ namespace AdvancedRoads.GUI {
 
         public ushort NodeID { get; private set; }
 
-        public NodeData NodeData {
+        public NetNodeExt NodeData {
             get {
                 if (NodeID == 0) return null;
-                return NodeManager.Instance.GetOrCreate(NodeID);
+                return NetworkExtManager.Instance.GetOrCreate(NodeID);
             }
         }
 
@@ -153,14 +153,14 @@ namespace AdvancedRoads.GUI {
         }
 
         public void ShowNode(ushort nodeID) {
-            NodeManager.Instance.RefreshData(NodeID);
+            NetworkExtManager.Instance.RefreshData(NodeID);
             NodeID = nodeID;
             Show();
             Refresh();
         }
 
         public void Close() {
-            NodeManager.Instance.RefreshData(NodeID);
+            NetworkExtManager.Instance.RefreshData(NodeID);
             NodeID = 0;
             Hide();
         }

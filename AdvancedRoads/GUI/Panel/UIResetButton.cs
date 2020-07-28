@@ -51,7 +51,7 @@ namespace AdvancedRoads.GUI {
         public void Refresh() {
             if (VERBOSE) Log.Debug("Refresh called()\n" + Environment.StackTrace);
             refreshing_ = true;
-            NodeData data = UIAdvancedRoadsPanel.Instance.NodeData;
+            NetNodeExt data = UIAdvancedRoadsPanel.Instance.NodeData;
             if (data == null) {
                 Disable();
                 return;

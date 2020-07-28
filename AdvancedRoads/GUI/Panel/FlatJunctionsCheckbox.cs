@@ -46,7 +46,7 @@ namespace AdvancedRoads.GUI {
 
         public void Apply() {
             if (VERBOSE) Log.Debug("UIFlatJunctionsCheckbox.Apply called()\n" + Environment.StackTrace);
-            NodeData data = UIAdvancedRoadsPanel.Instance.NodeData;
+            NetNodeExt data = UIAdvancedRoadsPanel.Instance.NodeData;
             if (data == null)
                 return;
             data.FlatJunctions = this.isChecked;
@@ -61,7 +61,7 @@ namespace AdvancedRoads.GUI {
         public void Refresh() {
             if (VERBOSE) Log.Debug("Refresh called()\n" + Environment.StackTrace);
             refreshing_ = true;
-            NodeData data = UIAdvancedRoadsPanel.Instance.NodeData;
+            NetNodeExt data = UIAdvancedRoadsPanel.Instance.NodeData;
             if (data == null) {
                 Disable();
                 return;

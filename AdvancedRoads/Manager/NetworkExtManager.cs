@@ -1,22 +1,23 @@
 namespace AdvancedRoads {
     using System;
     using Util;
+    using KianCommons;
 
     [Serializable]
-    public class NodeManager {
+    public class NetworkExtManager {
         #region LifeCycle
-        public static NodeManager Instance { get; private set; } = new NodeManager();
+        public static NetworkExtManager Instance { get; private set; } = new NetworkExtManager();
 
         public static byte[] Serialize() => SerializationUtil.Serialize(Instance);
 
         public static void Deserialize(byte[] data) {
             if (data == null) {
-                Instance = new NodeManager();
+                Instance = new NetworkExtManager();
                 Log.Debug($"NodeBlendManager.Deserialize(data=null)");
 
             } else {
                 Log.Debug($"NodeBlendManager.Deserialize(data): data.Length={data?.Length}");
-                Instance = SerializationUtil.Deserialize(data) as NodeManager;
+                Instance = SerializationUtil.Deserialize(data) as NetworkExtManager;
             }
         }
 
@@ -26,7 +27,10 @@ namespace AdvancedRoads {
 
         #endregion LifeCycle
 
-        public NodeData[] buffer = new NodeData[NetManager.MAX_NODE_COUNT];
+        public NetNodeExt[] NodeBuffer = new NetNodeExt[NetManager.MAX_NODE_COUNT];
+        public NetSegment[] SegmentBuffer = new NetNodeExt[NetManager.MAX_NODE_COUNT];
+        public NetLaneExt[] LaneBuffer = new NetNodeExt[NetManager.MAX_NODE_COUNT];
+        public 
 
 
         #region data tranfer
@@ -50,30 +54,30 @@ namespace AdvancedRoads {
             if (data == null) {
                 ResetNodeToDefault(nodeID);
             } else {
-                buffer[nodeID] = SerializationUtil.Deserialize(data) as NodeData;
+                buffer[nodeID] = SerializationUtil.Deserialize(data) as NetNodeExt;
                 buffer[nodeID].NodeID = nodeID;
                 RefreshData(nodeID);
             }
         }
         #endregion
 
-        public NodeData InsertNode(NetTool.ControlPoint controlPoint, NodeTypeT nodeType = NodeTypeT.Crossing) {
+        public NetNodeExt InsertNode(NetTool.ControlPoint controlPoint, NodeTypeT nodeType = NodeTypeT.Crossing) {
             if(ToolBase.ToolErrors.None != NetUtil.InsertNode(controlPoint, out ushort nodeID))
                 return null;
             HelpersExtensions.Assert(nodeID!=0,"nodeID");
 
             int nPedLanes = controlPoint.m_segment.ToSegment().Info.CountPedestrianLanes();
             if (nodeType == NodeTypeT.Crossing && nPedLanes<2)
-                buffer[nodeID] = new NodeData(nodeID);
+                buffer[nodeID] = new NetNodeExt(nodeID);
             else
-                buffer[nodeID] = new NodeData(nodeID, nodeType);
+                buffer[nodeID] = new NetNodeExt(nodeID, nodeType);
             return buffer[nodeID];
         }
 
-        public NodeData GetOrCreate(ushort nodeID) {
-            NodeData data = Instance.buffer[nodeID];
+        public NetNodeExt GetOrCreate(ushort nodeID) {
+            NetNodeExt data = Instance.buffer[nodeID];
             if (data == null) {
-                data = new NodeData(nodeID);
+                data = new NetNodeExt(nodeID);
                 buffer[nodeID] = data;
             }
             return data;
@@ -111,7 +115,7 @@ namespace AdvancedRoads {
             // nodeID.ToNode still has default flags.
             if (buffer[nodeID] == null)
                 return;
-            if (!NodeData.IsSupported(nodeID)) {
+            if (!NetNodeExt.IsSupported(nodeID)) {
                 buffer[nodeID] = null;
                 return;
             }

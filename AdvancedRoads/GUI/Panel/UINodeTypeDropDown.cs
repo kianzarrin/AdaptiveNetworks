@@ -86,7 +86,7 @@ namespace AdvancedRoads.GUI {
 
         public void Apply() {
             if(VERBOSE)Log.Debug("UINodeTypeDropDown.Apply called()\n" + Environment.StackTrace);
-            NodeData data = UIAdvancedRoadsPanel.Instance.NodeData;
+            NetNodeExt data = UIAdvancedRoadsPanel.Instance.NodeData;
             if (data == null) return;
             data.NodeType = SelectedItem;
             Assert(!refreshing_, "!refreshing_");
@@ -99,7 +99,7 @@ namespace AdvancedRoads.GUI {
 
         public void Repopulate() {
             if (VERBOSE) Log.Debug("UINodeTypeDropDown.Repopulate called()" + Environment.StackTrace);
-            NodeData data = UIAdvancedRoadsPanel.Instance.NodeData;
+            NetNodeExt data = UIAdvancedRoadsPanel.Instance.NodeData;
             items = null;
             foreach (NodeTypeT nodeType in Enum.GetValues(typeof(NodeTypeT))) {
                 if (data.CanChangeTo(nodeType)) {
@@ -111,7 +111,7 @@ namespace AdvancedRoads.GUI {
         public void Refresh() {
             if (VERBOSE) Log.Debug("Refresh called()\n" + Environment.StackTrace);
             refreshing_ = true;
-            NodeData data = UIAdvancedRoadsPanel.Instance.NodeData;
+            NetNodeExt data = UIAdvancedRoadsPanel.Instance.NodeData;
             if (data == null) {
                 Disable();
                 return;

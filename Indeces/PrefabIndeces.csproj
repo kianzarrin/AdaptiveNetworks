@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProjectGuid>{4E0BB9B3-EFB1-4D63-99D8-A3B82D33E4FE}</ProjectGuid>
+    <ProjectGuid>{F564C047-6E27-4596-AD19-ACCB1442192A}</ProjectGuid>
     <TargetFramework>net35</TargetFramework>
     <Deterministic>false</Deterministic>
-    <AssemblyTitle>AdvancedRoads</AssemblyTitle>
-    <Product>AdvancedRoads</Product>
+    <AssemblyTitle>Indeces</AssemblyTitle>
+    <Product>Indeces</Product>
     <Copyright>Copyright ©  2020</Copyright>
     <Deterministic>false</Deterministic>
     <AssemblyVersion>1.0.1.*</AssemblyVersion>
@@ -24,41 +24,9 @@
     <SteamPath Condition="! Exists ('$(SteamPath)')">$(Registry:HKEY_CURRENT_USER\Software\Valve\Steam@SteamPath)</SteamPath>
     <CSPath>$(SteamPath)\steamapps\common\Cities_Skylines</CSPath>
     <MangedDLLPath Condition="!  Exists ('$(MangedDLLPath)')">$(CSPath)\Cities_Data\Managed</MangedDLLPath>
-    <AssemblyName>AdvancedRoads</AssemblyName>
-    <RootNamespace>AdvancedRoads</RootNamespace>
+    <AssemblyName>Indeces</AssemblyName>
+    <RootNamespace>Indeces</RootNamespace>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="KianCommons\KianCommons\Properties\**" />
-    <Compile Remove="KianCommons\libs\**" />
-    <EmbeddedResource Remove="KianCommons\KianCommons\Properties\**" />
-    <EmbeddedResource Remove="KianCommons\libs\**" />
-    <None Remove="KianCommons\KianCommons\Properties\**" />
-    <None Remove="KianCommons\libs\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="DecompiledSources\NetLane.cs" />
-    <Compile Remove="DecompiledSources\NetNode.cs" />
-    <Compile Remove="KianCommons\KianCommons\Patches\PrefixUtils.cs" />
-    <Compile Remove="KianCommons\KianCommons\Util\CSURUtil.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="KianCommons\.git" />
-    <None Remove="KianCommons\.gitattributes" />
-    <None Remove="KianCommons\.gitignore" />
-    <None Remove="Resources\cursor.png" />
-    <None Remove="Resources\cursor_crossing.png" />
-    <None Remove="Resources\cursor_edit.png" />
-    <None Remove="Resources\sprites.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\cursor.png" />
-    <EmbeddedResource Include="Resources\cursor_crossing.png" />
-    <EmbeddedResource Include="Resources\cursor_edit.png" />
-    <EmbeddedResource Include="Resources\sprites.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="CitiesHarmony.API" Version="1.0.4" />
-  </ItemGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
       <HintPath>$(MangedDLLPath)\Assembly-CSharp.dll</HintPath>
@@ -106,13 +74,6 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="System.Data.DataSetExtensions" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="DecompiledSources\NetLane.cs" />
-    <None Include="DecompiledSources\NetNode.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Util\" />
   </ItemGroup>
   <Target Name="DeployToModDirectory" AfterTargets="Build">
     <GetAssemblyIdentity AssemblyFiles="$(TargetPath)">

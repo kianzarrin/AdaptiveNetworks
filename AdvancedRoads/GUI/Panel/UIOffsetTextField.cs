@@ -63,7 +63,7 @@ namespace AdvancedRoads.GUI {
 
         public void Apply() {
             ushort nodeID = UIAdvancedRoadsPanel.Instance.NodeID;
-            NodeData data = UIAdvancedRoadsPanel.Instance.NodeData;
+            NetNodeExt data = UIAdvancedRoadsPanel.Instance.NodeData;
             if (data == null)
                 return;
             if (TryGetValue(out float value)) {
@@ -75,7 +75,7 @@ namespace AdvancedRoads.GUI {
         }
 
         public void Refresh() {
-            NodeData data = UIAdvancedRoadsPanel.Instance.NodeData;
+            NetNodeExt data = UIAdvancedRoadsPanel.Instance.NodeData;
             if (data == null) {
                 Disable();
                 return;

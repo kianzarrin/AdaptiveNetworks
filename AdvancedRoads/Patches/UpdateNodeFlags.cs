@@ -12,7 +12,7 @@ namespace AdvancedRoads {
             if (data.CountSegments() != 2)return;
             
             ushort nodeID = NetUtil.GetID(data);
-            NodeData nodeData = NodeManager.Instance.buffer[nodeID];
+            NetNodeExt nodeData = NetworkExtManager.Instance.buffer[nodeID];
 
             if (nodeData == null) return;
 

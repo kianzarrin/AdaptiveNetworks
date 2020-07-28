@@ -24,7 +24,7 @@ namespace AdvancedRoads.Patches.NetNodePatches {
         public static IEnumerable<CodeInstruction> Transpiler(ILGenerator il, IEnumerable<CodeInstruction> instructions) {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
-                CalculateMaterialCommons.PatchCheckFlags(codes, occurance: 2, Target);
+                CheckFlagsCommons.PatchCheckFlags(codes, occurance: 2, Target);
 
                 Log("successfully patched NetNode.RenderInstance");
                 return codes;

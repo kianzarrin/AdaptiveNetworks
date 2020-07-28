@@ -11,9 +11,9 @@ namespace AdvancedRoads.Patches {
             ushort nodeID = NetUtil.GetID(__instance);
             if (!NetUtil.IsNodeValid(nodeID)) return;
 
-            NodeManager.Instance.OnBeforeCalculateNode(nodeID);
+            NetworkExtManager.Instance.OnBeforeCalculateNode(nodeID);
 
-            NodeData nodeData = NodeManager.Instance.buffer[nodeID];
+            NetNodeExt nodeData = NetworkExtManager.Instance.buffer[nodeID];
 
             if (nodeData == null || nodeData.SegmentCount != 2)
                 return;

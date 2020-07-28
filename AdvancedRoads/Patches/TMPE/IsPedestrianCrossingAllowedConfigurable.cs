@@ -15,7 +15,7 @@ namespace AdvancedRoads.Patches.TMPE {
 
         public static bool Prefix(ushort segmentId, bool startNode, ref bool __result) {
             ushort nodeID = startNode ? segmentId.ToSegment().m_startNode : segmentId.ToSegment().m_endNode;
-            var data = NodeManager.Instance.buffer[nodeID];
+            var data = NetworkExtManager.Instance.buffer[nodeID];
             return PrefixUtils.HandleTernaryBool(
                 data?.IsPedestrianCrossingAllowedConfigurable(),
                 ref __result);

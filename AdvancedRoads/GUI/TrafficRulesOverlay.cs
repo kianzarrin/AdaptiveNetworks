@@ -206,7 +206,7 @@ namespace AdvancedRoads.GUI {
             bool isAnyHovered = false;
             stateUpdated = false;
 
-            NodeData nodeData = NodeManager.Instance.buffer[nodeId];
+            NetNodeExt nodeData = NetworkExtManager.Instance.buffer[nodeId];
             if (nodeData == null) {
                 return false;
             }
