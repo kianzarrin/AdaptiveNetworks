@@ -85,6 +85,11 @@
       <HintPath>$(MangedDLLPath)\ICities.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Indeces">
+      <HintPath>..\Indeces\bin\Indeces.dll</HintPath>
+      <Private>true</Private>
+      <SpecificVersion>false</SpecificVersion>
+    </Reference>
     <Reference Include="TMPE.API">
       <HintPath>..\libs\TMPE.API.dll</HintPath>
       <Private>false</Private>

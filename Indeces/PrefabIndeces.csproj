@@ -3,8 +3,8 @@
     <ProjectGuid>{F564C047-6E27-4596-AD19-ACCB1442192A}</ProjectGuid>
     <TargetFramework>net35</TargetFramework>
     <Deterministic>false</Deterministic>
-    <AssemblyTitle>Indeces</AssemblyTitle>
-    <Product>Indeces</Product>
+    <AssemblyTitle>PrefabIndeces</AssemblyTitle>
+    <Product>PrefabIndeces</Product>
     <Copyright>Copyright ©  2020</Copyright>
     <Deterministic>false</Deterministic>
     <AssemblyVersion>1.0.1.*</AssemblyVersion>
@@ -13,6 +13,8 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DefineConstants />
@@ -24,8 +26,8 @@
     <SteamPath Condition="! Exists ('$(SteamPath)')">$(Registry:HKEY_CURRENT_USER\Software\Valve\Steam@SteamPath)</SteamPath>
     <CSPath>$(SteamPath)\steamapps\common\Cities_Skylines</CSPath>
     <MangedDLLPath Condition="!  Exists ('$(MangedDLLPath)')">$(CSPath)\Cities_Data\Managed</MangedDLLPath>
-    <AssemblyName>Indeces</AssemblyName>
-    <RootNamespace>Indeces</RootNamespace>
+    <AssemblyName>PrefabIndeces</AssemblyName>
+    <RootNamespace>PrefabIndeces</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
@@ -80,16 +82,18 @@
       <Output TaskParameter="Assemblies" ItemName="Targets" />
     </GetAssemblyIdentity>
     <PropertyGroup>
-      <DeployDir>$(LOCALAPPDATA)\Colossal Order\Cities_Skylines\Addons\Mods\$(ProjectName)\</DeployDir>
+      <DeployDir>.\bin</DeployDir>
+      <UnityPath>$(MSBuildExtensionsPath64)\..\Unity\</UnityPath>
+      <UnityPath Condition="! Exists ('$(UnityPath)')">..\Unity\</UnityPath>
+      <MonoDir>$(UnityPath)Editor\Data\MonoBleedingEdge\</MonoDir>
     </PropertyGroup>
     <ItemGroup>
-      <AuxilaryFiles Include="$(TargetDir)**/*.*" Exclude="$(TargetPath);$(TargetDir)*.pdb" />
       <VersionNumber Include="@(Targets->'%(Version)')" />
     </ItemGroup>
-    <Copy SourceFiles="@(AuxilaryFiles)" DestinationFolder="$(DeployDir)" />
-    <!-- <Message Importance="high" Text="Deleting $(DeployDir)$(TargetFileName)" /> -->
-    <Delete Files="$(DeployDir)$(TargetFileName)" />
+    <Delete Files="$(TargetPath).mdb" />
+    <Exec Command="&quot;$(MonoDir)bin\mono.exe&quot; &quot;$(MonoDir)lib\mono\4.5\pdb2mdb.exe&quot; &quot;$(TargetPath)&quot;" />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(DeployDir)" />
-    <Message Importance="high" Text="AssemblyVersion= @(VersionNumber)" />
+    <Copy SourceFiles="$(TargetPath).mdb" DestinationFolder="$(DeployDir)" />
+    <Message Importance="high" Text="AssemblyVersion= @(Targets->'%(Version)')" />
   </Target>
 </Project>

@@ -16,7 +16,7 @@ namespace AdvancedRoads.Patches.TMPE {
 
         public static bool Prefix(ushort segmentId, bool startNode, ref bool __result) {
             ushort nodeID = startNode ? segmentId.ToSegment().m_startNode : segmentId.ToSegment().m_endNode;
-            var data = NetworkExtManager.Instance.buffer[nodeID];
+            var data = NetworkExtensionManager.Instance.buffer[nodeID];
             if (data == null) {
                 var flags = nodeID.ToNode().m_flags;
                 bool oneway = flags.IsFlagSet(NetNode.Flags.OneWayIn) & flags.IsFlagSet(NetNode.Flags.OneWayOut);

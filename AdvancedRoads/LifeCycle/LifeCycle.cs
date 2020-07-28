@@ -11,7 +11,7 @@ namespace AdvancedRoads.LifeCycle
             PluginUtil.Init();
             HarmonyExtension.InstallHarmony();
             AdvancedRoadsTool.Create();
-            NetworkExtManager.Instance.OnLoad();
+            NetworkExtensionManager.Instance.OnLoad();
         }
 
         public static void Release()

@@ -21,12 +21,12 @@ namespace AdvancedRoads.LifeCycle
         {
             byte[] data = serializableDataManager.LoadData(DATA_ID) ??
                 serializableDataManager.LoadData("RoadTransitionManager_V1.0");
-            NetworkExtManager.Deserialize(data);
+            NetworkExtensionManager.Deserialize(data);
         }
 
         public override void OnSaveData()
         {
-            byte[] data = NetworkExtManager.Serialize();
+            byte[] data = NetworkExtensionManager.Serialize();
             serializableDataManager.SaveData(DATA_ID, data);
         }
     }

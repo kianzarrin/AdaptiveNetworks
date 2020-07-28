@@ -4,12 +4,12 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Collections.Generic;
 
-namespace AdvancedRoads.Patches.NetNodePatches {
-    using Util;
+namespace AdvancedRoads.Patches.NetLanePatches {
+    using KianCommons;
 
-    [HarmonyPatch()]
+    //[HarmonyPatch()]
     public static class RenderInstance {
-        static void Log(string m) => Util.Log.Info("NetNode_RenderInstance Transpiler: " + m);
+        static void Log(string m) => KianCommons.Log.Info("NetLane_RenderInstance Transpiler: " + m);
 
         // RenderInstance(RenderManager.CameraInfo cameraInfo, ushort nodeID, NetInfo info, int iter, Flags flags, ref uint instanceIndex, ref RenderManager.Instance data)
         static MethodInfo Target => typeof(global::NetNode).GetMethod("RenderInstance", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -24,12 +24,13 @@ namespace AdvancedRoads.Patches.NetNodePatches {
         public static IEnumerable<CodeInstruction> Transpiler(ILGenerator il, IEnumerable<CodeInstruction> instructions) {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
-                CheckFlagsCommons.PatchCheckFlags(codes, occurance: 2, Target);
+                CheckNodeFlagsCommons.PatchCheckFlags(codes, occurance: 2, Target);
 
                 Log("successfully patched NetNode.RenderInstance");
                 return codes;
-            }catch(Exception e) {
-                Util.Log.Error(e.ToString());
+            }
+            catch (Exception e) {
+                KianCommons.Log.Error(e.ToString());
                 throw e;
             }
         }

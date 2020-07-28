@@ -17,6 +17,7 @@ backward:  angle:-90
 
 
 namespace AdvancedRoads {
+    using KianCommons;
     using System;
 
     public static class AdvanedFlagsExtensions {
@@ -97,7 +98,12 @@ namespace AdvancedRoads {
 
         public Flags m_flags;
 
-        NetSegmentEnd Start, End;
+        public NetSegmentEnd Start, End;
+
+        public NetSegmentEnd GetEnd(ushort nodeID) {
+            bool startNode = NetUtil.IsStartNode(segmentId: SegmentID, nodeId: nodeID);
+            return startNode ? Start : End;
+        }
     }
 
     [Serializable]

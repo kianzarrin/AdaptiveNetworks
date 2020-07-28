@@ -15,7 +15,7 @@ namespace AdvancedRoads.Patches.TMPE {
         }
 
         public static bool Prefix(ref bool __result, ushort nodeId, ref ToggleTrafficLightError reason) {
-            var nodeData = NetworkExtManager.Instance.buffer[nodeId];
+            var nodeData = NetworkExtensionManager.Instance.buffer[nodeId];
             return PrefixUtils.HandleTernaryBool(
                 nodeData?.CanHaveTrafficLights(out reason),
                 ref __result);
