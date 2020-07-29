@@ -7,9 +7,6 @@ using KianCommons;
 using KianCommons.Patches;
 
 namespace AdvancedRoads.Patches.Node {
-    using JetBrains.Annotations;
-    using Util;
-
     [HarmonyPatch()]
     public static class CalculateGroupData {
         static string logPrefix_ = "NetNode.CalculateGroupData Transpiler: ";

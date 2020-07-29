@@ -57,13 +57,16 @@ namespace AdvancedRoads {
             MergesWithInnerLane,
             MergesWithOuterLane,
         }
+
+        public Flags m_flags;
+
+        public float SpeedLimitKPH;
+        public float SpeedLimitMPH;
+        public bool KPH;
+
         public object OuterMarking;
         public object InnerMarking;
 
-        public class PropExt {
-            public float SpeedLimitMPH;
-            public float SpeedLimitKPH;
-        }
 
     }
     [Serializable]

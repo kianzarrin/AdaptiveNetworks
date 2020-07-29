@@ -1,0 +1,16 @@
+How node works
+Call stack:
+- NetManager.InializeNode() is called by NetManager.CreateNode(). Then it calls NetManager.UpdateNode() to mark it for update.
+- NetManager.UpdateNode merely marks node for update in simulation step.
+- CalculateNode() is only called in NetManager.SimulationStep()
+- NetNode.UpdateNode() is called in NetManager.SimulationStep() and before releasing node.
+- RoadBaseAI.UpdateNode() called by NetNode.UpdateNode()
+- NetManager.UpdateNodeFlags() is called in NetManager.SimulationStep() and after deserialization. // force call to fix node controller?
+
+Call order:
+- NetManager.SimulationStep()
+  - first calls NetNode.CalculatedNode() for all nodes.
+  - in a later loop it calls NetNode.UpdateNode()
+  - later in the same loop it calls NetNode.UpdateNodeFlags() before moving on to another node.
+
+

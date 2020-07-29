@@ -43,8 +43,8 @@ namespace AdvancedRoads.Patches.Segment {
              return false;
         }
 
-        static MethodInfo mCheckFlags2 => typeof(CheckSegmentFlagsCommons).GetMethod("CheckFlags")
-            ?? throw new Exception("mCheckFlags2 is null");
+        static MethodInfo mCheckFlagsExt => typeof(CheckSegmentFlagsCommons).GetMethod("CheckFlags")
+            ?? throw new Exception("mCheckFlagsExt is null");
         static MethodInfo mCheckFlags => typeof(NetInfo.Segment).GetMethod("CheckFlags")
             ?? throw new Exception("mCheckFlags is null");
 
@@ -63,7 +63,7 @@ namespace AdvancedRoads.Patches.Segment {
                     LDLoc_SegmentInfo,
                     LDArg_SegmenteID,
                     LDLoca_turnAround,
-                    new CodeInstruction(OpCodes.Call, mCheckFlags2),
+                    new CodeInstruction(OpCodes.Call, mCheckFlagsExt),
                     new CodeInstruction(OpCodes.And),
                 };
                 InsertInstructions(codes, newInstructions, index + 1);

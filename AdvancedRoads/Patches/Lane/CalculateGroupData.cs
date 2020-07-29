@@ -6,17 +6,15 @@ using System.Collections.Generic;
 using KianCommons;
 using KianCommons.Patches;
 
-// TODO patch RenderDestroyedInstance too.
 namespace AdvancedRoads.Patches.Lane {
-    using JetBrains.Annotations;
-    using Util;
-
     [HarmonyPatch()]
-    public static class RenderInstance {
-        static string logPrefix_ = "NetLane.RenderInstance Transpiler: ";
+    public static class CalculateGroupData {
+        static string logPrefix_ = "NetLane.CalculateGroupData Transpiler: ";
 
-        // public void RenderInstance(RenderManager.CameraInfo cameraInfo, ushort segmentID, uint laneID, NetInfo.Lane laneInfo, NetNode.Flags startFlags, NetNode.Flags endFlags, Color startColor, Color endColor, float startAngle, float endAngle, bool invert, int layerMask, Vector4 objectIndex1, Vector4 objectIndex2, ref RenderManager.Instance data, ref int propIndex)
-        static MethodInfo Target => typeof(global::NetLane).GetMethod("RenderInstance", BindingFlags.NonPublic | BindingFlags.Instance);
+        //public bool CalculateGroupData(uint laneID, NetInfo.Lane laneInfo, bool destroyed, NetNode.Flags startFlags,NetNode.Flags endFlags,
+        //bool invert, int layer, ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays, ref bool hasProps)
+        static MethodInfo Target => typeof(global::NetLane).
+            GetMethod("CalculateGroupData", BindingFlags.Public | BindingFlags.Instance);
 
         public static MethodBase TargetMethod() {
             var ret = Target;
@@ -28,9 +26,9 @@ namespace AdvancedRoads.Patches.Lane {
         public static IEnumerable<CodeInstruction> Transpiler(ILGenerator il, IEnumerable<CodeInstruction> instructions) {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
-                CheckPropFlagsCommons.PatchCheckFlags(codes, Target); 
+                CheckPropFlagsCommons.PatchCheckFlags(codes, Target);
 
-                Log.Info(logPrefix_ + "successfully patched NetLane.RenderInstance");
+                Log.Info(logPrefix_ + "successfully patched " + Target);
                 return codes;
             }
             catch (Exception e) {

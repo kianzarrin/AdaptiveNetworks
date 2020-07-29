@@ -23,8 +23,8 @@ namespace AdvancedRoads.Patches {
             return nodeInfoExt.CheckFlags(netNodeExt.m_flags, netSegmentEnd.m_flags);
         }
 
-        static MethodInfo mCheckFlags2 => typeof(CheckNodeFlagsCommons).GetMethod("CheckFlags")
-            ?? throw new Exception("mCheckFlags2 is null");
+        static MethodInfo mCheckFlagsExt => typeof(CheckNodeFlagsCommons).GetMethod("CheckFlags")
+            ?? throw new Exception("mCheckFlagsExt is null");
         static MethodInfo mCheckFlags => typeof(NetInfo.Node).GetMethod("CheckFlags")
             ?? throw new Exception("mCheckFlags is null");
         static MethodInfo mGetSegment => typeof(NetNode).GetMethod("GetSegment")
@@ -45,7 +45,7 @@ namespace AdvancedRoads.Patches {
                     LDLoc_NodeInfo,
                     LDArg_NodeID,
                     LDLoc_segmentID,
-                    new CodeInstruction(OpCodes.Call, mCheckFlags2),
+                    new CodeInstruction(OpCodes.Call, mCheckFlagsExt),
                     new CodeInstruction(OpCodes.And),
                 };
                 InsertInstructions(codes, newInstructions, index + 1);

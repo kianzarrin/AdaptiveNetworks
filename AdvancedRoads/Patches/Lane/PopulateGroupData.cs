@@ -6,15 +6,18 @@ using System.Collections.Generic;
 using KianCommons;
 using KianCommons.Patches;
 
-namespace AdvancedRoads.Patches.Node {
+namespace AdvancedRoads.Patches.Lane {
 
 
     [HarmonyPatch()]
     public static class PopulateGroupData {
-        static string logPrefix_ = "NetNode.PopulateGroupData Transpiler: ";
+        static string logPrefix_ = "NetLane.PopulateGroupData Transpiler: ";
 
-        //public void PopulateGroupData(ushort nodeID, int groupX, int groupZ, int layer, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData data, ref Vector3 min, ref Vector3 max, ref float maxRenderDistance, ref float maxInstanceDistance, ref bool requireSurfaceMaps)
-        static MethodInfo Target => typeof(global::NetNode).
+        //public void PopulateGroupData(ushort segmentID, uint laneID, NetInfo.Lane laneInfo, bool destroyed,
+        //NetNode.Flags startFlags, NetNode.Flags endFlags, float startAngle, float endAngle, bool invert, bool terrainHeight,
+        //int layer, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData data,
+        //ref Vector3 min, ref Vector3 max, ref float maxRenderDistance, ref float maxInstanceDistance, ref bool hasProps)
+        static MethodInfo Target => typeof(global::NetLane).
             GetMethod("PopulateGroupData", BindingFlags.Public | BindingFlags.Instance);
 
         public static MethodBase TargetMethod() {
@@ -27,11 +30,7 @@ namespace AdvancedRoads.Patches.Node {
         public static IEnumerable<CodeInstruction> Transpiler(ILGenerator il, IEnumerable<CodeInstruction> instructions) {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
-                //CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 1, counterGetSegment: 2); //DC
-                //CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 2, counterGetSegment: 1); //DC
-
-                // Unlike RenderInstance and CalculateGroupData, counterGetSegment for PopulateGroupData Junction is 2:
-                CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 3, counterGetSegment: 2 ); //Junction
+                CheckPropFlagsCommons.PatchCheckFlags(codes, Target);
 
                 Log.Info(logPrefix_ + "successfully patched " + Target);
                 return codes;

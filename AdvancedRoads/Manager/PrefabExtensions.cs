@@ -89,27 +89,27 @@ namespace AdvancedRoads.Manager {
         }
 
         [Serializable]
-        public class LaneInfoExt {
+        public class Lane {
             public LaneInfoFlags LaneFlags;
 
             [NonSerialized]
-            public PropInfoExt[] PropInfoExts;
+            public LaneProp[] PropInfoExts;
 
-            public LaneInfoExt(NetInfo.Lane template) {
-                PropInfoExts = new PropInfoExt[template.m_laneProps.m_props.Length];
+            public Lane(NetInfo.Lane template) {
+                PropInfoExts = new LaneProp[template.m_laneProps.m_props.Length];
                 for (int i = 0; i < PropInfoExts.Length; ++i) {
-                    PropInfoExts[i] = new PropInfoExt(template.m_laneProps.m_props[i]);
+                    PropInfoExts[i] = new LaneProp(template.m_laneProps.m_props[i]);
                 }
             }
 
-            public static LaneInfoExt Get(NetInfoExtension.Lane IndexExt) {
+            public static Lane Get(NetInfoExtension.Lane IndexExt) {
                 if (IndexExt == null) return null;
                 return Buffer[IndexExt.PrefabIndex].LaneInfoExts[IndexExt.Index];
             }
         }
 
         [Serializable]
-        public class PropInfoExt {
+        public class LaneProp {
             public LaneInfoFlags LaneFlags;
             public SegmentInfoFlags SegmentFlags;
             public SegmentEndInfoFlags SegmentStartFlags, SegmentEndFlags;
@@ -125,9 +125,9 @@ namespace AdvancedRoads.Manager {
                 SegmentEndFlags.CheckFlags(segmentEndFlags) &&
                 StartNodeFlags.CheckFlags(startNodeFlags) &&
                 EndNodeFlags.CheckFlags(endNodeFlags);
-            public PropInfoExt(NetLaneProps.Prop template) { }
+            public LaneProp(NetLaneProps.Prop template) { }
 
-            public static PropInfoExt Get(NetInfoExtension.Lane.Prop IndexExt) {
+            public static LaneProp Get(NetInfoExtension.Lane.Prop IndexExt) {
                 if (IndexExt == null) return null;
                 return Buffer[IndexExt.PrefabIndex]
                 .LaneInfoExts[IndexExt.LaneIndex]
@@ -141,7 +141,7 @@ namespace AdvancedRoads.Manager {
 
         public Segment[] SegmentInfoExts;
 
-        public LaneInfoExt[] LaneInfoExts;
+        public Lane[] LaneInfoExts;
 
         public NetInfoExt(NetInfo template) {
             Version = HelpersExtensions.VersionOf(this);
@@ -155,9 +155,9 @@ namespace AdvancedRoads.Manager {
                 NodeInfoExts[i] = new Node(template.m_nodes[i]);
             }
 
-            LaneInfoExts = new LaneInfoExt[template.m_lanes.Length];
+            LaneInfoExts = new Lane[template.m_lanes.Length];
             for(int i=0;i<LaneInfoExts.Length;++i) {
-                LaneInfoExts[i] = new LaneInfoExt(template.m_lanes[i]);
+                LaneInfoExts[i] = new Lane(template.m_lanes[i]);
             }
         }
 
