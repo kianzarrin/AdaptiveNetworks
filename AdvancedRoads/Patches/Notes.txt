@@ -4,13 +4,25 @@ Call stack:
 - NetManager.UpdateNode merely marks node for update in simulation step.
 - CalculateNode() is only called in NetManager.SimulationStep()
 - NetNode.UpdateNode() is called in NetManager.SimulationStep() and before releasing node.
-- RoadBaseAI.UpdateNode() called by NetNode.UpdateNode()
+- NetAI.UpdateNode() called by NetNode.UpdateNode()
 - NetManager.UpdateNodeFlags() is called in NetManager.SimulationStep() and after deserialization. // force call to fix node controller?
+- NetAI.UpdateNodeFlags() called by NetNode.UpdateNodeFlags() and after when UI events (stop/TL).
+- NetSegment.UpdateLanes() is called in NetManager.SimulationStep(), after deserialization, and after when UI events (stop/TL).
+- NetAI.UpdateLanes() called by NetSegment.UpdateLanes()
 
-Call order:
-- NetManager.SimulationStep()
-  - first calls NetNode.CalculatedNode() for all nodes.
-  - in a later loop it calls NetNode.UpdateNode()
-  - later in the same loop it calls NetNode.UpdateNodeFlags() before moving on to another node.
+Call order in NetManager.SimulationStep():
+- for each marked Node:
+    - NetNode.CalculateNode()
+- for each marked segment
+    - NetSegment.CaluclateSegment() -> UpdateStart/EndSegments()
+- for each marked segment
+    - NetSegment.UpdateLanes() -> NetAI.UpdateLanes() *
+- for each marked Node:
+    - NetNode.UpdateNode() -> NetAI.UpdateNode()
+    - NetManager.UpdateNodeFlags() -> NetAI.UpdateNodeFlags() *
+- for each marked Segment:
+    - NetSegment.UpdateSegment() -> NetAI.UpdateSegment()
+    - NetManager.UpdateSegmentFlags() -> NetAI.UpdateSegmentFlags() *
+
 
 
