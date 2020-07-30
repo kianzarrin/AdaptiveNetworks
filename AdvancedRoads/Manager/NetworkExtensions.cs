@@ -88,7 +88,7 @@ namespace AdvancedRoads {
 
         static ParkingRestrictionsManager PMan => ParkingRestrictionsManager.Instance;
         static VehicleRestrictionsManager VRMan => VehicleRestrictionsManager.Instance;
-        public void UpdateLanes() {
+        public void UpdateLane() {
             LaneData.LaneInfo = LaneData.Segment.Info.m_lanes[LaneData.LaneIndex];
 
             SetBit(Flags.ParkingAllowed, PMan.IsParkingAllowed(LaneData.SegmentID, LaneData.LaneInfo.m_finalDirection));
@@ -149,11 +149,15 @@ namespace AdvancedRoads {
 
         public Flags m_flags;
 
-        public NetSegmentEnd Start, End;
+        public ref NetSegmentEnd Start => ref NetworkExtensionManager.Instance.GetSegmentEnd(SegmentID, true);
+        public ref NetSegmentEnd End => ref NetworkExtensionManager.Instance.GetSegmentEnd(SegmentID, false);
 
-        public NetSegmentEnd GetEnd(ushort nodeID) {
+        public ref NetSegmentEnd GetEnd(ushort nodeID) {
             bool startNode = NetUtil.IsStartNode(segmentId: SegmentID, nodeId: nodeID);
-            return startNode ? Start : End;
+            if (startNode)
+                return ref Start;
+            else
+                return ref End;
         }
     }
 

@@ -17,7 +17,7 @@ namespace AdvancedRoads.Patches.Segment {
             var segmentInfoExt = NetInfoExt.Segment.Get(segmentInfo as NetInfoExtension.Segment);
             if (segmentInfoExt == null) return true;
 
-            NetSegmentExt netSegmentExt = NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
+            ref NetSegmentExt netSegmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
 
             {
                 turnAround = false;

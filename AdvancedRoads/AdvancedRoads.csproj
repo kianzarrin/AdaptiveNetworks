@@ -40,6 +40,9 @@
     <Compile Remove="DecompiledSources\NetNode.cs" />
     <Compile Remove="KianCommons\KianCommons\Patches\PrefixUtils.cs" />
     <Compile Remove="KianCommons\KianCommons\Util\CSURUtil.cs" />
+    <Compile Remove="Patches\Lane\CalculateLane.cs" />
+    <Compile Remove="Patches\Node\CalculateNode.cs" />
+    <Compile Remove="Patches\Segment\CalculateSegment.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="KianCommons\.git" />

@@ -28,8 +28,17 @@ namespace AdvancedRoads {
         #endregion LifeCycle
 
         public NetNodeExt[] NodeBuffer = new NetNodeExt[NetManager.MAX_NODE_COUNT];
-        public NetSegmentExt[] SegmentBuffer = new NetSegmentExt[NetManager.MAX_NODE_COUNT];
-        public NetLaneExt[] LaneBuffer = new NetLaneExt[NetManager.MAX_NODE_COUNT];
+        public NetSegmentExt[] SegmentBuffer = new NetSegmentExt[NetManager.MAX_SEGMENT_COUNT];
+        public NetLaneExt[] LaneBuffer = new NetLaneExt[NetManager.MAX_LANE_COUNT];
+        public NetSegmentEnd[] SegmentEndBuffer = new NetSegmentEnd[NetManager.MAX_SEGMENT_COUNT*2];
+        public ref NetSegmentEnd GetSegmentEnd(ushort segmentID, bool startNode) {
+            if (startNode)
+                return ref SegmentEndBuffer[segmentID * 2];
+            else
+                return ref SegmentEndBuffer[segmentID * 2 + 1];
+        }
+
+
 
         public NetSegmentEnd GetSegmentEnd(ushort segmentId, ushort nodeId) {
             return SegmentBuffer[segmentId].GetSegmetnEnd(nodeId);
