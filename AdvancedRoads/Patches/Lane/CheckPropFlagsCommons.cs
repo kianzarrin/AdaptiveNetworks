@@ -110,7 +110,7 @@ namespace AdvancedRoads.Patches.Lane {
         // returns the position of First DrawMesh after index.
         public static void PatchCheckFlags(List<CodeInstruction> codes, MethodInfo method) {
             // callvirt instance bool NetInfo/Node::CheckFlags(Flags)
-            var index = SearchInstruction(codes, new CodeInstruction(OpCodes.Callvirt, mCheckFlags), 0, counter: occurance);
+            var index = SearchInstruction(codes, new CodeInstruction(OpCodes.Callvirt, mCheckFlags), 0, counter: 1);
             HelpersExtensions.Assert(index != 0, "index!=0");
 
             CodeInstruction LDLoc_prop = new CodeInstruction(codes[index - 5]); // TODO search 

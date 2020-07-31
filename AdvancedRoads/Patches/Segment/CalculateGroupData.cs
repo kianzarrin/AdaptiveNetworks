@@ -8,7 +8,7 @@ using KianCommons.Patches;
 
 namespace AdvancedRoads.Patches.Segment {
     using JetBrains.Annotations;
-    using Util;
+    
 
     [HarmonyPatch()]
     public static class CalculateGroupData {

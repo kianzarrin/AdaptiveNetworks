@@ -2,7 +2,7 @@ using ColossalFramework;
 using HarmonyLib;
 
 namespace AdvancedRoads.Patches.Segment {
-    using Util;
+    
     //[HarmonyPatch(typeof(NetNode), nameof(NetNode.CalculateNode))]
     class CalculateSegment {
         static void Postfix(ref NetNode __instance) {

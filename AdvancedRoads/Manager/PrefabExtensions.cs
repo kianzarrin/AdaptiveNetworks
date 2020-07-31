@@ -162,7 +162,7 @@ namespace AdvancedRoads.Manager {
         }
 
         public static NetInfoExt[] Buffer;
-        public static NetInfoExt Edited;
+        public static NetInfoExt EditInfo;
 
         public static void Init() => Buffer = new NetInfoExt[PrefabCollection<NetInfo>.PrefabCount()];
     }

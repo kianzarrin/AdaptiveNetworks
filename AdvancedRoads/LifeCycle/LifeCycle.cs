@@ -1,24 +1,23 @@
 namespace AdvancedRoads.LifeCycle
 {
-    using AdvancedRoads.Tool;
-    using AdvancedRoads.Util;
+    using KianCommons;
+    using AdvancedRoads.UI.MainPanel;
 
     public static class LifeCycle
     {
         public static void Load()
         {
             Log.Info("LifeCycle.Load() called");
-            PluginUtil.Init();
             HarmonyExtension.InstallHarmony();
-            AdvancedRoadsTool.Create();
             NetworkExtensionManager.Instance.OnLoad();
+            MainPanel.Create();
         }
 
         public static void Release()
         {
             Log.Info("LifeCycle.Release() called");
+            MainPanel.Release();
             HarmonyExtension.UninstallHarmony();
-            AdvancedRoadsTool.Remove();
         }
     }
 }

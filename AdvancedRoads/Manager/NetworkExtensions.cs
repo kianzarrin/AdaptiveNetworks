@@ -18,7 +18,6 @@ backward:  angle:-90
 namespace AdvancedRoads {
     using ColossalFramework;
     using CSUtil.Commons;
-    using KianCommons;
     using System;
     using System.ComponentModel;
     using TrafficManager;
@@ -26,6 +25,7 @@ namespace AdvancedRoads {
     using TrafficManager.API.Traffic.Data;
     using TrafficManager.API.Traffic.Enums;
     using TrafficManager.Manager.Impl;
+    using KianCommons;
 
     public static class AdvanedFlagsExtensions {
         public static bool CheckFlags(this NetLaneExt.Flags value, NetLaneExt.Flags required, NetLaneExt.Flags forbidden) =>
@@ -64,12 +64,6 @@ namespace AdvancedRoads {
         }
 
         public Flags m_flags;
-        public void SetBit(Flags bit, bool set) {
-            if (set)
-                m_flags |= bit;
-            else
-                m_flags &= ~bit;
-        }
 
         public float SpeedLimitKPH;
         public float SpeedLimitMPH;
@@ -91,7 +85,7 @@ namespace AdvancedRoads {
         public void UpdateLane() {
             LaneData.LaneInfo = LaneData.Segment.Info.m_lanes[LaneData.LaneIndex];
 
-            SetBit(Flags.ParkingAllowed, PMan.IsParkingAllowed(LaneData.SegmentID, LaneData.LaneInfo.m_finalDirection));
+            m_flags.SetFlags(Flags.ParkingAllowed, PMan.IsParkingAllowed(LaneData.SegmentID, LaneData.LaneInfo.m_finalDirection));
 
             var mask = VRMan.GetDefaultAllowedVehicleTypes(
                 segmentId:LaneData.SegmentID,
@@ -101,14 +95,13 @@ namespace AdvancedRoads {
                 busLaneMode: VehicleRestrictionsMode.Configured);
 
 
-            SetBit(Flags.PassengerCar, VRMan.IsPassengerCarAllowed(mask));
-            SetBit(Flags.SOS, VRMan.IsEmergencyAllowed(mask));
-            SetBit(Flags.Bus, VRMan.IsBusAllowed(mask));
-            SetBit(Flags.CargoTruck, VRMan.IsCargoTruckAllowed(mask));
-            SetBit(Flags.Taxi, VRMan.IsTaxiAllowed(mask));
-            SetBit(Flags.CargoTrain, VRMan.IsCargoTrainAllowed(mask));
-            SetBit(Flags.PassengerTrain, VRMan.IsPassengerTrainAllowed(mask));
-
+            m_flags.SetFlags(Flags.PassengerCar, VRMan.IsPassengerCarAllowed(mask));
+            m_flags.SetFlags(Flags.SOS, VRMan.IsEmergencyAllowed(mask));
+            m_flags.SetFlags(Flags.Bus, VRMan.IsBusAllowed(mask));
+            m_flags.SetFlags(Flags.CargoTruck, VRMan.IsCargoTruckAllowed(mask));
+            m_flags.SetFlags(Flags.Taxi, VRMan.IsTaxiAllowed(mask));
+            m_flags.SetFlags(Flags.CargoTrain, VRMan.IsCargoTrainAllowed(mask));
+            m_flags.SetFlags(Flags.PassengerTrain, VRMan.IsPassengerTrainAllowed(mask));
             //TODO lane connections // speed limits.
 
         }
@@ -193,13 +186,6 @@ namespace AdvancedRoads {
 
         public Flags m_flags;
 
-        public void SetBit(Flags bit, bool set) {
-            if (set)
-                m_flags |= bit;
-            else
-                m_flags &= ~bit;
-        }
-
         public ushort SegmentID, NodeID;
         public bool StartNode;
 
@@ -215,30 +201,30 @@ namespace AdvancedRoads {
 
         public void UpdateFlags() {
             PriorityType p = PMan.GetPrioritySign(SegmentID, StartNode);
-            SetBit(Flags.Yield, p == PriorityType.Yield);
-            SetBit(Flags.Stop, p == PriorityType.Stop);
-            SetBit(Flags.Main, p == PriorityType.Main);
+            m_flags.SetFlags(Flags.Yield, p == PriorityType.Yield);
+            m_flags.SetFlags(Flags.Stop, p == PriorityType.Stop);
+            m_flags.SetFlags(Flags.Main, p == PriorityType.Main);
 
-            SetBit(Flags.KeepClear, !JRMan.IsEnteringBlockedJunctionAllowed(SegmentID, StartNode));
-            SetBit(Flags.ZebraCrossing, JRMan.IsPedestrianCrossingAllowed(SegmentID, StartNode));
-            SetBit(Flags.NearTurnAtRed, JRMan.IsNearTurnOnRedAllowed(SegmentID, StartNode));
-            SetBit(Flags.FartTurnAtRed, JRMan.IsFarTurnOnRedAllowed(SegmentID, StartNode));
-            SetBit(Flags.Uturn, JRMan.IsUturnAllowed(SegmentID, StartNode));
-            SetBit(Flags.LaneChangingGoingStraight, JRMan.IsLaneChangingAllowedWhenGoingStraight(SegmentID, StartNode));
+            m_flags.SetFlags(Flags.KeepClear, !JRMan.IsEnteringBlockedJunctionAllowed(SegmentID, StartNode));
+            m_flags.SetFlags(Flags.ZebraCrossing, JRMan.IsPedestrianCrossingAllowed(SegmentID, StartNode));
+            m_flags.SetFlags(Flags.NearTurnAtRed, JRMan.IsNearTurnOnRedAllowed(SegmentID, StartNode));
+            m_flags.SetFlags(Flags.FartTurnAtRed, JRMan.IsFarTurnOnRedAllowed(SegmentID, StartNode));
+            m_flags.SetFlags(Flags.Uturn, JRMan.IsUturnAllowed(SegmentID, StartNode));
+            m_flags.SetFlags(Flags.LaneChangingGoingStraight, JRMan.IsLaneChangingAllowedWhenGoingStraight(SegmentID, StartNode));
         }
 
         public void UpdateDirections() { 
             CheckSegmentsInEachDirection(
                 segmentId: SegmentID, nodeId: NodeID,
                 right: out bool right, forward: out bool forward, left: out bool left);
-            SetBit(Flags.HasRightSegment, right);
-            SetBit(Flags.HasLeftSegment, left);
-            SetBit(Flags.HasForwardSegment, forward);
+            m_flags.SetFlags(Flags.HasRightSegment, right);
+            m_flags.SetFlags(Flags.HasLeftSegment, left);
+            m_flags.SetFlags(Flags.HasForwardSegment, forward);
 
             LaneArrows arrows = AllArrows(SegmentID, StartNode);
-            SetBit(Flags.CanGoForward, arrows.IsFlagSet(LaneArrows.Forward));
-            SetBit(Flags.CanTurnRight, arrows.IsFlagSet(LaneArrows.Right));
-            SetBit(Flags.CanTurnLeft, arrows.IsFlagSet(LaneArrows.Left));
+            m_flags.SetFlags(Flags.CanGoForward, arrows.IsFlagSet(LaneArrows.Forward));
+            m_flags.SetFlags(Flags.CanTurnRight, arrows.IsFlagSet(LaneArrows.Right));
+            m_flags.SetFlags(Flags.CanTurnLeft, arrows.IsFlagSet(LaneArrows.Left));
         }
 
         private static LaneArrows AllArrows(ushort segmentId, bool startNode) {

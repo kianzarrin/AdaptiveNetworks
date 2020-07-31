@@ -4,13 +4,14 @@ namespace AdvancedRoads.LifeCycle
     using JetBrains.Annotations;
     using ICities;
     using CitiesHarmony.API;
-    using AdvancedRoads.Util;
+    using KianCommons;
+
     public class AdvancedRoadsMod : IUserMod
     {
         public static Version ModVersion => typeof(AdvancedRoadsMod).Assembly.GetName().Version;
         public static string VersionString => ModVersion.ToString(2);
-        public string Name => "Node controller " + VersionString;
-        public string Description => "control Road/junction transitions";
+        public string Name => "Advanced Roads" + VersionString;
+        public string Description => "fundation for roads with extra flexibality and variablity.";
 
         [UsedImplicitly]
         public void OnEnabled()
@@ -28,7 +29,7 @@ namespace AdvancedRoads.LifeCycle
 
         [UsedImplicitly]
         public void OnSettingsUI(UIHelperBase helper) {
-            GUI.Settings.OnSettingsUI(helper);
+            UI.ModSettings.OnSettingsUI(helper);
         }
 
     }

@@ -33,7 +33,7 @@ namespace AdvancedRoads.LifeCycle {
     }
 
     public class AssetDataExtension : AssetDataExtensionBase {
-        public const string ID = "AdvancedRoadEditor_Records";
+        public const string ID_NetInfo = "AdvancedRoadEditor_NetInfoExt";
 
         public static AssetDataExtension Instance;
         public override void OnCreated(IAssetData assetData) {
@@ -44,30 +44,37 @@ namespace AdvancedRoads.LifeCycle {
             Instance = null;
         }
 
+        // TODO serialize BuildgInfo
+        // TODO clone custom flags when netinfo is cloned by asset editor. 
         public override void OnAssetLoaded(string name, object asset, Dictionary<string, byte[]> userData) {
             Log.Info($"AssetDataExtension.OnAssetLoaded({name}, {asset}, userData) called");
             if (asset is NetInfo prefab) {
                 Log.Debug("AssetDataExtension.OnAssetLoaded():  prefab is " + prefab);
-                if (userData.TryGetValue(ID, out byte[] data)) {
-                    Log.Info("AssetDataExtension.OnAssetLoaded(): extracted data for " + ID);
+                if (userData.TryGetValue(ID_NetInfo, out byte[] data)) {
+                    Log.Info("AssetDataExtension.OnAssetLoaded(): extracted data for " + ID_NetInfo);
                     var assetData = SerializationUtil.Deserialize(data) as NetInfoExt;
                     AssertNotNull(assetData, "assetData");
                     NetInfoExt.Buffer[prefab.GetIndex()] = assetData;
+                    if(prefab==ToolsModifierControl.toolController.m_editPrefabInfo) {
+                        NetInfoExt.EditInfo = assetData;
+                    }
                     Log.Debug("AssetDataExtension.OnAssetLoaded(): Asset Data=" + assetData);
                 }
             }
+            else if(asset is BuildingInfo buildingInfo) {
+                // load stored custom road flags for intersections or buildings.
+            }
         }
 
-        // asset should be the same as ToolsModifierControl.toolController.m_editPrefabInfo
         public override void OnAssetSaved(string name, object asset, out Dictionary<string, byte[]> userData) {
             Log.Info($"AssetDataExtension.OnAssetSaved({name}, {asset}, userData) called");
             userData = null;
             if (asset is NetInfo prefab) {
                 Log.Info("AssetDataExtension.OnAssetSaved():  prefab is " + prefab);
-                var assetData = NetInfoExt.Edited;
+                var assetData = NetInfoExt.EditInfo;
                 Log.Debug("AssetDataExtension.OnAssetSaved(): assetData=" + assetData);
                 userData = new Dictionary<string, byte[]>();
-                userData.Add(ID, SerializationUtil.Serialize(assetData));
+                userData.Add(ID_NetInfo, SerializationUtil.Serialize(assetData));
             }
         }
     }

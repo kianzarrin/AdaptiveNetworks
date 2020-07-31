@@ -3,7 +3,7 @@ using HarmonyLib;
 using KianCommons;
 
 namespace AdvancedRoads.Patches.Segment {
-    using Util;
+    
     [HarmonyPatch(typeof(NetAI), nameof(NetAI.UpdateSegmentFlags))]
     class NetAI_UpdateSegmentFlags {
         static void Postfix(ushort segmentID, ref NetSegment data) {

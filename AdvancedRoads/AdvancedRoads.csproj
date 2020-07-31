@@ -28,36 +28,31 @@
     <RootNamespace>AdvancedRoads</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="KianCommons\KianCommons\obj\**" />
     <Compile Remove="KianCommons\KianCommons\Properties\**" />
     <Compile Remove="KianCommons\libs\**" />
+    <EmbeddedResource Remove="KianCommons\KianCommons\obj\**" />
     <EmbeddedResource Remove="KianCommons\KianCommons\Properties\**" />
     <EmbeddedResource Remove="KianCommons\libs\**" />
+    <None Remove="KianCommons\KianCommons\obj\**" />
     <None Remove="KianCommons\KianCommons\Properties\**" />
     <None Remove="KianCommons\libs\**" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="DecompiledSources\NetLane.cs" />
     <Compile Remove="DecompiledSources\NetNode.cs" />
+    <Compile Remove="DecompiledSources\NetSegment.cs" />
     <Compile Remove="KianCommons\KianCommons\Patches\PrefixUtils.cs" />
     <Compile Remove="KianCommons\KianCommons\Util\CSURUtil.cs" />
     <Compile Remove="Patches\Lane\CalculateLane.cs" />
     <Compile Remove="Patches\Node\CalculateNode.cs" />
     <Compile Remove="Patches\Segment\CalculateSegment.cs" />
+    <Compile Remove="UI\MainPanel\InterAvtiveButton.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="KianCommons\.git" />
     <None Remove="KianCommons\.gitattributes" />
     <None Remove="KianCommons\.gitignore" />
-    <None Remove="Resources\cursor.png" />
-    <None Remove="Resources\cursor_crossing.png" />
-    <None Remove="Resources\cursor_edit.png" />
-    <None Remove="Resources\sprites.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\cursor.png" />
-    <EmbeddedResource Include="Resources\cursor_crossing.png" />
-    <EmbeddedResource Include="Resources\cursor_edit.png" />
-    <EmbeddedResource Include="Resources\sprites.png" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CitiesHarmony.API" Version="1.0.4" />
@@ -118,6 +113,7 @@
   <ItemGroup>
     <None Include="DecompiledSources\NetLane.cs" />
     <None Include="DecompiledSources\NetNode.cs" />
+    <None Include="DecompiledSources\NetSegment.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Util\" />
