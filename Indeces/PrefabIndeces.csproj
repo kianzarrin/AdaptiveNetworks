@@ -33,35 +33,15 @@
     <Reference Include="Assembly-CSharp">
       <HintPath>$(MangedDLLPath)\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </Reference>
     <Reference Include="ColossalManaged">
       <HintPath>$(MangedDLLPath)\ColossalManaged.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="CSURToolBox">
-      <HintPath>..\libs\CSURToolBox.dll</HintPath>
-      <Private>false</Private>
-      <SpecificVersion>false</SpecificVersion>
-    </Reference>
-    <Reference Include="CSUtil.Commons">
-      <HintPath>..\libs\CSUtil.Commons.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="HideCrosswalks">
-      <HintPath>..\libs\HideCrosswalks.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
     <Reference Include="ICities">
       <HintPath>$(MangedDLLPath)\ICities.dll</HintPath>
       <Private>False</Private>
-    </Reference>
-    <Reference Include="TMPE.API">
-      <HintPath>..\libs\TMPE.API.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="TrafficManager">
-      <HintPath>..\libs\TrafficManager.dll</HintPath>
-      <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>$(MangedDLLPath)\UnityEngine.dll</HintPath>

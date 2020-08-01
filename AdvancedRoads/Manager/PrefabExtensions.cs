@@ -32,8 +32,8 @@ namespace AdvancedRoads.Manager {
         [Serializable]
         public class Segment {
             public class FlagsT {
-                SegmentInfoFlags Flags;
-                SegmentEndInfoFlags Start, End;
+                public SegmentInfoFlags Flags;
+                public SegmentEndInfoFlags Start, End;
                 public bool CheckFlags(
                     NetSegmentExt.Flags flags,
                     NetSegmentEnd.Flags startFlags,

@@ -33,10 +33,11 @@ namespace AdvancedRoads.Patches.Lane {
         }
 
 
-        public static StateT InitState(NetLaneProps.Prop prop, NetInfo.Lane laneInfo, uint laneID, ushort segmentID) {
+        public static StateT InitState(NetLaneProps.Prop prop, NetInfo.Lane laneInfo, uint laneID) {
             var propInfoExt = NetInfoExt.LaneProp.Get(prop as NetInfoExtension.Lane.Prop);
             if (propInfoExt == null)
                 return default;
+            ushort segmentID = laneID.ToLane().m_segment;
             bool segmentInverted = segmentID.ToSegment().m_flags.IsFlagSet(NetSegment.Flags.Invert);
             bool backward = (laneInfo.m_finalDirection & NetInfo.Direction.Both) == NetInfo.Direction.Backward ||
                 (laneInfo.m_finalDirection & NetInfo.Direction.AvoidBoth) == NetInfo.Direction.AvoidForward;
@@ -60,9 +61,9 @@ namespace AdvancedRoads.Patches.Lane {
             };
         }
 
-        public static bool CheckFlags2(NetLaneProps.Prop prop, NetInfo.Lane laneInfo, uint laneID, ushort segmentID, ref StateT state) {
+        public static bool CheckFlags2(NetLaneProps.Prop prop, NetInfo.Lane laneInfo, uint laneID, ref StateT state) {
             if (state == null)
-                state = InitState(prop, laneInfo, laneID, segmentID);
+                state = InitState(prop, laneInfo, laneID);
             if (state.propInfoExt == null)
                 return true;
 
@@ -73,13 +74,14 @@ namespace AdvancedRoads.Patches.Lane {
         }
 
         // TODO use the other checkflags.
-        public static bool CheckFlags(NetLaneProps.Prop prop, NetInfo.Lane laneInfo, uint laneID, ushort segmentID) {
+        public static bool CheckFlags(NetLaneProps.Prop prop, NetInfo.Lane laneInfo, uint laneID) {
             var propInfoExt = NetInfoExt.LaneProp.Get(prop as NetInfoExtension.Lane.Prop);
             if (propInfoExt == null) return true;
             //var laneInfoExt = NetInfoExt.Lane.Get(laneInfo as NetInfoExtension.Lane);
             //if (laneInfoExt == null) return true;
 
             // TODO move prepration to prefix ... how can I read from state?
+            ushort segmentID = laneID.ToLane().m_segment;
             bool segmentInverted = segmentID.ToSegment().m_flags.IsFlagSet(NetSegment.Flags.Invert);
             bool backward = (laneInfo.m_finalDirection & NetInfo.Direction.Both) == NetInfo.Direction.Backward ||
                 (laneInfo.m_finalDirection & NetInfo.Direction.AvoidBoth) == NetInfo.Direction.AvoidForward;
@@ -101,34 +103,51 @@ namespace AdvancedRoads.Patches.Lane {
                 netSegmentStart.m_flags, netSegmentEnd.m_flags);
         }
 
-        static MethodInfo mCheckFlagsExt => typeof(CheckPropFlagsCommons).GetMethod("CheckFlags")
+        static MethodInfo mCheckFlagsExt =>
+            typeof(CheckPropFlagsCommons)
+            .GetMethod("CheckFlags")
             ?? throw new Exception("mCheckFlagsExt is null");
-        static MethodInfo mCheckFlags => typeof(NetInfo.Node).GetMethod("CheckFlags")
-            ?? throw new Exception("mCheckFlags is null");
 
+        static MethodInfo mCheckFlags =>
+            typeof(NetLaneProps.Prop)
+            .GetMethod(nameof(NetLaneProps.Prop.CheckFlags))
+            ?? throw new Exception("mCheckFlags is null");
 
         // returns the position of First DrawMesh after index.
         public static void PatchCheckFlags(List<CodeInstruction> codes, MethodInfo method) {
-            // callvirt instance bool NetInfo/Node::CheckFlags(Flags)
             var index = SearchInstruction(codes, new CodeInstruction(OpCodes.Callvirt, mCheckFlags), 0, counter: 1);
             HelpersExtensions.Assert(index != 0, "index!=0");
 
-            CodeInstruction LDLoc_prop = new CodeInstruction(codes[index - 5]); // TODO search 
+            CodeInstruction LDLoc_prop = Build_LDLoc_PropInfo_FromSTLoc(codes, index);
             CodeInstruction LDArg_laneInfo = GetLDArg(method, "laneInfo");
-            CodeInstruction LDArg_segmentID = GetLDArg(method, "segmentID");
             CodeInstruction LDArg_laneID = GetLDArg(method, "laneID");
 
             { // insert our checkflags after base checkflags
                 var newInstructions = new[]{
                     LDLoc_prop,
                     LDArg_laneInfo,
-                    LDArg_segmentID,
                     LDArg_laneID,
                     new CodeInstruction(OpCodes.Call, mCheckFlagsExt),
                     new CodeInstruction(OpCodes.And),
                 };
                 InsertInstructions(codes, newInstructions, index + 1);
             } // end block
+        }
+
+        static FieldInfo fProps =>
+            typeof(NetLaneProps).
+            GetField(nameof(NetLaneProps.m_props))
+            ?? throw new Exception("fProps is null");
+
+        public static CodeInstruction Build_LDLoc_PropInfo_FromSTLoc(List<CodeInstruction> codes, int index, int counter = 1, int dir = -1) {
+            /* IL_008f: ldloc.0      // laneProps
+             * IL_0090: ldfld        class NetLaneProps/Prop[] NetLaneProps::m_props <- find this
+             * IL_0095: ldloc.s      index1
+             * IL_0097: ldelem.ref
+             * IL_0098: stloc.s      prop  <- seek to this -- build ldloc from this */
+            index = SearchInstruction(codes, new CodeInstruction(OpCodes.Ldfld, fProps), index, counter: counter, dir: dir);
+            index = SearchGeneric(codes, i => codes[i].IsStloc(), index, counter: 1, dir: 1);
+            return BuildLdLocFromStLoc(codes[index]);
         }
     }
 }

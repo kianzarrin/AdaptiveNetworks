@@ -16,8 +16,9 @@ namespace AdvancedRoads.LifeCycle
         [UsedImplicitly]
         public void OnEnabled()
         {
+            HelpersExtensions.VERBOSE = true;
             HarmonyHelper.EnsureHarmonyInstalled();   
-            if (HelpersExtensions.InGame)
+            if (HelpersExtensions.InGame || HelpersExtensions.InAssetEditor)
                 LifeCycle.Load();
         }
 

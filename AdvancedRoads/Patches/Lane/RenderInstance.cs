@@ -15,14 +15,10 @@ namespace AdvancedRoads.Patches.Lane {
         static string logPrefix_ = "NetLane.RenderInstance Transpiler: ";
 
         // public void RenderInstance(RenderManager.CameraInfo cameraInfo, ushort segmentID, uint laneID, NetInfo.Lane laneInfo, NetNode.Flags startFlags, NetNode.Flags endFlags, Color startColor, Color endColor, float startAngle, float endAngle, bool invert, int layerMask, Vector4 objectIndex1, Vector4 objectIndex2, ref RenderManager.Instance data, ref int propIndex)
-        static MethodInfo Target => typeof(global::NetLane).GetMethod("RenderInstance", BindingFlags.NonPublic | BindingFlags.Instance);
-
-        public static MethodBase TargetMethod() {
-            var ret = Target;
-            HelpersExtensions.Assert(ret != null, "did not manage to find original function to patch");
-            Log.Info(logPrefix_ + "aquired method " + ret);
-            return ret;
-        }
+        static MethodInfo Target => AccessTools.DeclaredMethod(
+            typeof(NetLane),
+            nameof(NetLane.RenderInstance));
+        public static MethodBase TargetMethod() => Target;
 
         public static IEnumerable<CodeInstruction> Transpiler(ILGenerator il, IEnumerable<CodeInstruction> instructions) {
             try {

@@ -54,7 +54,6 @@ namespace AdvancedRoads.UI.MainPanel {
             Instance = this;
         }
 
-        bool started_ = false;
         public override void Start() {
             base.Start();
             Log.Debug("ControlPanel started");
@@ -72,9 +71,9 @@ namespace AdvancedRoads.UI.MainPanel {
                 dragHandle_.relativePosition = Vector3.zero;
                 dragHandle_.target = parent;
 
-                var lblCaption = dragHandle_.AddUIComponent<UILabel>();
-                lblCaption.text = "Network Detective";
-                lblCaption.relativePosition = new Vector3(100, 14, 0);
+                Caption = dragHandle_.AddUIComponent<UILabel>();
+                Caption.text = "Network Detective";
+                Caption.relativePosition = new Vector3(100, 14, 0);
 
                 //var sprite = dragHandle_.AddUIComponent<UISprite>();
                 //sprite.size = new Vector2(40, 40);
@@ -96,7 +95,6 @@ namespace AdvancedRoads.UI.MainPanel {
             MakeMainPanel();
 
             isVisible = true;
-            started_ = true;
         }
 
         static UIPanel AddSpacePanel(UIPanel panel, int space) {

@@ -54,8 +54,9 @@ namespace AdvancedRoads.Patches.Segment {
             var index = SearchInstruction(codes, new CodeInstruction(OpCodes.Callvirt, mCheckFlags), 0, counter: occurance);
             HelpersExtensions.Assert(index != 0, "index!=0");
 
-            CodeInstruction LDLoc_SegmentInfo = new CodeInstruction(codes[index - 4]); // TODO search
-            CodeInstruction LDLoca_turnAround = new CodeInstruction(codes[index - 1]); // TODO search
+            CodeInstruction LDLoc_SegmentInfo = Build_LDLoc_SegmentInfo_FromSTLoc(codes, index);
+            CodeInstruction LDLoca_turnAround = new CodeInstruction(codes[index - 1]);
+            HelpersExtensions.Assert(LDLoca_turnAround.opcode == OpCodes.Ldloca_S);
             CodeInstruction LDArg_SegmenteID = GetLDArg(method, "segmentID");
 
             { // insert our checkflags after base checkflags
@@ -68,6 +69,19 @@ namespace AdvancedRoads.Patches.Segment {
                 };
                 InsertInstructions(codes, newInstructions, index + 1);
             } // end block
+        }
+
+        static FieldInfo fSegments => typeof(NetInfo).GetField("m_segments") ?? throw new Exception("fSegments is null");
+
+        public static CodeInstruction Build_LDLoc_SegmentInfo_FromSTLoc(List<CodeInstruction> codes, int index, int counter = 1, int dir = -1) {
+            /* IL_0568: ldarg.s      info 
+             * IL_056a: ldfld        class NetInfo/Segment[] NetInfo::m_segments <- find this
+             * IL_056f: ldloc.s      index_V_39
+             * IL_0571: ldelem.ref
+             * IL_0572: stloc.s      segment <- seek to this then build ldloc from this*/
+            index = SearchInstruction(codes, new CodeInstruction(OpCodes.Ldfld, fSegments), index, counter: counter, dir: dir);
+            index = SearchGeneric(codes, i => codes[i].IsStloc(), index, counter: 1, dir: 1);
+            return BuildLdLocFromStLoc(codes[index]);
         }
 
     }

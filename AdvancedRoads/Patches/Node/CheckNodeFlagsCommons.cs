@@ -7,10 +7,11 @@ using PrefabIndeces;
 
 namespace AdvancedRoads.Patches {
     using System;
-    using UnityEngine;
     using KianCommons;
     using static KianCommons.Patches.TranspilerUtils;
     using AdvancedRoads.Manager;
+    using TrafficManager.RedirectionFramework;
+    using UnityEngine.Assertions;
 
     public static class CheckNodeFlagsCommons {
         public static bool CheckFlags(NetInfo.Node node, ushort nodeID, ushort segmentID) {
@@ -36,7 +37,7 @@ namespace AdvancedRoads.Patches {
             var index = SearchInstruction(codes, new CodeInstruction(OpCodes.Callvirt, mCheckFlags), 0, counter: occurance);
             HelpersExtensions.Assert(index != 0, "index!=0");
 
-            CodeInstruction LDLoc_NodeInfo = new CodeInstruction(codes[index - 2]); // TODO search 
+            CodeInstruction LDLoc_NodeInfo = Build_LDLoc_NodeInfo_FromSTLoc(codes, index);
             CodeInstruction LDArg_NodeID = GetLDArg(method, "nodeID");
             CodeInstruction LDLoc_segmentID = BuildSegnentLDLocFromPrevSTLoc(codes, index, counter: counterGetSegment);
 
@@ -52,11 +53,24 @@ namespace AdvancedRoads.Patches {
             } // end block
         }
 
+        static FieldInfo fNodes => typeof(NetInfo).GetField("m_nodes") ?? throw new Exception("fNodes is null");
+
+        public static CodeInstruction Build_LDLoc_NodeInfo_FromSTLoc(List<CodeInstruction> codes, int index, int counter=1, int dir=-1) {
+           /* IL_155f: ldloc.s      info2_V_80
+            * IL_1561: ldfld        class NetInfo/Node[] NetInfo::m_nodes  <- step 1: find this
+            * IL_1566: ldloc.s      index2_V_147
+            * IL_1568: ldelem.ref
+            * IL_1569: stloc.s      node_V_148  <- step 2: find this and convert it to ldloc.
+            */
+            index = SearchInstruction(codes, new CodeInstruction(OpCodes.Ldfld, fNodes), index, counter: counter, dir: dir);
+            index = SearchGeneric(codes, i => codes[i].IsStloc(), index, counter: 1, dir: 1);
+            return BuildLdLocFromStLoc(codes[index]);
+        }
+
         public static CodeInstruction BuildSegnentLDLocFromPrevSTLoc(List<CodeInstruction> codes, int index, int counter = 1) {
             index = SearchInstruction(codes, new CodeInstruction(OpCodes.Call, mGetSegment), index, counter: counter, dir: -1);
-            var code = codes[index + 1];
-            HelpersExtensions.Assert(IsStLoc(code), $"IsStLoc(code) | code={code}");
-            return BuildLdLocFromStLoc(code);
+            index = SearchGeneric(codes, i => codes[i].IsStloc(), index, counter: 1, dir: 1);
+            return BuildLdLocFromStLoc(codes[index]);
         }
     }
 }

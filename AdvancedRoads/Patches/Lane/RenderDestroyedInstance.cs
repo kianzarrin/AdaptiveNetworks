@@ -16,14 +16,10 @@ namespace AdvancedRoads.Patches.Lane {
 
         // public void RenderDestroyedInstance(RenderManager.CameraInfo cameraInfo, ushort segmentID, uint laneID,
         // NetInfo netInfo, NetInfo.Lane laneInfo, NetNode.Flags startFlags, 
-        static MethodInfo Target => typeof(global::NetLane).GetMethod("RenderDestroyedInstance", BindingFlags.NonPublic | BindingFlags.Instance);
-
-        public static MethodBase TargetMethod() {
-            var ret = Target;
-            HelpersExtensions.Assert(ret != null, "did not manage to find original function to patch");
-            Log.Info(logPrefix_ + "aquired method " + ret);
-            return ret;
-        }
+        static MethodInfo Target =>AccessTools.DeclaredMethod(
+            typeof(NetLane),
+            nameof(NetLane.RenderDestroyedInstance)) ;
+        public static MethodBase TargetMethod() => Target;
 
         public static IEnumerable<CodeInstruction> Transpiler(ILGenerator il, IEnumerable<CodeInstruction> instructions) {
             try {
