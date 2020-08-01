@@ -6,6 +6,7 @@ namespace AdvancedRoads {
     [Serializable]
     public class NetworkExtensionManager {
         #region LifeCycle
+        // this initalizesation maybe useful in case of a hot reload.
         public static NetworkExtensionManager Instance { get; private set; } = new NetworkExtensionManager();
 
         public static byte[] Serialize() => SerializationUtil.Serialize(Instance);
@@ -14,7 +15,6 @@ namespace AdvancedRoads {
             if (data == null) {
                 Instance = new NetworkExtensionManager();
                 Log.Debug($"NetworkExtensionManager.Deserialize(data=null)");
-
             } else {
                 Log.Debug($"NetworkExtensionManager.Deserialize(data): data.Length={data?.Length}");
                 Instance = SerializationUtil.Deserialize(data) as NetworkExtensionManager;
@@ -38,7 +38,6 @@ namespace AdvancedRoads {
             else
                 return ref SegmentEndBuffer[segmentID * 2 + 1];
         }
-
 
 
         public NetSegmentEnd GetSegmentEnd(ushort segmentId, ushort nodeId) {

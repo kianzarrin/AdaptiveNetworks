@@ -53,11 +53,15 @@
     <Compile Remove="UI\MainPanel\InterAvtiveButton.cs" />
   </ItemGroup>
   <ItemGroup>
-  </ItemGroup>
-  <ItemGroup>
     <None Remove="KianCommons\.git" />
     <None Remove="KianCommons\.gitattributes" />
     <None Remove="KianCommons\.gitignore" />
+    <None Remove="Resources\back.png" />
+    <None Remove="Resources\close.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\back.png" />
+    <EmbeddedResource Include="Resources\close.png" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CitiesHarmony.API" Version="1.0.4" />
@@ -128,9 +132,7 @@
       <MonoDir>$(UnityPath)Editor\Data\MonoBleedingEdge\</MonoDir>
     </PropertyGroup>
     <ItemGroup>
-      <AuxilaryFiles
-        Include="$(TargetPath).mdb;$(TargetDir)PrefabIndeces.dll;$(TargetDir)PrefabIndeces.dll.mdb;$(TargetDir)CitiesHarmony.API.dll"
-        Exclude="$(TargetPath);$(TargetDir)*.pdb" />
+      <AuxilaryFiles Include="$(TargetPath).mdb;$(TargetDir)PrefabIndeces.dll;$(TargetDir)PrefabIndeces.dll.mdb;$(TargetDir)CitiesHarmony.API.dll" Exclude="$(TargetPath);$(TargetDir)*.pdb" />
       <VersionNumber Include="@(Targets->'%(Version)')" />
     </ItemGroup>
     

@@ -1,6 +1,8 @@
 using KianCommons;
 using System;
 using PrefabIndeces;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AdvancedRoads.Manager {
     [Serializable]
@@ -110,10 +112,13 @@ namespace AdvancedRoads.Manager {
 
         [Serializable]
         public class LaneProp {
-            public LaneInfoFlags LaneFlags;
-            public SegmentInfoFlags SegmentFlags;
-            public SegmentEndInfoFlags SegmentStartFlags, SegmentEndFlags;
-            public NodeInfoFlags StartNodeFlags, EndNodeFlags;
+            public LaneInfoFlags LaneFlags = new LaneInfoFlags();
+            public SegmentInfoFlags SegmentFlags = new SegmentInfoFlags();
+            public SegmentEndInfoFlags SegmentStartFlags = new SegmentEndInfoFlags();
+            public SegmentEndInfoFlags SegmentEndFlags = new SegmentEndInfoFlags();
+            public NodeInfoFlags StartNodeFlags = new NodeInfoFlags();
+            public NodeInfoFlags EndNodeFlags = new NodeInfoFlags();
+
             public bool CheckFlags(
                 NetLaneExt.Flags laneFlags,
                 NetSegmentExt.Flags segmentFlags,
@@ -125,6 +130,7 @@ namespace AdvancedRoads.Manager {
                 SegmentEndFlags.CheckFlags(segmentEndFlags) &&
                 StartNodeFlags.CheckFlags(startNodeFlags) &&
                 EndNodeFlags.CheckFlags(endNodeFlags);
+
             public LaneProp(NetLaneProps.Prop template) { }
 
             public static LaneProp Get(NetInfoExtension.Lane.Prop IndexExt) {
@@ -146,12 +152,12 @@ namespace AdvancedRoads.Manager {
         public NetInfoExt(NetInfo template) {
             Version = HelpersExtensions.VersionOf(this);
             SegmentInfoExts = new Segment[template.m_segments.Length];
-            for (int i = 0; i < LaneInfoExts.Length; ++i) {
+            for (int i = 0; i < SegmentInfoExts.Length; ++i) {
                 SegmentInfoExts[i] = new Segment(template.m_segments[i]);
             }
 
             NodeInfoExts = new Node[template.m_nodes.Length];
-            for (int i = 0; i < LaneInfoExts.Length; ++i) {
+            for (int i = 0; i < NodeInfoExts.Length; ++i) {
                 NodeInfoExts[i] = new Node(template.m_nodes[i]);
             }
 
@@ -161,9 +167,44 @@ namespace AdvancedRoads.Manager {
             }
         }
 
-        public static NetInfoExt[] Buffer;
-        public static NetInfoExt EditInfo;
+        
 
-        public static void Init() => Buffer = new NetInfoExt[PrefabCollection<NetInfo>.PrefabCount()];
+        public static NetInfo EditNetInfo =>
+            ToolsModifierControl.toolController.m_editPrefabInfo as NetInfo;
+
+        public static NetInfoExt EditNetInfoExt {
+            get {
+                int index = EditNetInfo.GetIndex();
+                Log.Debug($"index={index} Buffer.Lenght={Buffer.Length} " +
+                    $"prefab count={PrefabCollection<NetInfo>.PrefabCount()}\n");
+                if (Buffer == null || Buffer.Count() <= index || Buffer[index] == null) {
+                    SetNetInfoExt(index, new NetInfoExt(EditNetInfo));
+                }
+                return Buffer[index];
+            }
+        }
+
+
+        public static NetInfoExt[] Buffer;
+        public static void SetNetInfoExt(int index, NetInfoExt netInfoExt) {
+            if (netInfoExt == null)
+                return;
+            if (Buffer == null)
+                Init();
+            if(Buffer.Count() < PrefabCollection<NetInfo>.PrefabCount()) {
+                var old = Buffer;
+                Init();
+                for (int i = 0; i < old.Count(); ++i)
+                    Buffer[i] = old[i];
+            }
+            Buffer[index] = netInfoExt;
+        }
+
+
+
+        public static void Init() {
+            Log.Debug("prefab count=" + PrefabCollection<NetInfo>.PrefabCount() + Environment.StackTrace );
+            Buffer = new NetInfoExt[PrefabCollection<NetInfo>.PrefabCount()];
+        }
     }
 }

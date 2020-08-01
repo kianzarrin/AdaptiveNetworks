@@ -30,18 +30,11 @@ namespace AdvancedRoads.UI.MainPanel {
 
         #endregion Instanciation
 
-        public enum SubPrefabTypeT {
-            None = 0,
-            Nodes,
-            Segments,
-            Lanes,
-            Props
-        }
-        public SubPrefabTypeT SubPrefabType;
         public int NodeIndex, SegmentIndex, LaneIndex, PropIndex;
 
         UILabel Caption;
         UIPanel Container, SubContainer;
+        UIDragHandle Drag;
 
         public static MainPanel Create() {
             var uiView = UIView.GetAView();
@@ -58,35 +51,29 @@ namespace AdvancedRoads.UI.MainPanel {
             base.Start();
             Log.Debug("ControlPanel started");
 
-            width = 500;
             name = "ControlPanel";
             backgroundSprite = "MenuPanel2";
             absolutePosition = new Vector3(SavedX, SavedY);
-
+            atlas = TextureUtil.GetAtlas("Ingame");
 
             {
-                var dragHandle_ = AddUIComponent<UIDragHandle>();
-                dragHandle_.width = width;
-                dragHandle_.height = 42;
-                dragHandle_.relativePosition = Vector3.zero;
-                dragHandle_.target = parent;
+                Drag = AddUIComponent<UIDragHandle>();
+                Drag.width = 500; // sets minimum width
+                Drag.height = 42;
+                Drag.relativePosition = Vector3.zero;
+                Drag.target = parent;
 
-                Caption = dragHandle_.AddUIComponent<UILabel>();
-                Caption.text = "Network Detective";
-                Caption.relativePosition = new Vector3(100, 14, 0);
-
-                //var sprite = dragHandle_.AddUIComponent<UISprite>();
-                //sprite.size = new Vector2(40, 40);
-                //sprite.relativePosition = new Vector3(5, 2.5f, 0);
-                //sprite.atlas = TextureUtil.GetAtlas(PedestrianBridgeButton.ATLAS_NAME);
-                //sprite.spriteName = PedestrianBridgeButton.PedestrianBridgeIconPressed;
-
+                Caption = Drag.AddUIComponent<UILabel>();
+                Caption.eventTextChanged += (_, __) => {
+                    float x = (Drag.width - Caption.width) * 0.5f;
+                    Caption.relativePosition = new Vector3(x, 14, 0);
+                };
+                
                 //var closeBtn = dragHandle_.AddUIComponent<CloseButton>();
                 //closeBtn.relativePosition = new Vector2(width - 40 , 3f);
 
-                var backButton = dragHandle_.AddUIComponent<BackButton>();
-                backButton.relativePosition = new Vector2(width - 40, 3f);
-                backButton.isVisible = false;
+                var backButton = Drag.AddUIComponent<BackButton>();
+                backButton.relativePosition = new Vector2(Drag.width - 40, 3f);
             }
 
             AddSpacePanel(this, 10);
@@ -95,6 +82,7 @@ namespace AdvancedRoads.UI.MainPanel {
             MakeMainPanel();
 
             isVisible = true;
+            RefreshSize();
         }
 
         static UIPanel AddSpacePanel(UIPanel panel, int space) {
@@ -113,6 +101,11 @@ namespace AdvancedRoads.UI.MainPanel {
         }
 
         void MakeMainPanel() {
+            LaneIndex = NodeIndex = SegmentIndex = PropIndex = -1;
+            BackButton.Instace.Hide();
+            //CloseButton.Instace.Show();
+            Caption.text = "Advanced Roads";
+    
             UIPanel panel = ReplaceOldPanel();
 
             var btnNodes = panel.AddUIComponent<UIButtonExt>();
@@ -130,85 +123,129 @@ namespace AdvancedRoads.UI.MainPanel {
             btnLaneProps.text = "LaneProps";
             btnLaneProps.eventClicked += (_, __) => MakeLanesPanel();
 
-            BackButton.Instace.Hide();
-            //CloseButton.Instace.Show();
+            RefreshSize();
         }
 
-        public void Back() { }
-        public void Close() { }
+        public void Back() {
+            if (PropIndex >= 0)
+                MakeLanePropsPanel(LaneIndex);
+            else if (LaneIndex >= 0)
+                MakeLanesPanel();
+            else if (NodeIndex >= 0)
+                MakeNodesPanel();
+            else if (SegmentIndex >= 0)
+                MakeSegmentsPanel();
+            else
+                MakeMainPanel();
+        }
+        public void Close() { Hide(); }
 
         void MakeNodesPanel() {
+            LaneIndex = NodeIndex = SegmentIndex = PropIndex = -1;
+            BackButton.Instace.Show();
+            Caption.text = "Nodes";
+
             UIPanel panel = ReplaceOldPanel();
-            var nodes = NetInfoExt.EditInfo.NodeInfoExts;
+            var nodes = NetInfoExt.EditNetInfoExt.NodeInfoExts;
 
             for (int i = 0; i < nodes.Length; ++i) {
                 var button = panel.AddUIComponent<UIButtonExt>();
                 button.name = "Nodes_" + i;
                 button.text = $"Nodes[{i}]";
-                //button.eventClicked += (_, __) => MakeNodeFlagPanel(i);
+                button.objectUserData = i;
+                //button.eventClicked += (component, _) =>
+                //    MakeNodeFlagPanel((int)component.objectUserData);
             }
 
-            BackButton.Instace.Show();
             //CloseButton.Instace.Hide();
+            RefreshSize();
         }
 
         void MakeSegmentsPanel() {
+            LaneIndex = NodeIndex = SegmentIndex = PropIndex = -1;
+            BackButton.Instace.Show();
+            Caption.text = "Segments";
             UIPanel panel = ReplaceOldPanel();
-            var segments = NetInfoExt.EditInfo.SegmentInfoExts;
 
+            var segments = NetInfoExt.EditNetInfoExt.SegmentInfoExts;
             for (int i = 0; i < segments.Length; ++i) {
                 var button = panel.AddUIComponent<UIButtonExt>();
                 button.name = "Segments_" + i;
                 button.text = $"Segments[{i}]";
-                //button.eventClicked += (_, __) => MakeSegmentFlagPanel(i);
+                button.objectUserData = i;
+                //button.eventClicked += (component, _) =>
+                //    MakeSegmentFlagPanel((int)component.objectUserData);
             }
 
             BackButton.Instace.Show();
             //CloseButton.Instace.Hide();
+            RefreshSize();
         }
 
         void MakeLanesPanel() {
+            LaneIndex = NodeIndex = SegmentIndex = PropIndex = -1;
+            BackButton.Instace.Show();
+            Caption.text = "Lanes";
             UIPanel panel = ReplaceOldPanel();
-            var lanes = NetInfoExt.EditInfo.LaneInfoExts;
 
+            var lanes = NetInfoExt.EditNetInfoExt.LaneInfoExts;
             for (int i = 0; i < lanes.Length; ++i) {
                 var button = panel.AddUIComponent<UIButtonExt>();
                 button.name = "Lanes_" + i;
                 button.text = $"Lanes[{i}]";
-                button.eventClicked += (_, __) => MakeLanePropsPanel(i);
+                button.objectUserData = i;
+                void handler(UIComponent component, UIMouseEventParameter eventParam) {
+                    MakeLanePropsPanel((int)component.objectUserData);
+                }
+                button.eventClicked += handler;
             }
 
             BackButton.Instace.Show();
             //CloseButton.Instace.Hide();
+            RefreshSize();
         }
 
         public static NetLaneProps.Prop GetStockProp(int laneIndex, int propIndex) {
             NetInfo netInfo = ToolsModifierControl.toolController.m_editPrefabInfo as NetInfo;
-            var prop = netInfo.m_lanes[laneIndex].m_laneProps.m_props[propIndex];
+            var lane = netInfo.m_lanes[laneIndex];
+            var prop = lane.m_laneProps.m_props[propIndex];
             return prop;
         }
 
         void MakeLanePropsPanel(int laneIndex) {
+            LaneIndex = laneIndex;
+            NodeIndex = SegmentIndex = PropIndex = -1;
+            BackButton.Instace.Show();
+            Caption.text = $"Lane[{laneIndex}] Props";
             UIPanel panel = ReplaceOldPanel();
-            var props = NetInfoExt.EditInfo.LaneInfoExts[laneIndex].PropInfoExts;
 
+            var props = NetInfoExt.EditNetInfoExt.LaneInfoExts[laneIndex].PropInfoExts;
             for (int i = 0; i < props.Length; ++i) {
                 var button = panel.AddUIComponent<UIButtonExt>();
                 button.name = "LaneProps_" + i;
                 var prop = GetStockProp(laneIndex, i);
                 button.text = $"LaneProps[{i}]:" + prop.m_prop.name;
-                button.eventClicked += (_, __) => MakeLanePropFlagsPanel(laneIndex, i);
+                button.objectUserData = i;
+                button.eventClicked += (component, _) =>
+                    MakeLanePropFlagsPanel(laneIndex, (int)component.objectUserData);
             }
 
             BackButton.Instace.Show();
             //CloseButton.Instace.Hide();
+            RefreshSize();
         }
 
         void MakeLanePropFlagsPanel(int laneIndex, int propIndex) {
+            Log.Debug($"MainPanel.MakeLanePropFlagsPanel({laneIndex},{propIndex})");
+            NodeIndex = SegmentIndex = 0;
+            LaneIndex = laneIndex;
+            PropIndex = propIndex;
+            BackButton.Instace.Show();
+
             UIPanel topPanel = ReplaceOldPanel();
             var prop = GetStockProp(laneIndex, propIndex);
-            Caption.text = $"Lane[{laneIndex}].Props[{propIndex}]:" + prop.m_prop.name;
-            var propExt = NetInfoExt.EditInfo.LaneInfoExts[laneIndex].PropInfoExts[propIndex];
+            Caption.text = $"Flags for Lane[{laneIndex}].Props[{propIndex}]:" + prop.m_prop.name;
+            var propExt = NetInfoExt.EditNetInfoExt.LaneInfoExts[laneIndex].PropInfoExts[propIndex];
 
             // required forbidden
             /*
@@ -232,7 +269,7 @@ namespace AdvancedRoads.UI.MainPanel {
                     };
 
                     // Populate
-                    var values = GetPow2Values<NetLaneExt.Flags>();
+                    var values = GetPow2ValuesU32<NetLaneExt.Flags>();
                     foreach (NetLaneExt.Flags flag in values) {
                         dropdown.AddItem(
                             item: flag.ToString(),
@@ -255,7 +292,7 @@ namespace AdvancedRoads.UI.MainPanel {
                     };
 
                     // Populate
-                    var values = GetPow2Values<NetLaneExt.Flags>();
+                    var values = GetPow2ValuesU32<NetLaneExt.Flags>();
                     foreach (NetLaneExt.Flags flag in values) {
                         dropdown.AddItem(
                             item: flag.ToString(),
@@ -280,7 +317,7 @@ namespace AdvancedRoads.UI.MainPanel {
                     };
 
                     // Populate
-                    var values = GetPow2Values<NetSegmentExt.Flags>();
+                    var values = GetPow2ValuesU32<NetSegmentExt.Flags>();
                     foreach (NetSegmentExt.Flags flag in values) {
                         dropdown.AddItem(
                             item: flag.ToString(),
@@ -303,7 +340,7 @@ namespace AdvancedRoads.UI.MainPanel {
                     };
 
                     // Populate
-                    var values = GetPow2Values<NetSegmentExt.Flags>();
+                    var values = GetPow2ValuesU32<NetSegmentExt.Flags>();
                     foreach (NetSegmentExt.Flags flag in values) {
                         dropdown.AddItem(
                             item: flag.ToString(),
@@ -329,7 +366,7 @@ namespace AdvancedRoads.UI.MainPanel {
                         };
 
                         // Populate
-                        var values = GetPow2Values<NetSegmentEnd.Flags>();
+                        var values = GetPow2ValuesU32<NetSegmentEnd.Flags>();
                         foreach (NetSegmentEnd.Flags flag in values) {
                             dropdown.AddItem(
                                 item: flag.ToString(),
@@ -352,7 +389,7 @@ namespace AdvancedRoads.UI.MainPanel {
                         };
 
                         // Populate
-                        var values = GetPow2Values<NetSegmentEnd.Flags>();
+                        var values = GetPow2ValuesU32<NetSegmentEnd.Flags>();
                         foreach (NetSegmentEnd.Flags flag in values) {
                             dropdown.AddItem(
                                 item: flag.ToString(),
@@ -377,7 +414,7 @@ namespace AdvancedRoads.UI.MainPanel {
                         };
 
                         // Populate
-                        var values = GetPow2Values<NetSegmentEnd.Flags>();
+                        var values = GetPow2ValuesU32<NetSegmentEnd.Flags>();
                         foreach (NetSegmentEnd.Flags flag in values) {
                             dropdown.AddItem(
                                 item: flag.ToString(),
@@ -400,7 +437,7 @@ namespace AdvancedRoads.UI.MainPanel {
                         };
 
                         // Populate
-                        var values = GetPow2Values<NetSegmentEnd.Flags>();
+                        var values = GetPow2ValuesU32<NetSegmentEnd.Flags>();
                         foreach (NetSegmentEnd.Flags flag in values) {
                             dropdown.AddItem(
                                 item: flag.ToString(),
@@ -427,7 +464,7 @@ namespace AdvancedRoads.UI.MainPanel {
                         };
 
                         // Populate
-                        var values = GetPow2Values<NetNodeExt.Flags>();
+                        var values = GetPow2ValuesU32<NetNodeExt.Flags>();
                         foreach (NetNodeExt.Flags flag in values) {
                             dropdown.AddItem(
                                 item: flag.ToString(),
@@ -450,7 +487,7 @@ namespace AdvancedRoads.UI.MainPanel {
                         };
 
                         // Populate
-                        var values = GetPow2Values<NetNodeExt.Flags>();
+                        var values = GetPow2ValuesU32<NetNodeExt.Flags>();
                         foreach (NetNodeExt.Flags flag in values) {
                             dropdown.AddItem(
                                 item: flag.ToString(),
@@ -475,7 +512,7 @@ namespace AdvancedRoads.UI.MainPanel {
                         };
 
                         // Populate
-                        var values = GetPow2Values<NetNodeExt.Flags>();
+                        var values = GetPow2ValuesU32<NetNodeExt.Flags>();
                         foreach (NetNodeExt.Flags flag in values) {
                             dropdown.AddItem(
                                 item: flag.ToString(),
@@ -498,7 +535,7 @@ namespace AdvancedRoads.UI.MainPanel {
                         };
 
                         // Populate
-                        var values = GetPow2Values<NetNodeExt.Flags>();
+                        var values = GetPow2ValuesU32<NetNodeExt.Flags>();
                         foreach (NetNodeExt.Flags flag in values) {
                             dropdown.AddItem(
                                 item: flag.ToString(),
@@ -510,6 +547,8 @@ namespace AdvancedRoads.UI.MainPanel {
                     } // Forbidden
                 } // End 
             } // Nodes
+
+            RefreshSize();
         }
 
         public static void AddLabel(UIPanel panel, string text) => panel.AddUIComponent<UILabel>().text = text;
@@ -521,12 +560,18 @@ namespace AdvancedRoads.UI.MainPanel {
         }
 
         public static bool IsPow2(ulong x) => x != 0 && (x & (x - 1)) == 0;
-        IEnumerable<ulong> GetPow2Values<T>() {
+        IEnumerable<uint> GetPow2ValuesU32<T>() {
             Array values = Enum.GetValues(typeof(T));
-            foreach (ulong value in values) {
-                if(IsPow2(value))
-                    yield return value;
+            foreach (object val in values) {
+                if (IsPow2((uint)val))
+                    yield return (uint)val;
             }
+        }
+
+
+        public void RefreshSize() {
+            RefreshSizeRecursive();
+            BackButton.Instace.relativePosition = new Vector2(Drag.width - 40, 3f);
         }
 
         protected override void OnPositionChanged() {

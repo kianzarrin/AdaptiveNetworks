@@ -26,6 +26,7 @@ namespace AdvancedRoads.UI.MainPanel {
             name = nameof(BackButton);
             size = new Vector2(SIZE, SIZE);
             Instace = this;
+
         }
 
         public override void Start() {

@@ -7,6 +7,7 @@ namespace AdvancedRoads.LifeCycle {
     using static KianCommons.HelpersExtensions;
     using AdvancedRoads.Manager;
     using PrefabIndeces;
+    using System;
 
     [HarmonyPatch(typeof(LoadAssetPanel), "OnLoad")]
     public static class OnLoadPatch {
@@ -32,15 +33,50 @@ namespace AdvancedRoads.LifeCycle {
         }
     }
 
+    [Serializable]
+    public class AssetData {
+        public NetInfoExt Ground, Elevated, Bridge, Slope, Tunnel;
+
+        public static AssetData CreateFromEditPrefab() {
+            NetInfo ground = ToolsModifierControl.toolController.m_editPrefabInfo as NetInfo;
+            if (ground == null)
+                return null;
+            NetInfo elevated = AssetEditorRoadUtils.TryGetElevated(ground);
+            NetInfo bridge = AssetEditorRoadUtils.TryGetBridge(ground);
+            NetInfo slope = AssetEditorRoadUtils.TryGetSlope(ground);
+            NetInfo tunnel = AssetEditorRoadUtils.TryGetTunnel(ground);
+            var ret = new AssetData();
+            ret.Ground = NetInfoExt.Buffer[ground.GetIndex()];
+            return ret;
+        }
+
+        public static void Load(AssetData assetData, NetInfo groundInfo) {
+            NetInfo elevated = AssetEditorRoadUtils.TryGetElevated(groundInfo);
+            NetInfo bridge = AssetEditorRoadUtils.TryGetBridge(groundInfo);
+            NetInfo slope = AssetEditorRoadUtils.TryGetSlope(groundInfo);
+            NetInfo tunnel = AssetEditorRoadUtils.TryGetTunnel(groundInfo);
+
+            if(groundInfo) NetInfoExt.SetNetInfoExt(groundInfo.GetIndex(), assetData.Ground);
+            if(elevated) NetInfoExt.SetNetInfoExt(elevated.GetIndex(), assetData.Elevated);
+            if(bridge) NetInfoExt.SetNetInfoExt(bridge.GetIndex(), assetData.Bridge);
+            if(slope) NetInfoExt.SetNetInfoExt(slope.GetIndex(), assetData.Slope);
+            if(tunnel) NetInfoExt.SetNetInfoExt(tunnel.GetIndex(), assetData.Tunnel);
+        }
+
+    }
+
     public class AssetDataExtension : AssetDataExtensionBase {
         public const string ID_NetInfo = "AdvancedRoadEditor_NetInfoExt";
+
 
         public static AssetDataExtension Instance;
         public override void OnCreated(IAssetData assetData) {
             base.OnCreated(assetData);
             Instance = this;
+            NetInfoExt.Init();
         }
         public override void OnReleased() {
+            NetInfoExt.Buffer = null;
             Instance = null;
         }
 
@@ -52,12 +88,9 @@ namespace AdvancedRoads.LifeCycle {
                 Log.Debug("AssetDataExtension.OnAssetLoaded():  prefab is " + prefab);
                 if (userData.TryGetValue(ID_NetInfo, out byte[] data)) {
                     Log.Info("AssetDataExtension.OnAssetLoaded(): extracted data for " + ID_NetInfo);
-                    var assetData = SerializationUtil.Deserialize(data) as NetInfoExt;
+                    var assetData = SerializationUtil.Deserialize(data) as AssetData;
                     AssertNotNull(assetData, "assetData");
-                    NetInfoExt.Buffer[prefab.GetIndex()] = assetData;
-                    if(prefab==ToolsModifierControl.toolController.m_editPrefabInfo) {
-                        NetInfoExt.EditInfo = assetData;
-                    }
+                    AssetData.Load(assetData, prefab);
                     Log.Debug("AssetDataExtension.OnAssetLoaded(): Asset Data=" + assetData);
                 }
             }
@@ -71,7 +104,7 @@ namespace AdvancedRoads.LifeCycle {
             userData = null;
             if (asset is NetInfo prefab) {
                 Log.Info("AssetDataExtension.OnAssetSaved():  prefab is " + prefab);
-                var assetData = NetInfoExt.EditInfo;
+                var assetData = AssetData.CreateFromEditPrefab();
                 Log.Debug("AssetDataExtension.OnAssetSaved(): assetData=" + assetData);
                 userData = new Dictionary<string, byte[]>();
                 userData.Add(ID_NetInfo, SerializationUtil.Serialize(assetData));
