@@ -1,13 +1,13 @@
 namespace AdvancedRoads.LifeCycle {
-    using System.Collections.Generic;
-    using ColossalFramework.UI;
-    using ICities;
-    using HarmonyLib;
-    using KianCommons;
-    using static KianCommons.HelpersExtensions;
     using AdvancedRoads.Manager;
+    using ColossalFramework.UI;
+    using HarmonyLib;
+    using ICities;
+    using KianCommons;
     using PrefabIndeces;
     using System;
+    using System.Collections.Generic;
+    using static KianCommons.HelpersExtensions;
 
     [HarmonyPatch(typeof(LoadAssetPanel), "OnLoad")]
     public static class OnLoadPatch {
@@ -29,6 +29,20 @@ namespace AdvancedRoads.LifeCycle {
                     userAssetData = new AssetDataWrapper.UserAssetData();
                 }
                 AssetDataExtension.Instance.OnAssetLoaded(listingMetaData.name, ToolsModifierControl.toolController.m_editPrefabInfo, userAssetData.Data);
+            }
+        }
+    }
+
+    //private void AssetImporterAssetTemplate::OnContinue(UIComponent comp, UIMouseEventParameter p)
+    [HarmonyPatch(typeof(AssetImporterAssetTemplate), "OnContinue")]
+    public static class OnContinuePatch {
+        /// <summary>
+        /// copy NetInfoExt when road editor is create new asset based on another road.
+        /// </summary>
+        public static void Postfix() {
+            if (ToolsModifierControl.toolController.m_templatePrefabInfo is NetInfo source) {
+                NetInfo target = ToolsModifierControl.toolController.m_editPrefabInfo as NetInfo;
+                NetInfoExt.CopyAll(source: source, target: target);
             }
         }
     }
@@ -56,13 +70,12 @@ namespace AdvancedRoads.LifeCycle {
             NetInfo slope = AssetEditorRoadUtils.TryGetSlope(groundInfo);
             NetInfo tunnel = AssetEditorRoadUtils.TryGetTunnel(groundInfo);
 
-            if(groundInfo) NetInfoExt.SetNetInfoExt(groundInfo.GetIndex(), assetData.Ground);
-            if(elevated) NetInfoExt.SetNetInfoExt(elevated.GetIndex(), assetData.Elevated);
-            if(bridge) NetInfoExt.SetNetInfoExt(bridge.GetIndex(), assetData.Bridge);
-            if(slope) NetInfoExt.SetNetInfoExt(slope.GetIndex(), assetData.Slope);
-            if(tunnel) NetInfoExt.SetNetInfoExt(tunnel.GetIndex(), assetData.Tunnel);
+            if (groundInfo) NetInfoExt.SetNetInfoExt(groundInfo.GetIndex(), assetData.Ground);
+            if (elevated) NetInfoExt.SetNetInfoExt(elevated.GetIndex(), assetData.Elevated);
+            if (bridge) NetInfoExt.SetNetInfoExt(bridge.GetIndex(), assetData.Bridge);
+            if (slope) NetInfoExt.SetNetInfoExt(slope.GetIndex(), assetData.Slope);
+            if (tunnel) NetInfoExt.SetNetInfoExt(tunnel.GetIndex(), assetData.Tunnel);
         }
-
     }
 
     public class AssetDataExtension : AssetDataExtensionBase {
@@ -93,8 +106,7 @@ namespace AdvancedRoads.LifeCycle {
                     AssetData.Load(assetData, prefab);
                     Log.Debug("AssetDataExtension.OnAssetLoaded(): Asset Data=" + assetData);
                 }
-            }
-            else if(asset is BuildingInfo buildingInfo) {
+            } else if (asset is BuildingInfo buildingInfo) {
                 // load stored custom road flags for intersections or buildings.
             }
         }
