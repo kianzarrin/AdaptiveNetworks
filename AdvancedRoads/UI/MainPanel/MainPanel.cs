@@ -7,10 +7,7 @@ namespace AdvancedRoads.UI.MainPanel {
     using KianCommons.UI.Helpers;
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using UnityEngine;
-
-
 
     // TODO node lanes !
     // TODO lane as title. ?
@@ -101,6 +98,7 @@ namespace AdvancedRoads.UI.MainPanel {
         }
 
         void MakeMainPanel() {
+            autoLayout = true;
             LaneIndex = NodeIndex = SegmentIndex = PropIndex = -1;
             BackButton.Instace.Hide();
             //CloseButton.Instace.Show();
@@ -141,6 +139,7 @@ namespace AdvancedRoads.UI.MainPanel {
         public void Close() { Hide(); }
 
         void MakeNodesPanel() {
+            autoLayout = true;
             LaneIndex = NodeIndex = SegmentIndex = PropIndex = -1;
             BackButton.Instace.Show();
             Caption.text = "Nodes";
@@ -162,6 +161,7 @@ namespace AdvancedRoads.UI.MainPanel {
         }
 
         void MakeSegmentsPanel() {
+            autoLayout = true;
             LaneIndex = NodeIndex = SegmentIndex = PropIndex = -1;
             BackButton.Instace.Show();
             Caption.text = "Segments";
@@ -183,6 +183,7 @@ namespace AdvancedRoads.UI.MainPanel {
         }
 
         void MakeLanesPanel() {
+            autoLayout = true;
             LaneIndex = NodeIndex = SegmentIndex = PropIndex = -1;
             BackButton.Instace.Show();
             Caption.text = "Lanes";
@@ -213,6 +214,7 @@ namespace AdvancedRoads.UI.MainPanel {
         }
 
         void MakeLanePropsPanel(int laneIndex) {
+            autoLayout = true;
             LaneIndex = laneIndex;
             NodeIndex = SegmentIndex = PropIndex = -1;
             BackButton.Instace.Show();
@@ -236,6 +238,7 @@ namespace AdvancedRoads.UI.MainPanel {
         }
 
         void MakeLanePropFlagsPanel(int laneIndex, int propIndex) {
+            autoLayout = true;
             Log.Debug($"MainPanel.MakeLanePropFlagsPanel({laneIndex},{propIndex})");
             NodeIndex = SegmentIndex = 0;
             LaneIndex = laneIndex;
@@ -262,10 +265,12 @@ namespace AdvancedRoads.UI.MainPanel {
 
                     // Apply changes
                     dropdown.eventCheckedChanged += (_, index) => {
+                        Log.Debug($"eventCheckedChanged called for lane flags required. index={index}");
                         NetLaneExt.Flags flag = (NetLaneExt.Flags)dropdown.GetItemUserData(index);
-                        propExt.LaneFlags.Required.SetFlags(flag, dropdown.GetChecked(index));
+                        propExt.LaneFlags.Required = propExt.LaneFlags.Required.SetFlags(flag, dropdown.GetChecked(index));
                         dropdown.Text = propExt.LaneFlags.Required.ToString();
                         RefreshNetworks();
+                        Log.Debug($"eventCheckedChanged called for lane flags required. index={index} flag={flag} checked={dropdown.GetChecked(index)}");
                     };
 
                     // Populate
@@ -285,10 +290,12 @@ namespace AdvancedRoads.UI.MainPanel {
 
                     // Apply changes
                     dropdown.eventCheckedChanged += (_, index) => {
+                        Log.Debug($"eventCheckedChanged called for lane flags forbidden. index={index}");
                         NetLaneExt.Flags flag = (NetLaneExt.Flags)dropdown.GetItemUserData(index);
-                        propExt.LaneFlags.Forbidden.SetFlags(flag, dropdown.GetChecked(index));
+                        propExt.LaneFlags.Forbidden = propExt.LaneFlags.Forbidden.SetFlags(flag, dropdown.GetChecked(index));
                         dropdown.Text = propExt.LaneFlags.Forbidden.ToString();
                         RefreshNetworks();
+                        Log.Debug($"eventCheckedChanged called for lane flags forbidden. index={index} flag={flag} checked={dropdown.GetChecked(index)}");
                     };
 
                     // Populate
@@ -310,10 +317,12 @@ namespace AdvancedRoads.UI.MainPanel {
 
                     // Apply changes
                     dropdown.eventCheckedChanged += (_, index) => {
+                        Log.Debug($"eventCheckedChanged(index:{index}) called for " + "Segment Flags Required");
                         NetSegmentExt.Flags flag = (NetSegmentExt.Flags)dropdown.GetItemUserData(index);
-                        propExt.SegmentFlags.Required.SetFlags(flag, dropdown.GetChecked(index));
+                        propExt.SegmentFlags.Required= propExt.SegmentFlags.Required.SetFlags(flag, dropdown.GetChecked(index));
                         dropdown.Text = propExt.SegmentFlags.Required.ToString();
                         RefreshNetworks();
+                        Log.Debug($"eventCheckedChanged called for segment flags required. index={index} flag={flag} checked={dropdown.GetChecked(index)}");
                     };
 
                     // Populate
@@ -333,8 +342,9 @@ namespace AdvancedRoads.UI.MainPanel {
 
                     // Apply changes
                     dropdown.eventCheckedChanged += (_, index) => {
+                        Log.Debug($"eventCheckedChanged(index:{index}) called for " + "Segment Flags Forbidden");
                         NetSegmentExt.Flags flag = (NetSegmentExt.Flags)dropdown.GetItemUserData(index);
-                        propExt.SegmentFlags.Forbidden.SetFlags(flag, dropdown.GetChecked(index));
+                        propExt.SegmentFlags.Forbidden= propExt.SegmentFlags.Forbidden.SetFlags(flag, dropdown.GetChecked(index));
                         dropdown.Text = propExt.SegmentFlags.Forbidden.ToString();
                         RefreshNetworks();
                     };
@@ -351,6 +361,7 @@ namespace AdvancedRoads.UI.MainPanel {
                     BackButton.Instace.Show();
                 }
             } // Segment
+
             {//SegmentEnds
                 { // Start/tail
                     {
@@ -359,10 +370,15 @@ namespace AdvancedRoads.UI.MainPanel {
 
                         // Apply changes
                         dropdown.eventCheckedChanged += (_, index) => {
+                            Log.Debug($"eventCheckedChanged(index:{index}) called for " + "Segment Start Flags Required");
                             NetSegmentEnd.Flags flag = (NetSegmentEnd.Flags)dropdown.GetItemUserData(index);
-                            propExt.SegmentStartFlags.Required.SetFlags(flag, dropdown.GetChecked(index));
+                            propExt.SegmentStartFlags.Required =
+                                propExt.SegmentStartFlags.Required.SetFlags(flag, dropdown.GetChecked(index));
                             dropdown.Text = propExt.SegmentStartFlags.Required.ToString();
                             RefreshNetworks();
+                            Log.Debug($"eventCheckedChanged for Segment Start Flags Required. " +
+                                $"index={index} flag={flag} checked={dropdown.GetChecked(index)}");
+
                         };
 
                         // Populate
@@ -377,15 +393,20 @@ namespace AdvancedRoads.UI.MainPanel {
                         BackButton.Instace.Show();
                     }
                     {
-                        AddLabel(topPanel, "SegmentEnd Flags Forbidden:");
+                        AddLabel(topPanel, "Segment Start Flags Forbidden:");
                         var dropdown = UICheckboxDropDownExt.Add(topPanel);
 
                         // Apply changes
                         dropdown.eventCheckedChanged += (_, index) => {
+                            Log.Debug($"eventCheckedChanged(index:{index}) called for " + "Segment Start Flags Forbidden");
                             NetSegmentEnd.Flags flag = (NetSegmentEnd.Flags)dropdown.GetItemUserData(index);
-                            propExt.SegmentStartFlags.Forbidden.SetFlags(flag, dropdown.GetChecked(index));
+                            propExt.SegmentStartFlags.Forbidden =
+                                propExt.SegmentStartFlags.Forbidden.SetFlags(flag, dropdown.GetChecked(index));
                             dropdown.Text = propExt.SegmentStartFlags.Forbidden.ToString();
                             RefreshNetworks();
+                            Log.Debug($"eventCheckedChanged for Segment Start Flags Forbidden. " +
+                                 $"index={index} flag={flag} checked={dropdown.GetChecked(index)}");
+
                         };
 
                         // Populate
@@ -402,15 +423,18 @@ namespace AdvancedRoads.UI.MainPanel {
                 }
                 { // End/head
                     {
-                        AddLabel(topPanel, "End Segment Flags Required:");
+                        AddLabel(topPanel, "Segment End Flags Required:");
                         var dropdown = UICheckboxDropDownExt.Add(topPanel);
 
                         // Apply changes
                         dropdown.eventCheckedChanged += (_, index) => {
+                            Log.Debug($"eventCheckedChanged(index:{index}) called for " + "Segment End Flags Required");
                             NetSegmentEnd.Flags flag = (NetSegmentEnd.Flags)dropdown.GetItemUserData(index);
-                            propExt.SegmentEndFlags.Required.SetFlags(flag, dropdown.GetChecked(index));
+                            propExt.SegmentEndFlags.Required =
+                                propExt.SegmentEndFlags.Required.SetFlags(flag, dropdown.GetChecked(index));
                             dropdown.Text = propExt.SegmentEndFlags.Required.ToString();
                             RefreshNetworks();
+                            Log.Debug($"index={index} flag={flag} checked={dropdown.GetChecked(index)}");
                         };
 
                         // Populate
@@ -425,15 +449,18 @@ namespace AdvancedRoads.UI.MainPanel {
                         BackButton.Instace.Show();
                     }
                     {
-                        AddLabel(topPanel, "SegmentEnd Flags Forbidden:");
+                        AddLabel(topPanel, "Segment End Flags Forbidden:");
                         var dropdown = UICheckboxDropDownExt.Add(topPanel);
 
                         // Apply changes
                         dropdown.eventCheckedChanged += (_, index) => {
+                            Log.Debug($"eventCheckedChanged(index:{index}) called for " + "Segment End Flags Required");
                             NetSegmentEnd.Flags flag = (NetSegmentEnd.Flags)dropdown.GetItemUserData(index);
-                            propExt.SegmentEndFlags.Forbidden.SetFlags(flag, dropdown.GetChecked(index));
+                            propExt.SegmentEndFlags.Forbidden =
+                                propExt.SegmentEndFlags.Forbidden.SetFlags(flag, dropdown.GetChecked(index));
                             dropdown.Text = propExt.SegmentEndFlags.Forbidden.ToString();
                             RefreshNetworks();
+                            Log.Debug($"index={index} flag={flag} checked={dropdown.GetChecked(index)}");
                         };
 
                         // Populate
@@ -457,10 +484,13 @@ namespace AdvancedRoads.UI.MainPanel {
 
                         // Apply changes
                         dropdown.eventCheckedChanged += (_, index) => {
+                            Log.Debug($"eventCheckedChanged(index:{index}) called for " + "Start Node Flags Required");
                             NetNodeExt.Flags flag = (NetNodeExt.Flags)dropdown.GetItemUserData(index);
-                            propExt.StartNodeFlags.Required.SetFlags(flag, dropdown.GetChecked(index));
+                            propExt.StartNodeFlags.Required =
+                                propExt.StartNodeFlags.Required.SetFlags(flag, dropdown.GetChecked(index));
                             dropdown.Text = propExt.StartNodeFlags.Required.ToString();
                             RefreshNetworks();
+                            Log.Debug($"index={index} flag={flag} checked={dropdown.GetChecked(index)}");
                         };
 
                         // Populate
@@ -475,15 +505,18 @@ namespace AdvancedRoads.UI.MainPanel {
                         BackButton.Instace.Show();
                     }
                     {
-                        AddLabel(topPanel, "Node Flags Forbidden:");
+                        AddLabel(topPanel, "Start Node Flags Forbidden:");
                         var dropdown = UICheckboxDropDownExt.Add(topPanel);
 
                         // Apply changes
                         dropdown.eventCheckedChanged += (_, index) => {
+                            Log.Debug($"eventCheckedChanged(index:{index}) called for " + "Start Node Flags Forbidden");
                             NetNodeExt.Flags flag = (NetNodeExt.Flags)dropdown.GetItemUserData(index);
-                            propExt.StartNodeFlags.Forbidden.SetFlags(flag, dropdown.GetChecked(index));
+                            propExt.StartNodeFlags.Forbidden =
+                                propExt.StartNodeFlags.Forbidden.SetFlags(flag, dropdown.GetChecked(index));
                             dropdown.Text = propExt.StartNodeFlags.Forbidden.ToString();
                             RefreshNetworks();
+                            Log.Debug($"index={index} flag={flag} checked={dropdown.GetChecked(index)}");
                         };
 
                         // Populate
@@ -505,10 +538,13 @@ namespace AdvancedRoads.UI.MainPanel {
 
                         // Apply changes
                         dropdown.eventCheckedChanged += (_, index) => {
+                            Log.Debug($"eventCheckedChanged(index:{index}) called for " + "End Node Flags Required");
                             NetNodeExt.Flags flag = (NetNodeExt.Flags)dropdown.GetItemUserData(index);
-                            propExt.EndNodeFlags.Required.SetFlags(flag, dropdown.GetChecked(index));
+                            propExt.EndNodeFlags.Required =
+                                propExt.EndNodeFlags.Required.SetFlags(flag, dropdown.GetChecked(index));
                             dropdown.Text = propExt.EndNodeFlags.Required.ToString();
                             RefreshNetworks();
+                            Log.Debug($"index={index} flag={flag} checked={dropdown.GetChecked(index)}");
                         };
 
                         // Populate
@@ -523,15 +559,18 @@ namespace AdvancedRoads.UI.MainPanel {
                         BackButton.Instace.Show();
                     }
                     {
-                        AddLabel(topPanel, "Node Flags Forbidden:");
+                        AddLabel(topPanel, "End Node Flags Forbidden:");
                         var dropdown = UICheckboxDropDownExt.Add(topPanel);
 
                         // Apply changes
                         dropdown.eventCheckedChanged += (_, index) => {
+                            Log.Debug($"eventCheckedChanged(index:{index}) called for " + "End Node Flags Forbidden");
                             NetNodeExt.Flags flag = (NetNodeExt.Flags)dropdown.GetItemUserData(index);
-                            propExt.EndNodeFlags.Forbidden.SetFlags(flag, dropdown.GetChecked(index));
+                            propExt.EndNodeFlags.Forbidden =
+                                propExt.EndNodeFlags.Forbidden.SetFlags(flag, dropdown.GetChecked(index));
                             dropdown.Text = propExt.EndNodeFlags.Forbidden.ToString();
                             RefreshNetworks();
+                            Log.Debug($"index={index} flag={flag} checked={dropdown.GetChecked(index)}");
                         };
 
                         // Populate
@@ -570,8 +609,10 @@ namespace AdvancedRoads.UI.MainPanel {
 
 
         public void RefreshSize() {
+            autoLayout = true;
             RefreshSizeRecursive();
             BackButton.Instace.relativePosition = new Vector2(Drag.width - 40, 3f);
+            autoLayout = false;
         }
 
         protected override void OnPositionChanged() {

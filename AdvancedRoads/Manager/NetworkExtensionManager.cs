@@ -22,10 +22,22 @@ namespace AdvancedRoads {
         }
 
         public void OnLoad() {
+            Log.Debug("NetworkExtensionManager.OnLoad() called");
+            for(ushort nodeID=0;nodeID< NetManager.MAX_NODE_COUNT;++nodeID) {
+                if (NetUtil.IsNodeValid(nodeID)) {
+                    NetManager.instance.UpdateNode(nodeID);
+                }
+            }
+            for (ushort segmentID = 0; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
+                if (NetUtil.IsSegmentValid(segmentID)) {
+                    NetManager.instance.UpdateSegment(segmentID);
+                }
+            }
         }
         public void OnAfterDeserialize() {
              
         }
+
         #endregion LifeCycle
 
         public NetNodeExt[] NodeBuffer = new NetNodeExt[NetManager.MAX_NODE_COUNT];

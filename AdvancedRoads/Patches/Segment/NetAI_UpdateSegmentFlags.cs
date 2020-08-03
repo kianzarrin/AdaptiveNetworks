@@ -3,25 +3,24 @@ using KianCommons;
 using System.Reflection;
 
 namespace AdvancedRoads.Patches.Segment {
+    [HarmonyPatch]
     class NetAI_UpdateSegmentFlags {
         //public virtual void UpdateSegmentFlags(ushort segmentID, ref NetSegment data)
-        public static MethodBase TargetMethod() =>
-            AccessTools.DeclaredMethod(
+        static MethodInfo Target => AccessTools.DeclaredMethod(
                 typeof(NetAI),
                 nameof(NetAI.UpdateSegmentFlags),
                 new[] { typeof(ushort), typeof(NetSegment).MakeByRefType() }) ??
             throw new System.Exception("could not find method");
-
-        static void Postfix(ushort segmentID, ref NetSegment data) {
-            //Log.Debug("NetAI_UpdateSegmentFlags.PostFix() was called");
-            if (!NetUtil.IsNodeValid(segmentID)) return;
-            ref NetSegmentExt netSegmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
-
-            netSegmentExt.Start.UpdateFlags();
-            netSegmentExt.Start.UpdateDirections();
-
-            netSegmentExt.End.UpdateFlags();
-            netSegmentExt.End.UpdateDirections();
+        public static MethodBase TargetMethod() {
+            var ret = Target;
+            if (ret != null)
+                Log.Debug("patching target method:" + ret);
+            return ret;
+        }
+        static void Postfix(ushort segmentID) {
+            Log.Debug("NetAI_UpdateSegmentFlags.PostFix() was called for segment:" + segmentID);
         } // end postfix
     }
 }
+
+

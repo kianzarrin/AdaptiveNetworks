@@ -6,7 +6,7 @@ Call stack:
 - NetNode.UpdateNode() is called in NetManager.SimulationStep() and before releasing node.
 - NetAI.UpdateNode() called by NetNode.UpdateNode()
 - NetManager.UpdateNodeFlags() is called in NetManager.SimulationStep() and after deserialization. // force call to fix node controller?
-- NetAI.UpdateNodeFlags() called by NetNode.UpdateNodeFlags() and after when UI events (stop/TL).
+- NetAI.UpdateNodeFlags() called by NetNode.UpdateNode() and after UI events (stop/TL).
 - NetSegment.UpdateLanes() is called in NetManager.SimulationStep(), after deserialization, and after when UI events (stop/TL).
 - NetAI.UpdateLanes() called by NetSegment.UpdateLanes()
 

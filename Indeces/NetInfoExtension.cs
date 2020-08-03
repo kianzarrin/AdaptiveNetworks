@@ -1,5 +1,4 @@
 using System;
-using UnityEngine.Assertions.Must;
 
 namespace PrefabIndeces {
     public static class NetInfoExtension {
@@ -23,9 +22,9 @@ namespace PrefabIndeces {
             public static NetInfo.Segment Extend(ushort index, ushort prefabIndex) {
                 NetInfo.Segment tempalte = GetInfo(prefabIndex).m_segments[index];
                 Type t = tempalte.GetType();
-                if (t == typeof(NetInfo.Segment))
+                if (t == typeof(NetInfo.Segment)) {
                     return new Segment(index, prefabIndex);
-                else if (t.FullName == typeof(NetInfo.Segment).FullName) {
+                } else if (t.FullName == typeof(NetInfoExtension.Segment).FullName) {
                     if (Util.VersionOf(tempalte) >= Version)
                         return tempalte;
                     else
@@ -51,7 +50,7 @@ namespace PrefabIndeces {
                 Type t = tempalte.GetType();
                 if (t == typeof(NetInfo.Node))
                     return new Node(index, prefabIndex);
-                else if (t.FullName == typeof(NetInfo.Node).FullName) {
+                else if (t.FullName == typeof(NetInfoExtension.Node).FullName) {
                     if (Util.VersionOf(tempalte) >= Version)
                         return tempalte;
                     else
@@ -71,12 +70,13 @@ namespace PrefabIndeces {
                 Index = index;
                 PrefabIndex = prefabIndex;
             }
+
             public static NetInfo.Lane Extend(ushort index, ushort prefabIndex) {
                 NetInfo.Lane tempalte = GetInfo(prefabIndex).m_lanes[index];
                 Type t = tempalte.GetType();
                 if (t == typeof(NetInfo.Lane))
                     return new Lane(index, prefabIndex);
-                else if (t.FullName == typeof(NetInfo.Lane).FullName) {
+                else if (t.FullName == typeof(NetInfoExtension.Lane).FullName) {
                     if (Util.VersionOf(tempalte) >= Version)
                         return tempalte;
                     else
@@ -104,7 +104,7 @@ namespace PrefabIndeces {
                     Type t = tempalte.GetType();
                     if (t == typeof(NetLaneProps.Prop))
                         return new Prop(index, laneIndex, prefabIndex);
-                    else if (t.FullName == typeof(NetLaneProps.Prop).FullName) {
+                    else if (t.FullName == typeof(NetInfoExtension.Lane.Prop).FullName) {
                         if (Util.VersionOf(tempalte) >= Version)
                             return tempalte;
                         else
@@ -160,15 +160,22 @@ namespace PrefabIndeces {
 
         public static void ExtendPrefabProps(NetInfo info) {
             ushort infoIndex = info.GetIndex();
+            if (!info || info == null) throw new Exception("info is null");
+            if (info.m_lanes == null) throw new Exception("m_lanes is null");
             for (ushort laneIndex = 0; laneIndex < info.m_lanes.Length; ++laneIndex) {
-                var n = info.m_lanes[laneIndex].m_laneProps.m_props.Length;
+                var lane = info.m_lanes[laneIndex];
+                var props = lane?.m_laneProps?.m_props;
+                if (props == null)
+                    continue;
+                var n = props.Length;
                 var new_props = new NetLaneProps.Prop[n];
                 for (ushort i = 0; i < n; ++i) {
-                    new_props[i] =  NetInfoExtension.Lane.Prop.Extend(i, laneIndex, infoIndex);
+                    new_props[i] = NetInfoExtension.Lane.Prop.Extend(i, laneIndex, infoIndex);
                 }
-                info.m_lanes[laneIndex].m_laneProps.m_props = new_props;
+                lane.m_laneProps.m_props = new_props;
             }
         }
+
 
     }
 }

@@ -25,6 +25,7 @@ namespace AdvancedRoads {
     using TrafficManager.API.Traffic.Enums;
     using TrafficManager.Manager.Impl;
     using KianCommons;
+    using Log = KianCommons.Log;
 
     public static class AdvanedFlagsExtensions {
         public static bool CheckFlags(this NetLaneExt.Flags value, NetLaneExt.Flags required, NetLaneExt.Flags forbidden) =>
@@ -84,7 +85,7 @@ namespace AdvancedRoads {
         public void UpdateLane() {
             LaneData.LaneInfo = LaneData.Segment.Info.m_lanes[LaneData.LaneIndex];
 
-            m_flags.SetFlags(Flags.ParkingAllowed, PMan.IsParkingAllowed(LaneData.SegmentID, LaneData.LaneInfo.m_finalDirection));
+            m_flags = m_flags.SetFlags(Flags.ParkingAllowed, PMan.IsParkingAllowed(LaneData.SegmentID, LaneData.LaneInfo.m_finalDirection));
 
             var mask = VRMan.GetDefaultAllowedVehicleTypes(
                 segmentId:LaneData.SegmentID,
@@ -94,13 +95,13 @@ namespace AdvancedRoads {
                 busLaneMode: VehicleRestrictionsMode.Configured);
 
 
-            m_flags.SetFlags(Flags.PassengerCar, VRMan.IsPassengerCarAllowed(mask));
-            m_flags.SetFlags(Flags.SOS, VRMan.IsEmergencyAllowed(mask));
-            m_flags.SetFlags(Flags.Bus, VRMan.IsBusAllowed(mask));
-            m_flags.SetFlags(Flags.CargoTruck, VRMan.IsCargoTruckAllowed(mask));
-            m_flags.SetFlags(Flags.Taxi, VRMan.IsTaxiAllowed(mask));
-            m_flags.SetFlags(Flags.CargoTrain, VRMan.IsCargoTrainAllowed(mask));
-            m_flags.SetFlags(Flags.PassengerTrain, VRMan.IsPassengerTrainAllowed(mask));
+            m_flags = m_flags.SetFlags(Flags.PassengerCar, VRMan.IsPassengerCarAllowed(mask));
+            m_flags = m_flags.SetFlags(Flags.SOS, VRMan.IsEmergencyAllowed(mask));
+            m_flags = m_flags.SetFlags(Flags.Bus, VRMan.IsBusAllowed(mask));
+            m_flags = m_flags.SetFlags(Flags.CargoTruck, VRMan.IsCargoTruckAllowed(mask));
+            m_flags = m_flags.SetFlags(Flags.Taxi, VRMan.IsTaxiAllowed(mask));
+            m_flags = m_flags.SetFlags(Flags.CargoTrain, VRMan.IsCargoTrainAllowed(mask));
+            m_flags = m_flags.SetFlags(Flags.PassengerTrain, VRMan.IsPassengerTrainAllowed(mask));
             //TODO lane connections // speed limits.
 
         }
@@ -200,30 +201,36 @@ namespace AdvancedRoads {
 
         public void UpdateFlags() {
             PriorityType p = PMan.GetPrioritySign(SegmentID, StartNode);
-            m_flags.SetFlags(Flags.Yield, p == PriorityType.Yield);
-            m_flags.SetFlags(Flags.Stop, p == PriorityType.Stop);
-            m_flags.SetFlags(Flags.Main, p == PriorityType.Main);
+            m_flags = m_flags.SetFlags(Flags.Yield, p == PriorityType.Yield);
+            m_flags = m_flags.SetFlags(Flags.Stop, p == PriorityType.Stop);
+            m_flags = m_flags.SetFlags(Flags.Main, p == PriorityType.Main);
 
-            m_flags.SetFlags(Flags.KeepClear, !JRMan.IsEnteringBlockedJunctionAllowed(SegmentID, StartNode));
-            m_flags.SetFlags(Flags.ZebraCrossing, JRMan.IsPedestrianCrossingAllowed(SegmentID, StartNode));
-            m_flags.SetFlags(Flags.NearTurnAtRed, JRMan.IsNearTurnOnRedAllowed(SegmentID, StartNode));
-            m_flags.SetFlags(Flags.FartTurnAtRed, JRMan.IsFarTurnOnRedAllowed(SegmentID, StartNode));
-            m_flags.SetFlags(Flags.Uturn, JRMan.IsUturnAllowed(SegmentID, StartNode));
-            m_flags.SetFlags(Flags.LaneChangingGoingStraight, JRMan.IsLaneChangingAllowedWhenGoingStraight(SegmentID, StartNode));
+            m_flags = m_flags.SetFlags(Flags.KeepClear, !JRMan.IsEnteringBlockedJunctionAllowed(SegmentID, StartNode));
+            m_flags = m_flags.SetFlags(Flags.ZebraCrossing, JRMan.IsPedestrianCrossingAllowed(SegmentID, StartNode));
+            m_flags = m_flags.SetFlags(Flags.NearTurnAtRed, JRMan.IsNearTurnOnRedAllowed(SegmentID, StartNode));
+            m_flags = m_flags.SetFlags(Flags.FartTurnAtRed, JRMan.IsFarTurnOnRedAllowed(SegmentID, StartNode));
+            m_flags = m_flags.SetFlags(Flags.Uturn, JRMan.IsUturnAllowed(SegmentID, StartNode));
+            m_flags = m_flags.SetFlags(Flags.LaneChangingGoingStraight, JRMan.IsLaneChangingAllowedWhenGoingStraight(SegmentID, StartNode));
+
+            Log.Debug("NetSegmentEnd.UpdateFlags() result: " + this);
+        }
+
+        public override string ToString() {
+            return $"NetSegmentEnd(segment:{SegmentID} node:{NodeID} StartNode:{StartNode} flags={m_flags})";
         }
 
         public void UpdateDirections() { 
             CheckSegmentsInEachDirection(
                 segmentId: SegmentID, nodeId: NodeID,
                 right: out bool right, forward: out bool forward, left: out bool left);
-            m_flags.SetFlags(Flags.HasRightSegment, right);
-            m_flags.SetFlags(Flags.HasLeftSegment, left);
-            m_flags.SetFlags(Flags.HasForwardSegment, forward);
+            m_flags = m_flags.SetFlags(Flags.HasRightSegment, right);
+            m_flags = m_flags.SetFlags(Flags.HasLeftSegment, left);
+            m_flags = m_flags.SetFlags(Flags.HasForwardSegment, forward);
 
             LaneArrows arrows = AllArrows(SegmentID, StartNode);
-            m_flags.SetFlags(Flags.CanGoForward, arrows.IsFlagSet(LaneArrows.Forward));
-            m_flags.SetFlags(Flags.CanTurnRight, arrows.IsFlagSet(LaneArrows.Right));
-            m_flags.SetFlags(Flags.CanTurnLeft, arrows.IsFlagSet(LaneArrows.Left));
+            m_flags = m_flags.SetFlags(Flags.CanGoForward, arrows.IsFlagSet(LaneArrows.Forward));
+            m_flags = m_flags.SetFlags(Flags.CanTurnRight, arrows.IsFlagSet(LaneArrows.Right));
+            m_flags = m_flags.SetFlags(Flags.CanTurnLeft, arrows.IsFlagSet(LaneArrows.Left));
         }
 
         private static LaneArrows AllArrows(ushort segmentId, bool startNode) {
