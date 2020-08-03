@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 
 namespace PrefabIndeces {
     public static class NetInfoExtension {
@@ -125,6 +126,7 @@ namespace PrefabIndeces {
         }
 
         public static void ExtendPrefab(NetInfo info) {
+            if (info == null) return;
             ExtendPrefabNodes(info);
             ExtendPrefabSegments(info);
             ExtendPrefabLanes(info);

@@ -116,7 +116,6 @@ namespace AdvancedRoads.Manager {
         public class Lane {
             public LaneInfoFlags LaneFlags;
 
-            [NonSerialized]
             public LaneProp[] PropInfoExts;
 
             public Lane(NetInfo.Lane template) {

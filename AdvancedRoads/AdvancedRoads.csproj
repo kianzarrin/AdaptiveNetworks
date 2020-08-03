@@ -50,6 +50,10 @@
     <Compile Remove="Patches\Lane\CalculateLane.cs" />
     <Compile Remove="Patches\Node\CalculateNode.cs" />
     <Compile Remove="Patches\Segment\CalculateSegment.cs" />
+    <Compile Remove="Patches\Segment\NetAI_UpdateSegmentFlags.cs" />
+    <Compile Remove="Patches\Segment\NetSegment_CalculateSegment.cs" />
+    <Compile Remove="Patches\Segment\NetSegment_UpdateSegment.cs" />
+    <Compile Remove="Patches\Segment\RoadBaseAI_UpdateSegmentFlags.cs" />
     <Compile Remove="UI\MainPanel\InterAvtiveButton.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -78,6 +82,7 @@
     </Reference>
     <Reference Include="CSUtil.Commons">
       <HintPath>..\libs\CSUtil.Commons.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="ICities">
       <HintPath>$(MangedDLLPath)\ICities.dll</HintPath>
@@ -91,6 +96,9 @@
     <Reference Include="TMPE.API">
       <HintPath>..\libs\TMPE.API.dll</HintPath>
       <Private>false</Private>
+    </Reference>
+    <Reference Include="TMPE.CitiesGameBridge">
+      <HintPath>..\libs\TMPE.CitiesGameBridge.dll</HintPath>
     </Reference>
     <Reference Include="TrafficManager">
       <HintPath>..\libs\TrafficManager.dll</HintPath>
