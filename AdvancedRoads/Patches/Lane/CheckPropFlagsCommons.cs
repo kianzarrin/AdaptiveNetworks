@@ -122,7 +122,7 @@ namespace AdvancedRoads.Patches.Lane {
         // returns the position of First DrawMesh after index.
         public static void PatchCheckFlags(List<CodeInstruction> codes, MethodInfo method) {
             var index = SearchInstruction(codes, new CodeInstruction(OpCodes.Callvirt, mCheckFlags), 0, counter: 1);
-            HelpersExtensions.Assert(index != 0, "index!=0");
+            Assertion.Assert(index != 0, "index!=0");
 
             CodeInstruction LDLoc_prop = Build_LDLoc_PropInfo_FromSTLoc(codes, index);
             CodeInstruction LDArg_laneInfo = GetLDArg(method, "laneInfo");

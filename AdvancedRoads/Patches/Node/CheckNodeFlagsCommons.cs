@@ -35,7 +35,7 @@ namespace AdvancedRoads.Patches {
         public static void PatchCheckFlags(List<CodeInstruction> codes, MethodInfo method, int occurance, int counterGetSegment) {
             // callvirt instance bool NetInfo/Node::CheckFlags(Flags)
             var index = SearchInstruction(codes, new CodeInstruction(OpCodes.Callvirt, mCheckFlags), 0, counter: occurance);
-            HelpersExtensions.Assert(index != 0, "index!=0");
+            Assertion.Assert(index != 0, "index!=0");
 
             CodeInstruction LDLoc_NodeInfo = Build_LDLoc_NodeInfo_FromSTLoc(codes, index);
             CodeInstruction LDArg_NodeID = GetLDArg(method, "nodeID");

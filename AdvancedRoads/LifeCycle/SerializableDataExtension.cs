@@ -2,9 +2,7 @@ namespace AdvancedRoads.LifeCycle
 {
     using JetBrains.Annotations;
     using ICities;
-    using System.IO;
-    using UnityEngine;
-    using KianCommons;
+    using System;
 
     [UsedImplicitly]
     public class SerializableDataExtension
@@ -15,7 +13,7 @@ namespace AdvancedRoads.LifeCycle
         public override void OnLoadData()
         {
             byte[] data = serializableDataManager.LoadData(DATA_ID);
-            NetworkExtensionManager.Deserialize(data);
+            NetworkExtensionManager.Deserialize(data, new Version(1,0));
         }
 
         public override void OnSaveData()

@@ -7,7 +7,7 @@ namespace AdvancedRoads.LifeCycle {
     using PrefabIndeces;
     using System;
     using System.Collections.Generic;
-    using static KianCommons.HelpersExtensions;
+    using static KianCommons.Assertion;
 
     [HarmonyPatch(typeof(LoadAssetPanel), "OnLoad")]
     public static class OnLoadPatch {
@@ -61,6 +61,7 @@ namespace AdvancedRoads.LifeCycle {
             NetInfo tunnel = AssetEditorRoadUtils.TryGetTunnel(ground);
             var ret = new AssetData();
             ret.Ground = NetInfoExt.Buffer[ground.GetIndex()];
+            // TODO complete
             return ret;
         }
 
@@ -101,7 +102,7 @@ namespace AdvancedRoads.LifeCycle {
                 Log.Debug("AssetDataExtension.OnAssetLoaded():  prefab is " + prefab);
                 if (userData.TryGetValue(ID_NetInfo, out byte[] data)) {
                     Log.Info("AssetDataExtension.OnAssetLoaded(): extracted data for " + ID_NetInfo);
-                    var assetData = SerializationUtil.Deserialize(data) as AssetData;
+                    var assetData = SerializationUtil.Deserialize(data,default) as AssetData;
                     AssertNotNull(assetData, "assetData");
                     AssetData.Load(assetData, prefab);
                     Log.Debug("AssetDataExtension.OnAssetLoaded(): Asset Data=" + assetData);

@@ -15,13 +15,13 @@ namespace AdvancedRoads {
 
         public static byte[] Serialize() => SerializationUtil.Serialize(Instance);
 
-        public static void Deserialize(byte[] data) {
+        public static void Deserialize(byte[] data, Version version) {
             if (data == null) {
                 Instance = new NetworkExtensionManager();
                 Log.Debug($"NetworkExtensionManager.Deserialize(data=null)");
             } else {
                 Log.Debug($"NetworkExtensionManager.Deserialize(data): data.Length={data?.Length}");
-                Instance = SerializationUtil.Deserialize(data) as NetworkExtensionManager;
+                Instance = SerializationUtil.Deserialize(data, version) as NetworkExtensionManager;
             }
         }
 

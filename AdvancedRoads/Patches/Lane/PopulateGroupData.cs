@@ -22,7 +22,7 @@ namespace AdvancedRoads.Patches.Lane {
 
         public static MethodBase TargetMethod() {
             var ret = Target;
-            HelpersExtensions.Assert(ret != null, "did not manage to find original function to patch");
+            Assertion.Assert(ret != null, "did not manage to find original function to patch");
             Log.Info(logPrefix_ + "aquired method " + ret);
             return ret;
         }

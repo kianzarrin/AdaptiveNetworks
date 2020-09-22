@@ -195,7 +195,7 @@ namespace AdvancedRoads.Manager {
         public Lane[] LaneInfoExts;
 
         public NetInfoExt(NetInfo template) {
-            Version = HelpersExtensions.VersionOf(this);
+            Version = this.VersionOf();
             SegmentInfoExts = new Segment[template.m_segments.Length];
             for (int i = 0; i < SegmentInfoExts.Length; ++i) {
                 SegmentInfoExts[i] = new Segment(template.m_segments[i]);

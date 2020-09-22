@@ -31,12 +31,15 @@
     <RootNamespace>AdvancedRoads</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="KianCommons\KianCommons\ObjUnity3D\**" />
     <Compile Remove="KianCommons\KianCommons\obj\**" />
     <Compile Remove="KianCommons\KianCommons\Properties\**" />
     <Compile Remove="KianCommons\libs\**" />
+    <EmbeddedResource Remove="KianCommons\KianCommons\ObjUnity3D\**" />
     <EmbeddedResource Remove="KianCommons\KianCommons\obj\**" />
     <EmbeddedResource Remove="KianCommons\KianCommons\Properties\**" />
     <EmbeddedResource Remove="KianCommons\libs\**" />
+    <None Remove="KianCommons\KianCommons\ObjUnity3D\**" />
     <None Remove="KianCommons\KianCommons\obj\**" />
     <None Remove="KianCommons\KianCommons\Properties\**" />
     <None Remove="KianCommons\libs\**" />
@@ -47,6 +50,8 @@
     <Compile Remove="DecompiledSources\NetSegment.cs" />
     <Compile Remove="KianCommons\KianCommons\Patches\PrefixUtils.cs" />
     <Compile Remove="KianCommons\KianCommons\Util\CSURUtil.cs" />
+    <Compile Remove="KianCommons\KianCommons\Util\MeshUtil.cs" />
+    <Compile Remove="Patches\HarmonyExtension.cs" />
     <Compile Remove="Patches\Lane\CalculateLane.cs" />
     <Compile Remove="Patches\Node\CalculateNode.cs" />
     <Compile Remove="Patches\Segment\CalculateSegment.cs" />

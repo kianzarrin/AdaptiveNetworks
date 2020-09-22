@@ -52,11 +52,11 @@ namespace AdvancedRoads.Patches.Segment {
         public static void PatchCheckFlags(List<CodeInstruction> codes, MethodInfo method, int occurance = 1) {
             // callvirt NetInfo+Segment.CheckFlags(valuetype NetSegment+Flags, bool&)
             var index = SearchInstruction(codes, new CodeInstruction(OpCodes.Callvirt, mCheckFlags), 0, counter: occurance);
-            HelpersExtensions.Assert(index != 0, "index!=0");
+            Assertion.Assert(index != 0, "index!=0");
 
             CodeInstruction LDLoc_SegmentInfo = Build_LDLoc_SegmentInfo_FromSTLoc(codes, index);
             CodeInstruction LDLoca_turnAround = new CodeInstruction(codes[index - 1]);
-            HelpersExtensions.Assert(LDLoca_turnAround.opcode == OpCodes.Ldloca_S);
+            Assertion.Assert(LDLoca_turnAround.opcode == OpCodes.Ldloca_S);
             CodeInstruction LDArg_SegmenteID = GetLDArg(method, "segmentID");
 
             { // insert our checkflags after base checkflags
