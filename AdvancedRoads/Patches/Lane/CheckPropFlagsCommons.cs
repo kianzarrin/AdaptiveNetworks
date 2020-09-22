@@ -97,10 +97,10 @@ namespace AdvancedRoads.Patches.Lane {
 
             if (propIndex.LaneIndex == 1 && propIndex.Index == 1)         
             {
-                Log.DebugWait($"calling propInfoExt.CheckFlags called for lane{laneID} " +
-                    $"netSegmentStart.m_flags={netSegmentStart.m_flags}, netSegmentEnd.m_flags={netSegmentEnd.m_flags} " +
-                    $"propInfoExt.SegmentEndFlags.Required={propInfoExt.SegmentEndFlags.Required}",
-                    id: (int)laneID);
+                //Log.DebugWait($"calling propInfoExt.CheckFlags called for lane{laneID} " +
+                //    $"netSegmentStart.m_flags={netSegmentStart.m_flags}, netSegmentEnd.m_flags={netSegmentEnd.m_flags} " +
+                //    $"propInfoExt.SegmentEndFlags.Required={propInfoExt.SegmentEndFlags.Required}",
+                //    id: (int)laneID, copyToGameLog: false);
             }
 
             return propInfoExt.CheckFlags(

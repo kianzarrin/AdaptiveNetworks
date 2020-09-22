@@ -4,6 +4,11 @@ namespace AdvancedRoads.Patches.RoadEditor {
     using System.Reflection;
     using KianCommons;
 
+    /// <summary>
+    /// changeing types confuses AddCustomFields.
+    /// this patch resolves that confusion by using the replaced types.
+    /// TODO move this pacth to prefab indeces mod.
+    /// </summary>
     [HarmonyPatch]
     public static class AddCustomFields {
         static MethodInfo mAddCustomFields_ =
@@ -16,22 +21,43 @@ namespace AdvancedRoads.Patches.RoadEditor {
             return ret;
         }
 
+        static MethodInfo mAddLanePropFields_ =
+            AccessTools.DeclaredMethod(typeof(RoadEditorPanel), "AddLanePropFields")
+            ?? throw new Exception("mAddLanePropFields_ is null");
+
         static MethodInfo mAddLanePropSelectField_ =
             AccessTools.DeclaredMethod(typeof(RoadEditorPanel), "AddLanePropSelectField")
             ?? throw new Exception("mAddLanePropSelectField_ is null");
+
+        static MethodInfo mAddCrossImportField_ =
+            AccessTools.DeclaredMethod(typeof(RoadEditorPanel), "AddCrossImportField")
+            ?? throw new Exception("mAddCrossImportField_ is null");
+
+        static MethodInfo mAddModelImportField_ =
+            AccessTools.DeclaredMethod(typeof(RoadEditorPanel), "AddModelImportField")
+            ?? throw new Exception("mAddModelImportField_ is null");
 
         static FieldInfo fTarget_ =
             AccessTools.Field(typeof(RoadEditorPanel), "m_Target")
             ?? throw new Exception("fTarget_ is null");
 
-
-
         public static void Postfix(RoadEditorPanel __instance) {
+            Log.Debug($"AddCustomFields.PostFix() called\n"+Environment.StackTrace);
             object target = fTarget_.GetValue(__instance);
-            Type type = target.GetType();
-            if (type.FullName == typeof(PrefabIndeces.NetInfoExtension.Lane.Prop).FullName) {
+            if (target is NetInfo.Segment) {
+                mAddCrossImportField_.Invoke(__instance, null);
+                mAddModelImportField_.Invoke(__instance, new object[] { true });
+            } else if (target is NetInfo.Node) {
+                mAddCrossImportField_.Invoke(__instance, null);
+                mAddModelImportField_.Invoke(__instance, new object[]{false});
+            } else if (target is NetInfo.Lane) {
+                mAddLanePropFields_.Invoke(__instance, null);
+            } else if (target is NetLaneProps.Prop) {
                 mAddLanePropSelectField_.Invoke(__instance, null);
             }
+            //if (target is  NetInfo.Lane) {
+            //    mAddLanePropSelectField_.Invoke(__instance, null);
+            //}
         }
     }
 }
