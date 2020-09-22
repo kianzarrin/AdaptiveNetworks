@@ -71,8 +71,9 @@ namespace AdvancedRoads.Patches.Lane {
 
         // TODO use the other checkflags.
         public static bool CheckFlags(NetLaneProps.Prop prop, NetInfo.Lane laneInfo, uint laneID) {
-            var propInfoExt = NetInfoExt.LaneProp.Get(prop as NetInfoExtension.Lane.Prop);
-            //Log.DebugWait($"CheckFlags called for lane:{laneID} propInfoExt={propInfoExt} prop={prop}", (int)laneID);
+            var propIndex = (NetInfoExtension.Lane.Prop)prop;
+            var propInfoExt = NetInfoExt.LaneProp.Get(propIndex);
+            //Log.DebugWait($"CheckFlags called for lane:{laneID} propInfoExt={propInfoExt} propIndex={propIndex} prop={prop}", (int)laneID);
             if (propInfoExt == null) return true;
             //var laneInfoExt = NetInfoExt.Lane.Get(laneInfo as NetInfoExtension.Lane);
             //if (laneInfoExt == null) return true;
@@ -94,10 +95,13 @@ namespace AdvancedRoads.Patches.Lane {
             ref NetSegmentEnd netSegmentStart = ref netSegmentExt.GetEnd(startNodeID);
             ref NetSegmentEnd netSegmentEnd = ref netSegmentExt.GetEnd(endNodeID);
 
-            Log.DebugWait($"calling propInfoExt.CheckFlags called for lane{laneID} " +
-                $"netSegmentStart.m_flags={netSegmentStart.m_flags}, netSegmentEnd.m_flags={netSegmentEnd.m_flags} " +
-                $"propInfoExt.SegmentEndFlags.Required={propInfoExt.SegmentEndFlags.Required}",
-                id: (int)laneID, seconds:1 );
+            if (propIndex.LaneIndex == 1 && propIndex.Index == 1)         
+            {
+                Log.DebugWait($"calling propInfoExt.CheckFlags called for lane{laneID} " +
+                    $"netSegmentStart.m_flags={netSegmentStart.m_flags}, netSegmentEnd.m_flags={netSegmentEnd.m_flags} " +
+                    $"propInfoExt.SegmentEndFlags.Required={propInfoExt.SegmentEndFlags.Required}",
+                    id: (int)laneID);
+            }
 
             return propInfoExt.CheckFlags(
                 netLaneExt.m_flags, netSegmentExt.m_flags,

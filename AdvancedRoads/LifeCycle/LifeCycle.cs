@@ -11,8 +11,9 @@ namespace AdvancedRoads.LifeCycle
         {
             try {
                 Log.Info("LifeCycle.Load() called");
-                PrefabIndeces.NetInfoExtension.ExtendLoadedPrefabs();
-                NetInfoExt.ExpandBuffer(); // ensure buffer is large enough after everything has been loaded.
+                // ensure buffer is large enough after everything has been loaded.
+                // also extends loaded prefabs with indeces.
+                NetInfoExt.ExpandBuffer(); 
                 HarmonyExtension.InstallHarmony();
                 NetworkExtensionManager.Instance.OnLoad();
                 MainPanel.Create();

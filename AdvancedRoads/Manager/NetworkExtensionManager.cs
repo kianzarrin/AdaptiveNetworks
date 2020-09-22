@@ -6,6 +6,10 @@ namespace AdvancedRoads {
     [Serializable]
     public class NetworkExtensionManager {
         #region LifeCycle
+        private NetworkExtensionManager(){
+        }
+
+
         // this initalizesation maybe useful in case of a hot reload.
         public static NetworkExtensionManager Instance { get; private set; } = new NetworkExtensionManager();
 
@@ -23,7 +27,8 @@ namespace AdvancedRoads {
 
         public void OnLoad() {
             Log.Debug("NetworkExtensionManager.OnLoad() called");
-            for(ushort nodeID=0;nodeID< NetManager.MAX_NODE_COUNT;++nodeID) {
+            InitBuffers();
+            for (ushort nodeID=0;nodeID< NetManager.MAX_NODE_COUNT;++nodeID) {
                 if (NetUtil.IsNodeValid(nodeID)) {
                     NetManager.instance.UpdateNode(nodeID);
                 }
@@ -38,6 +43,16 @@ namespace AdvancedRoads {
              
         }
 
+        public void InitBuffers() {
+            for (ushort nodeID = 1; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID)
+                NodeBuffer[nodeID].Init(nodeID);
+            for (ushort segmentID = 1; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
+                SegmentBuffer[segmentID].Init(segmentID);
+                GetSegmentEnd(segmentID, startNode: true).Init(segmentID, startNode: true);
+                GetSegmentEnd(segmentID, startNode: false).Init(segmentID, startNode: false);
+            }
+
+        }
         #endregion LifeCycle
 
         public NetNodeExt[] NodeBuffer = new NetNodeExt[NetManager.MAX_NODE_COUNT];

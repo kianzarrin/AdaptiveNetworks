@@ -265,12 +265,16 @@ namespace AdvancedRoads.Manager {
         }
 
         public static void Init() {
+            NetInfoExtension.ExtendLoadedPrefabs();
             Log.Debug("prefab count=" + PrefabCollection<NetInfo>.PrefabCount() /*+ Environment.StackTrace*/);
             Buffer = new NetInfoExt[PrefabCollection<NetInfo>.PrefabCount()];
         }
+        public static void Unload() {
+            Buffer = null;
+        }
 
         public static void ExpandBuffer() {
-            if(Buffer==null) {
+            if (Buffer==null) {
                 Init();
                 return;
             }

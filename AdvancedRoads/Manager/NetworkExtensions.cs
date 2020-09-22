@@ -111,8 +111,9 @@ namespace AdvancedRoads {
     [Serializable]
     public struct NetNodeExt {
         public ushort NodeID;
+        public void Init(ushort nodeID) => NodeID = nodeID;
 
-        [Flags]
+            [Flags]
         public enum Flags : UInt32 {
             None,
             Vanilla,
@@ -126,6 +127,7 @@ namespace AdvancedRoads {
     [Serializable]
     public struct NetSegmentExt {
         public ushort SegmentID;
+        public void Init(ushort segmentID) => SegmentID = segmentID;
 
         [Flags]
         public enum Flags : UInt32 {
@@ -186,8 +188,9 @@ namespace AdvancedRoads {
 
         public Flags m_flags;
 
-        public ushort SegmentID, NodeID;
+        public ushort SegmentID;
         public bool StartNode;
+        public ushort NodeID => StartNode ? SegmentID.ToSegment().m_startNode : SegmentID.ToSegment().m_endNode;
 
         public static JunctionRestrictionsManager JRMan => JunctionRestrictionsManager.Instance;
         public static TrafficPriorityManager PMan => TrafficPriorityManager.Instance;
@@ -196,7 +199,6 @@ namespace AdvancedRoads {
             m_flags = Flags.None;
             SegmentID = segmentID;
             StartNode = startNode;
-            NodeID = startNode ? segmentID.ToSegment().m_startNode : segmentID.ToSegment().m_endNode;
         }
 
         public void UpdateFlags() {
@@ -270,7 +272,8 @@ namespace AdvancedRoads {
                         left = true;
                         break;
                     default:
-                        throw new Exception("Unreachable Code");
+                        break;
+                        //throw new Exception("Unreachable Code. dir = " + dir);
                 } //end switch
             } // end for
         } // end method
