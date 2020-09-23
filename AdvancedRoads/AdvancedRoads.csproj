@@ -21,7 +21,7 @@
     <DefineConstants />
   </PropertyGroup>
   <PropertyGroup>
-    <PathMap>C:\Users\dell\source\repos\AdvancedRoads\AdvancedRoads\=AdvancedRoads:</PathMap>
+    <PathMap>C:\Users\dell\source\repos\AdvancedRoads\AdvancedRoads\=X:\AdvancedRoads</PathMap>
   </PropertyGroup>
   <PropertyGroup>
     <MangedDLLPath>..\dependencies</MangedDLLPath>

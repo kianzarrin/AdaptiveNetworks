@@ -42,8 +42,8 @@ namespace AdvancedRoads.Patches.RoadEditor {
             ?? throw new Exception("fTarget_ is null");
 
         public static void Postfix(RoadEditorPanel __instance) {
-            Log.Debug($"AddCustomFields.PostFix() called\n"+Environment.StackTrace);
             object target = fTarget_.GetValue(__instance);
+            Log.Debug($"AddCustomFields.PostFix() target={target}\n" + Environment.StackTrace);
             if (target is NetInfo.Segment) {
                 mAddCrossImportField_.Invoke(__instance, null);
                 mAddModelImportField_.Invoke(__instance, new object[] { true });
@@ -55,9 +55,6 @@ namespace AdvancedRoads.Patches.RoadEditor {
             } else if (target is NetLaneProps.Prop) {
                 mAddLanePropSelectField_.Invoke(__instance, null);
             }
-            //if (target is  NetInfo.Lane) {
-            //    mAddLanePropSelectField_.Invoke(__instance, null);
-            //}
         }
     }
 }
