@@ -25,7 +25,6 @@ namespace AdvancedRoads.UI {
 
             //var keymappings = panel.gameObject.AddComponent<UIKeymappingsPanel>();
             //keymappings.AddKeymapping("Activation Shortcut", );
-
         }
     }
 }

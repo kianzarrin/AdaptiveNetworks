@@ -11,7 +11,7 @@ namespace AdvancedRoads.UI.MainPanel {
 
     // TODO node lanes !
     // TODO lane as title. ?
-    // TODO why segment flags are always 0.
+    // TODO why segment flags are always 0. (fixed?)
     public class MainPanel : UIAutoSizePanel {
         public static readonly SavedFloat SavedX = new SavedFloat(
             "PanelX", ModSettings.FILE_NAME, 87, true);
