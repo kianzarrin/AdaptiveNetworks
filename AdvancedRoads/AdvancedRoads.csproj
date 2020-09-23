@@ -21,6 +21,9 @@
     <DefineConstants />
   </PropertyGroup>
   <PropertyGroup>
+    <PathMap>C:\Users\dell\source\repos\AdvancedRoads\AdvancedRoads\=AdvancedRoads:</PathMap>
+  </PropertyGroup>
+  <PropertyGroup>
     <MangedDLLPath>..\dependencies</MangedDLLPath>
     <SteamPath>~/Library/Application Support/Steam/</SteamPath>
     <SteamPath Condition="! Exists ('$(SteamPath)')">$(ProgramFiles)\Steam</SteamPath>
@@ -45,6 +48,7 @@
     <None Remove="KianCommons\libs\**" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="DecompiledSources\NetAI.cs" />
     <Compile Remove="DecompiledSources\NetLane.cs" />
     <Compile Remove="DecompiledSources\NetNode.cs" />
     <Compile Remove="DecompiledSources\NetSegment.cs" />
@@ -126,6 +130,7 @@
     <Reference Include="System.Data.DataSetExtensions" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="DecompiledSources\NetAI.cs" />
     <None Include="DecompiledSources\NetLane.cs" />
     <None Include="DecompiledSources\NetNode.cs" />
     <None Include="DecompiledSources\NetSegment.cs" />

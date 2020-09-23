@@ -1,3 +1,4 @@
+using ColossalFramework;
 using UnityEngine;
 public partial class NetLane2 {
     float m_length;
