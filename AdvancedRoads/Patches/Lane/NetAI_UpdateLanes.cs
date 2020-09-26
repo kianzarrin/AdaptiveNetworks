@@ -7,7 +7,7 @@ namespace AdvancedRoads.Lanes {
     [HarmonyAfter("de.viathinksoft.tmpe")]
     class NetAI_UpdateLanes {
         static void Postfix(ref NetAI __instance, ushort segmentID) {
-            if (!NetUtil.IsNodeValid(segmentID)) return;
+            if (!NetUtil.IsSegmentValid(segmentID)) return;
             foreach (LaneData lane in NetUtil.IterateSegmentLanes(segmentID)) {
                 NetworkExtensionManager.Instance.LaneBuffer[lane.LaneID].UpdateLane();
             }
