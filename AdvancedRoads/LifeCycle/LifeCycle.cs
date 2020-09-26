@@ -22,7 +22,7 @@ namespace AdvancedRoads.LifeCycle
                 NetInfoExt.ExpandBuffer();
                 HarmonyUtil.InstallHarmony(HARMONY_ID);
                 NetworkExtensionManager.Instance.OnLoad();
-                MainPanel.Create();
+                //MainPanel.Create();
             }catch (Exception e) {
                 Log.Error(e.ToString()+"\n --- \n");
                 throw e;

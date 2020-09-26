@@ -5,28 +5,53 @@ using System.Linq;
 using System.Xml.Schema;
 
 namespace AdvancedRoads.Manager {
+    [AttributeUsage(AttributeTargets.Struct)]
+    public class FlagPairAttribute: Attribute {
+        public string Name;
+        public FlagPairAttribute(string name) => Name = name;
+        public FlagPairAttribute() { }
+    }
+
+    [AttributeUsage(AttributeTargets.Field)]
+    public class CustomizablePropertyExtension : Attribute {
+        string Before;
+        string After;
+        public CustomizablePropertyExtension(string after=null, string before = null) {
+            Before = before;
+            After = after;
+        }
+    }
+
     [Serializable]
     public class NetInfoExt {
+
+        [FlagPair]
         [Serializable]
         public struct SegmentInfoFlags {
+            [BitMask]
             public NetSegmentExt.Flags Required, Forbidden;
             public bool CheckFlags(NetSegmentExt.Flags flags) => flags.CheckFlags(Required, Forbidden);
         }
 
+        [FlagPair]
         [Serializable]
         public struct SegmentEndInfoFlags {
+            [BitMask]
             public NetSegmentEnd.Flags Required, Forbidden;
             public bool CheckFlags(NetSegmentEnd.Flags flags) => flags.CheckFlags(Required, Forbidden);
         }
 
+        [FlagPair]
         [Serializable]
         public struct NodeInfoFlags {
             public NetNodeExt.Flags Required, Forbidden;
             public bool CheckFlags(NetNodeExt.Flags flags) => flags.CheckFlags(Required, Forbidden);
         }
 
+        [FlagPair]
         [Serializable]
         public struct LaneInfoFlags {
+            [BitMask]
             public NetLaneExt.Flags Required, Forbidden;
             public bool CheckFlags(NetLaneExt.Flags flags) => flags.CheckFlags(Required, Forbidden);
         }
@@ -144,11 +169,60 @@ namespace AdvancedRoads.Manager {
 
         [Serializable]
         public class LaneProp {
+            /*
+            [BitMask]
+            [CustomizableProperty("Flags Required")]
+            [CustomizablePropertyExtension(0)]
+            public NetLane.Flags m_flagsRequired;
+
+            [BitMask]
+            [CustomizableProperty("Flags Forbidden")]
+            [CustomizablePropertyExtension(1)]
+            public NetLane.Flags m_flagsForbidden;
+
+            [BitMask]
+            [CustomizableProperty("Start Flags Required")]
+            [CustomizablePropertyExtension(7)]
+            public NetNode.Flags m_startFlagsRequired;
+
+            [BitMask]
+            [CustomizableProperty("Start Flags Forbidden")]
+            [CustomizablePropertyExtension(8)]
+            public NetNode.Flags m_startFlagsForbidden;
+
+            [BitMask]
+            [CustomizableProperty("End Flags Required")]
+            [CustomizablePropertyExtension(9)]
+            public NetNode.Flags m_endFlagsRequired;
+
+            [BitMask]
+            [CustomizableProperty("End Flags Forbidden")]
+            [CustomizablePropertyExtension(10)]
+            public NetNode.Flags m_endFlagsForbidden;
+            */
+
+            [CustomizableProperty("Lane")]
+            [CustomizablePropertyExtension(after:"Flags Forbidden")]
             public LaneInfoFlags LaneFlags = new LaneInfoFlags();
+
+            [CustomizableProperty("Segment")]
+            [CustomizablePropertyExtension(after: "Lane")]
             public SegmentInfoFlags SegmentFlags = new SegmentInfoFlags();
+
+            [CustomizableProperty("Segment Start")]
+            [CustomizablePropertyExtension(after: "End Flags Forbidden")]
             public SegmentEndInfoFlags SegmentStartFlags = new SegmentEndInfoFlags();
+
+            [CustomizableProperty("Segment End")]
+            [CustomizablePropertyExtension(after: "Segment Start")]
             public SegmentEndInfoFlags SegmentEndFlags = new SegmentEndInfoFlags();
+
+            [CustomizableProperty("Start Node")]
+            [CustomizablePropertyExtension(after: "Segment End")]
             public NodeInfoFlags StartNodeFlags = new NodeInfoFlags();
+
+            [CustomizableProperty("End Node")]
+            [CustomizablePropertyExtension(after: "Start Node")]
             public NodeInfoFlags EndNodeFlags = new NodeInfoFlags();
 
             public bool CheckFlags(
