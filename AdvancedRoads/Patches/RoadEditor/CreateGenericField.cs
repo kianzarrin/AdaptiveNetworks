@@ -1,11 +1,12 @@
 namespace AdvancedRoads.Patches.RoadEditor {
-    using HarmonyLib;
-    using System;
-    using System.Reflection;
-    using KianCommons;
     using AdvancedRoads.Manager;
-    using ColossalFramework.UI;
+    using AdvancedRoads.UI.RoadEditor;
+    using HarmonyLib;
+    using KianCommons;
+    using System;
     using System.Linq;
+    using System.Reflection;
+    using static KianCommons.Assertion;
 
     /// <summary>
     /// extend CreateGenericField to support flag extension types.
@@ -13,49 +14,228 @@ namespace AdvancedRoads.Patches.RoadEditor {
     [HarmonyPatch(typeof(RoadEditorPanel), "CreateGenericField")]
     public static class CreateGenericField {
         public static void Postfix(string groupName, FieldInfo field, object target, RoadEditorPanel __instance) {
-            if(target is NetLaneProps.Prop) {
-                Log.Debug($"{__instance.name}.CreateGenericField.Prefix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
-                if (field.Name == nameof(NetLaneProps.Prop.m_flagsForbidden)) {
-                    var fields = typeof(NetInfoExt.LaneProp).GetFields()
-                        .Where(_field => _field.HasAttribute<CustomizablePropertyAttribute>());
-                    foreach (var field2 in fields) {
-                        CreateExtendedComponent(groupName, field2, target, __instance);
+            try {
+                if (target is NetLaneProps.Prop target2) {
+                    Log.Debug($"{__instance.name}.CreateGenericField.Prefix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
+                    if (field.Name == nameof(NetLaneProps.Prop.m_flagsForbidden)) {
+                        var fields = typeof(NetInfoExt.LaneProp).GetFields()
+                            .Where(_field => _field.HasAttribute<CustomizablePropertyAttribute>());
+                        var target3 = target2 as PrefabIndeces.NetInfoExtension.Lane.Prop;
+                        AssertNotNull(target3, "[3]target:" + target);
+                        NetInfoExt.LaneProp target4 = target3.GetExt();
+                        {
+                            var IndexExt = target3;
+                            Log.Debug($"IndexExt.PrefabIndex={IndexExt.PrefabIndex}");
+                            Log.Debug($"Buffer[{IndexExt.PrefabIndex}]={NetInfoExt.Buffer[IndexExt.PrefabIndex]}");
+                            //if (IndexExt == null || NetInfoExt.Buffer[IndexExt.PrefabIndex] == null)
+                            //    return null;
+                            //return Buffer[IndexExt.PrefabIndex]
+                            //    .LaneInfoExts[IndexExt.LaneIndex]
+                            //    .PropInfoExts[IndexExt.Index];
+                        }
+
+                        AssertNotNull(target4, "[4]target:" + target);
+                        foreach (var field2 in fields) {
+                            CreateExtendedComponent(groupName, field2, target4, __instance);
+                        }
                     }
                 }
             }
-        }
+            catch (Exception e) {
+                Log.LogException(e);
+                throw e;
+            }
 
-        public static void CreateExtendedComponent(string groupName,FieldInfo field, object target, RoadEditorPanel instance) {
-            if (!field.FieldType.HasAttribute<FlagPairAttribute>())
+        }
+        public static void CreateExtendedComponent(string groupName, FieldInfo fieldInfo, object target, RoadEditorPanel instance) {
+            if (!fieldInfo.FieldType.HasAttribute<FlagPairAttribute>())
                 return;
-            Assertion.Assert(string.IsNullOrEmpty(groupName), "groupName is empty");
-            CreateExtendedComponentHelper(field, target, instance, "Required");
-            CreateExtendedComponentHelper(field, target, instance, "Forbidden");
+            Assert(string.IsNullOrEmpty(groupName), "groupName is empty");
+            var container = instance.component;
+
+            Assert(fieldInfo.FieldType.HasAttribute<FlagPairAttribute>(), "HasAttribute:FlagsPair");
+            Type enumType = fieldInfo.FieldType.GetField("Required").FieldType;
+
+            Assert(fieldInfo.HasAttribute<CustomizablePropertyAttribute>(), "HasAttribute:CustomizablePropertyAttribute");
+            AssertNotNull(target, "target");
+            AssertNotNull(target, "fieldInfo");
+            AssertNotNull(target, "RoadEditorPanel instance");
+            Log.Debug(
+                $"CreateExtendedComponent(groupName={groupName}, fieldInfo={fieldInfo}, target={target}, instance={instance.name}) called",
+                false);
+
+            var att = fieldInfo.GetCustomAttributes(typeof(CustomizablePropertyAttribute), false)[0] as CustomizablePropertyAttribute;
+
+            if (fieldInfo.FieldType == typeof(NetInfoExt.LaneInfoFlags)) {
+
+                uint GetRequired() {
+                    var value = (NetInfoExt.LaneInfoFlags)fieldInfo.GetValue(target);
+                    return (uint)value.Required;
+                }
+                void SetRequired(uint flags) {
+                    var value = (NetInfoExt.LaneInfoFlags)fieldInfo.GetValue(target);
+                    value.Required = (NetLaneExt.Flags)flags;
+                    fieldInfo.SetValue(target, value);
+                };
+                uint GetForbidden() {
+                    var value = (NetInfoExt.LaneInfoFlags)fieldInfo.GetValue(target);
+                    return (uint)value.Forbidden;
+                };
+                void SetForbidden(uint flags) {
+                    var value = (NetInfoExt.LaneInfoFlags)fieldInfo.GetValue(target);
+                    value.Forbidden = (NetLaneExt.Flags)flags;
+                    fieldInfo.SetValue(target, value);
+                };
+                var bitMaskPanel0 = BitMaskPanel.Add(
+                    container,
+                    label: att.name + " Flags Required",
+                    enumType: typeof(NetLaneExt.Flags),
+                    setHandler: SetRequired,
+                    getHandler: GetRequired);
+                instance.FitToContainer(bitMaskPanel0);
+
+                var bitMaskPanel1 = BitMaskPanel.Add(
+                    container,
+                    label: att.name + " Flags Forbidden",
+                    enumType: typeof(NetLaneExt.Flags),
+                    setHandler: SetForbidden,
+                    getHandler: GetForbidden);
+                instance.FitToContainer(bitMaskPanel1);
+            } else if (target is NetInfoExt.SegmentInfoFlags) {
+                uint GetRequired() {
+                    var value = (NetInfoExt.SegmentInfoFlags)fieldInfo.GetValue(target);
+                    return (uint)value.Required;
+                }
+                void SetRequired(uint flags) {
+                    var value = (NetInfoExt.SegmentInfoFlags)fieldInfo.GetValue(target);
+                    value.Required = (NetSegmentExt.Flags)flags;
+                    fieldInfo.SetValue(target, value);
+                };
+                uint GetForbidden() {
+                    var value = (NetInfoExt.SegmentInfoFlags)fieldInfo.GetValue(target);
+                    return (uint)value.Forbidden;
+                };
+                void SetForbidden(uint flags) {
+                    var value = (NetInfoExt.SegmentInfoFlags)fieldInfo.GetValue(target);
+                    value.Forbidden = (NetSegmentExt.Flags)flags;
+                    fieldInfo.SetValue(target, value);
+                };
+                var bitMaskPanel0 = BitMaskPanel.Add(
+                    container,
+                    label: att.name + " Flags Required",
+                    enumType: typeof(NetSegmentExt.Flags),
+                    setHandler: SetRequired,
+                    getHandler: GetRequired);
+                instance.FitToContainer(bitMaskPanel0);
+
+                var bitMaskPanel1 = BitMaskPanel.Add(
+                    container,
+                    label: att.name + " Flags Forbidden",
+                    enumType: typeof(NetSegmentExt.Flags),
+                    setHandler: SetForbidden,
+                    getHandler: GetForbidden);
+                instance.FitToContainer(bitMaskPanel1);
+
+            } else if (target is NetInfoExt.SegmentEndInfoFlags) {
+                uint GetRequired() {
+                    var value = (NetInfoExt.SegmentEndInfoFlags)fieldInfo.GetValue(target);
+                    return (uint)value.Required;
+                }
+                void SetRequired(uint flags) {
+                    var value = (NetInfoExt.SegmentEndInfoFlags)fieldInfo.GetValue(target);
+                    value.Required = (NetSegmentEnd.Flags)flags;
+                    fieldInfo.SetValue(target, value);
+                };
+                uint GetForbidden() {
+                    var value = (NetInfoExt.SegmentEndInfoFlags)fieldInfo.GetValue(target);
+                    return (uint)value.Forbidden;
+                };
+                void SetForbidden(uint flags) {
+                    var value = (NetInfoExt.SegmentEndInfoFlags)fieldInfo.GetValue(target);
+                    value.Forbidden = (NetSegmentEnd.Flags)flags;
+                    fieldInfo.SetValue(target, value);
+                };
+                var bitMaskPanel0 = BitMaskPanel.Add(
+                    container,
+                    label: att.name + " Flags Required",
+                    enumType: typeof(NetSegmentEnd.Flags),
+                    setHandler: SetRequired,
+                    getHandler: GetRequired);
+                instance.FitToContainer(bitMaskPanel0);
+
+                var bitMaskPanel1 = BitMaskPanel.Add(
+                    container,
+                    label: att.name + " Flags Forbidden",
+                    enumType: typeof(NetSegmentEnd.Flags),
+                    setHandler: SetForbidden,
+                    getHandler: GetForbidden);
+                instance.FitToContainer(bitMaskPanel1);
+            } else if (target is NetInfoExt.NodeInfoFlags) {
+                uint GetRequired() {
+                    var value = (NetInfoExt.NodeInfoFlags)fieldInfo.GetValue(target);
+                    return (uint)value.Required;
+                }
+                void SetRequired(uint flags) {
+                    var value = (NetInfoExt.NodeInfoFlags)fieldInfo.GetValue(target);
+                    value.Required = (NetNodeExt.Flags)flags;
+                    fieldInfo.SetValue(target, value);
+                };
+                uint GetForbidden() {
+                    var value = (NetInfoExt.NodeInfoFlags)fieldInfo.GetValue(target);
+                    return (uint)value.Forbidden;
+                };
+                void SetForbidden(uint flags) {
+                    var value = (NetInfoExt.NodeInfoFlags)fieldInfo.GetValue(target);
+                    value.Forbidden = (NetNodeExt.Flags)flags;
+                    fieldInfo.SetValue(target, value);
+                };
+                var bitMaskPanel0 = BitMaskPanel.Add(
+                    container,
+                    label: att.name + " Flags Required",
+                    enumType: typeof(NetNodeExt.Flags),
+                    setHandler: SetRequired,
+                    getHandler: GetRequired);
+                instance.FitToContainer(bitMaskPanel0);
+                var bitMaskPanel1 = BitMaskPanel.Add(
+                    container,
+                    label: att.name + " Flags Forbidden",
+                    enumType: typeof(NetNodeExt.Flags),
+                    setHandler: SetForbidden,
+                    getHandler: GetForbidden);
+                instance.FitToContainer(bitMaskPanel1);
+            }
+
+            //CreateExtendedComponentHelper(field, target,  instance, "Required");
+            //CreateExtendedComponentHelper(field, target, instance, "Forbidden");
         }
 
-        public static void CreateExtendedComponentHelper(FieldInfo field, object target, RoadEditorPanel instance, string subFieldName) {
-            Assertion.Assert(field.FieldType.HasAttribute<FlagPairAttribute>(), "HasAttribute:FlagsPair");
-            Assertion.Assert(field.HasAttribute<CustomizablePropertyAttribute>(), "HasAttribute:CustomizablePropertyAttribute");
-            CustomizablePropertyAttribute att =
-                field.GetCustomAttributes(typeof(CustomizablePropertyAttribute), true)[0] as CustomizablePropertyAttribute;
-            string label = att.name + "Flags" + subFieldName;
-            UIComponent container = instance.m_Container;
-            var subField = field.FieldType.GetField(subFieldName);
 
-            //from: CreateFieldComponent()
-            var repropertySet = UITemplateManager.Get<REPropertySet>(RoadEditorPanel.kEnumBitmaskSet);
+        //public static void CreateExtendedComponentHelper(FieldInfo field, object target, RoadEditorPanel instance, string subFieldName) {
+        //    Assertion.Assert(field.FieldType.HasAttribute<FlagPairAttribute>(), "HasAttribute:FlagsPair");
+        //    Assertion.Assert(field.HasAttribute<CustomizablePropertyAttribute>(), "HasAttribute:CustomizablePropertyAttribute");
+        //    CustomizablePropertyAttribute att =
+        //        field.GetCustomAttributes(typeof(CustomizablePropertyAttribute), true)[0] as CustomizablePropertyAttribute;
+        //    string label = att.name + "Flags" + subFieldName;
+        //    UIComponent container = instance.m_Container;
 
-            //from CreateGenericField:
-            container.AttachUIComponent(repropertySet.gameObject);
-            instance.FitToContainer(repropertySet.component);
-            repropertySet.EventPropertyChanged += instance.OnObjectModified; //() => instance.OnObjectModified();
 
-            // from: repropertySet.SetTarget(target, field);
-            repropertySet.set_Target(target);
-            repropertySet.set_TargetField(subField);
-            (repropertySet as REEnumBitmaskSet).Initialize(target, subField, label);
+        //    target = field.GetValue(target); // target should be the instance that contains subField. // BUG: DO struct does not work.
+        //    var subField = field.FieldType.GetField(subFieldName);
 
-        }
+        //    //from: CreateFieldComponent()
+        //    var repropertySet = UITemplateManager.Get<REPropertySet>(RoadEditorPanel.kEnumBitmaskSet);
+
+        //    //from CreateGenericField:
+        //    container.AttachUIComponent(repropertySet.gameObject);
+        //    instance.FitToContainer(repropertySet.component);
+        //    repropertySet.EventPropertyChanged += instance.OnObjectModified; //() => instance.OnObjectModified();
+
+        //    // from: repropertySet.SetTarget(target, field);
+        //    repropertySet.set_Target(target);
+        //    repropertySet.set_TargetField(subField);
+        //    (repropertySet as REEnumBitmaskSet).Initialize(target, subField, label);
+
+        //}
     }
 }
 

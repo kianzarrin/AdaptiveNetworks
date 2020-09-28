@@ -1,7 +1,7 @@
 namespace AdvancedRoads.LifeCycle
 {
     using KianCommons;
-    using AdvancedRoads.UI.MainPanel;
+    //using AdvancedRoads.UI.MainPanel;
     using System;
     using AdvancedRoads.Manager;
     using KianCommons.Patches;
@@ -20,10 +20,12 @@ namespace AdvancedRoads.LifeCycle
                 // ensure buffer is large enough after everything has been loaded.
                 // also extends loaded prefabs with indeces.
                 NetInfoExt.ExpandBuffer();
-                HarmonyUtil.InstallHarmony(HARMONY_ID);
                 NetworkExtensionManager.Instance.OnLoad();
                 //MainPanel.Create();
-            }catch (Exception e) {
+                NetInfoExt.EnsureEditNetInfoExt(); // useful for asset editor hot reload.
+                HarmonyUtil.InstallHarmony(HARMONY_ID);
+            }
+            catch (Exception e) {
                 Log.Error(e.ToString()+"\n --- \n");
                 throw e;
             }
@@ -32,8 +34,11 @@ namespace AdvancedRoads.LifeCycle
         public static void Release()
         {
             Log.Info("LifeCycle.Release() called");
-            MainPanel.Release();
+            //MainPanel.Release();
             HarmonyUtil.UninstallHarmony(HARMONY_ID);
+            Log.Info("setting NetInfoExt.Buffer = null");
+            NetInfoExt.Buffer = null;
+            NetworkExtensionManager.Instance.OnUnload();
         }
     }
 }

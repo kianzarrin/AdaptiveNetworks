@@ -38,14 +38,17 @@
     <Compile Remove="KianCommons\KianCommons\obj\**" />
     <Compile Remove="KianCommons\KianCommons\Properties\**" />
     <Compile Remove="KianCommons\libs\**" />
+    <Compile Remove="UI\MainPanel\**" />
     <EmbeddedResource Remove="KianCommons\KianCommons\ObjUnity3D\**" />
     <EmbeddedResource Remove="KianCommons\KianCommons\obj\**" />
     <EmbeddedResource Remove="KianCommons\KianCommons\Properties\**" />
     <EmbeddedResource Remove="KianCommons\libs\**" />
+    <EmbeddedResource Remove="UI\MainPanel\**" />
     <None Remove="KianCommons\KianCommons\ObjUnity3D\**" />
     <None Remove="KianCommons\KianCommons\obj\**" />
     <None Remove="KianCommons\KianCommons\Properties\**" />
     <None Remove="KianCommons\libs\**" />
+    <None Remove="UI\MainPanel\**" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="DecompiledSources\NetAI.cs" />
@@ -63,7 +66,6 @@
     <Compile Remove="Patches\Segment\NetSegment_CalculateSegment.cs" />
     <Compile Remove="Patches\Segment\NetSegment_UpdateSegment.cs" />
     <Compile Remove="Patches\Segment\RoadBaseAI_UpdateSegmentFlags.cs" />
-    <Compile Remove="UI\MainPanel\InterAvtiveButton.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="KianCommons\.git" />

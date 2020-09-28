@@ -1,3 +1,4 @@
-Asset Editor UI boost
-incorporate UI inside asset editor UI
+do I new create NetInfoExtension when loading from file?
+    should I suscribe to ToolsModifierControl.toolController.eventEditPrefabChanged += instead of patching OnContinue?
+
 test in game

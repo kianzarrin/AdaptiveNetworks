@@ -12,19 +12,20 @@ namespace AdvancedRoads.Patches.RoadEditor {
     [HarmonyPatch(typeof(REEnumBitmaskSet), "UpdateDropdownButton")]
     public static class UpdateDropdownButton {
         public static bool Prefix(REEnumBitmaskSet __instance) {
-            int flags = __instance.GetFlags();
-            UIButton uibutton = (UIButton)__instance.m_DropDown.triggerButton;
-            if (flags == 0) {
-                uibutton.text = "None";
-            } else {
+            try {
                 Type fieldType = __instance.m_TargetField().FieldType;
-                if (__instance.RequiresUserFlag(fieldType)) {
-                    uibutton.text = __instance.GetUserFlagName(flags);
-                } else {
-                    uibutton.text = Enum.GetName(__instance.m_TargetField().FieldType, flags);
-                }
+                if (__instance.RequiresUserFlag(fieldType))
+                    return true;
+
+                int flags = __instance.GetFlags();
+                UIButton uibutton = (UIButton)__instance.m_DropDown.triggerButton;
+                uibutton.text = Enum.Format(__instance.m_TargetField().FieldType, flags, "G");
+                return false;
             }
-            return false;
+            catch (Exception e){
+                Log.Error(e.ToString());
+                return true;
+            }
         }
     }
 }

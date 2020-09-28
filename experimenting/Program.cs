@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Reflection;
 
 namespace experimenting
 {
@@ -9,43 +10,30 @@ namespace experimenting
     {
         static void Main(string[] args)
         {
-            var t = typeof(A);
-            var fields = t.GetFields();
-            foreach( var f in fields)
-            {
-                var att = f.GetCustomAttributes(typeof(KianAttribute), true);
-                string att2; ;
-                if (att == null)
-                {
-                    att2 = "null";
-                } else if (att.Length == 0)
-                {
-                    att2 = "EMPTY";
-                } else 
-                {
-                    att2 = (att[0] as KianAttribute).name;
-                    if (att.Length > 1)
-                    {
-                        att2 = $"[0/{att.Length}]={att2}";
-                    }
-                }
-                Console.WriteLine($"field={f.Name} attribute={att2}");
-            }
+
+            Bar bar = new Bar();
+            bar.foo.a = 1;
+            bar.foo.b = 2;
+            Console.WriteLine("bar=" + bar);
+
+            FieldInfo fieldInfo_foo = typeof(Bar).GetField("foot");
+            FieldInfo fieldInfo_a = typeof(Foo).GetField("a");
+            fieldInfo_a.SetValue(bar.foo, 3);
+            Console.WriteLine("bar2=" + bar);
 
         }
     }
 
-    [AttributeUsage(AttributeTargets.Field)]
-    public class KianAttribute : Attribute
+    public struct Foo
     {
-        public string name;
-        public KianAttribute(string _name) => name = _name;
+        public int a;
+        public int b;
     }
 
-    public class A
+    public class Bar
     {
-        [Kian("a and b")]
-        public int a, b;
+        public Foo foo;
+        public override string ToString() => $"foo.a={foo.a} foo.b={foo.b}";
     }
 
 

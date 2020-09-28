@@ -42,7 +42,7 @@ namespace AdvancedRoads.LifeCycle {
         public static void Postfix() {
             if (ToolsModifierControl.toolController.m_templatePrefabInfo is NetInfo source) {
                 NetInfo target = ToolsModifierControl.toolController.m_editPrefabInfo as NetInfo;
-                NetInfoExt.CopyAll(source: source, target: target);
+                NetInfoExt.CopyAll(source: source, target: target, forceCreate:true);
             }
         }
     }
@@ -87,9 +87,11 @@ namespace AdvancedRoads.LifeCycle {
         public override void OnCreated(IAssetData assetData) {
             base.OnCreated(assetData);
             Instance = this;
-            NetInfoExt.Init();
+            // initiliazes buffer and extend prefab indeces if necessary (ie not hot reload)
+            NetInfoExt.EnsureBuffer();
         }
         public override void OnReleased() {
+            Log.Debug("NetInfoExt.Buffer = null;\n"+ Environment.StackTrace);
             NetInfoExt.Buffer = null;
             Instance = null;
         }

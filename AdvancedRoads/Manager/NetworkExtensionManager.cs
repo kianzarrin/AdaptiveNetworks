@@ -39,6 +39,11 @@ namespace AdvancedRoads {
                 }
             }
         }
+
+        public void OnUnload() {
+            Instance = new NetworkExtensionManager();
+        }
+
         public void OnAfterDeserialize() {
              
         }
