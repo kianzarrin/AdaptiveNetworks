@@ -1,18 +1,14 @@
 namespace AdvancedRoads.UI.RoadEditor {
-    using AdvancedRoads.Manager;
-    using ColossalFramework;
     using ColossalFramework.UI;
     using KianCommons;
     using KianCommons.UI;
-    using KianCommons.UI.Helpers;
     using System;
-    using System.Collections.Generic;
     using UnityEngine;
-    using JetBrains.Annotations;
+    using AdvancedRoads.Patches.RoadEditor;
 
     public class BitMaskPanel: UIPanel  {
         public UILabel Label;
-        public UICheckboxDropDownExt DropDown;
+        public UICheckboxDropDown DropDown;
 
         public delegate void SetHandlerD(uint value);
         public delegate uint GetHandlerD();
@@ -22,43 +18,46 @@ namespace AdvancedRoads.UI.RoadEditor {
         public event REPropertySet.PropertyChangedHandler EventPropertyChanged;
 
         public static BitMaskPanel Add(
+            RoadEditorPanel roadEditorPanel,
             UIComponent container,
             string label,
             Type enumType,
             SetHandlerD setHandler,
             GetHandlerD getHandler) {
-            var subPanel = container.AddUIComponent<BitMaskPanel>();
+            Log.Debug($"BitMaskPanel.Add(container:{container}, label:{label}, enumType:{enumType})");
+            var subPanel = UIView.GetAView().AddUIComponent(typeof(BitMaskPanel)) as BitMaskPanel;
             subPanel.EnumType = enumType;
             subPanel.SetHandler = setHandler;
             subPanel.GetHandler = getHandler;
             subPanel.Initialize();
             subPanel.Label.text = label;
+
+            roadEditorPanel.m_Container.AttachUIComponent(subPanel.gameObject);
+            roadEditorPanel.FitToContainer(subPanel);
+
+
             return subPanel;
         }
 
         public override void Awake() {
             base.Awake();
+            size = new Vector2(370, 27);
+
             Label = AddUIComponent<UILabel>();
             Label.relativePosition = new Vector2(0,4);
-            //Label.atlas = "InMapEditor";
-            //Label.size = new Vector2(176, 18);
 
-            DropDown = AddUIComponent<UICheckboxDropDownExt>();
+            DropDown = AddUIComponent<UICheckboxDropDown>();
             DropDown.relativePosition = new Vector2(158, 2);
             DropDown.size = new Vector2(206, 22);
-            DropDown.zOrder = 1;
             DropDown.verticalAlignment = UIVerticalAlignment.Middle;
             DropDown.horizontalAlignment = UIHorizontalAlignment.Center;
 
             DropDown.atlas = TextureUtil.GetAtlas("InMapEditor");
             DropDown.normalBgSprite = "TextFieldPanel";
-            DropDown.normalBgSprite = "IconDownArrow";
-            DropDown.hoveredBgSprite = "IconDownArrowHovered";
-            DropDown.focusedBgSprite = "IconDownArrowPressed";
-            DropDown.listBackground = "GenericPanelWhite";
             DropDown.uncheckedSprite = "check-unchecked";
             DropDown.checkedSprite = "check-checked";
 
+            DropDown.listBackground = "GenericPanelWhite";
             DropDown.listWidth = 188;
             DropDown.listHeight = 300;
             DropDown.clampListToScreen = true;
@@ -73,32 +72,33 @@ namespace AdvancedRoads.UI.RoadEditor {
 
             DropDown.triggerButton = DropDown.AddUIComponent<UIButton>();
             UIButton button = DropDown.triggerButton as UIButton;
-            button.size = this.size;
-            button.zOrder = 1;
+            button.size = DropDown.size;
             button.textVerticalAlignment = UIVerticalAlignment.Middle;
             button.textHorizontalAlignment = UIHorizontalAlignment.Left;
-            button.atlas = DropDown.atlas;
-            button.normalBgSprite = "IconDownArrow";
-            button.hoveredBgSprite = "IconDownArrowHovered";
-            button.pressedBgSprite = "IconDownArrowPressed";
+            button.atlas = TextureUtil.GetAtlas("InGame");
+            button.normalFgSprite = "IconDownArrow";
+            button.hoveredFgSprite = "IconDownArrowHovered";
+            button.pressedFgSprite = "IconDownArrowPressed";
+            button.normalBgSprite = "TextFieldPanel";
             button.foregroundSpriteMode = UIForegroundSpriteMode.Scale;
             button.horizontalAlignment = UIHorizontalAlignment.Right;
             button.verticalAlignment = UIVerticalAlignment.Middle;
             button.relativePosition = new Vector3(0, 0);
 
-            DropDown.listScrollbar = DropDown.AddUIComponent<UIScrollbar>();
-            DropDown.listScrollbar.autoHide = true;
-            DropDown.listScrollbar.size = new Vector2(12, 300);
-            DropDown.listScrollbar.incrementAmount = 60;
+            //DropDown.listScrollbar = DropDown.AddUIComponent<UIScrollbar>();
+            //DropDown.listScrollbar.autoHide = true;
+            //DropDown.listScrollbar.size = new Vector2(12, 300);
+            //DropDown.listScrollbar.incrementAmount = 60;
         }
 
         private void Initialize() {
-            Disable();
+            //Disable();
             Populate(DropDown, GetHandler(), EnumType);
+            UpdateText();
             Enable();
         }
 
-        public static void Populate(UICheckboxDropDownExt dropdown, uint flags, Type enumType) {
+        public static void Populate(UICheckboxDropDown dropdown, uint flags, Type enumType) {
             var values = EnumBitMaskExtensions.GetPow2ValuesU32(enumType);
             foreach (uint flag in values) {
                 bool hasFlag = (flags & flag) != 0;
@@ -111,6 +111,8 @@ namespace AdvancedRoads.UI.RoadEditor {
 
         public override void Start() {
             base.Start();
+            UIButton button = DropDown.triggerButton as UIButton;
+            button.atlas = TextureUtil.GetAtlas("InGame");
         }
 
         public override void OnEnable() {

@@ -19,11 +19,20 @@ namespace AdvancedRoads.Patches.RoadEditor {
 
                 int flags = __instance.GetFlags();
                 UIButton uibutton = (UIButton)__instance.m_DropDown.triggerButton;
-                uibutton.text = Enum.Format(__instance.m_TargetField().FieldType, flags, "G");
+                var text = Enum.Format(__instance.m_TargetField().FieldType, flags, "G");
+                int maxLen = 23;
+                if (text.Length > maxLen - 3)
+                    uibutton.textHorizontalAlignment = UIHorizontalAlignment.Left;
+                else
+                    uibutton.textHorizontalAlignment = UIHorizontalAlignment.Center;
+                if (text.Length > maxLen) 
+                    text = text.Substring(0, maxLen - 1-3) + "...";
+                uibutton.text = text;
+
                 return false;
             }
             catch (Exception e){
-                Log.Error(e.ToString());
+                Log.LogException(e);
                 return true;
             }
         }

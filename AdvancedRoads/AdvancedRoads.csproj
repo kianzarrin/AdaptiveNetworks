@@ -38,16 +38,19 @@
     <Compile Remove="KianCommons\KianCommons\obj\**" />
     <Compile Remove="KianCommons\KianCommons\Properties\**" />
     <Compile Remove="KianCommons\libs\**" />
+    <Compile Remove="Resources\**" />
     <Compile Remove="UI\MainPanel\**" />
     <EmbeddedResource Remove="KianCommons\KianCommons\ObjUnity3D\**" />
     <EmbeddedResource Remove="KianCommons\KianCommons\obj\**" />
     <EmbeddedResource Remove="KianCommons\KianCommons\Properties\**" />
     <EmbeddedResource Remove="KianCommons\libs\**" />
+    <EmbeddedResource Remove="Resources\**" />
     <EmbeddedResource Remove="UI\MainPanel\**" />
     <None Remove="KianCommons\KianCommons\ObjUnity3D\**" />
     <None Remove="KianCommons\KianCommons\obj\**" />
     <None Remove="KianCommons\KianCommons\Properties\**" />
     <None Remove="KianCommons\libs\**" />
+    <None Remove="Resources\**" />
     <None Remove="UI\MainPanel\**" />
   </ItemGroup>
   <ItemGroup>
@@ -71,12 +74,6 @@
     <None Remove="KianCommons\.git" />
     <None Remove="KianCommons\.gitattributes" />
     <None Remove="KianCommons\.gitignore" />
-    <None Remove="Resources\back.png" />
-    <None Remove="Resources\close.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\back.png" />
-    <EmbeddedResource Include="Resources\close.png" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CitiesHarmony.API" Version="1.0.4" />
@@ -152,6 +149,7 @@
       <UnityPath>$(MSBuildExtensionsPath64)\..\Unity\</UnityPath>
       <UnityPath Condition="! Exists ('$(UnityPath)')">..\Unity\</UnityPath>
       <MonoDir>$(UnityPath)Editor\Data\MonoBleedingEdge\</MonoDir>
+      <Now>$([System.DateTime]::Now.ToString("h:mmtt"))</Now>
     </PropertyGroup>
     <ItemGroup>
       <AuxilaryFiles Include="$(TargetPath).mdb;$(TargetDir)PrefabIndeces.dll;$(TargetDir)PrefabIndeces.dll.mdb;$(TargetDir)CitiesHarmony.API.dll" Exclude="$(TargetPath);$(TargetDir)*.pdb" />
@@ -164,6 +162,6 @@
     <Copy SourceFiles="$(TargetPath).mdb" DestinationFolder="$(DeployDir)" />
     <Delete Files="$(DeployDir)$(TargetFileName)" />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(DeployDir)" />
-    <Message Importance="high" Text="AssemblyVersion= @(VersionNumber)" />
+    <Message Importance="high" Text="AssemblyVersion= @(VersionNumber) time=$(Now)" />
   </Target>
 </Project>

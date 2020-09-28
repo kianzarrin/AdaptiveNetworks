@@ -13,7 +13,7 @@ namespace AdvancedRoads.Patches.RoadEditor {
     public static class AddCustomFields {
         public static void Postfix(RoadEditorPanel __instance) {
             object target = __instance.m_Target();
-            Log.Debug($"AddCustomFields.PostFix() target={target}\n" + Environment.StackTrace);
+            //Log.Debug($"AddCustomFields.PostFix() target={target}\n" + Environment.StackTrace);
             if (target is NetInfo.Segment) {
                 __instance.AddCrossImportField();
                 __instance.AddModelImportField(true);

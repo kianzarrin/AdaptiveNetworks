@@ -1,6 +1,7 @@
 namespace AdvancedRoads.Patches.RoadEditor {
     using AdvancedRoads.Manager;
     using AdvancedRoads.UI.RoadEditor;
+    using ColossalFramework.UI;
     using HarmonyLib;
     using KianCommons;
     using System;
@@ -23,18 +24,7 @@ namespace AdvancedRoads.Patches.RoadEditor {
                         var target3 = target2 as PrefabIndeces.NetInfoExtension.Lane.Prop;
                         AssertNotNull(target3, "[3]target:" + target);
                         NetInfoExt.LaneProp target4 = target3.GetExt();
-                        {
-                            var IndexExt = target3;
-                            Log.Debug($"IndexExt.PrefabIndex={IndexExt.PrefabIndex}");
-                            Log.Debug($"Buffer[{IndexExt.PrefabIndex}]={NetInfoExt.Buffer[IndexExt.PrefabIndex]}");
-                            //if (IndexExt == null || NetInfoExt.Buffer[IndexExt.PrefabIndex] == null)
-                            //    return null;
-                            //return Buffer[IndexExt.PrefabIndex]
-                            //    .LaneInfoExts[IndexExt.LaneIndex]
-                            //    .PropInfoExts[IndexExt.Index];
-                        }
-
-                        AssertNotNull(target4, "[4]target:" + target);
+                        AssertNotNull(target4, $"[4]target:{target} Buffer[{target3.PrefabIndex}]={NetInfoExt.Buffer[target3.PrefabIndex]}");
                         foreach (var field2 in fields) {
                             CreateExtendedComponent(groupName, field2, target4, __instance);
                         }
@@ -51,7 +41,9 @@ namespace AdvancedRoads.Patches.RoadEditor {
             if (!fieldInfo.FieldType.HasAttribute<FlagPairAttribute>())
                 return;
             Assert(string.IsNullOrEmpty(groupName), "groupName is empty");
-            var container = instance.component;
+            var container = instance.component.GetComponentInChildren<UIScrollablePanel>();
+            AssertNotNull(container, "container");
+            Log.Debug("CreateExtendedComponent():container=" + container);
 
             Assert(fieldInfo.FieldType.HasAttribute<FlagPairAttribute>(), "HasAttribute:FlagsPair");
             Type enumType = fieldInfo.FieldType.GetField("Required").FieldType;
@@ -87,21 +79,20 @@ namespace AdvancedRoads.Patches.RoadEditor {
                     fieldInfo.SetValue(target, value);
                 };
                 var bitMaskPanel0 = BitMaskPanel.Add(
-                    container,
+                    roadEditorPanel: instance,
+                    container: container,
                     label: att.name + " Flags Required",
                     enumType: typeof(NetLaneExt.Flags),
                     setHandler: SetRequired,
                     getHandler: GetRequired);
-                instance.FitToContainer(bitMaskPanel0);
-
                 var bitMaskPanel1 = BitMaskPanel.Add(
-                    container,
+                    roadEditorPanel: instance,
+                    container: container,
                     label: att.name + " Flags Forbidden",
                     enumType: typeof(NetLaneExt.Flags),
                     setHandler: SetForbidden,
                     getHandler: GetForbidden);
-                instance.FitToContainer(bitMaskPanel1);
-            } else if (target is NetInfoExt.SegmentInfoFlags) {
+            } else if (fieldInfo.FieldType == typeof(NetInfoExt.SegmentInfoFlags)) {
                 uint GetRequired() {
                     var value = (NetInfoExt.SegmentInfoFlags)fieldInfo.GetValue(target);
                     return (uint)value.Required;
@@ -121,22 +112,20 @@ namespace AdvancedRoads.Patches.RoadEditor {
                     fieldInfo.SetValue(target, value);
                 };
                 var bitMaskPanel0 = BitMaskPanel.Add(
-                    container,
+                    roadEditorPanel: instance,
+                    container: container,
                     label: att.name + " Flags Required",
                     enumType: typeof(NetSegmentExt.Flags),
                     setHandler: SetRequired,
                     getHandler: GetRequired);
-                instance.FitToContainer(bitMaskPanel0);
-
                 var bitMaskPanel1 = BitMaskPanel.Add(
-                    container,
+                    roadEditorPanel: instance,
+                    container: container,
                     label: att.name + " Flags Forbidden",
                     enumType: typeof(NetSegmentExt.Flags),
                     setHandler: SetForbidden,
                     getHandler: GetForbidden);
-                instance.FitToContainer(bitMaskPanel1);
-
-            } else if (target is NetInfoExt.SegmentEndInfoFlags) {
+            } else if (fieldInfo.FieldType == typeof(NetInfoExt.SegmentEndInfoFlags)) {
                 uint GetRequired() {
                     var value = (NetInfoExt.SegmentEndInfoFlags)fieldInfo.GetValue(target);
                     return (uint)value.Required;
@@ -156,21 +145,20 @@ namespace AdvancedRoads.Patches.RoadEditor {
                     fieldInfo.SetValue(target, value);
                 };
                 var bitMaskPanel0 = BitMaskPanel.Add(
-                    container,
+                    roadEditorPanel: instance,
+                    container: container,
                     label: att.name + " Flags Required",
                     enumType: typeof(NetSegmentEnd.Flags),
                     setHandler: SetRequired,
                     getHandler: GetRequired);
-                instance.FitToContainer(bitMaskPanel0);
-
                 var bitMaskPanel1 = BitMaskPanel.Add(
-                    container,
+                    roadEditorPanel: instance,
+                    container: container,
                     label: att.name + " Flags Forbidden",
                     enumType: typeof(NetSegmentEnd.Flags),
                     setHandler: SetForbidden,
                     getHandler: GetForbidden);
-                instance.FitToContainer(bitMaskPanel1);
-            } else if (target is NetInfoExt.NodeInfoFlags) {
+            } else if (fieldInfo.FieldType == typeof(NetInfoExt.NodeInfoFlags)) {
                 uint GetRequired() {
                     var value = (NetInfoExt.NodeInfoFlags)fieldInfo.GetValue(target);
                     return (uint)value.Required;
@@ -190,19 +178,19 @@ namespace AdvancedRoads.Patches.RoadEditor {
                     fieldInfo.SetValue(target, value);
                 };
                 var bitMaskPanel0 = BitMaskPanel.Add(
-                    container,
+                    roadEditorPanel: instance,
+                    container: container,
                     label: att.name + " Flags Required",
                     enumType: typeof(NetNodeExt.Flags),
                     setHandler: SetRequired,
                     getHandler: GetRequired);
-                instance.FitToContainer(bitMaskPanel0);
                 var bitMaskPanel1 = BitMaskPanel.Add(
-                    container,
+                    roadEditorPanel: instance,
+                    container: container,
                     label: att.name + " Flags Forbidden",
                     enumType: typeof(NetNodeExt.Flags),
                     setHandler: SetForbidden,
                     getHandler: GetForbidden);
-                instance.FitToContainer(bitMaskPanel1);
             }
 
             //CreateExtendedComponentHelper(field, target,  instance, "Required");
