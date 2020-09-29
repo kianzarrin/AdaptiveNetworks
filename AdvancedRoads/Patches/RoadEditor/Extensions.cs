@@ -3,6 +3,7 @@ using ColossalFramework.UI;
 using HarmonyLib;
 using KianCommons;
 using System.Reflection;
+using HarmonyLib;
 
 namespace AdvancedRoads.Patches.RoadEditor {
     public static class Extensions {
@@ -35,31 +36,7 @@ namespace AdvancedRoads.Patches.RoadEditor {
         public static string GetUserFlagName(this REEnumBitmaskSet instance, int flag)
          => (string)mREEnumBitmaskSet_GetUserFlagName_.Invoke(instance, new object[] { flag });
 
-
-        // protected FieldInfo REPropertySet.m_TargetField;
-        public static FieldInfo fREPropertySet_TargetField =
-            AccessTools.Field(typeof(REPropertySet), "m_TargetField")
-            ?? throw new Exception("fREPropertySet_TargetField is null");
-        public static FieldInfo m_TargetField(this REPropertySet instance)
-            => (FieldInfo)fREPropertySet_TargetField.GetValue(instance);
-        public static void set_TargetField(this REPropertySet instance, FieldInfo value) =>
-            fREPropertySet_TargetField.SetValue(instance, value);
-
-        // protected object REPropertySet.m_Target;
-        public static FieldInfo fREPropertySet_Target =
-            AccessTools.Field(typeof(REPropertySet), "m_Target")
-            ?? throw new Exception("fREPropertySet_Target is null");
-        public static object m_Target(this REPropertySet instance) => fREPropertySet_Target.GetValue(instance);
-        public static void set_Target(this REPropertySet instance, object value)
-            => fREPropertySet_Target.SetValue(instance, value);
-
         #endregion
-
-        static FieldInfo fRoadEditorPanel_Target_ =
-            AccessTools.Field(typeof(RoadEditorPanel), "m_Target")
-            ?? throw new Exception("fRoadEditorPanel_Target_ is null");
-        public static object m_Target(this RoadEditorPanel instance)
-            => fRoadEditorPanel_Target_.GetValue(instance);
 
         static MethodInfo mCreateFieldComponent_ =
             AccessTools.DeclaredMethod(typeof(RoadEditorPanel), "CreateFieldComponent")

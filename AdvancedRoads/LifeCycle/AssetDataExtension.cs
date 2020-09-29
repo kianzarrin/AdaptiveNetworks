@@ -59,9 +59,15 @@ namespace AdvancedRoads.LifeCycle {
             NetInfo bridge = AssetEditorRoadUtils.TryGetBridge(ground);
             NetInfo slope = AssetEditorRoadUtils.TryGetSlope(ground);
             NetInfo tunnel = AssetEditorRoadUtils.TryGetTunnel(ground);
-            var ret = new AssetData();
-            ret.Ground = NetInfoExt.Buffer[ground.GetIndex()];
-            // TODO complete
+
+            var ret = new AssetData {
+                Ground = ground.GetExt(),
+                Elevated = elevated?.GetExt(),
+                Bridge = bridge?.GetExt(),
+                Slope = slope?.GetExt(),
+                Tunnel = tunnel?.GetExt(),
+            };
+
             return ret;
         }
 
@@ -71,11 +77,11 @@ namespace AdvancedRoads.LifeCycle {
             NetInfo slope = AssetEditorRoadUtils.TryGetSlope(groundInfo);
             NetInfo tunnel = AssetEditorRoadUtils.TryGetTunnel(groundInfo);
 
-            if (groundInfo) NetInfoExt.SetNetInfoExt(groundInfo.GetIndex(), assetData.Ground);
-            if (elevated) NetInfoExt.SetNetInfoExt(elevated.GetIndex(), assetData.Elevated);
-            if (bridge) NetInfoExt.SetNetInfoExt(bridge.GetIndex(), assetData.Bridge);
-            if (slope) NetInfoExt.SetNetInfoExt(slope.GetIndex(), assetData.Slope);
-            if (tunnel) NetInfoExt.SetNetInfoExt(tunnel.GetIndex(), assetData.Tunnel);
+            groundInfo?.SetExt(assetData.Ground);
+            elevated?.SetExt(assetData.Elevated);
+            bridge?.SetExt(assetData.Bridge);
+            slope?.SetExt(assetData.Slope);
+            tunnel?.SetExt(assetData.Tunnel);
         }
     }
 

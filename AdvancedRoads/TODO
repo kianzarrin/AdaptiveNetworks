@@ -1,4 +1,4 @@
-do I new create NetInfoExtension when loading from file?
-    should I suscribe to ToolsModifierControl.toolController.eventEditPrefabChanged += instead of patching OnContinue?
+serialization of NetInfo should roll back prefab index extensions.
 
-test in game
+
+

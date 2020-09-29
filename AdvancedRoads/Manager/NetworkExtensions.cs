@@ -1,4 +1,5 @@
 /*
+ * inverted = LHT
 Stop sign:
 Inverted\Dir | Forward | Backward
 ----------------------------------
@@ -13,6 +14,128 @@ angle/offset | 180/-1  | 180/-1
  BusStop  (inverted: dont care)
 Forward:   angle:90   
 backward:  angle:-90
+ */
+
+/*
+    NetNode.Flags {
+        CustomTrafficLights = int.MinValue,
+        All = -1,
+        None = 0,
+        Created = 1,
+        Deleted = 2,
+        Original = 4, // new game from map: no need to pay
+        Disabled = 8, // if netInfo.m_canDisable and is part of a disabled building 
+        End = 16,
+        Middle = 32,
+        Bend = 64,
+        Junction = 128,
+        Moveable = 256,
+        Untouchable = 512,
+        Outside = 1024,
+        Temporary = 2048,
+        Double = 4096,
+        Fixed = 8192,
+        OnGround = 16384,
+        Ambiguous = 32768,
+        Water = 65536,
+        Sewage = 131072,
+        ForbidLaneConnection = 262144,
+        Underground = 524288,
+        Transition = 1048576, // urban junction: has at leas one segment that does not have NetInfo.m_HighwayRules (useful for highway sign)
+        UndergroundTransition = 1572864,
+        LevelCrossing = 2097152, // train track connection.
+        OneWayOut = 4194304,
+        TrafficLights = 8388608,
+        OneWayOutTrafficLights = 12582912,
+        OneWayIn = 16777216,
+        Heating = 33554432,
+        Electricity = 67108864, // powerLineAI
+        Collapsed = 134217728, // due to disaster
+        DisableOnlyMiddle = 268435456, // ShipAI
+        AsymForward = 536870912,
+        AsymBackward = 1073741824
+    }
+
+    NetSegment.Flags {
+        All = -1,
+        None = 0,
+        Created = 1,
+        Deleted = 2,
+        Original = 4,
+        Collapsed = 8,
+        Invert = 16,
+        Untouchable = 32,
+        End = 64,
+        Bend = 128,
+        WaitingPath = 256,
+        CombustionBan = 256,
+        PathFailed = 512,
+        PathLength = 1024,
+        AccessFailed = 2048,
+        TrafficStart = 4096,
+        TrafficEnd = 8192,
+        CrossingStart = 16384,
+        CrossingEnd = 32768,
+
+        // bus
+        StopRight = 1<<16,
+        StopLeft = 1<<17,
+        StopBoth = StopRight | StopLeft,
+
+        // tram
+        StopRight2 = 1<<18,
+        StopLeft2 = 1<<19,
+        StopBoth2 = StopRight2  | StopLeft2 ,
+
+        StopAll = StopBoth | StopBoth2,
+        HeavyBan = 1048576,
+        Blocked = 2097152,
+        Flooded = 4194304,
+        BikeBan = 8388608,
+        CarBan = 16777216,
+        AsymForward = 33554432,
+        AsymBackward = 67108864,
+        CustomName = 134217728,
+        NameVisible1 = 268435456,
+        NameVisible2 = 536870912,
+        YieldStart = 1073741824, //start ndoe 
+        YieldEnd = int.MinValue, // end node
+    }
+
+    [Flags]
+    public enum NetLane.Flags
+    {
+        None = 0,
+        Created = 1,
+        Deleted = 2,
+        Inverted = 4, //Left Hand Traffic
+        JoinedJunction = 8, two nodes are too close
+        JoinedJunctionInverted = 12, 
+        Forward = 16,
+        Left = 32,
+        LeftForward = 48,
+        Right = 64,
+        ForwardRight = 80,
+        LeftRight = 96,
+        LeftForwardRight = 112,
+        Merge = 128, // multiple lanes merge into one in an intersection. never used.
+        Stop = 256, // bus
+        Stop2 = 512, //tram
+        Stops = 768, // bus+tram
+        YieldStart = 1024, // yeild at tail(LHT=head)
+        YieldEnd = 2048, // yeald at head(LHT=tail)
+
+        
+        StartOneWayLeft = 4096,  // RHT: | LHT:
+        StartOneWayRight = 8192, // RHT: | LHT:
+        EndOneWayLeft = 16384,   // RHT: | LHT:
+        EndOneWayRight = 32768,  // RHT: | LHT:
+
+        StartOneWayLeftInverted = 4100, 
+        StartOneWayRightInverted = 8196,
+        EndOneWayLeftInverted = 16388,
+        EndOneWayRightInverted = 32772
+    }
  */
 
 namespace AdvancedRoads {
@@ -42,25 +165,25 @@ namespace AdvancedRoads {
     public struct NetLaneExt {
         [Flags]
         public enum Flags : UInt32 {
-            None,
+            None = 0,
 
-            ParkingAllowed,
+            ParkingAllowed = 1 << 0,
 
             // Vehicle restrictions
-            PassengerCar,
-            SOS,
-            Taxi,
-            Bus,
-            CargoTruck,
+            PassengerCar = 1 << 1,
+            SOS = 1 << 2,
+            Taxi = 1 << 3,
+            Bus = 1 << 4,
+            CargoTruck = 1 << 5,
 
-            CargoTrain,
-            PassengerTrain,
+            CargoTrain = 1 << 6,
+            PassengerTrain = 1 << 7,
 
             // misc
-            MergesWithInnerLane,
-            MergesWithOuterLane,
+            MergesWithInnerLane = 1 << 8,
+            MergesWithOuterLane = 1 << 9,
 
-            All = UInt32.MaxValue,
+            All = (1 << 10) -1,
         }
 
         public Flags m_flags;
@@ -78,6 +201,7 @@ namespace AdvancedRoads {
             LaneData.LaneIndex = laneIndex;
             LaneData.LaneInfo = null;
             m_flags = Flags.None;
+            NetLane.Flags
         }
 
         static ParkingRestrictionsManager PMan => ParkingRestrictionsManager.Instance;
@@ -103,9 +227,7 @@ namespace AdvancedRoads {
             m_flags = m_flags.SetFlags(Flags.CargoTrain, VRMan.IsCargoTrainAllowed(mask));
             m_flags = m_flags.SetFlags(Flags.PassengerTrain, VRMan.IsPassengerTrainAllowed(mask));
             //TODO lane connections // speed limits.
-
         }
-
     }
 
     [Serializable]
@@ -113,12 +235,12 @@ namespace AdvancedRoads {
         public ushort NodeID;
         public void Init(ushort nodeID) => NodeID = nodeID;
 
-            [Flags]
+        [Flags]
         public enum Flags : UInt32 {
-            None,
-            Vanilla,
-            KeepClearAll, // all entering segment ends keep clear of the junction.
-            All = UInt32.MaxValue,
+            None = 0,
+            Vanilla = 1 << 0,
+            KeepClearAll = 1 << 1, // all entering segment ends keep clear of the junction.
+            All = (1 << 2) - 1,
         }
 
         public Flags m_flags;
@@ -131,12 +253,12 @@ namespace AdvancedRoads {
 
         [Flags]
         public enum Flags : UInt32 {
-            None,
-            Vanilla,
-            UniformSpeedLimit,
-            SpeedLimitMPH,
-            SpeedLimitKPH,
-            All = UInt32.MaxValue,
+            None = 0,
+            Vanilla = 1 << 0,
+            //UniformSpeedLimit = 1 << 1,
+            //SpeedLimitMPH = 1 << 2,
+            //SpeedLimitKPH = 1 << 3,
+            //All = Vanilla,
         }
 
         public float AverageSpeedLimitMPH;
@@ -165,13 +287,13 @@ namespace AdvancedRoads {
             // priority signs
             Yield = 1 << 0,
             Stop = 1 << 1,
-            Main = 1 << 2,
+            PriorityMain = 1 << 2,
 
             // junction restrictions.
             ZebraCrossing = 1 << 3,
             KeepClear = 1 << 4,
             NearTurnAtRed = 1 << 5,
-            FartTurnAtRed = 1 << 6,
+            FarTurnAtRed = 1 << 6,
             LaneChangingGoingStraight = 1 << 7,
             Uturn = 1 << 8,
 
@@ -183,7 +305,7 @@ namespace AdvancedRoads {
             HasForwardSegment = 1 << 13,
             CanGoForward = 1 << 14,
 
-            All = UInt32.MaxValue,
+            All = (1 << 15)-1,
         }
 
         public Flags m_flags;
@@ -205,12 +327,12 @@ namespace AdvancedRoads {
             PriorityType p = PMan.GetPrioritySign(SegmentID, StartNode);
             m_flags = m_flags.SetFlags(Flags.Yield, p == PriorityType.Yield);
             m_flags = m_flags.SetFlags(Flags.Stop, p == PriorityType.Stop);
-            m_flags = m_flags.SetFlags(Flags.Main, p == PriorityType.Main);
+            m_flags = m_flags.SetFlags(Flags.PriorityMain, p == PriorityType.Main);
 
             m_flags = m_flags.SetFlags(Flags.KeepClear, !JRMan.IsEnteringBlockedJunctionAllowed(SegmentID, StartNode));
             m_flags = m_flags.SetFlags(Flags.ZebraCrossing, JRMan.IsPedestrianCrossingAllowed(SegmentID, StartNode));
             m_flags = m_flags.SetFlags(Flags.NearTurnAtRed, JRMan.IsNearTurnOnRedAllowed(SegmentID, StartNode));
-            m_flags = m_flags.SetFlags(Flags.FartTurnAtRed, JRMan.IsFarTurnOnRedAllowed(SegmentID, StartNode));
+            m_flags = m_flags.SetFlags(Flags.FarTurnAtRed, JRMan.IsFarTurnOnRedAllowed(SegmentID, StartNode));
             m_flags = m_flags.SetFlags(Flags.Uturn, JRMan.IsUturnAllowed(SegmentID, StartNode));
             m_flags = m_flags.SetFlags(Flags.LaneChangingGoingStraight, JRMan.IsLaneChangingAllowedWhenGoingStraight(SegmentID, StartNode));
 

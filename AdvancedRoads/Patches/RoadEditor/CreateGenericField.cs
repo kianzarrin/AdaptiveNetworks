@@ -32,7 +32,7 @@ namespace AdvancedRoads.Patches.RoadEditor {
                 }
             }
             catch (Exception e) {
-                Log.LogException(e);
+                Log.Exception(e);
                 throw e;
             }
 
@@ -84,14 +84,16 @@ namespace AdvancedRoads.Patches.RoadEditor {
                     label: att.name + " Flags Required",
                     enumType: typeof(NetLaneExt.Flags),
                     setHandler: SetRequired,
-                    getHandler: GetRequired);
+                    getHandler: GetRequired,
+                    false);
                 var bitMaskPanel1 = BitMaskPanel.Add(
                     roadEditorPanel: instance,
                     container: container,
                     label: att.name + " Flags Forbidden",
                     enumType: typeof(NetLaneExt.Flags),
                     setHandler: SetForbidden,
-                    getHandler: GetForbidden);
+                    getHandler: GetForbidden,
+                    true);
             } else if (fieldInfo.FieldType == typeof(NetInfoExt.SegmentInfoFlags)) {
                 uint GetRequired() {
                     var value = (NetInfoExt.SegmentInfoFlags)fieldInfo.GetValue(target);
@@ -117,14 +119,16 @@ namespace AdvancedRoads.Patches.RoadEditor {
                     label: att.name + " Flags Required",
                     enumType: typeof(NetSegmentExt.Flags),
                     setHandler: SetRequired,
-                    getHandler: GetRequired);
+                    getHandler: GetRequired,
+                    false);
                 var bitMaskPanel1 = BitMaskPanel.Add(
                     roadEditorPanel: instance,
                     container: container,
                     label: att.name + " Flags Forbidden",
                     enumType: typeof(NetSegmentExt.Flags),
                     setHandler: SetForbidden,
-                    getHandler: GetForbidden);
+                    getHandler: GetForbidden,
+                    true);
             } else if (fieldInfo.FieldType == typeof(NetInfoExt.SegmentEndInfoFlags)) {
                 uint GetRequired() {
                     var value = (NetInfoExt.SegmentEndInfoFlags)fieldInfo.GetValue(target);
@@ -150,14 +154,16 @@ namespace AdvancedRoads.Patches.RoadEditor {
                     label: att.name + " Flags Required",
                     enumType: typeof(NetSegmentEnd.Flags),
                     setHandler: SetRequired,
-                    getHandler: GetRequired);
+                    getHandler: GetRequired,
+                    false);
                 var bitMaskPanel1 = BitMaskPanel.Add(
                     roadEditorPanel: instance,
                     container: container,
                     label: att.name + " Flags Forbidden",
                     enumType: typeof(NetSegmentEnd.Flags),
                     setHandler: SetForbidden,
-                    getHandler: GetForbidden);
+                    getHandler: GetForbidden,
+                    true);
             } else if (fieldInfo.FieldType == typeof(NetInfoExt.NodeInfoFlags)) {
                 uint GetRequired() {
                     var value = (NetInfoExt.NodeInfoFlags)fieldInfo.GetValue(target);
@@ -183,14 +189,16 @@ namespace AdvancedRoads.Patches.RoadEditor {
                     label: att.name + " Flags Required",
                     enumType: typeof(NetNodeExt.Flags),
                     setHandler: SetRequired,
-                    getHandler: GetRequired);
+                    getHandler: GetRequired,
+                    false);
                 var bitMaskPanel1 = BitMaskPanel.Add(
                     roadEditorPanel: instance,
                     container: container,
                     label: att.name + " Flags Forbidden",
                     enumType: typeof(NetNodeExt.Flags),
                     setHandler: SetForbidden,
-                    getHandler: GetForbidden);
+                    getHandler: GetForbidden,
+                    true);
             }
 
             //CreateExtendedComponentHelper(field, target,  instance, "Required");

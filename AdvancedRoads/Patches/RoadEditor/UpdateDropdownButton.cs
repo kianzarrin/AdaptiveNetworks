@@ -4,6 +4,7 @@ namespace AdvancedRoads.Patches.RoadEditor {
     using KianCommons;
     using System;
     using System.Reflection;
+    using AdvancedRoads.UI.RoadEditor;
 
     /// <summary>
     /// do not print mixed int the flags field.
@@ -11,28 +12,20 @@ namespace AdvancedRoads.Patches.RoadEditor {
     // private void REEnumBitmaskSet.UpdateDropdownButton()
     [HarmonyPatch(typeof(REEnumBitmaskSet), "UpdateDropdownButton")]
     public static class UpdateDropdownButton {
-        public static bool Prefix(REEnumBitmaskSet __instance) {
+        public static bool Prefix(REEnumBitmaskSet __instance, FieldInfo ___m_TargetField) {
             try {
-                Type fieldType = __instance.m_TargetField().FieldType;
+                Type fieldType = ___m_TargetField.FieldType;
                 if (__instance.RequiresUserFlag(fieldType))
                     return true;
 
                 int flags = __instance.GetFlags();
-                UIButton uibutton = (UIButton)__instance.m_DropDown.triggerButton;
-                var text = Enum.Format(__instance.m_TargetField().FieldType, flags, "G");
-                int maxLen = 23;
-                if (text.Length > maxLen - 3)
-                    uibutton.textHorizontalAlignment = UIHorizontalAlignment.Left;
-                else
-                    uibutton.textHorizontalAlignment = UIHorizontalAlignment.Center;
-                if (text.Length > maxLen) 
-                    text = text.Substring(0, maxLen - 1-3) + "...";
-                uibutton.text = text;
+                var text = Enum.Format(fieldType, flags, "G");
+                BitMaskPanel.ApplyText(__instance.m_DropDown, text);
 
                 return false;
             }
             catch (Exception e){
-                Log.LogException(e);
+                Log.Exception(e);
                 return true;
             }
         }

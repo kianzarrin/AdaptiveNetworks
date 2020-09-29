@@ -1,18 +1,17 @@
 namespace AdvancedRoads.Patches.RoadEditor {
     using HarmonyLib;
-    using System;
-    using System.Reflection;
-    using KianCommons;
 
     /// <summary>
     /// changeing types confuses AddCustomFields.
     /// this patch resolves that confusion by using the replaced types.
     /// TODO move this pacth to prefab indeces mod.
     /// </summary>
-    [HarmonyPatch(typeof(RoadEditorPanel), "AddCustomFields" )]
+    [HarmonyPatch(typeof(RoadEditorPanel))]
+
     public static class AddCustomFields {
-        public static void Postfix(RoadEditorPanel __instance) {
-            object target = __instance.m_Target();
+        [HarmonyPatch("AddCustomFields")]
+        public static void Postfix(RoadEditorPanel __instance, object ___m_Target) {
+            object target = ___m_Target;
             //Log.Debug($"AddCustomFields.PostFix() target={target}\n" + Environment.StackTrace);
             if (target is NetInfo.Segment) {
                 __instance.AddCrossImportField();

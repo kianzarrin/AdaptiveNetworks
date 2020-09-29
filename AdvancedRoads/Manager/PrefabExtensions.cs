@@ -25,6 +25,11 @@ namespace AdvancedRoads.Manager {
         
         public static LaneProp GetExt(this NetInfoExtension.Lane.Prop IndexExt)
             => LaneProp.Get(IndexExt);
+
+        public static NetInfoExt GetExt(this NetInfo info) => NetInfoExt.Buffer[info.GetIndex()];
+
+        public static void SetExt(this NetInfo info, NetInfoExt netInfoExt)
+            => NetInfoExt.SetNetInfoExt(info.GetIndex(), netInfoExt);
     }
 
     [Serializable]
@@ -285,6 +290,7 @@ namespace AdvancedRoads.Manager {
             Log.Debug("NetInfoExt.Clone()->" + clone);
             return clone;
         }
+
         public static NetInfoExt[] Buffer;
 
         public static NetInfo EditNetInfo =>
@@ -292,11 +298,8 @@ namespace AdvancedRoads.Manager {
 
         public static NetInfoExt EditNetInfoExt {
             get {
-                if (EditNetInfo == null)
-                    return null;
-                int index = EditNetInfo.GetIndex();
                 EnsureBuffer();
-                return Buffer[index];
+                return EditNetInfo?.GetExt();
             }
         }
 
@@ -325,26 +328,20 @@ namespace AdvancedRoads.Manager {
         }
 
         public static void CreateNewNetInfoExt(NetInfo info) {
-            if (info == null)
-                return;
+            if (info == null) return;
             SetNetInfoExt(info.GetIndex(), new NetInfoExt(info));
         }
 
-
         public static void SetNetInfoExt(int index, NetInfoExt netInfoExt) {
             Log.Debug($"SetNetInfoExt({index},{netInfoExt?.ToString()??"null"})");
-            if (Buffer == null)
-                Init();
-            if (Buffer.Count() < NetInfoCount) {
-                ExpandBuffer();
-            }
+            EnsureBuffer();
             Buffer[index] = netInfoExt;
             Log.Debug($"SetNetInfoExt({index},{netInfoExt}) Result: Buffer[{index}] = {netInfoExt};");
         }
 
         public static void Init() {
             NetInfoExtension.ExtendLoadedPrefabs();
-            Log.Debug($"NetInfoExt.Init() : prefab count={NetInfoCount}\n"  + Environment.StackTrace);
+            Log.Debug($"NetInfoExt.Init() : prefab count={NetInfoCount}\n" /* + Environment.StackTrace*/);
             Buffer = new NetInfoExt[NetInfoCount];
         }
         public static void Unload() {
@@ -356,7 +353,7 @@ namespace AdvancedRoads.Manager {
                 ExpandBuffer();
         }
         public static void ExpandBuffer() {
-            Log.Debug("ExpandBuffer() called\n" + Environment.StackTrace);
+            Log.Debug("ExpandBuffer() called\n" /*+ Environment.StackTrace*/);
             if (Buffer==null) {
                 Init();
                 return;
