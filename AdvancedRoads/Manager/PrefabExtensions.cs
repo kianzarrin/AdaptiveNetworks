@@ -36,6 +36,14 @@ namespace AdvancedRoads.Manager {
     public class NetInfoExt {
         [FlagPair]
         [Serializable]
+        public struct VanillaSegmentInfoFlags {
+            [BitMask]
+            public NetSegment.Flags Required, Forbidden;
+            public bool CheckFlags(NetSegment.Flags flags) => flags.CheckFlags(Required, Forbidden);
+        }
+
+        [FlagPair]
+        [Serializable]
         public struct SegmentInfoFlags {
             [BitMask]
             public NetSegmentExt.Flags Required, Forbidden;
@@ -122,6 +130,8 @@ namespace AdvancedRoads.Manager {
         [Serializable]
         public class Node {
             public NodeInfoFlags NodeFlags;
+
+            [CustomizableProperty("Segment End")]
             public SegmentEndInfoFlags SegmentEndFlags;
 
             public bool CheckFlags(NetNodeExt.Flags nodeFlags, NetSegmentEnd.Flags segmentEndFlags) =>
@@ -191,8 +201,11 @@ namespace AdvancedRoads.Manager {
             [CustomizableProperty("Lane")]
             public LaneInfoFlags LaneFlags = new LaneInfoFlags();
 
-            [CustomizableProperty("Segment")]
+            //[CustomizableProperty("Segment")]
             public SegmentInfoFlags SegmentFlags = new SegmentInfoFlags();
+
+            [CustomizableProperty("Segment")]
+            public VanillaSegmentInfoFlags VanillaSegmentFlags = new VanillaSegmentInfoFlags();
 
             [CustomizableProperty("Segment Start")]
             public SegmentEndInfoFlags SegmentStartFlags = new SegmentEndInfoFlags();
@@ -200,19 +213,21 @@ namespace AdvancedRoads.Manager {
             [CustomizableProperty("Segment End")]
             public SegmentEndInfoFlags SegmentEndFlags = new SegmentEndInfoFlags();
 
-            [CustomizableProperty("Start Node")]
+            //[CustomizableProperty("Start Node")]
             public NodeInfoFlags StartNodeFlags = new NodeInfoFlags();
 
-            [CustomizableProperty("End Node")]
+            //[CustomizableProperty("End Node")]
             public NodeInfoFlags EndNodeFlags = new NodeInfoFlags();
 
             public bool CheckFlags(
                 NetLaneExt.Flags laneFlags,
                 NetSegmentExt.Flags segmentFlags,
+                NetSegment.Flags vanillaSegmentFlags,
                 NetNodeExt.Flags startNodeFlags, NetNodeExt.Flags endNodeFlags,
                 NetSegmentEnd.Flags segmentStartFlags, NetSegmentEnd.Flags segmentEndFlags) =>
                 LaneFlags.CheckFlags(laneFlags) &&
                 SegmentFlags.CheckFlags(segmentFlags) &&
+                VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags) &&
                 SegmentStartFlags.CheckFlags(segmentStartFlags) &&
                 SegmentEndFlags.CheckFlags(segmentEndFlags) &&
                 StartNodeFlags.CheckFlags(startNodeFlags) &&

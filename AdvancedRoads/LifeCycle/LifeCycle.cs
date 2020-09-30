@@ -1,11 +1,8 @@
 namespace AdvancedRoads.LifeCycle
 {
     using KianCommons;
-    //using AdvancedRoads.UI.MainPanel;
     using System;
     using AdvancedRoads.Manager;
-    using KianCommons.Patches;
-    using System.Reflection;
 
     public static class LifeCycle
     {
@@ -21,7 +18,6 @@ namespace AdvancedRoads.LifeCycle
                 // also extends loaded prefabs with indeces.
                 NetInfoExt.ExpandBuffer();
                 NetworkExtensionManager.Instance.OnLoad();
-                //MainPanel.Create();
                 NetInfoExt.EnsureEditNetInfoExt(); // useful for asset editor hot reload.
                 HarmonyUtil.InstallHarmony(HARMONY_ID);
             }

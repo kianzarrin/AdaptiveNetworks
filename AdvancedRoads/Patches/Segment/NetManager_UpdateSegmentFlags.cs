@@ -10,11 +10,7 @@ namespace AdvancedRoads.Patches.Segment {
             if (!NetUtil.IsSegmentValid(segmentID)) return;
             ref NetSegmentExt netSegmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
 
-            netSegmentExt.Start.UpdateFlags();
-            netSegmentExt.Start.UpdateDirections();
-
-            netSegmentExt.End.UpdateFlags();
-            netSegmentExt.End.UpdateDirections();
+            netSegmentExt.UpdateAllFlags();
         }
     }
 }

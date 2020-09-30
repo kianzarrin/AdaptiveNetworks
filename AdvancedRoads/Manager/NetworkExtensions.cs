@@ -142,6 +142,7 @@ namespace AdvancedRoads {
     using ColossalFramework;
     using CSUtil.Commons;
     using System;
+    using System.Linq;
     using TrafficManager;
     using TrafficManager.API.Manager;
     using TrafficManager.API.Traffic.Data;
@@ -201,7 +202,6 @@ namespace AdvancedRoads {
             LaneData.LaneIndex = laneIndex;
             LaneData.LaneInfo = null;
             m_flags = Flags.None;
-            NetLane.Flags
         }
 
         static ParkingRestrictionsManager PMan => ParkingRestrictionsManager.Instance;
@@ -217,7 +217,6 @@ namespace AdvancedRoads {
                 laneIndex:(uint)LaneData.LaneIndex,
                 laneInfo:LaneData.LaneInfo,
                 busLaneMode: VehicleRestrictionsMode.Configured);
-
 
             m_flags = m_flags.SetFlags(Flags.PassengerCar, VRMan.IsPassengerCarAllowed(mask));
             m_flags = m_flags.SetFlags(Flags.SOS, VRMan.IsEmergencyAllowed(mask));
@@ -241,6 +240,19 @@ namespace AdvancedRoads {
             Vanilla = 1 << 0,
             KeepClearAll = 1 << 1, // all entering segment ends keep clear of the junction.
             All = (1 << 2) - 1,
+        }
+
+        public static JunctionRestrictionsManager JRMan => JunctionRestrictionsManager.Instance;
+
+        public void UpdateFlags() {
+            bool keepClearAll = true;
+            foreach (var segmentID in NetUtil.IterateNodeSegments(NodeID)) {
+                bool startNode = NetUtil.IsStartNode(segmentId: segmentID, nodeId: NodeID);
+                bool keppClear = JRMan.IsEnteringBlockedJunctionAllowed(segmentID, startNode);
+                keepClearAll &= keppClear;
+
+            }
+            m_flags = m_flags.SetFlags(Flags.KeepClearAll, keepClearAll);
         }
 
         public Flags m_flags;
@@ -276,9 +288,22 @@ namespace AdvancedRoads {
             else
                 return ref End;
         }
-    }
 
-    [Serializable]
+        public void UpdateFlags() {
+            m_flags = Flags.None; // not vanila
+        }
+
+        public void UpdateAllFlags() {
+            UpdateFlags();
+
+            Start.UpdateFlags();
+            Start.UpdateDirections();
+
+            End.UpdateFlags();
+            End.UpdateDirections();
+        }
+    }
+        [Serializable]
     public struct NetSegmentEnd {
         [Flags]
         public enum Flags : UInt32 {

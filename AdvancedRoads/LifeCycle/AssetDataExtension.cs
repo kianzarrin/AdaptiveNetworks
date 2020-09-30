@@ -9,6 +9,9 @@ namespace AdvancedRoads.LifeCycle {
     using System.Collections.Generic;
     using static KianCommons.Assertion;
 
+    //private IEnumerator SaveAssetPanel.SaveAsset(string saveName, string assetName, string description, bool ignoreThumbnail)
+    //[HarmonyPatch(typeof(SaveAssetPanel), "SaveAsset")]
+
     [HarmonyPatch(typeof(LoadAssetPanel), "OnLoad")]
     public static class OnLoadPatch {
         /// <summary>
@@ -87,7 +90,6 @@ namespace AdvancedRoads.LifeCycle {
 
     public class AssetDataExtension : AssetDataExtensionBase {
         public const string ID_NetInfo = "AdvancedRoadEditor_NetInfoExt";
-
 
         public static AssetDataExtension Instance;
         public override void OnCreated(IAssetData assetData) {

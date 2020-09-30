@@ -22,25 +22,27 @@ namespace AdvancedRoads.Patches.Lane {
     using static KianCommons.Patches.TranspilerUtils;
     using AdvancedRoads.Manager;
     using ColossalFramework;
-    using System.Runtime.Remoting.Messaging;
 
     public static class CheckPropFlagsCommons {
         public class StateT {
             public NetLaneExt.Flags laneFlags;
             public NetSegmentExt.Flags segmentFlags;
+            public NetSegment.Flags vanillaSegmentFlags;
             public NetNodeExt.Flags startNodeFlags, endNodeFlags;
             public NetSegmentEnd.Flags segmentStartFags, segmentEndFlags;
         }
 
         public static StateT InitState(NetInfo.Lane laneInfo, uint laneID) {
             ushort segmentID = laneID.ToLane().m_segment;
-            bool segmentInverted = segmentID.ToSegment().m_flags.IsFlagSet(NetSegment.Flags.Invert);
+            ref NetSegment segment = ref segmentID.ToSegment();
+
+            bool segmentInverted = segment.m_flags.IsFlagSet(NetSegment.Flags.Invert);
             bool backward = (laneInfo.m_finalDirection & NetInfo.Direction.Both) == NetInfo.Direction.Backward ||
                 (laneInfo.m_finalDirection & NetInfo.Direction.AvoidBoth) == NetInfo.Direction.AvoidForward;
             bool reverse = segmentInverted != backward; // xor
 
-            ushort startNodeID = reverse ? segmentID.ToSegment().m_startNode : segmentID.ToSegment().m_endNode; // tail
-            ushort endNodeID = !reverse ? segmentID.ToSegment().m_startNode : segmentID.ToSegment().m_endNode; // head
+            ushort startNodeID = reverse ? segment.m_startNode : segment.m_endNode; // tail
+            ushort endNodeID = !reverse ? segment.m_startNode : segment.m_endNode; // head
 
             ref NetLaneExt netLaneExt = ref NetworkExtensionManager.Instance.LaneBuffer[laneID];
             ref NetSegmentExt netSegmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
@@ -50,7 +52,7 @@ namespace AdvancedRoads.Patches.Lane {
             ref NetSegmentEnd netSegmentEnd = ref netSegmentExt.GetEnd(endNodeID);
 
             return new StateT {
-                laneFlags = netLaneExt.m_flags, segmentFlags = netSegmentExt.m_flags,
+                laneFlags = netLaneExt.m_flags, segmentFlags = netSegmentExt.m_flags, vanillaSegmentFlags = segment.m_flags,
                 startNodeFlags = netNodeExtStart.m_flags, endNodeFlags =netNodeExtEnd.m_flags,
                 segmentStartFags = netSegmentStart.m_flags, segmentEndFlags = netSegmentEnd.m_flags,
             };
@@ -64,7 +66,7 @@ namespace AdvancedRoads.Patches.Lane {
                 state = InitState(laneInfo, laneID);
 
             return propInfoExt.CheckFlags(
-                state.laneFlags, state.segmentFlags,
+                state.laneFlags, state.segmentFlags, state.vanillaSegmentFlags,
                 state.startNodeFlags, state.endNodeFlags,
                 state.segmentStartFags, state.segmentEndFlags);
         }
@@ -80,13 +82,15 @@ namespace AdvancedRoads.Patches.Lane {
 
             // TODO move prepration to prefix ... how can I read from state?
             ushort segmentID = laneID.ToLane().m_segment;
-            bool segmentInverted = segmentID.ToSegment().m_flags.IsFlagSet(NetSegment.Flags.Invert);
+            ref NetSegment segment = ref segmentID.ToSegment();
+
+            bool segmentInverted = segment.m_flags.IsFlagSet(NetSegment.Flags.Invert);
             bool backward = (laneInfo.m_finalDirection & NetInfo.Direction.Both) == NetInfo.Direction.Backward ||
                 (laneInfo.m_finalDirection & NetInfo.Direction.AvoidBoth) == NetInfo.Direction.AvoidForward;
             bool reverse = segmentInverted != backward; // xor
 
-            ushort startNodeID =  !reverse ? segmentID.ToSegment().m_startNode : segmentID.ToSegment().m_endNode; // tail
-            ushort endNodeID = reverse ? segmentID.ToSegment().m_startNode : segmentID.ToSegment().m_endNode; // head
+            ushort startNodeID =  !reverse ? segment.m_startNode : segment.m_endNode; // tail
+            ushort endNodeID = reverse ? segment.m_startNode : segment.m_endNode; // head
 
             ref NetLaneExt netLaneExt = ref NetworkExtensionManager.Instance.LaneBuffer[laneID];
             ref NetSegmentExt netSegmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
@@ -104,7 +108,7 @@ namespace AdvancedRoads.Patches.Lane {
             }
 
             return propInfoExt.CheckFlags(
-                netLaneExt.m_flags, netSegmentExt.m_flags,
+                netLaneExt.m_flags, netSegmentExt.m_flags, segment.m_flags,
                 netNodeExtStart.m_flags, netNodeExtEnd.m_flags,
                 netSegmentStart.m_flags, netSegmentEnd.m_flags);
         }

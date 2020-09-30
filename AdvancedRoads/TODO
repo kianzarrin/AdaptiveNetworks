@@ -1,4 +1,9 @@
-serialization of NetInfo should roll back prefab index extensions.
+
+serialization/deserialization of NetInfo should roll back prefab index extensions.
+make sure all networks have prefab indeces one again when level is loaded.
+only update segments that have prefab indeces. or maybe skip CS update and only recaculate mod flags.
+
+
 
 
 
