@@ -14,7 +14,7 @@ namespace AdvancedRoads.Patches.Segment {
 
     public static class CheckSegmentFlagsCommons {
         public static bool CheckFlags(NetInfo.Segment segmentInfo, ushort segmentID, ref bool turnAround) {
-            var segmentInfoExt = NetInfoExt.Segment.Get(segmentInfo as NetInfoExtension.Segment);
+            var segmentInfoExt = segmentInfo?.GetExt();
             if (segmentInfoExt == null) return true;
 
             ref NetSegmentExt netSegmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];

@@ -15,7 +15,7 @@ namespace AdvancedRoads.Patches {
 
     public static class CheckNodeFlagsCommons {
         public static bool CheckFlags(NetInfo.Node node, ushort nodeID, ushort segmentID) {
-            var nodeInfoExt = NetInfoExt.Node.Get(node as NetInfoExtension.Node);
+            var nodeInfoExt = node?.GetExt();
             if (nodeInfoExt == null) return true;
             ref NetNodeExt netNodeExt = ref NetworkExtensionManager.Instance.NodeBuffer[nodeID];
             ref NetSegmentExt netSegmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];

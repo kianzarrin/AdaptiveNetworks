@@ -59,7 +59,7 @@ namespace AdvancedRoads.Patches.Lane {
         }
 
         public static bool CheckFlags2(NetLaneProps.Prop prop, NetInfo.Lane laneInfo, uint laneID, ref StateT state) {
-            var propInfoExt = NetInfoExt.LaneProp.Get(prop as NetInfoExtension.Lane.Prop);
+            var propInfoExt = prop?.GetExt();
             if (propInfoExt == null)
                 return true;
             if (state == null)
@@ -73,11 +73,11 @@ namespace AdvancedRoads.Patches.Lane {
 
         // TODO use the other checkflags.
         public static bool CheckFlags(NetLaneProps.Prop prop, NetInfo.Lane laneInfo, uint laneID) {
-            var propIndex = prop as NetInfoExtension.Lane.Prop;
-            var propInfoExt = propIndex?.GetExt();
+            var propInfoExt = prop?.GetExt();
+            //var propIndex = prop as NetInfoExtension.Lane.Prop;
             //Log.DebugWait($"CheckFlags called for lane:{laneID} propInfoExt={propInfoExt} propIndex={propIndex} prop={prop}", (int)laneID);
             if (propInfoExt == null) return true;
-            //var laneInfoExt = NetInfoExt.Lane.Get(laneInfo as NetInfoExtension.Lane);
+            //var laneInfoExt = laneInfo?.GetExt();
             //if (laneInfoExt == null) return true;
 
             // TODO move prepration to prefix ... how can I read from state?
@@ -99,13 +99,13 @@ namespace AdvancedRoads.Patches.Lane {
             ref NetSegmentEnd netSegmentStart = ref netSegmentExt.GetEnd(startNodeID);
             ref NetSegmentEnd netSegmentEnd = ref netSegmentExt.GetEnd(endNodeID);
 
-            if (propIndex.LaneIndex == 1 && propIndex.Index == 1)         
-            {
-                //Log.DebugWait($"calling propInfoExt.CheckFlags called for lane{laneID} " +
-                //    $"netSegmentStart.m_flags={netSegmentStart.m_flags}, netSegmentEnd.m_flags={netSegmentEnd.m_flags} " +
-                //    $"propInfoExt.SegmentEndFlags.Required={propInfoExt.SegmentEndFlags.Required}",
-                //    id: (int)laneID, copyToGameLog: false);
-            }
+            //if (propIndex.LaneIndex == 1 && propIndex.Index == 1)         
+            //{
+            //    //Log.DebugWait($"calling propInfoExt.CheckFlags called for lane{laneID} " +
+            //    //    $"netSegmentStart.m_flags={netSegmentStart.m_flags}, netSegmentEnd.m_flags={netSegmentEnd.m_flags} " +
+            //    //    $"propInfoExt.SegmentEndFlags.Required={propInfoExt.SegmentEndFlags.Required}",
+            //    //    id: (int)laneID, copyToGameLog: false);
+            //}
 
             return propInfoExt.CheckFlags(
                 netLaneExt.m_flags, netSegmentExt.m_flags, segment.m_flags,
