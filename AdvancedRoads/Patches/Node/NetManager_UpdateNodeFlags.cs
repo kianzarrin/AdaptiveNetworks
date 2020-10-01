@@ -1,6 +1,8 @@
-using HarmonyLib;
-using KianCommons;
 namespace AdvancedRoads.Patches.Node {
+    using HarmonyLib;
+    using KianCommons;
+    using AdvancedRoads.Manager;
+
     [HarmonyPatch(typeof(NetManager))]
     [HarmonyPatch(nameof(NetManager.UpdateNodeFlags))]
     class NetManager_UpdateNodeFlags {

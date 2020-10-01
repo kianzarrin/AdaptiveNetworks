@@ -1,11 +1,10 @@
-using System;
-using ColossalFramework.UI;
-using HarmonyLib;
-using KianCommons;
-using System.Reflection;
-using HarmonyLib;
-
 namespace AdvancedRoads.Patches.RoadEditor {
+    using System;
+    using ColossalFramework.UI;
+    using HarmonyLib;
+    using KianCommons;
+    using System.Reflection;
+
     public static class Extensions {
         #region REPropertySet
         //private int REEnumBitmaskSet.GetFlags()

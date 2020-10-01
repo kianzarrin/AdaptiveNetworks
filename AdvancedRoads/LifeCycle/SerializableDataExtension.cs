@@ -3,6 +3,7 @@ namespace AdvancedRoads.LifeCycle
     using JetBrains.Annotations;
     using ICities;
     using System;
+    using AdvancedRoads.Manager;
 
     [UsedImplicitly]
     public class SerializableDataExtension

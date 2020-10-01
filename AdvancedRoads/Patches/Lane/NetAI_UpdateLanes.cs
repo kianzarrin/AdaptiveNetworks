@@ -1,6 +1,7 @@
 namespace AdvancedRoads.Lanes {
     using HarmonyLib;
     using KianCommons;
+    using AdvancedRoads.Manager;
 
     [HarmonyPatch(typeof(NetAI))]
     [HarmonyPatch(nameof(NetAI.UpdateLanes))]

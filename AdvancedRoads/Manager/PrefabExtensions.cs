@@ -2,31 +2,43 @@ using KianCommons;
 using PrefabIndeces;
 using System;
 using System.Linq;
-using System.Xml.Schema;
 using static AdvancedRoads.Manager.NetInfoExt;
 
 namespace AdvancedRoads.Manager {
     [AttributeUsage(AttributeTargets.Struct)]
-    public class FlagPairAttribute: Attribute {
+    public class FlagPairAttribute : Attribute {
         public string Name;
         public FlagPairAttribute(string name) => Name = name;
         public FlagPairAttribute() { }
     }
 
     public static class Extensions {
-        public static Segment GetExt(this NetInfoExtension.Segment IndexExt) 
+        public static Segment GetExt(this NetInfoExtension.Segment IndexExt)
             => Segment.Get(IndexExt);
-        
-        public static Node GetExt(this NetInfoExtension.Node IndexExt) 
+
+        public static Segment GetExt(this NetInfo.Segment segment) =>
+            (segment as NetInfoExtension.Segment)?.GetExt();
+
+        public static Node GetExt(this NetInfoExtension.Node IndexExt)
             => Node.Get(IndexExt);
-        
-        public static Lane GetExt(this NetInfoExtension.Lane IndexExt) 
-            =>  Lane.Get(IndexExt);
-        
+
+        public static Node GetExt(this NetInfo.Node node) =>
+            (node as NetInfoExtension.Node)?.GetExt();
+
+        public static Lane GetExt(this NetInfoExtension.Lane IndexExt)
+            => Lane.Get(IndexExt);
+
+        public static Lane GetExt(this NetInfo.Lane lane) =>
+            (lane as NetInfoExtension.Lane)?.GetExt();
+
         public static LaneProp GetExt(this NetInfoExtension.Lane.Prop IndexExt)
             => LaneProp.Get(IndexExt);
 
+        public static LaneProp GetExt(this NetLaneProps.Prop prop) =>
+            (prop as NetInfoExtension.Lane.Prop)?.GetExt();
+
         public static NetInfoExt GetExt(this NetInfo info) => NetInfoExt.Buffer[info.GetIndex()];
+
 
         public static void SetExt(this NetInfo info, NetInfoExt netInfoExt)
             => NetInfoExt.SetNetInfoExt(info.GetIndex(), netInfoExt);
@@ -158,13 +170,14 @@ namespace AdvancedRoads.Manager {
 
         [Serializable]
         public class Lane {
+            [CustomizableProperty("Lane")]
             public LaneInfoFlags LaneFlags;
 
             public LaneProp[] PropInfoExts;
 
             public Lane(NetInfo.Lane template) {
                 Assertion.AssertNotNull(template, "template");
-                PropInfoExts = new LaneProp[template.m_laneProps?.m_props?.Length??0];
+                PropInfoExts = new LaneProp[template.m_laneProps?.m_props?.Length ?? 0];
                 for (int i = 0; i < PropInfoExts.Length; ++i) {
                     PropInfoExts[i] = new LaneProp(template.m_laneProps.m_props[i]);
                 }
@@ -266,17 +279,17 @@ namespace AdvancedRoads.Manager {
 
         public NetInfoExt(NetInfo template) {
             Version = this.VersionOf();
-            SegmentInfoExts = new Segment[template.m_segments?.Length??0];
+            SegmentInfoExts = new Segment[template.m_segments?.Length ?? 0];
             for (int i = 0; i < SegmentInfoExts.Length; ++i) {
                 SegmentInfoExts[i] = new Segment(template.m_segments[i]);
             }
 
-            NodeInfoExts = new Node[template.m_nodes?.Length??0];
+            NodeInfoExts = new Node[template.m_nodes?.Length ?? 0];
             for (int i = 0; i < NodeInfoExts.Length; ++i) {
                 NodeInfoExts[i] = new Node(template.m_nodes[i]);
             }
 
-            LaneInfoExts = new Lane[template.m_lanes?.Length??0];
+            LaneInfoExts = new Lane[template.m_lanes?.Length ?? 0];
             for (int i = 0; i < LaneInfoExts.Length; ++i) {
                 LaneInfoExts[i] = new Lane(template.m_lanes[i]);
             }
@@ -329,7 +342,7 @@ namespace AdvancedRoads.Manager {
 
         public static void EnsureNetInfoExt(NetInfo info) {
             EnsureBuffer();
-            if(info !=null && Buffer[info.GetIndex()] == null) {
+            if (info != null && Buffer[info.GetIndex()] == null) {
                 CreateAllNetInfoExt(info);
             }
         }
@@ -348,14 +361,19 @@ namespace AdvancedRoads.Manager {
         }
 
         public static void SetNetInfoExt(int index, NetInfoExt netInfoExt) {
-            Log.Debug($"SetNetInfoExt({index},{netInfoExt?.ToString()??"null"})");
+            Log.Debug($"SetNetInfoExt({index},{netInfoExt?.ToString() ?? "null"})");
             EnsureBuffer();
+            ExtendPrefabIndeces(index);
             Buffer[index] = netInfoExt;
             Log.Debug($"SetNetInfoExt({index},{netInfoExt}) Result: Buffer[{index}] = {netInfoExt};");
         }
 
+        public static void ExtendPrefabIndeces(int netInfoIndex) {
+            NetInfo netInfo = PrefabCollection<NetInfo>.GetPrefab((uint)netInfoIndex);
+            PrefabIndeces.NetInfoExtension.ExtendPrefab(netInfo);
+        }
+
         public static void Init() {
-            NetInfoExtension.ExtendLoadedPrefabs();
             Log.Debug($"NetInfoExt.Init() : prefab count={NetInfoCount}\n" /* + Environment.StackTrace*/);
             Buffer = new NetInfoExt[NetInfoCount];
         }
@@ -369,7 +387,7 @@ namespace AdvancedRoads.Manager {
         }
         public static void ExpandBuffer() {
             Log.Debug("ExpandBuffer() called\n" /*+ Environment.StackTrace*/);
-            if (Buffer==null) {
+            if (Buffer == null) {
                 Init();
                 return;
             }
@@ -405,11 +423,12 @@ namespace AdvancedRoads.Manager {
             Log.Debug($"NetInfoExt.Copy(source:{sourceIndex}, target:{targetIndex}, forceCreate:{forceCreate} called)");
             NetInfoExt sourceNetInfoExt =
                 Buffer.Length > sourceIndex ? NetInfoExt.Buffer[sourceIndex] : null;
-            NetInfoExt.SetNetInfoExt(targetIndex, sourceNetInfoExt?.Clone()); // expand buffer if null
+            NetInfoExt.SetNetInfoExt(targetIndex, sourceNetInfoExt?.Clone()); // only expands buffer if null
             if (sourceNetInfoExt == null && forceCreate) {
                 Log.Debug($"NetInfoExt.Copy: forceCreating ...");
                 var netInfo = PrefabCollection<NetInfo>.GetPrefab(sourceIndex);
-                Buffer[targetIndex] = new NetInfoExt(netInfo);
+                CreateNewNetInfoExt(netInfo);
+                NetInfoExtension.ExtendPrefab(netInfo);
                 Log.Debug($"NetInfoExt.Copy: forceCreate ->  Buffer[{targetIndex}] = {Buffer[targetIndex]}");
             } else {
                 Log.Debug($"NetInfoExt.Copy: skipped forceCreating. sourceNetInfoExt={sourceNetInfoExt} forceCreate={forceCreate}");

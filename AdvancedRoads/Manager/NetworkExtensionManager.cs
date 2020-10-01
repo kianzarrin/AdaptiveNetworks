@@ -1,4 +1,4 @@
-namespace AdvancedRoads {
+namespace AdvancedRoads.Manager {
     using KianCommons;
     using System;
     using System.Collections.Generic;
@@ -30,13 +30,13 @@ namespace AdvancedRoads {
             InitBuffers();
             for (ushort nodeID=0;nodeID< NetManager.MAX_NODE_COUNT;++nodeID) {
                 if (NetUtil.IsNodeValid(nodeID)) {
-                    NetManager.instance.UpdateNode(nodeID);
+                    NodeBuffer[nodeID].UpdateFlags();
                 }
             }
             for (ushort segmentID = 0; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
-                if (NetUtil.IsSegmentValid(segmentID)) {
-                    NetManager.instance.UpdateSegment(segmentID);
-                }
+                if (!NetUtil.IsSegmentValid(segmentID)) continue;
+                if (segmentID.ToSegment().Info.GetExt() == null) continue;
+                SegmentBuffer[segmentID].UpdateAllFlags();
             }
         }
 

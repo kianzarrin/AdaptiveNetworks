@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
+using UnityEngine;
 
 namespace experimenting
 {
@@ -10,31 +11,27 @@ namespace experimenting
     {
         static void Main(string[] args)
         {
-
-            Bar bar = new Bar();
-            bar.foo.a = 1;
-            bar.foo.b = 2;
-            Console.WriteLine("bar=" + bar);
-
-            FieldInfo fieldInfo_foo = typeof(Bar).GetField("foot");
-            FieldInfo fieldInfo_a = typeof(Foo).GetField("a");
-            fieldInfo_a.SetValue(bar.foo, 3);
-            Console.WriteLine("bar2=" + bar);
-
+            V2 v2 = new V2 { x = 1, y = 2 };
+            //V3 v3 = v2 as V3;
         }
     }
 
-    public struct Foo
+    class V2
     {
-        public int a;
-        public int b;
+        public int x;
+        public int y;
+
+        public static implicit operator V3(V2 v2)
+        {
+            return new V3 { x = v2.x, y = v2.y, z = 0 };
+        }
     }
 
-    public class Bar
+    class V3
     {
-        public Foo foo;
-        public override string ToString() => $"foo.a={foo.a} foo.b={foo.b}";
+        public int x;
+        public int y;
+        public int z;
     }
-
 
 }

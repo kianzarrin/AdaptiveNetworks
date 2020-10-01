@@ -138,11 +138,10 @@ backward:  angle:-90
     }
  */
 
-namespace AdvancedRoads {
+namespace AdvancedRoads.Manager {
     using ColossalFramework;
     using CSUtil.Commons;
     using System;
-    using System.Linq;
     using TrafficManager;
     using TrafficManager.API.Manager;
     using TrafficManager.API.Traffic.Data;
