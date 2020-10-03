@@ -43,6 +43,9 @@ namespace AdvancedRoads.Manager {
 
         public static void SetExt(this NetInfo info, NetInfoExt netInfoExt)
             => NetInfoExt.SetNetInfoExt(info.GetIndex(), netInfoExt);
+
+        public static IEnumerable<NetInfo> AllElevations(this NetInfo ground) =>
+            NetInfoExt.AllElevations(ground);
     }
 
     [Serializable]
@@ -341,7 +344,7 @@ namespace AdvancedRoads.Manager {
         public static int NetInfoCount => PrefabCollection<NetInfo>.PrefabCount();
 
 
-        public static IEnumerable<NetInfo> AllElevations(this NetInfo ground) {
+        public static IEnumerable<NetInfo> AllElevations(NetInfo ground) {
             if (ground == null) yield break;
 
             NetInfo elevated = AssetEditorRoadUtils.TryGetElevated(ground);
@@ -359,12 +362,8 @@ namespace AdvancedRoads.Manager {
         public static void ReExtendEditedPrefabIndeces() {
             try {
                 Log.Debug("ReExtendedEditedPrefabIndeces called");
-                NetInfo ground = EditNetInfo;
-                EditNetInfo?.ExtendPrefab();
-                AssetEditorRoadUtils.TryGetElevated(ground)?.ExtendPrefab();
-                AssetEditorRoadUtils.TryGetBridge(ground)?.ExtendPrefab();
-                AssetEditorRoadUtils.TryGetSlope(ground)?.ExtendPrefab();
-                AssetEditorRoadUtils.TryGetTunnel(ground)?.ExtendPrefab();
+                foreach (var info in NetInfoExt.EditNetInfos)
+                    info.ExtendPrefab();
             }
             catch (Exception e) {
                 Log.Exception(e);

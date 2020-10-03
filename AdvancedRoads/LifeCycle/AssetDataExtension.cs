@@ -15,25 +15,39 @@ namespace AdvancedRoads.LifeCycle {
     //[HarmonyPatch(typeof(SaveAssetPanel), "SaveAsset")]
 
     // TODO move to prefab indeces.
-    // internal static void PackageSerializer.Serialize(Package package, MonoBehaviour monoBehaviour, PackageWriter writer)
-    // Add prefix to change NetInfo
-    [HarmonyPatch(typeof(PackageSerializer))]
-    [HarmonyPatch("Serialize")]
-    [HarmonyPatch(new Type[] { typeof(Package), typeof(MonoBehaviour), typeof(PackageWriter) })]
-    public static class PackageSerializer_Serialize {
-        static void Prefix(ref MonoBehaviour monoBehaviour) {
-            if (monoBehaviour is NetInfo netInfo) {
-                Log.Debug($"PackageSerializer.Serialize.Prefix() reversing {netInfo} ...");
-                netInfo.ReversePrefab();
-            }
+    [HarmonyPatch(typeof(SaveAssetPanel), "SaveAsset")]
+    public static class SaveRoutinePatch {
+        public static void Prefix() {
+            Log.Debug($"SaveAssetPanel.SaveRoutine reversing ...");
+            foreach (var info in NetInfoExt.EditNetInfos)
+                info.ReversePrefab();
         }
-        static void Postfix(ref MonoBehaviour monoBehaviour) {
-            if (monoBehaviour is NetInfo netInfo) {
-                Log.Debug($"PackageSerializer.Serialize.Postfix() extending {netInfo} ...");
-                netInfo.ExtendPrefab();
-            }
+        public static void PostFix() {
+            Log.Debug($"SaveAssetPanel.SaveRoutine re extending ...");
+            foreach (var info in NetInfoExt.EditNetInfos)
+                info.ExtendPrefab();
         }
     }
+
+    //// internal static void PackageSerializer.Serialize(Package package, MonoBehaviour monoBehaviour, PackageWriter writer)
+    //// Add prefix to change NetInfo
+    //[HarmonyPatch(typeof(PackageSerializer))]
+    //[HarmonyPatch("Serialize")]
+    //[HarmonyPatch(new Type[] { typeof(Package), typeof(MonoBehaviour), typeof(PackageWriter) })]
+    //public static class PackageSerializer_Serialize {
+    //    static void Prefix(ref MonoBehaviour monoBehaviour) {
+    //        if (monoBehaviour is NetInfo netInfo) {
+    //            Log.Debug($"PackageSerializer.Serialize.Prefix() reversing {netInfo} ...");
+    //            netInfo.ReversePrefab();
+    //        }
+    //    }
+    //    static void Postfix(ref MonoBehaviour monoBehaviour) {
+    //        if (monoBehaviour is NetInfo netInfo) {
+    //            Log.Debug($"PackageSerializer.Serialize.Postfix() extending {netInfo} ...");
+    //            netInfo.ExtendPrefab();
+    //        }
+    //    }
+    //}
 
     [HarmonyPatch(typeof(LoadAssetPanel), "OnLoad")]
     public static class OnLoadPatch {
