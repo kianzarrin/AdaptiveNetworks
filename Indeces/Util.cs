@@ -2,12 +2,15 @@ using System;
 using System.Reflection;
 using UnityEngine;
 namespace PrefabIndeces {
-    public class Util {
-        public static Version VersionOf(Type t) =>
-            t.Assembly.GetName().Version;
+    public static class Util {
+        public static Version Take(this Version version, int fieldCount) =>
+            new Version(version.ToString(fieldCount));
+       
+        public static Version VersionOf(Type t, int fieldCount = 4) =>
+            t.Assembly.GetName().Version.Take(fieldCount);
 
-        public static Version VersionOf(object obj) =>
-            VersionOf(obj.GetType());
+        public static Version VersionOf(this object obj, int fieldCount = 4) =>
+            VersionOf(obj.GetType(), fieldCount);
 
         public static void CopyProperties(object target, object origin) {
             Assert(target.GetType().IsSubclassOf(origin.GetType()));

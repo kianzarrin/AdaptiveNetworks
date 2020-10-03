@@ -164,7 +164,7 @@ namespace AdvancedRoads.Manager {
     [Serializable]
     public struct NetLaneExt {
         [Flags]
-        public enum Flags : UInt32 {
+        public enum Flags {
             None = 0,
 
             ParkingAllowed = 1 << 0,
@@ -234,7 +234,7 @@ namespace AdvancedRoads.Manager {
         public void Init(ushort nodeID) => NodeID = nodeID;
 
         [Flags]
-        public enum Flags : UInt32 {
+        public enum Flags {
             None = 0,
             Vanilla = 1 << 0,
             KeepClearAll = 1 << 1, // all entering segment ends keep clear of the junction.
@@ -263,7 +263,7 @@ namespace AdvancedRoads.Manager {
         public void Init(ushort segmentID) => SegmentID = segmentID;
 
         [Flags]
-        public enum Flags : UInt32 {
+        public enum Flags {
             None = 0,
             Vanilla = 1 << 0,
             //UniformSpeedLimit = 1 << 1,
@@ -305,7 +305,7 @@ namespace AdvancedRoads.Manager {
         [Serializable]
     public struct NetSegmentEnd {
         [Flags]
-        public enum Flags : UInt32 {
+        public enum Flags {
             None = 0,
 
             // priority signs

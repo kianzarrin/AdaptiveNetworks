@@ -1,6 +1,7 @@
 using KianCommons;
 using PrefabIndeces;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using static AdvancedRoads.Manager.NetInfoExt;
 
@@ -324,6 +325,9 @@ namespace AdvancedRoads.Manager {
         public static NetInfo EditNetInfo =>
             ToolsModifierControl.toolController.m_editPrefabInfo as NetInfo;
 
+        public static IEnumerable<NetInfo> EditNetInfos =>
+            AllElevations(EditNetInfo);
+
         public static NetInfoExt EditNetInfoExt {
             get {
                 EnsureBuffer();
@@ -336,13 +340,45 @@ namespace AdvancedRoads.Manager {
         /// </summary>
         public static int NetInfoCount => PrefabCollection<NetInfo>.PrefabCount();
 
+
+        public static IEnumerable<NetInfo> AllElevations(this NetInfo ground) {
+            if (ground == null) yield break;
+
+            NetInfo elevated = AssetEditorRoadUtils.TryGetElevated(ground);
+            NetInfo bridge = AssetEditorRoadUtils.TryGetBridge(ground);
+            NetInfo slope = AssetEditorRoadUtils.TryGetSlope(ground);
+            NetInfo tunnel = AssetEditorRoadUtils.TryGetTunnel(ground);
+
+            yield return ground;
+            if (elevated != null) yield return elevated;
+            if (bridge != null) yield return bridge;
+            if (slope != null) yield return slope;
+            if (tunnel != null) yield return tunnel;
+        }
+
+        public static void ReExtendEditedPrefabIndeces() {
+            try {
+                Log.Debug("ReExtendedEditedPrefabIndeces called");
+                NetInfo ground = EditNetInfo;
+                EditNetInfo?.ExtendPrefab();
+                AssetEditorRoadUtils.TryGetElevated(ground)?.ExtendPrefab();
+                AssetEditorRoadUtils.TryGetBridge(ground)?.ExtendPrefab();
+                AssetEditorRoadUtils.TryGetSlope(ground)?.ExtendPrefab();
+                AssetEditorRoadUtils.TryGetTunnel(ground)?.ExtendPrefab();
+            }
+            catch (Exception e) {
+                Log.Exception(e);
+            }
+        }
+
+
         public static void EnsureEditNetInfoExt() {
             EnsureNetInfoExt(EditNetInfo);
         }
 
         public static void EnsureNetInfoExt(NetInfo info) {
             EnsureBuffer();
-            if (info != null && Buffer[info.GetIndex()] == null) {
+            if (info != null && info.GetExt() == null) {
                 CreateAllNetInfoExt(info);
             }
         }
@@ -423,12 +459,12 @@ namespace AdvancedRoads.Manager {
             Log.Debug($"NetInfoExt.Copy(source:{sourceIndex}, target:{targetIndex}, forceCreate:{forceCreate} called)");
             NetInfoExt sourceNetInfoExt =
                 Buffer.Length > sourceIndex ? NetInfoExt.Buffer[sourceIndex] : null;
-            NetInfoExt.SetNetInfoExt(targetIndex, sourceNetInfoExt?.Clone()); // only expands buffer if null
-            if (sourceNetInfoExt == null && forceCreate) {
+            if (sourceNetInfoExt != null)
+                NetInfoExt.SetNetInfoExt(targetIndex, sourceNetInfoExt.Clone());
+            else if (forceCreate) {
                 Log.Debug($"NetInfoExt.Copy: forceCreating ...");
-                var netInfo = PrefabCollection<NetInfo>.GetPrefab(sourceIndex);
+                var netInfo = PrefabCollection<NetInfo>.GetPrefab(targetIndex);
                 CreateNewNetInfoExt(netInfo);
-                NetInfoExtension.ExtendPrefab(netInfo);
                 Log.Debug($"NetInfoExt.Copy: forceCreate ->  Buffer[{targetIndex}] = {Buffer[targetIndex]}");
             } else {
                 Log.Debug($"NetInfoExt.Copy: skipped forceCreating. sourceNetInfoExt={sourceNetInfoExt} forceCreate={forceCreate}");

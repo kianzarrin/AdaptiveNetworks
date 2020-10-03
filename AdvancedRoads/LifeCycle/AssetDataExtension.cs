@@ -8,9 +8,32 @@ namespace AdvancedRoads.LifeCycle {
     using System;
     using System.Collections.Generic;
     using static KianCommons.Assertion;
+    using ColossalFramework.Packaging;
+    using UnityEngine;
 
     //private IEnumerator SaveAssetPanel.SaveAsset(string saveName, string assetName, string description, bool ignoreThumbnail)
     //[HarmonyPatch(typeof(SaveAssetPanel), "SaveAsset")]
+
+    // TODO move to prefab indeces.
+    // internal static void PackageSerializer.Serialize(Package package, MonoBehaviour monoBehaviour, PackageWriter writer)
+    // Add prefix to change NetInfo
+    [HarmonyPatch(typeof(PackageSerializer))]
+    [HarmonyPatch("Serialize")]
+    [HarmonyPatch(new Type[] { typeof(Package), typeof(MonoBehaviour), typeof(PackageWriter) })]
+    public static class PackageSerializer_Serialize {
+        static void Prefix(ref MonoBehaviour monoBehaviour) {
+            if (monoBehaviour is NetInfo netInfo) {
+                Log.Debug($"PackageSerializer.Serialize.Prefix() reversing {netInfo} ...");
+                netInfo.ReversePrefab();
+            }
+        }
+        static void Postfix(ref MonoBehaviour monoBehaviour) {
+            if (monoBehaviour is NetInfo netInfo) {
+                Log.Debug($"PackageSerializer.Serialize.Postfix() extending {netInfo} ...");
+                netInfo.ExtendPrefab();
+            }
+        }
+    }
 
     [HarmonyPatch(typeof(LoadAssetPanel), "OnLoad")]
     public static class OnLoadPatch {

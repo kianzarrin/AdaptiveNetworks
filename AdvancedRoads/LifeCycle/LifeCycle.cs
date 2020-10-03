@@ -3,6 +3,7 @@ namespace AdvancedRoads.LifeCycle
     using KianCommons;
     using System;
     using AdvancedRoads.Manager;
+    using UnityEngine;
 
     public static class LifeCycle
     {
@@ -14,6 +15,12 @@ namespace AdvancedRoads.LifeCycle
         {
             try {
                 Log.Info("LifeCycle.Load() called");
+                #region TODO: DELETE
+                var info = PrefabCollection<NetInfo>.FindLoaded("Basic Road Decoration Trees");
+                var go = info.gameObject;
+                Log.Debug($"{info} {go.GetComponents<Component>().ToSTR()}");
+                #endregion
+
                 // ensure buffer is large enough after everything has been loaded.
                 // also extends loaded prefabs with indeces.
                 NetInfoExt.ExpandBuffer();

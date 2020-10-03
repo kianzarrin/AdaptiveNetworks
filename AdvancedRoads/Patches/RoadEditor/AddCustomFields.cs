@@ -1,5 +1,6 @@
 namespace AdvancedRoads.Patches.RoadEditor {
     using HarmonyLib;
+    using AdvancedRoads.Manager;
 
     /// <summary>
     /// changeing types confuses AddCustomFields.
@@ -24,6 +25,7 @@ namespace AdvancedRoads.Patches.RoadEditor {
             } else if (target is NetLaneProps.Prop) {
                 __instance.AddLanePropSelectField();
             }
+            __instance.EventObjectModified += NetInfoExt.ReExtendEditedPrefabIndeces; // assuming AddCustomFields is called at the end of initialize.
         }
     }
 }

@@ -60,20 +60,20 @@ namespace AdvancedRoads.Patches.RoadEditor {
 
             if (fieldInfo.FieldType == typeof(NetInfoExt.LaneInfoFlags)) {
 
-                uint GetRequired() {
+                int GetRequired() {
                     var value = (NetInfoExt.LaneInfoFlags)fieldInfo.GetValue(target);
-                    return (uint)value.Required;
+                    return (int)value.Required;
                 }
-                void SetRequired(uint flags) {
+                void SetRequired(int flags) {
                     var value = (NetInfoExt.LaneInfoFlags)fieldInfo.GetValue(target);
                     value.Required = (NetLaneExt.Flags)flags;
                     fieldInfo.SetValue(target, value);
                 };
-                uint GetForbidden() {
+                int GetForbidden() {
                     var value = (NetInfoExt.LaneInfoFlags)fieldInfo.GetValue(target);
-                    return (uint)value.Forbidden;
+                    return (int)value.Forbidden;
                 };
-                void SetForbidden(uint flags) {
+                void SetForbidden(int flags) {
                     var value = (NetInfoExt.LaneInfoFlags)fieldInfo.GetValue(target);
                     value.Forbidden = (NetLaneExt.Flags)flags;
                     fieldInfo.SetValue(target, value);
@@ -95,20 +95,20 @@ namespace AdvancedRoads.Patches.RoadEditor {
                     getHandler: GetForbidden,
                     true);
             } else if (fieldInfo.FieldType == typeof(NetInfoExt.SegmentInfoFlags)) {
-                uint GetRequired() {
+                int GetRequired() {
                     var value = (NetInfoExt.SegmentInfoFlags)fieldInfo.GetValue(target);
-                    return (uint)value.Required;
+                    return (int)value.Required;
                 }
-                void SetRequired(uint flags) {
+                void SetRequired(int flags) {
                     var value = (NetInfoExt.SegmentInfoFlags)fieldInfo.GetValue(target);
                     value.Required = (NetSegmentExt.Flags)flags;
                     fieldInfo.SetValue(target, value);
                 };
-                uint GetForbidden() {
+                int GetForbidden() {
                     var value = (NetInfoExt.SegmentInfoFlags)fieldInfo.GetValue(target);
-                    return (uint)value.Forbidden;
+                    return (int)value.Forbidden;
                 };
-                void SetForbidden(uint flags) {
+                void SetForbidden(int flags) {
                     var value = (NetInfoExt.SegmentInfoFlags)fieldInfo.GetValue(target);
                     value.Forbidden = (NetSegmentExt.Flags)flags;
                     fieldInfo.SetValue(target, value);
@@ -130,20 +130,20 @@ namespace AdvancedRoads.Patches.RoadEditor {
                     getHandler: GetForbidden,
                     true);
             } else if (fieldInfo.FieldType == typeof(NetInfoExt.SegmentEndInfoFlags)) {
-                uint GetRequired() {
+                int GetRequired() {
                     var value = (NetInfoExt.SegmentEndInfoFlags)fieldInfo.GetValue(target);
-                    return (uint)value.Required;
+                    return (int)value.Required;
                 }
-                void SetRequired(uint flags) {
+                void SetRequired(int flags) {
                     var value = (NetInfoExt.SegmentEndInfoFlags)fieldInfo.GetValue(target);
                     value.Required = (NetSegmentEnd.Flags)flags;
                     fieldInfo.SetValue(target, value);
                 };
-                uint GetForbidden() {
+                int GetForbidden() {
                     var value = (NetInfoExt.SegmentEndInfoFlags)fieldInfo.GetValue(target);
-                    return (uint)value.Forbidden;
+                    return (int)value.Forbidden;
                 };
-                void SetForbidden(uint flags) {
+                void SetForbidden(int flags) {
                     var value = (NetInfoExt.SegmentEndInfoFlags)fieldInfo.GetValue(target);
                     value.Forbidden = (NetSegmentEnd.Flags)flags;
                     fieldInfo.SetValue(target, value);
@@ -165,20 +165,20 @@ namespace AdvancedRoads.Patches.RoadEditor {
                     getHandler: GetForbidden,
                     true);
             } else if (fieldInfo.FieldType == typeof(NetInfoExt.NodeInfoFlags)) {
-                uint GetRequired() {
+                int GetRequired() {
                     var value = (NetInfoExt.NodeInfoFlags)fieldInfo.GetValue(target);
-                    return (uint)value.Required;
+                    return (int)value.Required;
                 }
-                void SetRequired(uint flags) {
+                void SetRequired(int flags) {
                     var value = (NetInfoExt.NodeInfoFlags)fieldInfo.GetValue(target);
                     value.Required = (NetNodeExt.Flags)flags;
                     fieldInfo.SetValue(target, value);
                 };
-                uint GetForbidden() {
+                int GetForbidden() {
                     var value = (NetInfoExt.NodeInfoFlags)fieldInfo.GetValue(target);
-                    return (uint)value.Forbidden;
+                    return (int)value.Forbidden;
                 };
-                void SetForbidden(uint flags) {
+                void SetForbidden(int flags) {
                     var value = (NetInfoExt.NodeInfoFlags)fieldInfo.GetValue(target);
                     value.Forbidden = (NetNodeExt.Flags)flags;
                     fieldInfo.SetValue(target, value);
@@ -196,6 +196,41 @@ namespace AdvancedRoads.Patches.RoadEditor {
                     container: container,
                     label: att.name + " Flags Forbidden",
                     enumType: typeof(NetNodeExt.Flags),
+                    setHandler: SetForbidden,
+                    getHandler: GetForbidden,
+                    true);
+            } else if (fieldInfo.FieldType == typeof(NetInfoExt.VanillaSegmentInfoFlags)) {
+                int GetRequired() {
+                    var value = (NetInfoExt.VanillaSegmentInfoFlags)fieldInfo.GetValue(target);
+                    return (int)value.Required;
+                }
+                void SetRequired(int flags) {
+                    var value = (NetInfoExt.VanillaSegmentInfoFlags)fieldInfo.GetValue(target);
+                    value.Required = (NetSegment.Flags)flags;
+                    fieldInfo.SetValue(target, value);
+                };
+                int GetForbidden() {
+                    var value = (NetInfoExt.VanillaSegmentInfoFlags)fieldInfo.GetValue(target);
+                    return (int)value.Forbidden;
+                };
+                void SetForbidden(int flags) {
+                    var value = (NetInfoExt.VanillaSegmentInfoFlags)fieldInfo.GetValue(target);
+                    value.Forbidden = (NetSegment.Flags)flags;
+                    fieldInfo.SetValue(target, value);
+                };
+                var bitMaskPanel0 = BitMaskPanel.Add(
+                    roadEditorPanel: instance,
+                    container: container,
+                    label: att.name + " Flags Required",
+                    enumType: typeof(NetSegment.Flags),
+                    setHandler: SetRequired,
+                    getHandler: GetRequired,
+                    false);
+                var bitMaskPanel1 = BitMaskPanel.Add(
+                    roadEditorPanel: instance,
+                    container: container,
+                    label: att.name + " Flags Forbidden",
+                    enumType: typeof(NetSegment.Flags),
                     setHandler: SetForbidden,
                     getHandler: GetForbidden,
                     true);

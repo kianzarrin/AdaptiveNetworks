@@ -7,13 +7,14 @@ namespace AdvancedRoads.UI.RoadEditor {
     using AdvancedRoads.Patches.RoadEditor;
     using System.Reflection;
     using HarmonyLib;
+    using System.Linq;
 
     public class BitMaskPanel: UIPanel  {
         public UILabel Label;
         public UICheckboxDropDown DropDown;
 
-        public delegate void SetHandlerD(uint value);
-        public delegate uint GetHandlerD();
+        public delegate void SetHandlerD(int value);
+        public delegate int GetHandlerD();
         public SetHandlerD SetHandler;
         public GetHandlerD GetHandler;
         public Type EnumType;
@@ -60,6 +61,7 @@ namespace AdvancedRoads.UI.RoadEditor {
             DropDown.relativePosition = new Vector2(width- DropDown.width, 28);
             DropDown.verticalAlignment = UIVerticalAlignment.Middle;
             DropDown.horizontalAlignment = UIHorizontalAlignment.Center;
+            DropDown.builtinKeyNavigation = true;
 
             DropDown.atlas = TextureUtil.InMapEditor;
             DropDown.normalBgSprite = "TextFieldPanel";
@@ -93,7 +95,6 @@ namespace AdvancedRoads.UI.RoadEditor {
             button.horizontalAlignment = UIHorizontalAlignment.Right;
             button.verticalAlignment = UIVerticalAlignment.Middle;
             button.relativePosition = new Vector3(0, 0);
-
 
             // Scrollbar
             DropDown.listScrollbar = DropDown.AddUIComponent<UIScrollbar>();
@@ -135,9 +136,9 @@ namespace AdvancedRoads.UI.RoadEditor {
             Enable();
         }
 
-        public static void Populate(UICheckboxDropDown dropdown, uint flags, Type enumType) {
-            var values = EnumBitMaskExtensions.GetPow2ValuesU32(enumType);
-            foreach (uint flag in values) {
+        public static void Populate(UICheckboxDropDown dropdown, int flags, Type enumType) {
+            var values = EnumBitMaskExtensions.GetPow2ValuesI32(enumType);
+            foreach (int flag in values) {
                 bool hasFlag = (flags & flag) != 0;
                 dropdown.AddItem(
                     item: Enum.GetName(enumType, flag),
@@ -158,7 +159,7 @@ namespace AdvancedRoads.UI.RoadEditor {
         }
 
         // apply checked flags from UI to prefab
-        protected void SetValue(uint value) {
+        protected void SetValue(int value) {
             if(GetHandler() != value) {
                 SetHandler(value);
                 EventPropertyChanged?.Invoke();
@@ -166,18 +167,18 @@ namespace AdvancedRoads.UI.RoadEditor {
         }
 
         // get checked flags in UI
-        private uint GetCheckedFlags() {
-            uint ret = 0;
+        private int GetCheckedFlags() {
+            int ret = 0;
             for (int i = 0; i < DropDown.items.Length; i++) {
                 if (DropDown.GetChecked(i)) {
-                    ret |= (uint)DropDown.GetItemUserData(i);
+                    ret |= (int)DropDown.GetItemUserData(i);
                 }
             }
             return ret;
         }
 
         private void UpdateText() {
-            uint flags = GetCheckedFlags();
+            int flags = GetCheckedFlags();
             string text = Enum.Format(enumType: EnumType, value: flags, "G");
             ApplyText(DropDown, text);
         }
@@ -190,24 +191,29 @@ namespace AdvancedRoads.UI.RoadEditor {
 
         public static void ApplyText(UICheckboxDropDown dd, string text) {
             UIButton uibutton = (UIButton)dd.triggerButton;
-            var r = ObtainTextRenderer(uibutton);
-            float x = r.MeasureString(text).x;
-            if( x > uibutton.width - 42 )
-                uibutton.textHorizontalAlignment = UIHorizontalAlignment.Center;
-            else
-                uibutton.textHorizontalAlignment = UIHorizontalAlignment.Left;
-            if (x > uibutton.width - 21) {
-                int n;
-                for(n = 4; n < text.Length; ++n) {
-                    string text2 = text.Substring(0, n) + "...";
-                    float x2 = r.MeasureString(text2).x;
-                    if (x2 > uibutton.width - 21) {
-                        text = text.Substring(0, n - 1) + "...";
-                        break;
-                    }
-                }
+            uibutton.text = text; // must set text to mearure text once and only once.
 
+            using (UIFontRenderer uifontRenderer = ObtainTextRenderer(uibutton)) {
+                float p2uRatio = uibutton.GetUIView().PixelsToUnits();
+                var widths = uifontRenderer.GetCharacterWidths(text);
+                float x = widths.Sum() / p2uRatio;
+                //Log.Debug($"{uifontRenderer}.GetCharacterWidths(\"{text}\")->{widths.ToSTR()}");
+                if (x > uibutton.width - 42)
+                    uibutton.textHorizontalAlignment = UIHorizontalAlignment.Left;
+                else
+                    uibutton.textHorizontalAlignment = UIHorizontalAlignment.Center;
+                if (x > uibutton.width - 21) {
+                    for (int n = 4; n < text.Length; ++n) {
+                        float x2 = widths.Take(n).Sum() / p2uRatio + 15; // 15 = width of ...
+                        if (x2 > uibutton.width - 21) {
+                            text = text.Substring(0, n - 1) + "...";
+                            break;
+                        }
+                    }
+
+                }
             }
+
             uibutton.text = text;
         }
     }
