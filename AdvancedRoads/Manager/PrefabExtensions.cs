@@ -40,9 +40,8 @@ namespace AdvancedRoads.Manager {
 
         public static NetInfoExt GetExt(this NetInfo info) => NetInfoExt.Buffer[info.GetIndex()];
 
-
         public static void SetExt(this NetInfo info, NetInfoExt netInfoExt)
-            => NetInfoExt.SetNetInfoExt(info.GetIndex(), netInfoExt);
+            => NetInfoExt.SetNetInfoExt(info, netInfoExt);
 
         public static IEnumerable<NetInfo> AllElevations(this NetInfo ground) =>
             NetInfoExt.AllElevations(ground);
@@ -324,6 +323,14 @@ namespace AdvancedRoads.Manager {
         }
 
         public static NetInfoExt[] Buffer;
+        public static Dictionary<NetInfo, NetInfoExt> DataDict;
+
+        public static void ApplyDataDict() {
+            foreach(var pair in DataDict) {
+                SetNetInfoExt(pair.Key.GetIndex(), pair.Value);
+            }
+        }
+
 
         public static NetInfo EditNetInfo =>
             ToolsModifierControl.toolController.m_editPrefabInfo as NetInfo;
@@ -392,7 +399,19 @@ namespace AdvancedRoads.Manager {
 
         public static void CreateNewNetInfoExt(NetInfo info) {
             if (info == null) return;
-            SetNetInfoExt(info.GetIndex(), new NetInfoExt(info));
+            SetNetInfoExt(info, new NetInfoExt(info));
+        }
+
+        public static void SetNetInfoExt(NetInfo info, NetInfoExt netInfoExt) {
+            Assertion.AssertNotNull(info, "DataDict");
+            if (info.GetIndex() != 0) {
+                SetNetInfoExt(info.GetIndex(), netInfoExt);
+            } else {
+                // if level is not loaded, prefab indeces are zero.
+                // put it inside dict so that I can move them to buffer later.
+                Assertion.AssertNotNull(DataDict, "DataDict");
+                DataDict[info] = netInfoExt;
+            }
         }
 
         public static void SetNetInfoExt(int index, NetInfoExt netInfoExt) {
@@ -403,7 +422,9 @@ namespace AdvancedRoads.Manager {
             Log.Debug($"SetNetInfoExt({index},{netInfoExt}) Result: Buffer[{index}] = {netInfoExt};");
         }
 
-        public static void ExtendPrefabIndeces(int netInfoIndex) {
+
+
+            public static void ExtendPrefabIndeces(int netInfoIndex) {
             NetInfo netInfo = PrefabCollection<NetInfo>.GetPrefab((uint)netInfoIndex);
             PrefabIndeces.NetInfoExtension.ExtendPrefab(netInfo);
         }
@@ -455,6 +476,8 @@ namespace AdvancedRoads.Manager {
 
         /// <param name="forceCreate">if true creates new NetInfoExt for target if source does not have NetInfoExt</param>
         public static void Copy(ushort sourceIndex, ushort targetIndex, bool forceCreate) {
+            Assertion.AssertNeq(sourceIndex, 0, "sourceIndex, cannot copy before level loaded");
+            Assertion.AssertNeq(targetIndex, 0, "targetIndex, cannot copy before level loaded");
             Log.Debug($"NetInfoExt.Copy(source:{sourceIndex}, target:{targetIndex}, forceCreate:{forceCreate} called)");
             NetInfoExt sourceNetInfoExt =
                 Buffer.Length > sourceIndex ? NetInfoExt.Buffer[sourceIndex] : null;

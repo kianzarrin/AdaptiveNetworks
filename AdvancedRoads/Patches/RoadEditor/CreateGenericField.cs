@@ -29,6 +29,18 @@ namespace AdvancedRoads.Patches.RoadEditor {
                             CreateExtendedComponent(groupName, field2, target4, __instance);
                         }
                     }
+                } else if (target is NetInfo.Node node) {
+                    Log.Debug($"{__instance.name}.CreateGenericField.Prefix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
+                    if (field.Name == nameof(NetInfo.Node.m_flagsForbidden)) {
+                        var fields = typeof(NetInfoExt.Node).GetFields()
+                            .Where(_field => _field.HasAttribute<CustomizablePropertyAttribute>());
+                        var node2 = node.GetExt();
+                        AssertNotNull(node2, "node2");
+                        foreach (var field2 in fields) {
+                            CreateExtendedComponent(groupName, field2, node2, __instance);
+                        }
+                    }
+                    //Flags Forbidden
                 }
             }
             catch (Exception e) {

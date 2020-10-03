@@ -105,6 +105,7 @@ namespace AdvancedRoads.UI.RoadEditor {
             DropDown.listScrollbar.thumbPadding = new RectOffset(0, 0, 5, 5);
             DropDown.listScrollbar.minValue = 0;
             DropDown.listScrollbar.value = 0;
+            DropDown.listScrollbar.incrementAmount = 60;
             DropDown.listScrollbar.AlignTo(DropDown, UIAlignAnchor.TopRight);
             DropDown.listScrollbar.autoHide = true; // false ?
             DropDown.listScrollbar.isVisible = false;
@@ -191,6 +192,10 @@ namespace AdvancedRoads.UI.RoadEditor {
 
         public static void ApplyText(UICheckboxDropDown dd, string text) {
             UIButton uibutton = (UIButton)dd.triggerButton;
+            var padding = uibutton.textPadding;
+            padding.left = 5;
+            padding.right = 21;
+
             uibutton.text = text; // must set text to mearure text once and only once.
 
             using (UIFontRenderer uifontRenderer = ObtainTextRenderer(uibutton)) {
@@ -198,11 +203,12 @@ namespace AdvancedRoads.UI.RoadEditor {
                 var widths = uifontRenderer.GetCharacterWidths(text);
                 float x = widths.Sum() / p2uRatio;
                 //Log.Debug($"{uifontRenderer}.GetCharacterWidths(\"{text}\")->{widths.ToSTR()}");
-                if (x > uibutton.width - 42)
-                    uibutton.textHorizontalAlignment = UIHorizontalAlignment.Left;
-                else
-                    uibutton.textHorizontalAlignment = UIHorizontalAlignment.Center;
-                if (x > uibutton.width - 21) {
+                //if (x > uibutton.width - 42) 
+                //    uibutton.textHorizontalAlignment = UIHorizontalAlignment.Left;
+                //else
+                //    uibutton.textHorizontalAlignment = UIHorizontalAlignment.Center;
+
+                if (x > uibutton.width -uibutton.textPadding.horizontal) {
                     for (int n = 4; n < text.Length; ++n) {
                         float x2 = widths.Take(n).Sum() / p2uRatio + 15; // 15 = width of ...
                         if (x2 > uibutton.width - 21) {
@@ -213,7 +219,6 @@ namespace AdvancedRoads.UI.RoadEditor {
 
                 }
             }
-
             uibutton.text = text;
         }
     }

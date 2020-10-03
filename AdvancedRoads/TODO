@@ -1,7 +1,8 @@
-serialization/deserialization of NetInfo should roll back prefab index extensions.
-only update segments that have prefab indeces. or maybe skip CS update and only recaculate mod flags.
-
-
+high P:
+- test add/remove props (done untested)
+- handle node.segmentEnd flags (done untested)
+- test loading in game (failed)
+- test TMPE stop/yield flag (blocked)
 
 
 

@@ -11,8 +11,7 @@ namespace AdvancedRoads.LifeCycle {
     using ColossalFramework.Packaging;
     using UnityEngine;
 
-    //private IEnumerator SaveAssetPanel.SaveAsset(string saveName, string assetName, string description, bool ignoreThumbnail)
-    //[HarmonyPatch(typeof(SaveAssetPanel), "SaveAsset")]
+
 
     // TODO move to prefab indeces.
     [HarmonyPatch(typeof(SaveAssetPanel), "SaveAsset")]
@@ -28,26 +27,6 @@ namespace AdvancedRoads.LifeCycle {
                 info.ExtendPrefab();
         }
     }
-
-    //// internal static void PackageSerializer.Serialize(Package package, MonoBehaviour monoBehaviour, PackageWriter writer)
-    //// Add prefix to change NetInfo
-    //[HarmonyPatch(typeof(PackageSerializer))]
-    //[HarmonyPatch("Serialize")]
-    //[HarmonyPatch(new Type[] { typeof(Package), typeof(MonoBehaviour), typeof(PackageWriter) })]
-    //public static class PackageSerializer_Serialize {
-    //    static void Prefix(ref MonoBehaviour monoBehaviour) {
-    //        if (monoBehaviour is NetInfo netInfo) {
-    //            Log.Debug($"PackageSerializer.Serialize.Prefix() reversing {netInfo} ...");
-    //            netInfo.ReversePrefab();
-    //        }
-    //    }
-    //    static void Postfix(ref MonoBehaviour monoBehaviour) {
-    //        if (monoBehaviour is NetInfo netInfo) {
-    //            Log.Debug($"PackageSerializer.Serialize.Postfix() extending {netInfo} ...");
-    //            netInfo.ExtendPrefab();
-    //        }
-    //    }
-    //}
 
     [HarmonyPatch(typeof(LoadAssetPanel), "OnLoad")]
     public static class OnLoadPatch {
@@ -128,12 +107,15 @@ namespace AdvancedRoads.LifeCycle {
     public class AssetDataExtension : AssetDataExtensionBase {
         public const string ID_NetInfo = "AdvancedRoadEditor_NetInfoExt";
 
+
+
         public static AssetDataExtension Instance;
         public override void OnCreated(IAssetData assetData) {
             base.OnCreated(assetData);
             Instance = this;
             // initiliazes buffer and extend prefab indeces if necessary (ie not hot reload)
             NetInfoExt.EnsureBuffer();
+            NetInfoExt.DataDict = new Dictionary<NetInfo, NetInfoExt>();
         }
         public override void OnReleased() {
             Log.Debug("NetInfoExt.Buffer = null;\n"+ Environment.StackTrace);
