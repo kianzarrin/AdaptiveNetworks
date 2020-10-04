@@ -56,6 +56,9 @@ namespace AdaptiveRoads.Manager {
                 GetSegmentEnd(segmentID, startNode: true).Init(segmentID, startNode: true);
                 GetSegmentEnd(segmentID, startNode: false).Init(segmentID, startNode: false);
             }
+            for (uint laneId = 0; laneId < NetManager.MAX_LANE_COUNT; ++laneId) {
+                LaneBuffer[laneId].Init(laneId);
+            }
 
         }
         #endregion LifeCycle

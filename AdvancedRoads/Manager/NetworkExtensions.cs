@@ -196,16 +196,18 @@ namespace AdaptiveRoads.Manager {
 
         public LaneData LaneData;
 
-        public void Init(uint laneID, int laneIndex) {
+        public void Init(uint laneID) {
             LaneData.LaneID = laneID;
-            LaneData.LaneIndex = laneIndex;
+            LaneData.LaneIndex = 0;
             LaneData.LaneInfo = null;
             m_flags = Flags.None;
         }
 
         static ParkingRestrictionsManager PMan => ParkingRestrictionsManager.Instance;
         static VehicleRestrictionsManager VRMan => VehicleRestrictionsManager.Instance;
-        public void UpdateLane() {
+
+        public void UpdateLane(int laneIndex) {
+            LaneData.LaneIndex = laneIndex;
             LaneData.LaneInfo = LaneData.Segment.Info.m_lanes[LaneData.LaneIndex];
 
             m_flags = m_flags.SetFlags(Flags.ParkingAllowed, PMan.IsParkingAllowed(LaneData.SegmentID, LaneData.LaneInfo.m_finalDirection));
@@ -225,6 +227,12 @@ namespace AdaptiveRoads.Manager {
             m_flags = m_flags.SetFlags(Flags.CargoTrain, VRMan.IsCargoTrainAllowed(mask));
             m_flags = m_flags.SetFlags(Flags.PassengerTrain, VRMan.IsPassengerTrainAllowed(mask));
             //TODO lane connections // speed limits.
+
+            Log.Debug("NetLaneExt.UpdateLane() result: " + this);
+        }
+
+        public override string ToString() {
+            return $"NetLaneExt({LaneData} flags={m_flags})";
         }
     }
 
@@ -300,6 +308,9 @@ namespace AdaptiveRoads.Manager {
 
             End.UpdateFlags();
             End.UpdateDirections();
+
+            foreach (LaneData lane in NetUtil.IterateSegmentLanes(SegmentID))
+                NetworkExtensionManager.Instance.LaneBuffer[lane.LaneID].UpdateLane(lane.LaneIndex);
         }
     }
         [Serializable]

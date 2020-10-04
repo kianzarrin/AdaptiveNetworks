@@ -63,6 +63,7 @@
     <Compile Remove="KianCommons\KianCommons\Util\MeshUtil.cs" />
     <Compile Remove="Patches\HarmonyExtension.cs" />
     <Compile Remove="Patches\Lane\CalculateLane.cs" />
+    <Compile Remove="Patches\Lane\NetAI_UpdateLanes.cs" />
     <Compile Remove="Patches\Node\CalculateNode.cs" />
     <Compile Remove="Patches\Node\NetAI_UpdateNodeFlags.cs" />
     <Compile Remove="Patches\Segment\CalculateSegment.cs" />

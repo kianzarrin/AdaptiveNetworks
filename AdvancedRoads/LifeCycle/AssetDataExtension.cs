@@ -8,10 +8,6 @@ namespace AdaptiveRoads.LifeCycle {
     using System;
     using System.Collections.Generic;
     using static KianCommons.Assertion;
-    using ColossalFramework.Packaging;
-    using UnityEngine;
-
-
 
     // TODO move to prefab indeces.
     [HarmonyPatch(typeof(SaveAssetPanel), "SaveAsset")]

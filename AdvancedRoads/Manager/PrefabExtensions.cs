@@ -326,9 +326,11 @@ namespace AdaptiveRoads.Manager {
         public static Dictionary<NetInfo, NetInfoExt> DataDict;
 
         public static void ApplyDataDict() {
+            if (DataDict == null) return;
             foreach (var pair in DataDict) {
                 SetNetInfoExt(pair.Key.GetIndex(), pair.Value);
             }
+            DataDict = null;
         }
 
 
