@@ -1,8 +1,8 @@
-namespace AdvancedRoads.LifeCycle
+namespace AdaptiveRoads.LifeCycle
 {
     using KianCommons;
     using System;
-    using AdvancedRoads.Manager;
+    using AdaptiveRoads.Manager;
     using UnityEngine;
 
     public static class LifeCycle

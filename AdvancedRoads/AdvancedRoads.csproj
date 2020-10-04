@@ -3,11 +3,11 @@
     <ProjectGuid>{4E0BB9B3-EFB1-4D63-99D8-A3B82D33E4FE}</ProjectGuid>
     <TargetFramework>net35</TargetFramework>
     <Deterministic>false</Deterministic>
-    <AssemblyTitle>AdvancedRoads</AssemblyTitle>
-    <Product>AdvancedRoads</Product>
+    <AssemblyTitle>AdaptiveRoads</AssemblyTitle>
+    <Product>AdaptiveRoads</Product>
     <Copyright>Copyright ©  2020</Copyright>
     <Deterministic>false</Deterministic>
-    <AssemblyVersion>1.0.1.*</AssemblyVersion>
+    <AssemblyVersion>1.0.2.*</AssemblyVersion>
     <FileAlignment>512</FileAlignment>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
@@ -21,7 +21,7 @@
     <DefineConstants />
   </PropertyGroup>
   <PropertyGroup>
-    <PathMap>C:\Users\dell\source\repos\AdvancedRoads\AdvancedRoads\=X:\AdvancedRoads</PathMap>
+    <PathMap>C:\Users\dell\source\repos\AdaptiveRoads\AdaptiveRoads\=X:\AdaptiveRoads</PathMap>
   </PropertyGroup>
   <PropertyGroup>
     <MangedDLLPath>..\dependencies</MangedDLLPath>
@@ -30,8 +30,8 @@
     <SteamPath Condition="! Exists ('$(SteamPath)')">$(Registry:HKEY_CURRENT_USER\Software\Valve\Steam@SteamPath)</SteamPath>
     <CSPath>$(SteamPath)\steamapps\common\Cities_Skylines</CSPath>
     <MangedDLLPath Condition="!  Exists ('$(MangedDLLPath)')">$(CSPath)\Cities_Data\Managed</MangedDLLPath>
-    <AssemblyName>AdvancedRoads</AssemblyName>
-    <RootNamespace>AdvancedRoads</RootNamespace>
+    <AssemblyName>AdaptiveRoads</AssemblyName>
+    <RootNamespace>AdaptiveRoads</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="KianCommons\KianCommons\ObjUnity3D\**" />

@@ -1,7 +1,7 @@
-namespace AdvancedRoads.Patches.Segment {
+namespace AdaptiveRoads.Patches.Segment {
     using HarmonyLib;
     using KianCommons;
-    using AdvancedRoads.Manager;
+    using AdaptiveRoads.Manager;
 
     [HarmonyPatch(typeof(NetManager))]
     [HarmonyPatch(nameof(NetManager.UpdateSegmentFlags))]

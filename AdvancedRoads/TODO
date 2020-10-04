@@ -1,6 +1,6 @@
-high P:
-- test loading in game after fixing prefab indeces(done untested)
-- test TMPE stop/yield flag (blocked)
+high p:
 
+meduim p:
+    use my bitmask UI for vanilla flags.
 
 

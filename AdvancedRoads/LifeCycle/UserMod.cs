@@ -1,4 +1,4 @@
-namespace AdvancedRoads.LifeCycle
+namespace AdaptiveRoads.LifeCycle
 {
     using System;
     using JetBrains.Annotations;
@@ -6,11 +6,11 @@ namespace AdvancedRoads.LifeCycle
     using CitiesHarmony.API;
     using KianCommons;
 
-    public class AdvancedRoadsMod : IUserMod
+    public class UserMod : IUserMod
     {
-        public static Version ModVersion => typeof(AdvancedRoadsMod).Assembly.GetName().Version;
+        public static Version ModVersion => typeof(UserMod).Assembly.GetName().Version;
         public static string VersionString => ModVersion.ToString(2);
-        public string Name => "Advanced Roads" + VersionString;
+        public string Name => "Adaptive roads    Roads" + VersionString;
         public string Description => "fundation for roads with extra flexibality and variablity.";
 
         [UsedImplicitly]

@@ -2,9 +2,9 @@ using ColossalFramework.UI;
 using ICities;
 using ColossalFramework;
 
-namespace AdvancedRoads.UI {
+namespace AdaptiveRoads.UI {
     public static class ModSettings {
-        public const string FILE_NAME = nameof(AdvancedRoads);
+        public const string FILE_NAME = nameof(AdaptiveRoads);
 
         public static readonly SavedBool InLineLaneInfo = new SavedBool(
             "InLineLaneInfo",

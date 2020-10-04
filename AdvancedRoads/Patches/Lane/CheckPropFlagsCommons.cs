@@ -16,11 +16,11 @@ var beginLabel = il.DefineLabel();
 codes[index].labels.Add(beginLabel);
 */
 
-namespace AdvancedRoads.Patches.Lane {
+namespace AdaptiveRoads.Patches.Lane {
     using System;
     using KianCommons;
     using static KianCommons.Patches.TranspilerUtils;
-    using AdvancedRoads.Manager;
+    using AdaptiveRoads.Manager;
     using ColossalFramework;
 
     public static class CheckPropFlagsCommons {

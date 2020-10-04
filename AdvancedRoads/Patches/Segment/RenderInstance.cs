@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using KianCommons;
 using KianCommons.Patches;
 
-namespace AdvancedRoads.Patches.Segment {
+namespace AdaptiveRoads.Patches.Segment {
     using JetBrains.Annotations;
     
 

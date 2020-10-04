@@ -5,12 +5,12 @@ using System.Reflection.Emit;
 using KianCommons.Patches;
 using PrefabIndeces;
 
-namespace AdvancedRoads.Patches.Segment {
+namespace AdaptiveRoads.Patches.Segment {
     using System;
     using UnityEngine;
     using KianCommons;
     using static KianCommons.Patches.TranspilerUtils;
-    using AdvancedRoads.Manager;
+    using AdaptiveRoads.Manager;
 
     public static class CheckSegmentFlagsCommons {
         public static bool CheckFlags(NetInfo.Segment segmentInfo, ushort segmentID, ref bool turnAround) {

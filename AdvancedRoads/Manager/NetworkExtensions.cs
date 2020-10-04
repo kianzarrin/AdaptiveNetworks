@@ -138,7 +138,7 @@ backward:  angle:-90
     }
  */
 
-namespace AdvancedRoads.Manager {
+namespace AdaptiveRoads.Manager {
     using ColossalFramework;
     using CSUtil.Commons;
     using System;

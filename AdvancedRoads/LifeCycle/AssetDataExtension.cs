@@ -1,5 +1,5 @@
-namespace AdvancedRoads.LifeCycle {
-    using AdvancedRoads.Manager;
+namespace AdaptiveRoads.LifeCycle {
+    using AdaptiveRoads.Manager;
     using ColossalFramework.UI;
     using HarmonyLib;
     using ICities;

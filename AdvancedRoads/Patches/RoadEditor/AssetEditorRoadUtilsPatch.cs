@@ -1,5 +1,5 @@
-namespace AdvancedRoads.Patches.RoadEditor {
-    using AdvancedRoads.Manager;
+namespace AdaptiveRoads.Patches.RoadEditor {
+    using AdaptiveRoads.Manager;
     using HarmonyLib;
     using KianCommons;
     using PrefabIndeces;

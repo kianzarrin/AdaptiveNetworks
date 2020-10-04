@@ -1,7 +1,7 @@
 using HarmonyLib;
 using KianCommons;
 using CitiesGameBridge.Service;
-namespace AdvancedRoads.Patches.TMPE {
+namespace AdaptiveRoads.Patches.TMPE {
     // CitiesGameBridge.Service.NetService:
     // public void PublishSegmentChanges(ushort segmentId)
     [HarmonyPatch(typeof(NetService))]

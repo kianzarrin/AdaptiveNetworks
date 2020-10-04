@@ -1,6 +1,6 @@
-namespace AdvancedRoads.Patches.RoadEditor {
-    using AdvancedRoads.Manager;
-    using AdvancedRoads.UI.RoadEditor;
+namespace AdaptiveRoads.Patches.RoadEditor {
+    using AdaptiveRoads.Manager;
+    using AdaptiveRoads.UI.RoadEditor;
     using ColossalFramework.UI;
     using HarmonyLib;
     using KianCommons;

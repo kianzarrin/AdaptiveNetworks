@@ -1,7 +1,7 @@
-namespace AdvancedRoads.Patches.Node {
+namespace AdaptiveRoads.Patches.Node {
     using HarmonyLib;
     using KianCommons;
-    using AdvancedRoads.Manager;
+    using AdaptiveRoads.Manager;
 
     [HarmonyPatch(typeof(NetManager))]
     [HarmonyPatch(nameof(NetManager.UpdateNodeFlags))]

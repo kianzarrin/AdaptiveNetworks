@@ -3,7 +3,7 @@ using KianCommons;
 using TrafficManager.Manager.Impl;
 using System;
 
-namespace AdvancedRoads.Patches.TMPE {
+namespace AdaptiveRoads.Patches.TMPE {
     // CitiesGameBridge.Service.NetService:
     // public void PublishSegmentChanges(ushort segmentId)
 #pragma warning disable CS0618 // Type or member is obsolete

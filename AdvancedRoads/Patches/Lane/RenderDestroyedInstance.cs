@@ -7,7 +7,7 @@ using KianCommons;
 using KianCommons.Patches;
 
 // TODO patch RenderDestroyedInstance too.
-namespace AdvancedRoads.Patches.Lane {
+namespace AdaptiveRoads.Patches.Lane {
     using JetBrains.Annotations;
 
     [HarmonyPatch()]

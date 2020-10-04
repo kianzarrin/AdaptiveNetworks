@@ -1,9 +1,9 @@
-namespace AdvancedRoads.LifeCycle
+namespace AdaptiveRoads.LifeCycle
 {
     using JetBrains.Annotations;
     using ICities;
     using System;
-    using AdvancedRoads.Manager;
+    using AdaptiveRoads.Manager;
 
     [UsedImplicitly]
     public class SerializableDataExtension

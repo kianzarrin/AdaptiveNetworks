@@ -1,10 +1,10 @@
-namespace AdvancedRoads.UI.RoadEditor {
+namespace AdaptiveRoads.UI.RoadEditor {
     using ColossalFramework.UI;
     using KianCommons;
     using KianCommons.UI;
     using System;
     using UnityEngine;
-    using AdvancedRoads.Patches.RoadEditor;
+    using AdaptiveRoads.Patches.RoadEditor;
     using System.Reflection;
     using HarmonyLib;
     using System.Linq;

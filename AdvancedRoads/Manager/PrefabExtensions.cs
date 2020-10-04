@@ -3,9 +3,9 @@ using PrefabIndeces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static AdvancedRoads.Manager.NetInfoExt;
+using static AdaptiveRoads.Manager.NetInfoExt;
 
-namespace AdvancedRoads.Manager {
+namespace AdaptiveRoads.Manager {
     [AttributeUsage(AttributeTargets.Struct)]
     public class FlagPairAttribute : Attribute {
         public string Name;

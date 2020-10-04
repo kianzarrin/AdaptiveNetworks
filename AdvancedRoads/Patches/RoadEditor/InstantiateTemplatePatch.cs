@@ -1,4 +1,4 @@
-namespace AdvancedRoads.Patches.RoadEditor {
+namespace AdaptiveRoads.Patches.RoadEditor {
     using HarmonyLib;
     using System.Collections.Generic;
     using System.Reflection.Emit;

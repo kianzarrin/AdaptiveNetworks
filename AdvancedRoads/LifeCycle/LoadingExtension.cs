@@ -1,4 +1,4 @@
-namespace AdvancedRoads.LifeCycle
+namespace AdaptiveRoads.LifeCycle
 {
     using ICities;
     using KianCommons;

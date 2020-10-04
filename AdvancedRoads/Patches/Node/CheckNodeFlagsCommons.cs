@@ -5,11 +5,11 @@ using System.Reflection.Emit;
 using KianCommons.Patches;
 using PrefabIndeces;
 
-namespace AdvancedRoads.Patches {
+namespace AdaptiveRoads.Patches {
     using System;
     using KianCommons;
     using static KianCommons.Patches.TranspilerUtils;
-    using AdvancedRoads.Manager;
+    using AdaptiveRoads.Manager;
     using TrafficManager.RedirectionFramework;
     using UnityEngine.Assertions;
 

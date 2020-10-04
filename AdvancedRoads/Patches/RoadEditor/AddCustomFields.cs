@@ -1,6 +1,6 @@
-namespace AdvancedRoads.Patches.RoadEditor {
+namespace AdaptiveRoads.Patches.RoadEditor {
     using HarmonyLib;
-    using AdvancedRoads.Manager;
+    using AdaptiveRoads.Manager;
 
     /// <summary>
     /// changeing types confuses AddCustomFields.

@@ -1,4 +1,4 @@
-namespace AdvancedRoads.Patches.RoadEditor {
+namespace AdaptiveRoads.Patches.RoadEditor {
     using System;
     using ColossalFramework.UI;
     using HarmonyLib;

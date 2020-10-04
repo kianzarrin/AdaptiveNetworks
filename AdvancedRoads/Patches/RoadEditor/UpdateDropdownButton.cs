@@ -1,10 +1,10 @@
-namespace AdvancedRoads.Patches.RoadEditor {
+namespace AdaptiveRoads.Patches.RoadEditor {
     using ColossalFramework.UI;
     using HarmonyLib;
     using KianCommons;
     using System;
     using System.Reflection;
-    using AdvancedRoads.UI.RoadEditor;
+    using AdaptiveRoads.UI.RoadEditor;
 
     /// <summary>
     /// do not print mixed int the flags field.

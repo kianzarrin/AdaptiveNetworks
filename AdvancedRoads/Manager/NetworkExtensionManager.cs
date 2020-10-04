@@ -1,4 +1,4 @@
-namespace AdvancedRoads.Manager {
+namespace AdaptiveRoads.Manager {
     using KianCommons;
     using System;
     using System.Collections.Generic;
