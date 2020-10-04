@@ -23,7 +23,7 @@ namespace PrefabIndeces {
             public Segment(ushort index, ushort prefabIndex) {
                 NetInfo.Segment tempalte = GetInfo(prefabIndex).m_segments[index];
                 Util.CopyProperties<NetInfo.Segment>(this, tempalte);
-                SetIndex(index, PrefabIndex);
+                SetIndex(index, prefabIndex);
             }
 
             public static NetInfo.Segment Extend(ushort index, ushort prefabIndex) {
@@ -66,7 +66,7 @@ namespace PrefabIndeces {
             public Node(ushort index, ushort prefabIndex) {
                 NetInfo.Node tempalte = GetInfo(prefabIndex).m_nodes[index];
                 Util.CopyProperties<NetInfo.Node>(this, tempalte);
-                SetIndex(index, PrefabIndex);
+                SetIndex(index, prefabIndex);
             }
 
             public static NetInfo.Node Extend(ushort index, ushort prefabIndex) {
@@ -110,7 +110,7 @@ namespace PrefabIndeces {
             public Lane(ushort index, ushort prefabIndex) {
                 NetInfo.Lane tempalte = GetInfo(prefabIndex).m_lanes[index];
                 Util.CopyProperties<NetInfo.Lane>(this, tempalte);
-                SetIndex(index, PrefabIndex);
+                SetIndex(index, prefabIndex);
             }
 
             public static NetInfo.Lane Extend(ushort index, ushort prefabIndex) {
@@ -194,6 +194,7 @@ namespace PrefabIndeces {
         }
 
         public static void ExtendPrefab(this NetInfo info) {
+            UnityEngine.Debug.Log($"ExtendPrefab({info})");
             if (info == null) return;
             ExtendPrefabNodes(info);
             ExtendPrefabSegments(info);
@@ -246,21 +247,6 @@ namespace PrefabIndeces {
                     lane.m_laneProps.m_props = new_props;
                 }
             }
-        }
-
-        [Obsolete("does this work? I am not sure", true)] 
-        public static NetInfo CreateNormalCloneForSerialization(this NetInfo template) {
-            NetInfo info = UnityEngine.Object.Instantiate<NetInfo>(template);
-            info.gameObject.SetActive(false);
-            //info.gameObject.name = AssetEditorRoadUtils.GetUniqueNetInfoName(info.gameObject.name);
-            info.name = template.name;
-            info.ReversePrefab();
- 
-            //info.m_prefabInitialized = false;
-            //PrefabCollection<NetInfo>.InitializePrefabs("Custom Assets", info, null);
-            //info.CheckReferences();
-            //info.RefreshLevelOfDetail();
-            return info;
         }
 
         public static void ExtendPrefabNodes(NetInfo info) {

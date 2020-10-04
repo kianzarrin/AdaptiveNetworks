@@ -1,7 +1,5 @@
 high P:
-- test add/remove props (done untested)
-- handle node.segmentEnd flags (done untested)
-- test loading in game (failed)
+- test loading in game after fixing prefab indeces(done untested)
 - test TMPE stop/yield flag (blocked)
 
 

@@ -326,7 +326,7 @@ namespace AdvancedRoads.Manager {
         public static Dictionary<NetInfo, NetInfoExt> DataDict;
 
         public static void ApplyDataDict() {
-            foreach(var pair in DataDict) {
+            foreach (var pair in DataDict) {
                 SetNetInfoExt(pair.Key.GetIndex(), pair.Value);
             }
         }
@@ -422,9 +422,7 @@ namespace AdvancedRoads.Manager {
             Log.Debug($"SetNetInfoExt({index},{netInfoExt}) Result: Buffer[{index}] = {netInfoExt};");
         }
 
-
-
-            public static void ExtendPrefabIndeces(int netInfoIndex) {
+        public static void ExtendPrefabIndeces(int netInfoIndex) {
             NetInfo netInfo = PrefabCollection<NetInfo>.GetPrefab((uint)netInfoIndex);
             PrefabIndeces.NetInfoExtension.ExtendPrefab(netInfo);
         }

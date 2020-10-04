@@ -22,6 +22,10 @@ namespace AdvancedRoads.Patches.RoadEditor {
                         var fields = typeof(NetInfoExt.LaneProp).GetFields()
                             .Where(_field => _field.HasAttribute<CustomizablePropertyAttribute>());
                         var target3 = target2 as PrefabIndeces.NetInfoExtension.Lane.Prop;
+                        if(target3 == null) {
+                            NetInfoExt.ReExtendEditedPrefabIndeces();
+                            target3 = target2 as PrefabIndeces.NetInfoExtension.Lane.Prop;
+                        }
                         AssertNotNull(target3, "[3]target:" + target);
                         NetInfoExt.LaneProp target4 = target3.GetExt();
                         AssertNotNull(target4, $"[4]target:{target} Buffer[{target3.PrefabIndex}]={NetInfoExt.Buffer[target3.PrefabIndex]}");
@@ -35,7 +39,7 @@ namespace AdvancedRoads.Patches.RoadEditor {
                         var fields = typeof(NetInfoExt.Node).GetFields()
                             .Where(_field => _field.HasAttribute<CustomizablePropertyAttribute>());
                         var node2 = node.GetExt();
-                        AssertNotNull(node2, "node2");
+                        AssertNotNull(node2, $"node2, node={node}");
                         foreach (var field2 in fields) {
                             CreateExtendedComponent(groupName, field2, node2, __instance);
                         }
