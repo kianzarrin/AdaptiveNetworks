@@ -14,7 +14,8 @@ namespace AdaptiveRoads.Patches.TMPE {
     class UpdateSegmentEnd {
         static void Postfix(ushort segmentId, bool startNode) {
             Log.Debug("UpdateSegmentEnd.PostFix() was called for segment:" + segmentId);
-            NetManager.instance.UpdateSegment(segmentId); // mark for update 
+            ushort nodeID = segmentId.ToSegment().GetNode(startNode);
+            NetManager.instance.UpdateNode(nodeID); // mark for update 
         }
     }
 }

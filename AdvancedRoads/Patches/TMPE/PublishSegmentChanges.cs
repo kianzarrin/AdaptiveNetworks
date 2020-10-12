@@ -9,7 +9,10 @@ namespace AdaptiveRoads.Patches.TMPE {
     class PublishSegmentChanges {
         static void Postfix(ushort segmentId) {
             Log.Debug("PublishSegmentChanges.PostFix() was called for segment:" + segmentId);
-            NetManager.instance.UpdateSegment(segmentId); // mark for update - also updates both nodes.
+            ushort nodeID1 = segmentId.ToSegment().m_startNode;
+            ushort nodeID2 = segmentId.ToSegment().m_endNode;
+            NetManager.instance.UpdateNode(nodeID1); // mark for update 
+            NetManager.instance.UpdateNode(nodeID2); // mark for update 
         }
     }
 }

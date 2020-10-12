@@ -20,11 +20,15 @@ namespace AdaptiveRoads.LifeCycle
             HarmonyHelper.EnsureHarmonyInstalled();   
             if (HelpersExtensions.InGame || HelpersExtensions.InAssetEditor)
                 LifeCycle.Load();
+
+            //HarmonyUtil.InstallHarmony("test");
+
         }
 
         [UsedImplicitly]
         public void OnDisabled()
         {
+            //HarmonyUtil.UninstallHarmony("test");
             LifeCycle.Release();
         }
 
