@@ -7,7 +7,7 @@
     <Product>AdaptiveRoads</Product>
     <Copyright>Copyright ©  2020</Copyright>
     <Deterministic>false</Deterministic>
-    <AssemblyVersion>1.0.3.*</AssemblyVersion>
+    <AssemblyVersion>1.0.4.*</AssemblyVersion>
     <FileAlignment>512</FileAlignment>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>

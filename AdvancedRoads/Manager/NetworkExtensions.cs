@@ -180,19 +180,18 @@ namespace AdaptiveRoads.Manager {
             PassengerTrain = 1 << 7,
 
             // misc
-            MergesWithInnerLane = 1 << 8,
-            MergesWithOuterLane = 1 << 9,
+            //MergesWithInnerLane = 1 << 8,
+            //MergesWithOuterLane = 1 << 9,
 
             All = (1 << 10) -1,
         }
 
         public Flags m_flags;
 
-        public float SpeedLimitKPH;
-        public float SpeedLimitMPH;
+        public float SpeedLimit; // game speed limit 1=50kph 20=unlimitted
 
-        public object OuterMarking;
-        public object InnerMarking;
+        //public object OuterMarking;
+        //public object InnerMarking;
 
         public LaneData LaneData;
 
@@ -205,14 +204,18 @@ namespace AdaptiveRoads.Manager {
 
         static ParkingRestrictionsManager PMan => ParkingRestrictionsManager.Instance;
         static VehicleRestrictionsManager VRMan => VehicleRestrictionsManager.Instance;
+        static SpeedLimitManager SLMan => SpeedLimitManager.Instance;
 
         public void UpdateLane(int laneIndex) {
             LaneData.LaneIndex = laneIndex;
             LaneData.LaneInfo = LaneData.Segment.Info.m_lanes[LaneData.LaneIndex];
 
-            m_flags = m_flags.SetFlags(Flags.ParkingAllowed, PMan.IsParkingAllowed(LaneData.SegmentID, LaneData.LaneInfo.m_finalDirection));
+            m_flags = m_flags.SetFlags(
+                Flags.ParkingAllowed,
+                LaneData.LaneInfo.m_laneType == NetInfo.LaneType.Parking &&
+                PMan.IsParkingAllowed(LaneData.SegmentID, LaneData.LaneInfo.m_finalDirection));
 
-            var mask = VRMan.GetDefaultAllowedVehicleTypes(
+            var mask = VRMan.GetAllowedVehicleTypes(
                 segmentId:LaneData.SegmentID,
                 segmentInfo: LaneData.Segment.Info,
                 laneIndex:(uint)LaneData.LaneIndex,
@@ -226,7 +229,10 @@ namespace AdaptiveRoads.Manager {
             m_flags = m_flags.SetFlags(Flags.Taxi, VRMan.IsTaxiAllowed(mask));
             m_flags = m_flags.SetFlags(Flags.CargoTrain, VRMan.IsCargoTrainAllowed(mask));
             m_flags = m_flags.SetFlags(Flags.PassengerTrain, VRMan.IsPassengerTrainAllowed(mask));
-            //TODO lane connections // speed limits.
+
+            SpeedLimit = SLMan.GetGameSpeedLimit(LaneData.LaneID);
+
+            //TODO lane connections
 
             Log.Debug("NetLaneExt.UpdateLane() result: " + this);
         }

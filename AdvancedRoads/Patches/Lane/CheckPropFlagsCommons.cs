@@ -24,52 +24,52 @@ namespace AdaptiveRoads.Patches.Lane {
     using ColossalFramework;
 
     public static class CheckPropFlagsCommons {
-        public class StateT {
-            public NetLaneExt.Flags laneFlags;
-            public NetSegmentExt.Flags segmentFlags;
-            public NetSegment.Flags vanillaSegmentFlags;
-            public NetNodeExt.Flags startNodeFlags, endNodeFlags;
-            public NetSegmentEnd.Flags segmentStartFags, segmentEndFlags;
-        }
+        //public class StateT {
+        //    public NetLaneExt.Flags laneFlags;
+        //    public NetSegmentExt.Flags segmentFlags;
+        //    public NetSegment.Flags vanillaSegmentFlags;
+        //    public NetNodeExt.Flags startNodeFlags, endNodeFlags;
+        //    public NetSegmentEnd.Flags segmentStartFags, segmentEndFlags;
+        //}
 
-        public static StateT InitState(NetInfo.Lane laneInfo, uint laneID) {
-            ushort segmentID = laneID.ToLane().m_segment;
-            ref NetSegment segment = ref segmentID.ToSegment();
+        //public static StateT InitState(NetInfo.Lane laneInfo, uint laneID) {
+        //    ushort segmentID = laneID.ToLane().m_segment;
+        //    ref NetSegment segment = ref segmentID.ToSegment();
 
-            bool segmentInverted = segment.m_flags.IsFlagSet(NetSegment.Flags.Invert);
-            bool backward = (laneInfo.m_finalDirection & NetInfo.Direction.Both) == NetInfo.Direction.Backward ||
-                (laneInfo.m_finalDirection & NetInfo.Direction.AvoidBoth) == NetInfo.Direction.AvoidForward;
-            bool reverse = segmentInverted != backward; // xor
+        //    bool segmentInverted = segment.m_flags.IsFlagSet(NetSegment.Flags.Invert);
+        //    bool backward = (laneInfo.m_finalDirection & NetInfo.Direction.Both) == NetInfo.Direction.Backward ||
+        //        (laneInfo.m_finalDirection & NetInfo.Direction.AvoidBoth) == NetInfo.Direction.AvoidForward;
+        //    bool reverse = segmentInverted != backward; // xor
 
-            ushort startNodeID = reverse ? segment.m_startNode : segment.m_endNode; // tail
-            ushort endNodeID = !reverse ? segment.m_startNode : segment.m_endNode; // head
+        //    ushort startNodeID = reverse ? segment.m_startNode : segment.m_endNode; // tail
+        //    ushort endNodeID = !reverse ? segment.m_startNode : segment.m_endNode; // head
 
-            ref NetLaneExt netLaneExt = ref NetworkExtensionManager.Instance.LaneBuffer[laneID];
-            ref NetSegmentExt netSegmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
-            ref NetNodeExt netNodeExtStart = ref NetworkExtensionManager.Instance.NodeBuffer[startNodeID];
-            ref NetNodeExt netNodeExtEnd = ref NetworkExtensionManager.Instance.NodeBuffer[endNodeID];
-            ref NetSegmentEnd netSegmentStart = ref netSegmentExt.GetEnd(startNodeID);
-            ref NetSegmentEnd netSegmentEnd = ref netSegmentExt.GetEnd(endNodeID);
+        //    ref NetLaneExt netLaneExt = ref NetworkExtensionManager.Instance.LaneBuffer[laneID];
+        //    ref NetSegmentExt netSegmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
+        //    ref NetNodeExt netNodeExtStart = ref NetworkExtensionManager.Instance.NodeBuffer[startNodeID];
+        //    ref NetNodeExt netNodeExtEnd = ref NetworkExtensionManager.Instance.NodeBuffer[endNodeID];
+        //    ref NetSegmentEnd netSegmentStart = ref netSegmentExt.GetEnd(startNodeID);
+        //    ref NetSegmentEnd netSegmentEnd = ref netSegmentExt.GetEnd(endNodeID);
 
-            return new StateT {
-                laneFlags = netLaneExt.m_flags, segmentFlags = netSegmentExt.m_flags, vanillaSegmentFlags = segment.m_flags,
-                startNodeFlags = netNodeExtStart.m_flags, endNodeFlags =netNodeExtEnd.m_flags,
-                segmentStartFags = netSegmentStart.m_flags, segmentEndFlags = netSegmentEnd.m_flags,
-            };
-        }
+        //    return new StateT {
+        //        laneFlags = netLaneExt.m_flags, segmentFlags = netSegmentExt.m_flags, vanillaSegmentFlags = segment.m_flags,
+        //        startNodeFlags = netNodeExtStart.m_flags, endNodeFlags =netNodeExtEnd.m_flags,
+        //        segmentStartFags = netSegmentStart.m_flags, segmentEndFlags = netSegmentEnd.m_flags,
+        //    };
+        //}
 
-        public static bool CheckFlags2(NetLaneProps.Prop prop, NetInfo.Lane laneInfo, uint laneID, ref StateT state) {
-            var propInfoExt = prop?.GetExt();
-            if (propInfoExt == null)
-                return true;
-            if (state == null)
-                state = InitState(laneInfo, laneID);
+        //public static bool CheckFlags2(NetLaneProps.Prop prop, NetInfo.Lane laneInfo, uint laneID, ref StateT state) {
+        //    var propInfoExt = prop?.GetExt();
+        //    if (propInfoExt == null)
+        //        return true;
+        //    if (state == null)
+        //        state = InitState(laneInfo, laneID);
 
-            return propInfoExt.CheckFlags(
-                state.laneFlags, state.segmentFlags, state.vanillaSegmentFlags,
-                state.startNodeFlags, state.endNodeFlags,
-                state.segmentStartFags, state.segmentEndFlags);
-        }
+        //    return propInfoExt.CheckFlags(
+        //        state.laneFlags, state.segmentFlags, state.vanillaSegmentFlags,
+        //        state.startNodeFlags, state.endNodeFlags,
+        //        state.segmentStartFags, state.segmentEndFlags);
+        //}
 
         // TODO use the other checkflags.
         public static bool CheckFlags(NetLaneProps.Prop prop, NetInfo.Lane laneInfo, uint laneID) {
@@ -110,7 +110,8 @@ namespace AdaptiveRoads.Patches.Lane {
             return propInfoExt.CheckFlags(
                 netLaneExt.m_flags, netSegmentExt.m_flags, segment.m_flags,
                 netNodeExtStart.m_flags, netNodeExtEnd.m_flags,
-                netSegmentStart.m_flags, netSegmentEnd.m_flags);
+                netSegmentStart.m_flags, netSegmentEnd.m_flags) &&
+                propInfoExt.CheckSpeedLimit(netLaneExt.SpeedLimit);
         }
 
         static MethodInfo mCheckFlagsExt =>

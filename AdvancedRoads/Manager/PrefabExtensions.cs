@@ -49,6 +49,12 @@ namespace AdaptiveRoads.Manager {
 
     [Serializable]
     public class NetInfoExt {
+        [Serializable]
+        public class Range {
+            public float Lower, Upper;
+            public bool InRange(float value) => Lower <= value && value < Upper;
+        }
+
         [FlagPair]
         [Serializable]
         public struct VanillaSegmentInfoFlags {
@@ -205,15 +211,6 @@ namespace AdaptiveRoads.Manager {
 
         [Serializable]
         public class LaneProp {
-            /*
-            public NetLane.Flags m_flagsRequired;
-            public NetLane.Flags m_flagsForbidden;
-            public NetNode.Flags m_startFlagsRequired;
-            public NetNode.Flags m_startFlagsForbidden;
-            public NetNode.Flags m_endFlagsRequired;
-            public NetNode.Flags m_endFlagsForbidden;
-            */
-
             [CustomizableProperty("Lane")]
             public LaneInfoFlags LaneFlags = new LaneInfoFlags();
 
@@ -235,6 +232,13 @@ namespace AdaptiveRoads.Manager {
             //[CustomizableProperty("End Node")]
             public NodeInfoFlags EndNodeFlags = new NodeInfoFlags();
 
+            [CustomizableProperty("Speed Limit")]
+            public Range SpeedLimit; // null => N/A
+
+
+            public float LowerSpeedLimit;
+            public float UpperSpeedLimit;
+
             public bool CheckFlags(
                 NetLaneExt.Flags laneFlags,
                 NetSegmentExt.Flags segmentFlags,
@@ -249,6 +253,9 @@ namespace AdaptiveRoads.Manager {
                 StartNodeFlags.CheckFlags(startNodeFlags) &&
                 EndNodeFlags.CheckFlags(endNodeFlags);
 
+            public bool CheckSpeedLimit(float gameSpeed) =>
+                SpeedLimit?.InRange(gameSpeed) ?? true; //null => N/A => true
+
             public LaneProp(NetLaneProps.Prop template) { }
             private LaneProp() { }
             public LaneProp Clone() {
@@ -261,7 +268,6 @@ namespace AdaptiveRoads.Manager {
                 clone.EndNodeFlags = EndNodeFlags;
                 return clone;
             }
-
 
             public static LaneProp Get(NetInfoExtension.Lane.Prop IndexExt) {
                 if (IndexExt == null || Buffer[IndexExt.PrefabIndex] == null)
