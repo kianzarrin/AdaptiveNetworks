@@ -174,7 +174,6 @@ namespace AdaptiveRoads.Manager {
                     return null;
                 return Buffer[IndexExt.PrefabIndex].NodeInfoExts[IndexExt.Index];
             }
-
         }
 
         [Serializable]
@@ -214,7 +213,7 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Lane")]
             public LaneInfoFlags LaneFlags = new LaneInfoFlags();
 
-            //[CustomizableProperty("Segment")]
+            //[CustomizableProperty("SegmentExt")]
             public SegmentInfoFlags SegmentFlags = new SegmentInfoFlags();
 
             [CustomizableProperty("Segment")]
@@ -232,7 +231,7 @@ namespace AdaptiveRoads.Manager {
             //[CustomizableProperty("End Node")]
             public NodeInfoFlags EndNodeFlags = new NodeInfoFlags();
 
-            [CustomizableProperty("Speed Limit")]
+            [CustomizableProperty("Speed Limit Range")]
             public Range SpeedLimit; // null => N/A
 
 

@@ -18,9 +18,10 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             try {
                 if (target is NetLaneProps.Prop target2) {
                     Log.Debug($"{__instance.name}.CreateGenericField.Prefix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
-                    if (field.Name == nameof(NetLaneProps.Prop.m_flagsForbidden)) {
+                    if (field.Name == nameof(NetLaneProps.Prop.m_endFlagsForbidden)) {
                         var fields = typeof(NetInfoExt.LaneProp).GetFields()
                             .Where(_field => _field.HasAttribute<CustomizablePropertyAttribute>());
+                        
                         var target3 = target2 as PrefabIndeces.NetInfoExtension.Lane.Prop;
                         if(target3 == null) {
                             NetInfoExt.ReExtendEditedPrefabIndeces();
@@ -250,6 +251,14 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     setHandler: SetForbidden,
                     getHandler: GetForbidden,
                     true);
+            } else if (fieldInfo.FieldType == typeof(NetInfoExt.Range) &&
+                       fieldInfo.Name.ToLower().Contains("speed") ) {
+                SpeedRangePanel.Add(
+                    roadEditorPanel: instance,
+                    container: container,
+                    label: att.name + " Flags Forbidden",
+                    target: target,
+                    fieldInfo: fieldInfo);
             }
 
             //CreateExtendedComponentHelper(field, target,  instance, "Required");

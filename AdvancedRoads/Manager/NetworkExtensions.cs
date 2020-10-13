@@ -280,14 +280,19 @@ namespace AdaptiveRoads.Manager {
         public enum Flags {
             None = 0,
             Vanilla = 1 << 0,
-            //UniformSpeedLimit = 1 << 1,
+
+            UniformSpeedLimit = 1 << 1,
             //SpeedLimitMPH = 1 << 2,
             //SpeedLimitKPH = 1 << 3,
+
+            ParkingAllowedRight = 1 << 5,
+            ParkingAllowedLeft = 1 << 6,
+            ParkingAllowedBoth = ParkingAllowedRight | ParkingAllowedLeft,
+
             //All = Vanilla,
         }
 
-        public float AverageSpeedLimitMPH;
-        public float AverageSpeedLimitKPH;
+        public float AverageSpeedLimit;
 
         public Flags m_flags;
 
@@ -315,11 +320,41 @@ namespace AdaptiveRoads.Manager {
             End.UpdateFlags();
             End.UpdateDirections();
 
-            foreach (LaneData lane in NetUtil.IterateSegmentLanes(SegmentID))
-                NetworkExtensionManager.Instance.LaneBuffer[lane.LaneID].UpdateLane(lane.LaneIndex);
+            bool parkingLeft = false;
+            bool parkingRight = false;
+            float speed0 = -1;
+            float speedLimitAcc = 0;
+            int speedLaneCount = 0; 
+
+            bool uniformSpeed = true;
+            foreach (LaneData lane in NetUtil.IterateSegmentLanes(SegmentID)) {
+                var laneExt = NetworkExtensionManager.Instance.LaneBuffer[lane.LaneID];
+                laneExt.UpdateLane(lane.LaneIndex);
+                if (laneExt.m_flags.IsFlagSet(NetLaneExt.Flags.ParkingAllowed)) {
+                    if (lane.LeftSide)
+                        parkingLeft = true;
+                    else
+                        parkingRight = true;
+                }
+                if (lane.LaneInfo.m_laneType.IsFlagSet(SpeedLimitManager.LANE_TYPES) &&
+                    lane.LaneInfo.m_vehicleType.IsFlagSet(SpeedLimitManager.VEHICLE_TYPES)) {
+                    if (speed0 == -1)
+                        speed0 = laneExt.SpeedLimit;
+                    else
+                        uniformSpeed &= laneExt.SpeedLimit == speed0;
+                    speedLimitAcc += laneExt.SpeedLimit;
+                    speedLaneCount++;
+                }
+            }
+
+            m_flags = m_flags.SetFlags(Flags.ParkingAllowedLeft, parkingLeft);
+            m_flags = m_flags.SetFlags(Flags.ParkingAllowedRight, parkingRight);
+            m_flags = m_flags.SetFlags(Flags.UniformSpeedLimit, uniformSpeed);
+            AverageSpeedLimit = speedLimitAcc / speedLaneCount;
         }
     }
-        [Serializable]
+
+    [Serializable]
     public struct NetSegmentEnd {
         [Flags]
         public enum Flags {
