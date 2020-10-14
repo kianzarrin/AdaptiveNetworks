@@ -7,7 +7,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
     using UnityEngine;
     using static KianCommons.HelpersExtensions;
 
-    public class IntegerTextField : UITextField {
+    public class TextFieldU32 : UITextField {
         //UIResetButton resetButton_;
 
         public override string ToString() => GetType().Name + $"({name})";
@@ -15,13 +15,14 @@ namespace AdaptiveRoads.UI.RoadEditor {
         public override void Awake() {
             base.Awake();
             atlas = TextureUtil.Ingame;
-            size = new Vector2(180,22);
+            size = new Vector2(370,20);
             horizontalAlignment = UIHorizontalAlignment.Center;
             verticalAlignment = UIVerticalAlignment.Middle;
             selectionSprite = "EmptySprite";
             normalBgSprite = "TextFieldPanel";
             selectionBackgroundColor = new Color32(0, 105, 210, 255);
             text = "0";
+            isVisible = true;
 
             builtinKeyNavigation = true;
             readOnly = false;
@@ -31,6 +32,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
             numericalOnly = true;
             allowFloats = false;
             allowNegative = false;
+
         }
 
         private string _postfix = "";

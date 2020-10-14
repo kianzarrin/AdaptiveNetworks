@@ -10,7 +10,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
     public class SpeedRangePanel : UIPanel {
         public UILabel Label;
-        public IntegerTextField LowerField, UpperField;
+        public TextFieldU32 LowerField, UpperField;
         FieldInfo fieldInfo_;
         object target_;
 
@@ -37,16 +37,30 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
         public override void Awake() {
             base.Awake();
-            size = new Vector2(370, 54);
-            atlas = TextureUtil.Ingame;
             //backgroundSprite = "GenericPanelWhite";
             //color = Color.white;
 
-            Label = AddUIComponent<UILabel>();
-            Label.relativePosition = new Vector2(0, 6);
+            size = new Vector2(370, 27);
+            atlas = TextureUtil.Ingame;
+            autoLayout = true;
+            autoLayoutDirection = LayoutDirection.Horizontal;
+            padding = new RectOffset(0, 0, 3, 3);
+            autoLayoutPadding = new RectOffset(0, 3, 0, 0);
 
-            LowerField = AddUIComponent<IntegerTextField>();
-            UpperField = AddUIComponent<IntegerTextField>();
+            Label = AddUIComponent<UILabel>();
+            
+
+            LowerField = AddUIComponent<TextFieldU32>();
+            LowerField.width = 100;
+
+            UpperField = AddUIComponent<TextFieldU32>();
+            UpperField.width = 100;
+
+            Label.eventSizeChanged += (_c, _val) => {
+                float _p = 3 * 3; //padding 3 elements => 3 paddings.
+                float widthRemaining = 370 - _p - _val.x;
+                LowerField.width = UpperField.width = widthRemaining * 0.5f;
+            };
 
             LowerField.eventTextSubmitted += TextSubmitted;
             UpperField.eventTextSubmitted += TextSubmitted;
@@ -69,6 +83,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
                     };
                 }
             }
+            EventPropertyChanged?.Invoke();
         }
 
         public NetInfoExt.Range Range{

@@ -49,6 +49,7 @@ namespace AdaptiveRoads.Manager {
 
     [Serializable]
     public class NetInfoExt {
+        #region value types
         [Serializable]
         public class Range {
             public float Lower, Upper;
@@ -93,7 +94,9 @@ namespace AdaptiveRoads.Manager {
             public NetLaneExt.Flags Required, Forbidden;
             public bool CheckFlags(NetLaneExt.Flags flags) => flags.CheckFlags(Required, Forbidden);
         }
+        #endregion
 
+        #region sub prefab extensions
         [Serializable]
         public class Segment {
             [Serializable]
@@ -178,8 +181,8 @@ namespace AdaptiveRoads.Manager {
 
         [Serializable]
         public class Lane {
-            [CustomizableProperty("Lane")]
-            public LaneInfoFlags LaneFlags;
+            //[CustomizableProperty("Lane")]
+            //public LaneInfoFlags LaneFlags;
 
             public LaneProp[] PropInfoExts;
 
@@ -277,6 +280,9 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
+        #endregion
+
+        #region NetInfoExt instance
         public Version Version;
 
         public Node[] NodeInfoExts;
@@ -326,7 +332,9 @@ namespace AdaptiveRoads.Manager {
             Log.Debug("NetInfoExt.Clone()->" + clone);
             return clone;
         }
+        #endregion NetInfoExt instance
 
+        #region static 
         public static NetInfoExt[] Buffer;
         public static Dictionary<NetInfo, NetInfoExt> DataDict;
 
@@ -497,5 +505,6 @@ namespace AdaptiveRoads.Manager {
                 Log.Debug($"NetInfoExt.Copy: skipped forceCreating. sourceNetInfoExt={sourceNetInfoExt} forceCreate={forceCreate}");
             }
         }
+        #endregion
     }
 }

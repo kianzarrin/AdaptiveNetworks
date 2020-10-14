@@ -21,7 +21,7 @@
     <DefineConstants />
   </PropertyGroup>
   <PropertyGroup>
-    <PathMap>C:\Users\dell\source\repos\AdaptiveRoads\AdaptiveRoads\=X:\AdaptiveRoads</PathMap>
+    <PathMap>$(MSBuildProjectDirectory)\=$(ProjectName)\</PathMap>
   </PropertyGroup>
   <PropertyGroup>
     <MangedDLLPath>..\dependencies</MangedDLLPath>

@@ -103,8 +103,6 @@ namespace AdaptiveRoads.LifeCycle {
     public class AssetDataExtension : AssetDataExtensionBase {
         public const string ID_NetInfo = "AdvancedRoadEditor_NetInfoExt";
 
-
-
         public static AssetDataExtension Instance;
         public override void OnCreated(IAssetData assetData) {
             base.OnCreated(assetData);
@@ -122,18 +120,24 @@ namespace AdaptiveRoads.LifeCycle {
         // TODO serialize BuildgInfo
         // TODO clone custom flags when netinfo is cloned by asset editor. 
         public override void OnAssetLoaded(string name, object asset, Dictionary<string, byte[]> userData) {
-            Log.Info($"AssetDataExtension.OnAssetLoaded({name}, {asset}, userData) called");
-            if (asset is NetInfo prefab) {
-                Log.Debug("AssetDataExtension.OnAssetLoaded():  prefab is " + prefab);
-                if (userData.TryGetValue(ID_NetInfo, out byte[] data)) {
-                    Log.Info("AssetDataExtension.OnAssetLoaded(): extracted data for " + ID_NetInfo);
-                    var assetData = SerializationUtil.Deserialize(data,default) as AssetData;
-                    AssertNotNull(assetData, "assetData");
-                    AssetData.Load(assetData, prefab);
-                    Log.Debug("AssetDataExtension.OnAssetLoaded(): Asset Data=" + assetData);
+            try {
+                Log.Info($"AssetDataExtension.OnAssetLoaded({name}, {asset}, userData) called");
+                if (asset is NetInfo prefab) {
+                    Log.Debug("AssetDataExtension.OnAssetLoaded():  prefab is " + prefab);
+                    if (userData.TryGetValue(ID_NetInfo, out byte[] data)) {
+                        Log.Info("AssetDataExtension.OnAssetLoaded(): extracted data for " + ID_NetInfo);
+                        var assetData0 = SerializationUtil.Deserialize(data, default);
+                        AssertNotNull(assetData0, "assetData0");
+                        var assetData = assetData0 as AssetData;
+                        AssertNotNull(assetData, $"assetData: {assetData0.GetType()} is not ${typeof(AssetData)}");
+                        AssetData.Load(assetData, prefab);
+                        Log.Debug("AssetDataExtension.OnAssetLoaded(): Asset Data=" + assetData);
+                    }
+                } else if (asset is BuildingInfo buildingInfo) {
+                    // load stored custom road flags for intersections or buildings.
                 }
-            } else if (asset is BuildingInfo buildingInfo) {
-                // load stored custom road flags for intersections or buildings.
+            }catch(Exception e) {
+                Log.Exception(e);
             }
         }
 
