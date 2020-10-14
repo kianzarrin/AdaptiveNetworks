@@ -7,7 +7,7 @@
     <Product>AdaptiveRoads</Product>
     <Copyright>Copyright ©  2020</Copyright>
     <Deterministic>false</Deterministic>
-    <AssemblyVersion>1.0.4.*</AssemblyVersion>
+    <AssemblyVersion>1.0.5.*</AssemblyVersion>
     <FileAlignment>512</FileAlignment>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
@@ -66,6 +66,7 @@
     <Compile Remove="Patches\Lane\NetAI_UpdateLanes.cs" />
     <Compile Remove="Patches\Node\CalculateNode.cs" />
     <Compile Remove="Patches\Node\NetAI_UpdateNodeFlags.cs" />
+    <Compile Remove="Patches\RoadEditor\InstantiateTemplatePatch.cs" />
     <Compile Remove="Patches\Segment\CalculateSegment.cs" />
     <Compile Remove="Patches\Segment\NetAI_UpdateSegmentFlags.cs" />
     <Compile Remove="Patches\Segment\NetSegment_CalculateSegment.cs" />

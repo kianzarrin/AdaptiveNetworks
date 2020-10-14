@@ -74,8 +74,8 @@ namespace AdaptiveRoads.UI.RoadEditor {
         }
 
         private void TextSubmitted(UIComponent component, string value) {
-            if (LowerField.TryGetValue(out int lower) && UpperField.TryGetValue(out int upper)) {
-                if (lower == 0 && upper == 0) {
+            if (LowerField.TryGetValue(out uint lower) && UpperField.TryGetValue(out uint upper)) {
+                if (upper == 0) {
                     Range = null;
                 } else {
                     Range = new NetInfoExt.Range {
@@ -89,14 +89,14 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
         public NetInfoExt.Range Range{
             get => fieldInfo_.GetValue(target_) as NetInfoExt.Range;
-            set => fieldInfo_.SetValue(target_,value);
+            set => fieldInfo_.SetValue(target_, value.LogRet("set_Range"));
         }
 
         private void RefreshText() {
             float lower = Range?.Lower ?? 0;
             float upper = Range?.Upper ?? 0;
-            LowerField.Value = Mathf.RoundToInt(lower * ApiConstants.SPEED_TO_KMPH);
-            UpperField.Value = Mathf.RoundToInt(upper * ApiConstants.SPEED_TO_KMPH);
+            LowerField.Value = (uint)Mathf.RoundToInt(lower * ApiConstants.SPEED_TO_KMPH);
+            UpperField.Value = (uint)Mathf.RoundToInt(upper * ApiConstants.SPEED_TO_KMPH);
         }
 
 

@@ -48,20 +48,20 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
         public string StrippedText => PostFix != "" ? text.Replace(PostFix, "") : text;
 
-        public bool TryGetValue(out int value) {
+        public bool TryGetValue(out uint value) {
             string text2 = StrippedText;
             if (text2 == "") {
                 value = 0;
                 return true;
             }
 
-            var ret = int.TryParse(text2, out value);
+            var ret = uint.TryParse(text2, out value);
             return ret;
         }
 
-        public int Value {
+        public uint Value {
             set => text = value.ToString() + PostFix;
-            get => int.Parse(StrippedText);
+            get => uint.Parse(StrippedText);
         }
     }
 }

@@ -17,11 +17,13 @@ namespace AdaptiveRoads.Patches {
         public static bool CheckFlags(NetInfo.Node node, ushort nodeID, ushort segmentID) {
             var nodeInfoExt = node?.GetExt();
             if (nodeInfoExt == null) return true;
+            ref NetSegment netSegment = ref segmentID.ToSegment();
             ref NetNodeExt netNodeExt = ref NetworkExtensionManager.Instance.NodeBuffer[nodeID];
             ref NetSegmentExt netSegmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
             ref NetSegmentEnd netSegmentEnd = ref netSegmentExt.GetEnd(nodeID);
-
-            return nodeInfoExt.CheckFlags(netNodeExt.m_flags, netSegmentEnd.m_flags);
+            return nodeInfoExt.CheckFlags(
+                netNodeExt.m_flags, netSegmentEnd.m_flags,
+                netSegmentExt.m_flags, netSegment.m_flags);
         }
 
         static MethodInfo mCheckFlagsExt => typeof(CheckNodeFlagsCommons).GetMethod("CheckFlags")

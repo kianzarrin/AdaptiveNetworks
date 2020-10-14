@@ -56,6 +56,7 @@ namespace AdaptiveRoads.Manager {
         public class Range {
             public float Lower, Upper;
             public bool InRange(float value) => Lower <= value && value < Upper;
+            public override string ToString() => $"[{Lower}:{Upper})";
         }
 
         [FlagPair]
@@ -170,8 +171,17 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Segment End")]
             public SegmentEndInfoFlags SegmentEndFlags;
 
-            public bool CheckFlags(NetNodeExt.Flags nodeFlags, NetSegmentEnd.Flags segmentEndFlags) =>
-                NodeFlags.CheckFlags(nodeFlags) && SegmentEndFlags.CheckFlags(segmentEndFlags);
+            [CustomizableProperty("Segment")]
+            public VanillaSegmentInfoFlags VanillaSegmentFlags;
+
+            [CustomizableProperty("Segment Extension")]
+            public SegmentInfoFlags SegmentFlags;
+
+            public bool CheckFlags(
+                NetNodeExt.Flags nodeFlags, NetSegmentEnd.Flags segmentEndFlags,
+                NetSegmentExt.Flags segmentFlags, NetSegment.Flags vanillaSegmentFlags) =>
+                NodeFlags.CheckFlags(nodeFlags) && SegmentEndFlags.CheckFlags(segmentEndFlags) &&
+                SegmentFlags.CheckFlags(segmentFlags) && VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags);
 
             private Node() { }
             public Node(NetInfo.Node template) { }

@@ -1,6 +1,14 @@
 high p:
-
+    fix speed range
+    LHT flags for segment/segmentEnd
+    backward compatiblity.
+    compatibility with other mods.
 meduim p:
- use my bitmask UI for vanilla flags.
+    large drop down for vanilla flags.
+    hintbox for dropdwon\flags
+    vanilla as forbidden flag = heating.
+    update everything when netinfo properties change.
+
+
 
 

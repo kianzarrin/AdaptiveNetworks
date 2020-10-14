@@ -106,12 +106,13 @@ namespace AdaptiveRoads.Patches.Lane {
             //    //    $"propInfoExt.SegmentEndFlags.Required={propInfoExt.SegmentEndFlags.Required}",
             //    //    id: (int)laneID, copyToGameLog: false);
             //}
+            //Log.DebugWait($"[speed={netLaneExt.SpeedLimit} laneExt={netLaneExt}");
 
             return propInfoExt.Check(
                 netLaneExt.m_flags, netSegmentExt.m_flags, segment.m_flags,
                 netNodeExtStart.m_flags, netNodeExtEnd.m_flags,
                 netSegmentStart.m_flags, netSegmentEnd.m_flags,
-                netLaneExt.SpeedLimit, netSegmentExt.AverageSpeedLimit);
+                laneSpeed: netLaneExt.SpeedLimit, averageSpeed: netSegmentExt.AverageSpeedLimit);
         }
 
         static MethodInfo mCheckFlagsExt =>

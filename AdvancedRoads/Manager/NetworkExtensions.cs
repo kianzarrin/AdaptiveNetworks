@@ -88,6 +88,7 @@ backward:  angle:-90
         StopBoth2 = StopRight2  | StopLeft2 ,
 
         StopAll = StopBoth | StopBoth2,
+
         HeavyBan = 1048576,
         Blocked = 2097152,
         Flooded = 4194304,
@@ -206,9 +207,9 @@ namespace AdaptiveRoads.Manager {
         static VehicleRestrictionsManager VRMan => VehicleRestrictionsManager.Instance;
         static SpeedLimitManager SLMan => SpeedLimitManager.Instance;
 
-        public void UpdateLane(int laneIndex) {
-            LaneData.LaneIndex = laneIndex;
-            LaneData.LaneInfo = LaneData.Segment.Info.m_lanes[LaneData.LaneIndex];
+        public void UpdateLane(LaneData lane) {
+            Assertion.AssertEqual(LaneData.LaneID, lane.LaneID, "lane id");
+            LaneData = lane;
 
             m_flags = m_flags.SetFlags(
                 Flags.ParkingAllowed,
@@ -238,7 +239,7 @@ namespace AdaptiveRoads.Manager {
         }
 
         public override string ToString() {
-            return $"NetLaneExt({LaneData} flags={m_flags})";
+            return $"NetLaneExt({LaneData} flags={m_flags} speed={SpeedLimit})";
         }
     }
 
@@ -289,6 +290,7 @@ namespace AdaptiveRoads.Manager {
             ParkingAllowedLeft = 1 << 6,
             ParkingAllowedBoth = ParkingAllowedRight | ParkingAllowedLeft,
 
+            LeftHandTraffic = 1 << 7,
             //All = Vanilla,
         }
 
@@ -328,8 +330,8 @@ namespace AdaptiveRoads.Manager {
 
             bool uniformSpeed = true;
             foreach (LaneData lane in NetUtil.IterateSegmentLanes(SegmentID)) {
-                var laneExt = NetworkExtensionManager.Instance.LaneBuffer[lane.LaneID];
-                laneExt.UpdateLane(lane.LaneIndex);
+                ref NetLaneExt laneExt = ref NetworkExtensionManager.Instance.LaneBuffer[lane.LaneID];
+                laneExt.UpdateLane(lane);
                 if (laneExt.m_flags.IsFlagSet(NetLaneExt.Flags.ParkingAllowed)) {
                     if (lane.LeftSide)
                         parkingLeft = true;
