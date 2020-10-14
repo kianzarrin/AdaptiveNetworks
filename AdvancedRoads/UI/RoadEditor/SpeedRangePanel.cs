@@ -48,21 +48,22 @@ namespace AdaptiveRoads.UI.RoadEditor {
             autoLayoutPadding = new RectOffset(0, 3, 0, 0);
 
             Label = AddUIComponent<UILabel>();
-            
-
             LowerField = AddUIComponent<TextFieldU32>();
-            LowerField.width = 100;
-
             UpperField = AddUIComponent<TextFieldU32>();
-            UpperField.width = 100;
+            UpperField.width = LowerField.width = 100;
 
+            Label.tooltip = "if both are 0, it is ignored.";
+            LowerField.tooltip = "from";
+            UpperField.tooltip = "to";
+            LowerField.PostFix = UpperField.PostFix = "kph";
+            
             Label.eventSizeChanged += (_c, _val) => {
                 float _p = 3 * 3; //padding 3 elements => 3 paddings.
                 float widthRemaining = 370 - _p - _val.x;
                 LowerField.width = UpperField.width = widthRemaining * 0.5f;
             };
 
-            LowerField.eventTextSubmitted += TextSubmitted;
+            LowerField.eventTextSubmitted += TextSubmitted ;
             UpperField.eventTextSubmitted += TextSubmitted;
         }
 

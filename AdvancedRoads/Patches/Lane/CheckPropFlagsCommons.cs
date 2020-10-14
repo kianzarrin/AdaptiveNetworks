@@ -107,11 +107,11 @@ namespace AdaptiveRoads.Patches.Lane {
             //    //    id: (int)laneID, copyToGameLog: false);
             //}
 
-            return propInfoExt.CheckFlags(
+            return propInfoExt.Check(
                 netLaneExt.m_flags, netSegmentExt.m_flags, segment.m_flags,
                 netNodeExtStart.m_flags, netNodeExtEnd.m_flags,
-                netSegmentStart.m_flags, netSegmentEnd.m_flags) &&
-                propInfoExt.CheckSpeedLimit(netLaneExt.SpeedLimit);
+                netSegmentStart.m_flags, netSegmentEnd.m_flags,
+                netLaneExt.SpeedLimit, netSegmentExt.AverageSpeedLimit);
         }
 
         static MethodInfo mCheckFlagsExt =>

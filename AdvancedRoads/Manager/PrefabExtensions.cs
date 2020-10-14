@@ -45,6 +45,8 @@ namespace AdaptiveRoads.Manager {
 
         public static IEnumerable<NetInfo> AllElevations(this NetInfo ground) =>
             NetInfoExt.AllElevations(ground);
+
+        public static bool CheckRange(this Range range, float value) => range?.InRange(value) ?? true;
     }
 
     [Serializable]
@@ -234,29 +236,30 @@ namespace AdaptiveRoads.Manager {
             //[CustomizableProperty("End Node")]
             public NodeInfoFlags EndNodeFlags = new NodeInfoFlags();
 
-            [CustomizableProperty("Speed Limit Range")]
+            [CustomizableProperty("Lane Speed Limit Range")]
             public Range SpeedLimit; // null => N/A
 
+            [CustomizableProperty("Average Speed Limit Range")]
+            public Range AverageSpeedLimit; // null => N/A
 
-            public float LowerSpeedLimit;
-            public float UpperSpeedLimit;
-
-            public bool CheckFlags(
+            /// <param name="laneSpeed">game speed</param>
+            /// <param name="averageSpeed">game speed</param>
+            public bool Check(
                 NetLaneExt.Flags laneFlags,
                 NetSegmentExt.Flags segmentFlags,
                 NetSegment.Flags vanillaSegmentFlags,
                 NetNodeExt.Flags startNodeFlags, NetNodeExt.Flags endNodeFlags,
-                NetSegmentEnd.Flags segmentStartFlags, NetSegmentEnd.Flags segmentEndFlags) =>
+                NetSegmentEnd.Flags segmentStartFlags, NetSegmentEnd.Flags segmentEndFlags,
+                float laneSpeed, float averageSpeed) =>
                 LaneFlags.CheckFlags(laneFlags) &&
                 SegmentFlags.CheckFlags(segmentFlags) &&
                 VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags) &&
                 SegmentStartFlags.CheckFlags(segmentStartFlags) &&
                 SegmentEndFlags.CheckFlags(segmentEndFlags) &&
                 StartNodeFlags.CheckFlags(startNodeFlags) &&
-                EndNodeFlags.CheckFlags(endNodeFlags);
-
-            public bool CheckSpeedLimit(float gameSpeed) =>
-                SpeedLimit?.InRange(gameSpeed) ?? true; //null => N/A => true
+                EndNodeFlags.CheckFlags(endNodeFlags) &&
+                SpeedLimit.CheckRange(laneSpeed) &&
+                AverageSpeedLimit.CheckRange(averageSpeed);
 
             public LaneProp(NetLaneProps.Prop template) { }
             private LaneProp() { }
