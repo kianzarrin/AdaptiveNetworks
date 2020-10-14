@@ -40,7 +40,7 @@ namespace AdaptiveRoads.Patches.Segment {
                 if (ret) return true;
             }
             turnAround = false;
-             return false;
+            return false;
         }
 
         static MethodInfo mCheckFlagsExt => typeof(CheckSegmentFlagsCommons).GetMethod("CheckFlags")

@@ -102,10 +102,17 @@ namespace AdaptiveRoads.Manager {
         [Serializable]
         public class Segment {
             [Serializable]
-            public struct FlagsT {
+            public class FlagsT {
+                [CustomizableProperty("Extension")]
                 public SegmentInfoFlags Flags;
-                public SegmentEndInfoFlags Start, End;
-                public bool CheckFlags(
+
+                //[CustomizableProperty("Segment Start")]
+                public SegmentEndInfoFlags Start;
+
+                //[CustomizableProperty("Segment End")]
+                public SegmentEndInfoFlags End;
+
+                public bool CheckFlags( 
                     NetSegmentExt.Flags flags,
                     NetSegmentEnd.Flags startFlags,
                     NetSegmentEnd.Flags endFlags) {
@@ -114,9 +121,12 @@ namespace AdaptiveRoads.Manager {
                         Start.CheckFlags(startFlags) &
                         End.CheckFlags(endFlags);
                 }
+
+                public FlagsT Clone() => this.ShalowClone();
             }
 
-            public FlagsT ForwardFlags, BackwardFlags;
+            public FlagsT ForwardFlags = new FlagsT(); 
+            public FlagsT BackwardFlags = new FlagsT();
 
             public bool CheckFlags(NetSegmentExt.Flags flags,
                     NetSegmentEnd.Flags startFlags,
@@ -136,13 +146,13 @@ namespace AdaptiveRoads.Manager {
             }
 
             private Segment() { }
-            public Segment(NetInfo.Segment template) { }
+            public Segment(NetInfo.Segment template) : this() { }
 
             /// <summary>clone</summary>
             public Segment Clone() {
                 var clone = new Segment();
-                clone.ForwardFlags = this.ForwardFlags;
-                clone.BackwardFlags = this.BackwardFlags;
+                clone.ForwardFlags = ForwardFlags.Clone();
+                clone.BackwardFlags = BackwardFlags.Clone();
                 return clone;
             }
 

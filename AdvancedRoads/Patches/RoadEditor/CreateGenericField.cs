@@ -16,24 +16,26 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     public static class CreateGenericField {
         public static void Postfix(string groupName, FieldInfo field, object target, RoadEditorPanel __instance) {
             try {
-                if (target is NetLaneProps.Prop target2) {
+                if (target is NetLaneProps.Prop prop) {
                     Log.Debug($"{__instance.name}.CreateGenericField.Prefix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
                     if (field.Name == nameof(NetLaneProps.Prop.m_endFlagsForbidden)) {
                         var fields = typeof(NetInfoExt.LaneProp).GetFields()
                             .Where(_field => _field.HasAttribute<CustomizablePropertyAttribute>());
                         Log.Debug("fields="+ fields.ToSTR());
 
-                        var target3 = target2 as PrefabIndeces.NetInfoExtension.Lane.Prop;
-                        if(target3 == null) {
-                            NetInfoExt.ReExtendEditedPrefabIndeces();
-                            target3 = target2 as PrefabIndeces.NetInfoExtension.Lane.Prop;
-                        }
-                        AssertNotNull(target3, "[3]target:" + target);
-                        NetInfoExt.LaneProp target4 = target3.GetExt();
-                        AssertNotNull(target4, $"[4]target:{target} Buffer[{target3.PrefabIndex}]={NetInfoExt.Buffer[target3.PrefabIndex]}");
+                        //var target3 = target2 as PrefabIndeces.NetInfoExtension.Lane.Prop;
+                        //if(target3 == null) {
+                        //    NetInfoExt.ReExtendEditedPrefabIndeces();
+                        //    target3 = target2 as PrefabIndeces.NetInfoExtension.Lane.Prop;
+                        //}
+                        //AssertNotNull(target3, "[3]target:" + target);
+                        //NetInfoExt.LaneProp target4 = target3.GetExt();
+                        //AssertNotNull(target4, $"[4]target:{target} Buffer[{target3.PrefabIndex}]={NetInfoExt.Buffer[target3.PrefabIndex]}");
+
+                        var prop2 = prop.GetExt(); // TODO does this work when adding/removing props?
                         foreach (var field2 in fields) {
                             Log.Debug("[3]field2=" + field2, true);
-                            CreateExtendedComponent(groupName, field2, target4, __instance);
+                            CreateExtendedComponent(groupName, field2, prop2, __instance);
                         }
                     }
                 } else if (target is NetInfo.Node node) {
@@ -46,7 +48,21 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             CreateExtendedComponent(groupName, field2, node2, __instance);
                         }
                     }
-                    //Flags Forbidden
+                } else if (target is NetInfo.Segment segment) {
+                    Log.Debug($"{__instance.name}.CreateGenericField.Prefix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
+                    var fields = typeof(NetInfoExt.Segment.FlagsT).GetFields()
+                        .Where(_field => _field.HasAttribute<CustomizablePropertyAttribute>());
+                    var segment2 = segment.GetExt();
+                    if (field.Name == nameof(NetInfo.Segment.m_forwardForbidden)) {
+                        foreach (var field2 in fields) {
+                            CreateExtendedComponent(groupName, field2, segment2.ForwardFlags, __instance, "Forward ");
+                        }
+                    }else if(field.Name == nameof(NetInfo.Segment.m_backwardForbidden)) {
+                        foreach (var field2 in fields) {
+                            CreateExtendedComponent(groupName, field2, segment2.BackwardFlags, __instance, "Backward ");
+                        }
+                    }
+
                 }
             }
             catch (Exception e) {
@@ -54,12 +70,12 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             }
 
         }
-        public static void CreateExtendedComponent(string groupName, FieldInfo fieldInfo, object target, RoadEditorPanel instance) {
+        public static void CreateExtendedComponent(
+            string groupName, FieldInfo fieldInfo, object target, RoadEditorPanel instance, string prefix="" ) {
             Assert(string.IsNullOrEmpty(groupName), "groupName is empty");
             var container = instance.component.GetComponentInChildren<UIScrollablePanel>();
             AssertNotNull(container, "container");
             Log.Debug("CreateExtendedComponent():container=" + container);
-
 
             Assert(fieldInfo.HasAttribute<CustomizablePropertyAttribute>(), "HasAttribute:CustomizablePropertyAttribute");
             AssertNotNull(target, "target");
@@ -96,7 +112,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     var bitMaskPanel0 = BitMaskPanel.Add(
                         roadEditorPanel: instance,
                         container: container,
-                        label: att.name + " Flags Required",
+                        label: prefix + att.name + " Flags Required",
                         enumType: typeof(NetLaneExt.Flags),
                         setHandler: SetRequired,
                         getHandler: GetRequired,
@@ -104,7 +120,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     var bitMaskPanel1 = BitMaskPanel.Add(
                         roadEditorPanel: instance,
                         container: container,
-                        label: att.name + " Flags Forbidden",
+                        label: prefix + att.name + " Flags Forbidden",
                         enumType: typeof(NetLaneExt.Flags),
                         setHandler: SetForbidden,
                         getHandler: GetForbidden,
@@ -131,7 +147,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     var bitMaskPanel0 = BitMaskPanel.Add(
                         roadEditorPanel: instance,
                         container: container,
-                        label: att.name + " Flags Required",
+                        label: prefix + att.name + " Flags Required",
                         enumType: typeof(NetSegmentExt.Flags),
                         setHandler: SetRequired,
                         getHandler: GetRequired,
@@ -139,7 +155,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     var bitMaskPanel1 = BitMaskPanel.Add(
                         roadEditorPanel: instance,
                         container: container,
-                        label: att.name + " Flags Forbidden",
+                        label: prefix + att.name + " Flags Forbidden",
                         enumType: typeof(NetSegmentExt.Flags),
                         setHandler: SetForbidden,
                         getHandler: GetForbidden,
@@ -166,7 +182,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     var bitMaskPanel0 = BitMaskPanel.Add(
                         roadEditorPanel: instance,
                         container: container,
-                        label: att.name + " Flags Required",
+                        label: prefix + att.name + " Flags Required",
                         enumType: typeof(NetSegmentEnd.Flags),
                         setHandler: SetRequired,
                         getHandler: GetRequired,
@@ -174,7 +190,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     var bitMaskPanel1 = BitMaskPanel.Add(
                         roadEditorPanel: instance,
                         container: container,
-                        label: att.name + " Flags Forbidden",
+                        label: prefix + att.name + " Flags Forbidden",
                         enumType: typeof(NetSegmentEnd.Flags),
                         setHandler: SetForbidden,
                         getHandler: GetForbidden,
@@ -201,7 +217,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     var bitMaskPanel0 = BitMaskPanel.Add(
                         roadEditorPanel: instance,
                         container: container,
-                        label: att.name + " Flags Required",
+                        label: prefix + att.name + " Flags Required",
                         enumType: typeof(NetNodeExt.Flags),
                         setHandler: SetRequired,
                         getHandler: GetRequired,
@@ -209,7 +225,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     var bitMaskPanel1 = BitMaskPanel.Add(
                         roadEditorPanel: instance,
                         container: container,
-                        label: att.name + " Flags Forbidden",
+                        label: prefix + att.name + " Flags Forbidden",
                         enumType: typeof(NetNodeExt.Flags),
                         setHandler: SetForbidden,
                         getHandler: GetForbidden,
@@ -236,7 +252,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     var bitMaskPanel0 = BitMaskPanel.Add(
                         roadEditorPanel: instance,
                         container: container,
-                        label: att.name + " Flags Required",
+                        label: prefix + att.name + " Flags Required",
                         enumType: typeof(NetSegment.Flags),
                         setHandler: SetRequired,
                         getHandler: GetRequired,
@@ -244,7 +260,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     var bitMaskPanel1 = BitMaskPanel.Add(
                         roadEditorPanel: instance,
                         container: container,
-                        label: att.name + " Flags Forbidden",
+                        label: prefix + att.name + " Flags Forbidden",
                         enumType: typeof(NetSegment.Flags),
                         setHandler: SetForbidden,
                         getHandler: GetForbidden,
@@ -257,7 +273,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 SpeedRangePanel.Add(
                     roadEditorPanel: instance,
                     container: container,
-                    label: att.name,
+                    label: prefix + att.name,
                     target: target,
                     fieldInfo: fieldInfo);
             } else {
