@@ -17,6 +17,43 @@ backward:  angle:-90
  */
 
 /*
+segment 0 (Normal):
+    forward required =
+    forward forbidden = StopBoth
+    backward required =
+    backward forbidden = StopBoth
+segment 1 (BusStopSide):
+    forward required = StopLeft
+    forward forbidden = StopRight
+    backward required = StopRight
+    backward forbidden = StopLeft
+segment 2 (BusStopBoth):
+    forward required = StopBoth
+    forward forbidden =
+    backward required = StopBoth
+    backward forbidden =
+*/
+
+/*
+segment 0 (no parking):
+    forward required =
+    forward forbidden = ParkingAllowedBoth | vanilla
+    backward required =
+    backward forbidden = ParkingAllowedBoth | vanilla
+segment 1 (1 Side parking):
+    forward required = ParkingAllowedLeft 
+    forward forbidden = ParkingAllowedRight | vanilla
+    backward required = ParkingAllowedRight 
+    backward forbidden = ParkingAllowedLeft | vanilla
+segment 2 (normal):
+    forward required = ParkingAllowedBoth
+    forward forbidden =
+    backward required = ParkingAllowedBoth
+    backward forbidden =
+*/
+
+
+/*
     NetNode.Flags {
         CustomTrafficLights = int.MinValue,
         All = -1,
@@ -301,6 +338,9 @@ namespace AdaptiveRoads.Manager {
         public ref NetSegmentEnd Start => ref NetworkExtensionManager.Instance.GetSegmentEnd(SegmentID, true);
         public ref NetSegmentEnd End => ref NetworkExtensionManager.Instance.GetSegmentEnd(SegmentID, false);
 
+        public override string ToString() =>
+            $"NetSegmentExt(SegmentID:{SegmentID} flags:{m_flags} AverageSpeedLimit={AverageSpeedLimit})";
+
         public ref NetSegmentEnd GetEnd(ushort nodeID) {
             bool startNode = NetUtil.IsStartNode(segmentId: SegmentID, nodeId: nodeID);
             if (startNode)
@@ -355,6 +395,8 @@ namespace AdaptiveRoads.Manager {
             m_flags = m_flags.SetFlags(Flags.LeftHandTraffic, NetUtil.LHT);
 
             AverageSpeedLimit = speedLimitAcc / speedLaneCount;
+
+            Log.Debug("NetSegmentExt.UpdateAllFlags() succeeded for " + this);
         }
     }
 

@@ -5,7 +5,7 @@ using System.Reflection.Emit;
 using KianCommons.Patches;
 using PrefabIndeces;
 
-namespace AdaptiveRoads.Patches {
+namespace AdaptiveRoads.Patches.Node {
     using System;
     using KianCommons;
     using static KianCommons.Patches.TranspilerUtils;

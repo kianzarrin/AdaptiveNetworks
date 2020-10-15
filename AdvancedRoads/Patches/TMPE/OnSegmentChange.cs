@@ -3,7 +3,7 @@ using KianCommons;
 using TrafficManager.Manager.Impl;
 using System;
 
-namespace AdaptiveRoads.Patches.TMPE.x {
+namespace AdaptiveRoads.Patches.TMPE {
     // CitiesGameBridge.Service.NetService:
     // public void PublishSegmentChanges(ushort segmentId)
     [HarmonyPatch(typeof(JunctionRestrictionsManager))]

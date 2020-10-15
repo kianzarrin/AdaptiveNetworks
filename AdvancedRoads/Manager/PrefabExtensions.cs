@@ -44,6 +44,8 @@ namespace AdaptiveRoads.Manager {
         public static void SetExt(this NetInfo info, NetInfoExt netInfoExt)
             => NetInfoExt.SetNetInfoExt(info, netInfoExt);
 
+        public static bool IsAdaptive(this NetInfo info) => NetInfoExt.IsAdaptive(info);
+
         public static IEnumerable<NetInfo> AllElevations(this NetInfo ground) =>
             NetInfoExt.AllElevations(ground);
 
@@ -207,9 +209,6 @@ namespace AdaptiveRoads.Manager {
 
         [Serializable]
         public class Lane {
-            //[CustomizableProperty("Lane")]
-            //public LaneInfoFlags LaneFlags;
-
             public LaneProp[] PropInfoExts;
 
             public Lane(NetInfo.Lane template) {
@@ -364,6 +363,18 @@ namespace AdaptiveRoads.Manager {
         #region static 
         public static NetInfoExt[] Buffer;
         public static Dictionary<NetInfo, NetInfoExt> DataDict;
+
+        public static bool IsAdaptive(NetInfo info) {
+            Assertion.Assert(
+                LoadingManager.instance.m_simulationDataLoaded,
+                "m_simulationDataLoaded: asset data extension has not loaded the assets' data yet.");
+            EnsureBuffer();
+            if (info.GetExt() != null)
+                return true;
+            if (DataDict != null && DataDict.ContainsKey(info))
+                return true;
+            return false;
+        }
 
         public static void ApplyDataDict() {
             if (DataDict == null) return;

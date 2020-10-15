@@ -14,23 +14,10 @@ namespace AdaptiveRoads.LifeCycle
         public string Description => "fundation for roads with extra flexibality and variablity.";
 
         [UsedImplicitly]
-        public void OnEnabled()
-        {
-            HelpersExtensions.VERBOSE = false;
-            HarmonyHelper.EnsureHarmonyInstalled();   
-            if (HelpersExtensions.InGame || HelpersExtensions.InAssetEditor)
-                LifeCycle.Load();
-
-            //HarmonyUtil.InstallHarmony("test");
-
-        }
+        public void OnEnabled() => LifeCycle.Enable();
 
         [UsedImplicitly]
-        public void OnDisabled()
-        {
-            //HarmonyUtil.UninstallHarmony("test");
-            LifeCycle.Release();
-        }
+        public void OnDisabled() => LifeCycle.Disable();
 
         [UsedImplicitly]
         public void OnSettingsUI(UIHelperBase helper) {

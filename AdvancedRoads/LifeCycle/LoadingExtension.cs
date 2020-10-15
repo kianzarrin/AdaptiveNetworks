@@ -15,7 +15,7 @@ namespace AdaptiveRoads.LifeCycle
         public override void OnLevelUnloading()
         {
             Log.Debug("LoadingExtention.OnLevelUnloading");
-            LifeCycle.Release();
+            LifeCycle.Unload();
         }
     }
 }
