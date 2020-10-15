@@ -18,10 +18,10 @@ namespace AdaptiveRoads.Patches.Segment {
             if (segmentInfoExt == null) return true;
 
             ref NetSegmentExt netSegmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
-
+            ref NetSegment netSegment = ref segmentID.ToSegment();
             {
                 turnAround = false;
-                bool ret = NetInfoExt.Segment.CheckFlags(segmentInfo, segmentID.ToSegment().m_flags, turnAround);
+                bool ret = segmentInfo.CheckFlags(netSegment.m_flags, turnAround);
                 ret &= segmentInfoExt.CheckFlags(
                     netSegmentExt.m_flags,
                     netSegmentExt.Start.m_flags,
@@ -30,8 +30,8 @@ namespace AdaptiveRoads.Patches.Segment {
                 if (ret) return true;
             }
             {
-                turnAround = false;
-                bool ret = NetInfoExt.Segment.CheckFlags(segmentInfo, segmentID.ToSegment().m_flags, turnAround);
+                turnAround = true;
+                bool ret = segmentInfo.CheckFlags(netSegment.m_flags, turnAround);
                 ret &= segmentInfoExt.CheckFlags(
                     netSegmentExt.m_flags,
                     netSegmentExt.Start.m_flags,

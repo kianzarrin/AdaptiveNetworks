@@ -23,7 +23,7 @@ namespace AdaptiveRoads.LifeCycle
 
         public static bool Loaded;
         public static bool bHotReload = false;
-        const bool fastTestHarmony = true;
+        const bool fastTestHarmony = false;
 
         public static void Enable() {
             Log.Debug("Testing StackTrace:\n" + new StackTrace(true).ToString(), copyToGameLog: false);
@@ -65,6 +65,7 @@ namespace AdaptiveRoads.LifeCycle
         }
 
         public static void Preload() {
+            Log.Info("LifeCycle.Preload() called");
             if (!HideCrosswalksPatch.patched && PluginUtil.GetHideCrossings().IsActive()) {
                 HarmonyUtil.ManualPatch(typeof(HideCrosswalksPatch), HARMONY_ID_MANUAL);
                 HideCrosswalksPatch.patched = true;
@@ -102,6 +103,7 @@ namespace AdaptiveRoads.LifeCycle
         }
 
         public static void Exit() {
+            Log.Info("LifeCycle.Exit() called");
             HarmonyUtil.UninstallHarmony(HARMONY_ID_MANUAL);
             HideCrosswalksPatch.patched = false;
         }

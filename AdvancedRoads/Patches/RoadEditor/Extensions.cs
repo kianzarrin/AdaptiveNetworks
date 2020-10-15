@@ -79,6 +79,9 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         public static void OnObjectModified(this RoadEditorPanel instance)
             => mOnObjectModified_.Invoke(instance, null);
 
+        public static bool RequiresUserFlag(Type type) {
+            return type == typeof(Building.Flags) || type == typeof(Vehicle.Flags);
+        }
 
 
 

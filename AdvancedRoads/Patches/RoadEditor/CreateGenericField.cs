@@ -14,6 +14,29 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     /// </summary>
     [HarmonyPatch(typeof(RoadEditorPanel), "CreateGenericField")]
     public static class CreateGenericField {
+        public static bool Prefix(string groupName, FieldInfo field, object target,
+            RoadEditorPanel __instance) {
+            if (NetInfoExt.EditNetInfo == null)
+                return true; // ignore this outside of asset edtor.
+            if (Extensions.RequiresUserFlag(field.FieldType))
+                return true;
+            if(field.HasAttribute<BitMaskAttribute>() && field.HasAttribute<CustomizablePropertyAttribute>()) {
+                Assert(string.IsNullOrEmpty(groupName), "groupName is empty");
+                var container = __instance.component.GetComponentInChildren<UIScrollablePanel>();
+                var att = field.GetCustomAttributes(typeof(CustomizablePropertyAttribute), false)[0] as CustomizablePropertyAttribute;
+                var bitMaskPanel = BitMaskPanel.Add(
+                    roadEditorPanel: __instance,
+                    container: container,
+                    label: att.name,
+                    enumType: field.FieldType,
+                    setHandler: val => field.SetValue(target, val),
+                    getHandler: () => (int)field.GetValue(target),
+                    false);
+                return false;
+            }
+            return true;
+        }
+
         public static void Postfix(string groupName, FieldInfo field, object target, RoadEditorPanel __instance) {
             try {
                 if (target is NetLaneProps.Prop prop) {

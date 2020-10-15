@@ -1,12 +1,14 @@
 high p:
     compatibility with other mods.
-        hide crossings to ignore
-        DC road to ignore.
+        hide crossings to ignore (done not tested)
+        DC road to ignore : failed
+
 meduim p:
-    large drop down for vanilla flags.
     hintbox for dropdwon\flags
-    update everything when netinfo properties change.
     backward compatiblity. (SerializationException: Field "LaneFlags" not found in class AdaptiveRoads.Manager.NetInfoExt+Lane)
+    exclude unwanted flags.
+    mixed enum type bitmask
+    update everything when netinfo properties change. (wait on answer)
 
 
 

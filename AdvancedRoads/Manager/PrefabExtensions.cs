@@ -51,6 +51,13 @@ namespace AdaptiveRoads.Manager {
 
         public static bool CheckRange(this Range range, float value) => range?.InRange(value) ?? true;
 
+        public static bool CheckFlags(this NetInfo.Segment segmentInfo, NetSegment.Flags flags, bool turnAround) {
+            if (!turnAround)
+                return flags.CheckFlags(segmentInfo.m_forwardRequired, segmentInfo.m_forwardForbidden);
+            else
+                return flags.CheckFlags(segmentInfo.m_backwardRequired, segmentInfo.m_backwardForbidden);
+        }
+
         public static void ApplyVanillaForbidden(this NetInfo info) => NetInfoExt.ApplyVanillaForbiddden(info);
         public static void RollBackVanillaForbidden(this NetInfo info) => NetInfoExt.RollBackVanillaForbidden(info);
     }
@@ -119,7 +126,7 @@ namespace AdaptiveRoads.Manager {
                 //[CustomizableProperty("Segment End")]
                 public SegmentEndInfoFlags End;
 
-                public bool CheckFlags( 
+                public bool CheckFlags(
                     NetSegmentExt.Flags flags,
                     NetSegmentEnd.Flags startFlags,
                     NetSegmentEnd.Flags endFlags) {
@@ -128,6 +135,7 @@ namespace AdaptiveRoads.Manager {
                         Start.CheckFlags(startFlags) &
                         End.CheckFlags(endFlags);
                 }
+
 
                 public FlagsT Clone() => this.ShalowClone();
             }
@@ -143,13 +151,6 @@ namespace AdaptiveRoads.Manager {
                     return ForwardFlags.CheckFlags(flags, startFlags, endFlags);
                 else
                     return BackwardFlags.CheckFlags(flags, startFlags, endFlags);
-            }
-
-            public static bool CheckFlags(NetInfo.Segment segmentInfo, NetSegment.Flags flags, bool turnAround) {
-                if (!turnAround)
-                    return flags.CheckFlags(segmentInfo.m_forwardRequired, segmentInfo.m_forwardForbidden);
-                else
-                    return flags.CheckFlags(segmentInfo.m_backwardRequired, segmentInfo.m_backwardForbidden);
             }
 
             private Segment() { }
