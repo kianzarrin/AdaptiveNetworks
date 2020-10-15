@@ -1,12 +1,13 @@
 high p:
-    fix speed range
-    LHT flags for segment/segmentEnd
-    backward compatiblity.
+    LHT flag (done)
+    backward compatiblity. (SerializationException: Field "LaneFlags" not found in class AdaptiveRoads.Manager.NetInfoExt+Lane)
     compatibility with other mods.
+        hide crossings to ignore
+        DC road to ignore.
 meduim p:
     large drop down for vanilla flags.
     hintbox for dropdwon\flags
-    vanilla as forbidden flag = heating.
+    vanilla as forbidden flag = created|deelted => done not tested 
     update everything when netinfo properties change.
 
 

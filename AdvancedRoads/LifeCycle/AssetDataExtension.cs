@@ -8,19 +8,25 @@ namespace AdaptiveRoads.LifeCycle {
     using System;
     using System.Collections.Generic;
     using static KianCommons.Assertion;
+    using ColossalFramework;
 
     // TODO move to prefab indeces.
     [HarmonyPatch(typeof(SaveAssetPanel), "SaveAsset")]
     public static class SaveRoutinePatch {
         public static void Prefix() {
             Log.Debug($"SaveAssetPanel.SaveRoutine reversing ...");
-            foreach (var info in NetInfoExt.EditNetInfos)
+            foreach (var info in NetInfoExt.EditNetInfos) {
                 info.ReversePrefab();
+                info.ApplyVanillaForbidden();
+            }
+
         }
         public static void PostFix() {
             Log.Debug($"SaveAssetPanel.SaveRoutine re extending ...");
-            foreach (var info in NetInfoExt.EditNetInfos)
+            foreach (var info in NetInfoExt.EditNetInfos) {
                 info.ExtendPrefab();
+                info.RollBackVanillaForbidden();
+            }
         }
     }
 
@@ -86,6 +92,7 @@ namespace AdaptiveRoads.LifeCycle {
             return ret;
         }
 
+
         public static void Load(AssetData assetData, NetInfo groundInfo) {
             NetInfo elevated = AssetEditorRoadUtils.TryGetElevated(groundInfo);
             NetInfo bridge = AssetEditorRoadUtils.TryGetBridge(groundInfo);
@@ -97,6 +104,9 @@ namespace AdaptiveRoads.LifeCycle {
             bridge?.SetExt(assetData.Bridge);
             slope?.SetExt(assetData.Slope);
             tunnel?.SetExt(assetData.Tunnel);
+
+            foreach (var info in NetInfoExt.AllElevations(groundInfo))
+                info.RollBackVanillaForbidden();
         }
     }
 
@@ -117,8 +127,6 @@ namespace AdaptiveRoads.LifeCycle {
             Instance = null;
         }
 
-        // TODO serialize BuildgInfo
-        // TODO clone custom flags when netinfo is cloned by asset editor. 
         public override void OnAssetLoaded(string name, object asset, Dictionary<string, byte[]> userData) {
             try {
                 Log.Info($"AssetDataExtension.OnAssetLoaded({name}, {asset}, userData) called");
@@ -152,6 +160,7 @@ namespace AdaptiveRoads.LifeCycle {
                 userData.Add(ID_NetInfo, SerializationUtil.Serialize(assetData));
             }
         }
+
     }
 
 

@@ -352,6 +352,8 @@ namespace AdaptiveRoads.Manager {
             m_flags = m_flags.SetFlags(Flags.ParkingAllowedLeft, parkingLeft);
             m_flags = m_flags.SetFlags(Flags.ParkingAllowedRight, parkingRight);
             m_flags = m_flags.SetFlags(Flags.UniformSpeedLimit, uniformSpeed);
+            m_flags = m_flags.SetFlags(Flags.LeftHandTraffic, NetUtil.LHT);
+
             AverageSpeedLimit = speedLimitAcc / speedLaneCount;
         }
     }
