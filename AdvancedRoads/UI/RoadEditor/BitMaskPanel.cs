@@ -40,7 +40,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
             //else
             //    subPanel.opacity = 0.3f;
 
-            roadEditorPanel.m_Container.AttachUIComponent(subPanel.gameObject);
+            container.AttachUIComponent(subPanel.gameObject);
             roadEditorPanel.FitToContainer(subPanel);
 
             return subPanel;

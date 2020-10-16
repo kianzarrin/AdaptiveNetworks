@@ -17,12 +17,16 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         public static bool Prefix(string groupName, FieldInfo field, object target,
             RoadEditorPanel __instance) {
             if (NetInfoExt.EditNetInfo == null)
-                return true; // ignore this outside of asset edtor.
+                return true; // ignore this outside of asset editor.
             if (Extensions.RequiresUserFlag(field.FieldType))
                 return true;
             if(field.HasAttribute<BitMaskAttribute>() && field.HasAttribute<CustomizablePropertyAttribute>()) {
-                Assert(string.IsNullOrEmpty(groupName), "groupName is empty");
-                var container = __instance.component.GetComponentInChildren<UIScrollablePanel>();
+                //Assert(string.IsNullOrEmpty(groupName), $"groupName is empty, groupName={groupName} target={target} field={field}");
+                UIComponent container = __instance.m_Container;  //instance.component.GetComponentInChildren<UIScrollablePanel>();
+                if (!string.IsNullOrEmpty(groupName)) {
+                    container = __instance.GetGroupPanel(groupName).Container;
+                    //Log.Debug($"Container={container.GetType()}:{container.name} parent={container.parent.GetType()}:{container.parent.name}");
+                }
                 var att = field.GetCustomAttributes(typeof(CustomizablePropertyAttribute), false)[0] as CustomizablePropertyAttribute;
                 var bitMaskPanel = BitMaskPanel.Add(
                     roadEditorPanel: __instance,
@@ -95,8 +99,12 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         }
         public static void CreateExtendedComponent(
             string groupName, FieldInfo fieldInfo, object target, RoadEditorPanel instance, string prefix="" ) {
-            Assert(string.IsNullOrEmpty(groupName), "groupName is empty");
-            var container = instance.component.GetComponentInChildren<UIScrollablePanel>();
+            //Assert(string.IsNullOrEmpty(groupName), "groupName is empty");
+            UIComponent container = instance.m_Container;  //instance.component.GetComponentInChildren<UIScrollablePanel>();
+            if (!string.IsNullOrEmpty(groupName)) {
+                container = instance.GetGroupPanel(groupName).Container;
+            }
+
             AssertNotNull(container, "container");
             Log.Debug("CreateExtendedComponent():container=" + container);
 

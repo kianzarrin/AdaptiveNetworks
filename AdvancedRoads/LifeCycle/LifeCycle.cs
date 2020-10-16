@@ -70,6 +70,7 @@ namespace AdaptiveRoads.LifeCycle
                 HarmonyUtil.ManualPatch(typeof(HideCrosswalksPatch), HARMONY_ID_MANUAL);
                 HideCrosswalksPatch.patched = true;
             }
+            HelpersExtensions.VERBOSE = false;
         }
 
         public static void Load()

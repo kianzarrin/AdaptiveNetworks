@@ -272,7 +272,7 @@ namespace AdaptiveRoads.Manager {
 
             //TODO lane connections
 
-            Log.Debug("NetLaneExt.UpdateLane() result: " + this);
+            //Log.Debug("NetLaneExt.UpdateLane() result: " + this);
         }
 
         public override string ToString() {
@@ -458,7 +458,7 @@ namespace AdaptiveRoads.Manager {
             m_flags = m_flags.SetFlags(Flags.Uturn, JRMan.IsUturnAllowed(SegmentID, StartNode));
             m_flags = m_flags.SetFlags(Flags.LaneChangingGoingStraight, JRMan.IsLaneChangingAllowedWhenGoingStraight(SegmentID, StartNode));
 
-            Log.Debug("NetSegmentEnd.UpdateFlags() result: " + this);
+            //Log.Debug("NetSegmentEnd.UpdateFlags() result: " + this);
         }
 
         public override string ToString() {

@@ -13,7 +13,7 @@ namespace AdaptiveRoads.Patches.TMPE {
     [HarmonyPatch(new Type[] { typeof(ushort), typeof(bool) })]
     class UpdateSegmentEnd {
         static void Postfix(ushort segmentId, bool startNode) {
-            Log.Debug("UpdateSegmentEnd.PostFix() was called for segment:" + segmentId);
+            Log.Debug("SegmentEndManager.UpdateSegmentEnd.PostFix() was called for segment:" + segmentId);
             ushort nodeID = segmentId.ToSegment().GetNode(startNode);
             NetManager.instance.UpdateNode(nodeID); // mark for update 
         }

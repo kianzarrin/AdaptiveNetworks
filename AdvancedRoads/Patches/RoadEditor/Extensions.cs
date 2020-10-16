@@ -83,7 +83,11 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             return type == typeof(Building.Flags) || type == typeof(Vehicle.Flags);
         }
 
+        static FastInvokeHandler mGetGroupPanel = MethodInvoker.GetHandler(
+            AccessTools.DeclaredMethod(typeof(RoadEditorPanel), "GetGroupPanel"));
 
-
+        public static RoadEditorCollapsiblePanel GetGroupPanel(this RoadEditorPanel instance, string name) {
+            return (RoadEditorCollapsiblePanel)mGetGroupPanel.Invoke(instance, new[] { name });
+        }
     }
 }
