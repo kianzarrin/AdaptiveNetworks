@@ -9,8 +9,8 @@ namespace AdaptiveRoads.Patches{
         internal static bool patched = false;
         public static MethodBase TargetMethod() {
             return PluginUtil.GetHideCrossings().GetMainAssembly()
-                .GetType("HideCrosswalks.Utils.RoadUtils", throwOnError:true)
-                .GetMethod("CalculateCanHideCrossingsRaw") ?? throw new Exception("CalculateCanHideCrossingsRaw() not found");
+                .GetType("HideCrosswalks.Utils.RoadUtils", throwOnError: true)
+                .GetMethod("CalculateCanHideCrossingsRaw", BindingFlags.NonPublic | BindingFlags.Static);
         }
         public static bool Prefix(NetInfo info, ref bool __result) {
             //Log.Debug("IsNormalSymetricalTwoWay.Prefix() was called for info:" + info);

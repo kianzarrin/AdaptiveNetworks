@@ -8,7 +8,6 @@ namespace AdaptiveRoads.LifeCycle {
     using System;
     using System.Collections.Generic;
     using static KianCommons.Assertion;
-    using ColossalFramework;
 
     // TODO move to prefab indeces.
     [HarmonyPatch(typeof(SaveAssetPanel), "SaveAsset")]
@@ -16,10 +15,9 @@ namespace AdaptiveRoads.LifeCycle {
         public static void Prefix() {
             Log.Debug($"SaveAssetPanel.SaveRoutine reversing ...");
             foreach (var info in NetInfoExt.EditNetInfos) {
-                info.ReversePrefab();
                 info.ApplyVanillaForbidden();
+                info.ReversePrefab();
             }
-
         }
         public static void PostFix() {
             Log.Debug($"SaveAssetPanel.SaveRoutine re extending ...");
