@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using AdaptiveRoads.Manager;
 using System.Diagnostics;
+using TrafficManager.API.Traffic.Enums;
 
 namespace AdaptiveRoads.Patches.TMPE {
     [HarmonyPatch]
@@ -23,31 +24,31 @@ namespace AdaptiveRoads.Patches.TMPE {
             yield return AccessTools.DeclaredMethod(
                 typeof(ParkingRestrictionsManager),
                 nameof(ParkingRestrictionsManager.SetParkingAllowed),
-                new Type[] { typeof(ushort), typeof(NetInfo.Direction), typeof(bool) });
+                new Type[] { typeof(ushort), typeof(NetInfo.Direction), typeof(bool) })
+                ?? throw new Exception("ParkingRestrictionsManager.SetParkingAllowed() not found");
 
             /************* priority signs */
             //public bool SetPrioritySign(ushort segmentId, bool startNode, PriorityType type, out SetPrioritySignError reason)
             yield return AccessTools.DeclaredMethod(
                 typeof(TrafficPriorityManager),
                 nameof(TrafficPriorityManager.SetPrioritySign),
-                new Type[] { typeof(ushort), typeof(NetInfo.Direction), typeof(bool) });
+                new Type[] { typeof(ushort), typeof(bool), typeof(PriorityType), typeof(SetPrioritySignError).MakeByRefType()})
+                ?? throw new Exception("TrafficPriorityManager.SetPrioritySign not found");
+
 
             /************* vehicle restrictions */
             // public void VehicleRestrictionsManager.NotifyStartEndNode(ushort segmentId)
             yield return AccessTools.DeclaredMethod(
                 typeof(VehicleRestrictionsManager),
-                nameof(VehicleRestrictionsManager.NotifyStartEndNode));
-
-            /************* vehicle restrictions */
-            yield return AccessTools.DeclaredMethod(
-                typeof(VehicleRestrictionsManager),
-                nameof(VehicleRestrictionsManager.NotifyStartEndNode));
+                nameof(VehicleRestrictionsManager.NotifyStartEndNode))
+                ?? throw new Exception("VehicleRestrictionsManager.NotifyStartEndNode");
 
             /************ Junction restrictions */
             // private void JunctionRestrictionsManager.OnSegmentChange(ushort segmentId, bool startNode, ref ExtSegment seg, bool requireRecalc)
             yield return AccessTools.DeclaredMethod(
                 typeof(JunctionRestrictionsManager),
-                "OnSegmentChange");
+                "OnSegmentChange")
+                ?? throw new Exception("JunctionRestrictionsManager.OnSegmentChange not found");
         }
 
         static void Postfix(ushort segmentId) {

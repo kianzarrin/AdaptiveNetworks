@@ -80,6 +80,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     var fields = typeof(NetInfoExt.Segment.FlagsT).GetFields()
                         .Where(_field => _field.HasAttribute<CustomizablePropertyAttribute>());
                     var segment2 = segment.GetExt();
+                    AssertNotNull(segment2);
                     if (field.Name == nameof(NetInfo.Segment.m_forwardForbidden)) {
                         foreach (var field2 in fields) {
                             CreateExtendedComponent(groupName, field2, segment2.ForwardFlags, __instance, "Forward ");

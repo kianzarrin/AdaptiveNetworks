@@ -70,7 +70,7 @@ namespace AdaptiveRoads.Manager {
                 for (int maskIndex = 0; maskIndex < m_updatedNodes.Length; maskIndex++) {
                     ulong bitmask = m_updatedNodes[maskIndex];
                     if (bitmask != 0) {
-                        for (int bitIndex = 0; bitIndex < sizeof(ulong); bitIndex++) {
+                        for (int bitIndex = 0; bitIndex < 64; bitIndex++) {
                             if ((bitmask & 1UL << bitIndex) != 0) {
                                 ushort nodeID = (ushort)(maskIndex << 6 | bitIndex);
                                 NodeBuffer[nodeID].UpdateFlags();
@@ -81,11 +81,14 @@ namespace AdaptiveRoads.Manager {
             }
 
             if (segmentsUpdated) {
+                //Log.DebugWait("POINT A");
                 for (int maskIndex = 0; maskIndex < m_updatedSegments.Length; maskIndex++) {
                     ulong bitmask = m_updatedSegments[maskIndex];
                     if (bitmask != 0) {
-                        for (int bitIndex = 0; bitIndex < sizeof(ulong); bitIndex++) {
+                        //Log.DebugWait("POINT B");
+                        for (int bitIndex = 0; bitIndex < 64; bitIndex++) {
                             if ((bitmask & 1UL << bitIndex) != 0UL) {
+                                //Log.DebugWait("POINT C");
                                 ushort segmentID = (ushort)(maskIndex << 6 | bitIndex);
                                 SegmentBuffer[segmentID].UpdateAllFlags();
                             }
@@ -98,7 +101,7 @@ namespace AdaptiveRoads.Manager {
                 for (int maskIndex = 0; maskIndex < m_updatedNodes.Length; maskIndex++) {
                     ulong bitmask = m_updatedNodes[maskIndex];
                     if (bitmask != 0) {
-                        for (int bitIndex = 0; bitIndex < sizeof(ulong); bitIndex++) {
+                        for (int bitIndex = 0; bitIndex < 64; bitIndex++) {
                             if ((bitmask & 1UL << bitIndex) != 0) {
                                 ushort nodeID = (ushort)(maskIndex << 6 | bitIndex);
                                 NetManager.instance.UpdateNodeRenderer(nodeID, true);
@@ -112,7 +115,7 @@ namespace AdaptiveRoads.Manager {
                 for (int maskIndex = 0; maskIndex < m_updatedSegments.Length; maskIndex++) {
                     ulong bitmask = m_updatedSegments[maskIndex];
                     if (bitmask != 0) {
-                        for (int bitIndex = 0; bitIndex < sizeof(ulong); bitIndex++) {
+                        for (int bitIndex = 0; bitIndex < 64; bitIndex++) {
                             if ((bitmask & 1UL << bitIndex) != 0UL) {
                                 ushort segmentID = (ushort)(maskIndex << 6 | bitIndex);
                                 NetManager.instance.UpdateSegmentRenderer(segmentID, true);
@@ -158,9 +161,12 @@ namespace AdaptiveRoads.Manager {
         #endregion
 
         public void UpdateNode(ushort nodeID, ushort fromSegmentID = 0, int level=0) {
-            m_updatedNodes[nodeID >> 6] |= 1UL << (int)nodeID;
-            m_nodesUpdated = true;
-            if (level <= 1) {
+            // TODO run in order to update nodes.
+            if (false) {
+                m_updatedNodes[nodeID >> 6] |= 1UL << (int)nodeID;
+                m_nodesUpdated = true;
+            }
+            if (level <= 0) {
                 for (int i = 0; i < 8; ++i) {
                     ushort segmentID = nodeID.ToNode().GetSegment(i);
                     if (segmentID == 0 || segmentID == fromSegmentID)
@@ -171,6 +177,7 @@ namespace AdaptiveRoads.Manager {
         }
 
         public void UpdateSegment(ushort segmentID, ushort fromNodeID = 0, int level = 0 ) {
+            Log.Debug($"mark {segmentID} for update level={level}");
             m_updatedSegments[segmentID >> 6] |= 1UL << (int)segmentID;
             m_segmentsUpdated = true;
             if (level <= 0) {

@@ -396,7 +396,7 @@ namespace AdaptiveRoads.Manager {
 
             AverageSpeedLimit = speedLimitAcc / speedLaneCount;
 
-            Log.Debug("NetSegmentExt.UpdateAllFlags() succeeded for " + this);
+            Log.Debug($"NetSegmentExt.UpdateAllFlags() succeeded for {this}\n" + Environment.StackTrace);
         }
     }
 
