@@ -8,8 +8,6 @@ namespace AdaptiveRoads.Manager {
         #region LifeCycle
         private NetworkExtensionManager(){
         }
-
-
         // this initalizesation maybe useful in case of a hot reload.
         public static NetworkExtensionManager Instance { get; private set; } = new NetworkExtensionManager();
 
@@ -61,7 +59,77 @@ namespace AdaptiveRoads.Manager {
             }
 
         }
+
+        public void SimulationStep() {
+            bool nodesUpdated = m_nodesUpdated;
+            bool segmentsUpdated = m_segmentsUpdated;
+            if (nodesUpdated) m_nodesUpdated = false;
+            if (segmentsUpdated) m_segmentsUpdated = false;
+
+            if (nodesUpdated) {
+                for (int maskIndex = 0; maskIndex < m_updatedNodes.Length; maskIndex++) {
+                    ulong bitmask = m_updatedNodes[maskIndex];
+                    if (bitmask != 0) {
+                        for (int bitIndex = 0; bitIndex < sizeof(ulong); bitIndex++) {
+                            if ((bitmask & 1UL << bitIndex) != 0) {
+                                ushort nodeID = (ushort)(maskIndex << 6 | bitIndex);
+                                NodeBuffer[nodeID].UpdateFlags();
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (segmentsUpdated) {
+                for (int maskIndex = 0; maskIndex < m_updatedSegments.Length; maskIndex++) {
+                    ulong bitmask = m_updatedSegments[maskIndex];
+                    if (bitmask != 0) {
+                        for (int bitIndex = 0; bitIndex < sizeof(ulong); bitIndex++) {
+                            if ((bitmask & 1UL << bitIndex) != 0UL) {
+                                ushort segmentID = (ushort)(maskIndex << 6 | bitIndex);
+                                SegmentBuffer[segmentID].UpdateAllFlags();
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (nodesUpdated) {
+                for (int maskIndex = 0; maskIndex < m_updatedNodes.Length; maskIndex++) {
+                    ulong bitmask = m_updatedNodes[maskIndex];
+                    if (bitmask != 0) {
+                        for (int bitIndex = 0; bitIndex < sizeof(ulong); bitIndex++) {
+                            if ((bitmask & 1UL << bitIndex) != 0) {
+                                ushort nodeID = (ushort)(maskIndex << 6 | bitIndex);
+                                NetManager.instance.UpdateNodeRenderer(nodeID, true);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (segmentsUpdated) {
+                for (int maskIndex = 0; maskIndex < m_updatedSegments.Length; maskIndex++) {
+                    ulong bitmask = m_updatedSegments[maskIndex];
+                    if (bitmask != 0) {
+                        for (int bitIndex = 0; bitIndex < sizeof(ulong); bitIndex++) {
+                            if ((bitmask & 1UL << bitIndex) != 0UL) {
+                                ushort segmentID = (ushort)(maskIndex << 6 | bitIndex);
+                                NetManager.instance.UpdateSegmentRenderer(segmentID, true);
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
         #endregion LifeCycle
+
+        [NonSerialized]
+        public ulong[] m_updatedNodes = new ulong[512], m_updatedSegments = new ulong[576];
+
+        [NonSerialized]
+        public bool m_nodesUpdated, m_segmentsUpdated;
 
         public NetNodeExt[] NodeBuffer = new NetNodeExt[NetManager.MAX_NODE_COUNT];
         public NetSegmentExt[] SegmentBuffer = new NetSegmentExt[NetManager.MAX_SEGMENT_COUNT];
@@ -73,7 +141,6 @@ namespace AdaptiveRoads.Manager {
             else
                 return ref SegmentEndBuffer[segmentID * 2 + 1];
         }
-
 
         public NetSegmentEnd GetSegmentEnd(ushort segmentId, ushort nodeId) {
             return SegmentBuffer[segmentId].GetEnd(nodeId);
@@ -90,6 +157,33 @@ namespace AdaptiveRoads.Manager {
         }
         #endregion
 
+        public void UpdateNode(ushort nodeID, ushort fromSegmentID = 0, int level=0) {
+            m_updatedNodes[nodeID >> 6] |= 1UL << (int)nodeID;
+            m_nodesUpdated = true;
+            if (level <= 1) {
+                for (int i = 0; i < 8; ++i) {
+                    ushort segmentID = nodeID.ToNode().GetSegment(i);
+                    if (segmentID == 0 || segmentID == fromSegmentID)
+                        continue;
+                    UpdateSegment(segmentID, nodeID, level + 1);
+                }
+            }
+        }
+
+        public void UpdateSegment(ushort segmentID, ushort fromNodeID = 0, int level = 0 ) {
+            m_updatedSegments[segmentID >> 6] |= 1UL << (int)segmentID;
+            m_segmentsUpdated = true;
+            if (level <= 0) {
+                ushort node1 = segmentID.ToSegment().GetNode(true);
+                ushort node2 = segmentID.ToSegment().GetNode(false);
+                if (node1 != 0 && node1 != fromNodeID) {
+                    UpdateNode(node1, segmentID, level + 1);
+                }
+                if (node2 != 0 && node2 != fromNodeID) {
+                    UpdateNode(node2, segmentID, level + 1);
+                }
+            }
+        }
 
 
 

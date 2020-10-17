@@ -1,0 +1,10 @@
+public bool SetParkingAllowed(ushort segmentId, NetInfo.Direction finalDir, bool flag)
+SetSpeedLimit (all of them)
+public bool SetTrafficLight(ushort nodeId, bool flag, ref NetNode node, out ToggleTrafficLightError reason)
+public bool SetPrioritySign(ushort segmentId, bool startNode, PriorityType type, out SetPrioritySignError reason) 
+NotifyStartEndNode : VRM
+OnSegmentChange: JRM
+OnLaneChange: LAM and LCM
+
+TODO later:
+TimedRafficLights.Start/Stop

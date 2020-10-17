@@ -72,6 +72,10 @@
     <Compile Remove="Patches\Segment\NetSegment_CalculateSegment.cs" />
     <Compile Remove="Patches\Segment\NetSegment_UpdateSegment.cs" />
     <Compile Remove="Patches\Segment\RoadBaseAI_UpdateSegmentFlags.cs" />
+    <Compile Remove="Patches\TMPE\OnSegmentChange.cs" />
+    <Compile Remove="Patches\TMPE\PublishSegmentChanges.cs" />
+    <Compile Remove="Patches\TMPE\SetParkingAllowed.cs" />
+    <Compile Remove="Patches\TMPE\UpdateSegmentEnd.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="KianCommons\.git" />
