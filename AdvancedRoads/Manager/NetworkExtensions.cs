@@ -427,6 +427,9 @@ namespace AdaptiveRoads.Manager {
             HasForwardSegment = 1 << 13,
             CanGoForward = 1 << 14,
 
+            IsStartNode = 1 << 15,
+            IsTailNode = 1 << 16,
+
             All = (1 << 15)-1,
         }
 
@@ -434,7 +437,7 @@ namespace AdaptiveRoads.Manager {
 
         public ushort SegmentID;
         public bool StartNode;
-        public ushort NodeID => StartNode ? SegmentID.ToSegment().m_startNode : SegmentID.ToSegment().m_endNode;
+        public ushort NodeID => SegmentID.ToSegment().GetNode(StartNode);
 
         public static JunctionRestrictionsManager JRMan => JunctionRestrictionsManager.Instance;
         public static TrafficPriorityManager PMan => TrafficPriorityManager.Instance;
@@ -446,18 +449,25 @@ namespace AdaptiveRoads.Manager {
         }
 
         public void UpdateFlags() {
+            var flags = m_flags; // TODO is this necessary?
+
             PriorityType p = PMan.GetPrioritySign(SegmentID, StartNode);
-            m_flags = m_flags.SetFlags(Flags.Yield, p == PriorityType.Yield);
-            m_flags = m_flags.SetFlags(Flags.Stop, p == PriorityType.Stop);
-            m_flags = m_flags.SetFlags(Flags.PriorityMain, p == PriorityType.Main);
+            flags = flags.SetFlags(Flags.Yield, p == PriorityType.Yield);
+            flags = flags.SetFlags(Flags.Stop, p == PriorityType.Stop);
+            flags = flags.SetFlags(Flags.PriorityMain, p == PriorityType.Main);
 
-            m_flags = m_flags.SetFlags(Flags.KeepClear, !JRMan.IsEnteringBlockedJunctionAllowed(SegmentID, StartNode));
-            m_flags = m_flags.SetFlags(Flags.ZebraCrossing, JRMan.IsPedestrianCrossingAllowed(SegmentID, StartNode));
-            m_flags = m_flags.SetFlags(Flags.NearTurnAtRed, JRMan.IsNearTurnOnRedAllowed(SegmentID, StartNode));
-            m_flags = m_flags.SetFlags(Flags.FarTurnAtRed, JRMan.IsFarTurnOnRedAllowed(SegmentID, StartNode));
-            m_flags = m_flags.SetFlags(Flags.Uturn, JRMan.IsUturnAllowed(SegmentID, StartNode));
-            m_flags = m_flags.SetFlags(Flags.LaneChangingGoingStraight, JRMan.IsLaneChangingAllowedWhenGoingStraight(SegmentID, StartNode));
+            flags = flags.SetFlags(Flags.KeepClear, !JRMan.IsEnteringBlockedJunctionAllowed(SegmentID, StartNode));
+            flags = flags.SetFlags(Flags.ZebraCrossing, JRMan.IsPedestrianCrossingAllowed(SegmentID, StartNode));
+            flags = flags.SetFlags(Flags.NearTurnAtRed, JRMan.IsNearTurnOnRedAllowed(SegmentID, StartNode));
+            flags = flags.SetFlags(Flags.FarTurnAtRed, JRMan.IsFarTurnOnRedAllowed(SegmentID, StartNode));
+            flags = flags.SetFlags(Flags.Uturn, JRMan.IsUturnAllowed(SegmentID, StartNode));
+            flags = flags.SetFlags(Flags.LaneChangingGoingStraight, JRMan.IsLaneChangingAllowedWhenGoingStraight(SegmentID, StartNode));
+            flags = flags.SetFlags(Flags.LaneChangingGoingStraight, JRMan.IsLaneChangingAllowedWhenGoingStraight(SegmentID, StartNode));
 
+            flags = flags.SetFlags(Flags.IsStartNode, StartNode);
+            flags = flags.SetFlags(Flags.IsTailNode, NetUtil.GetTailNode(SegmentID) == NodeID);
+            m_flags = flags;
+            
             //Log.Debug("NetSegmentEnd.UpdateFlags() result: " + this);
         }
 
