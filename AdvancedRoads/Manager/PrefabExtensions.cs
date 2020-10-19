@@ -366,9 +366,6 @@ namespace AdaptiveRoads.Manager {
         public static Dictionary<NetInfo, NetInfoExt> DataDict;
 
         public static bool IsAdaptive(NetInfo info) {
-            Assertion.Assert(
-                LoadingManager.instance.m_simulationDataLoaded,
-                "m_simulationDataLoaded: asset data extension has not loaded the assets' data yet.");
             EnsureBuffer();
             if (info.GetExt() != null)
                 return true;

@@ -1,14 +1,9 @@
 high p:
-    compatibility with other mods.
-        hide crossings to ignore (done not tested)
-        DC road to ignore : failed
-
+    compatibility with NS2.
+    fix saving error
 meduim p:
     hintbox for dropdwon\flags
-    backward compatiblity. (SerializationException: Field "LaneFlags" not found in class AdaptiveRoads.Manager.NetInfoExt+Lane)
-    exclude unwanted flags.
     mixed enum type bitmask
-    update everything when netinfo properties change. (wait on answer)
 
 
 
