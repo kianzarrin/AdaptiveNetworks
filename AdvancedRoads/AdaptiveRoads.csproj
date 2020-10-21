@@ -140,12 +140,12 @@
     <None Include="DecompiledSources\NetLane.cs" />
     <None Include="DecompiledSources\NetNode.cs" />
     <None Include="DecompiledSources\NetSegment.cs" />
-    <None Include="..\Indeces\bin\PrefabIndeces.dll.mdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Util\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PrefabMetaDataAPI\Prefab Metadata API.csproj" />
   </ItemGroup>
   <Target Name="DeployToModDirectory" AfterTargets="Build">
     <GetAssemblyIdentity AssemblyFiles="$(TargetPath)">
