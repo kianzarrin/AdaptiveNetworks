@@ -16,7 +16,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     public static class CreateGenericField {
         public static bool Prefix(string groupName, FieldInfo field, object target,
             RoadEditorPanel __instance) {
-            if (NetInfoExt.EditNetInfo == null)
+            if (NetInfoExtionsion.EditedNetInfo == null)
                 return true; // ignore this outside of asset editor.
             if (Extensions.RequiresUserFlag(field.FieldType))
                 return true;
@@ -46,7 +46,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 if (target is NetLaneProps.Prop prop) {
                     Log.Debug($"{__instance.name}.CreateGenericField.Prefix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
                     if (field.Name == nameof(NetLaneProps.Prop.m_endFlagsForbidden)) {
-                        var fields = typeof(NetInfoExt.LaneProp).GetFields()
+                        var fields = typeof(NetInfoExtionsion.LaneProp).GetFields()
                             .Where(_field => _field.HasAttribute<CustomizablePropertyAttribute>());
                         Log.Debug("fields="+ fields.ToSTR());
 
@@ -59,7 +59,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         //NetInfoExt.LaneProp target4 = target3.GetExt();
                         //AssertNotNull(target4, $"[4]target:{target} Buffer[{target3.PrefabIndex}]={NetInfoExt.Buffer[target3.PrefabIndex]}");
 
-                        var prop2 = prop.GetExt(); // TODO does this work when adding/removing props?
+                        var prop2 = prop.GetMetaData(); // TODO does this work when adding/removing props?
                         foreach (var field2 in fields) {
                             Log.Debug("[3]field2=" + field2, true);
                             CreateExtendedComponent(groupName, field2, prop2, __instance);
@@ -68,18 +68,18 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 } else if (target is NetInfo.Node node) {
                     Log.Debug($"{__instance.name}.CreateGenericField.Prefix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
                     if (field.Name == nameof(NetInfo.Node.m_flagsForbidden)) {
-                        var fields = typeof(NetInfoExt.Node).GetFields()
+                        var fields = typeof(NetInfoExtionsion.Node).GetFields()
                             .Where(_field => _field.HasAttribute<CustomizablePropertyAttribute>());
-                        var node2 = node.GetExt();
+                        var node2 = node.GetMetaData();
                         foreach (var field2 in fields) {
                             CreateExtendedComponent(groupName, field2, node2, __instance);
                         }
                     }
                 } else if (target is NetInfo.Segment segment) {
                     Log.Debug($"{__instance.name}.CreateGenericField.Prefix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
-                    var fields = typeof(NetInfoExt.Segment.FlagsT).GetFields()
+                    var fields = typeof(NetInfoExtionsion.Segment.FlagsT).GetFields()
                         .Where(_field => _field.HasAttribute<CustomizablePropertyAttribute>());
-                    var segment2 = segment.GetExt();
+                    var segment2 = segment.GetMetaData();
                     AssertNotNull(segment2);
                     if (field.Name == nameof(NetInfo.Segment.m_forwardForbidden)) {
                         foreach (var field2 in fields) {
@@ -121,23 +121,23 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
             if (fieldInfo.FieldType.HasAttribute<FlagPairAttribute>()) {
                 Type enumType = fieldInfo.FieldType.GetField("Required").FieldType;
-                if (fieldInfo.FieldType == typeof(NetInfoExt.LaneInfoFlags)) {
+                if (fieldInfo.FieldType == typeof(NetInfoExtionsion.LaneInfoFlags)) {
 
                     int GetRequired() {
-                        var value = (NetInfoExt.LaneInfoFlags)fieldInfo.GetValue(target);
+                        var value = (NetInfoExtionsion.LaneInfoFlags)fieldInfo.GetValue(target);
                         return (int)value.Required;
                     }
                     void SetRequired(int flags) {
-                        var value = (NetInfoExt.LaneInfoFlags)fieldInfo.GetValue(target);
+                        var value = (NetInfoExtionsion.LaneInfoFlags)fieldInfo.GetValue(target);
                         value.Required = (NetLaneExt.Flags)flags;
                         fieldInfo.SetValue(target, value);
                     };
                     int GetForbidden() {
-                        var value = (NetInfoExt.LaneInfoFlags)fieldInfo.GetValue(target);
+                        var value = (NetInfoExtionsion.LaneInfoFlags)fieldInfo.GetValue(target);
                         return (int)value.Forbidden;
                     };
                     void SetForbidden(int flags) {
-                        var value = (NetInfoExt.LaneInfoFlags)fieldInfo.GetValue(target);
+                        var value = (NetInfoExtionsion.LaneInfoFlags)fieldInfo.GetValue(target);
                         value.Forbidden = (NetLaneExt.Flags)flags;
                         fieldInfo.SetValue(target, value);
                     };
@@ -157,22 +157,22 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         setHandler: SetForbidden,
                         getHandler: GetForbidden,
                         true);
-                } else if (fieldInfo.FieldType == typeof(NetInfoExt.SegmentInfoFlags)) {
+                } else if (fieldInfo.FieldType == typeof(NetInfoExtionsion.SegmentInfoFlags)) {
                     int GetRequired() {
-                        var value = (NetInfoExt.SegmentInfoFlags)fieldInfo.GetValue(target);
+                        var value = (NetInfoExtionsion.SegmentInfoFlags)fieldInfo.GetValue(target);
                         return (int)value.Required;
                     }
                     void SetRequired(int flags) {
-                        var value = (NetInfoExt.SegmentInfoFlags)fieldInfo.GetValue(target);
+                        var value = (NetInfoExtionsion.SegmentInfoFlags)fieldInfo.GetValue(target);
                         value.Required = (NetSegmentExt.Flags)flags;
                         fieldInfo.SetValue(target, value);
                     };
                     int GetForbidden() {
-                        var value = (NetInfoExt.SegmentInfoFlags)fieldInfo.GetValue(target);
+                        var value = (NetInfoExtionsion.SegmentInfoFlags)fieldInfo.GetValue(target);
                         return (int)value.Forbidden;
                     };
                     void SetForbidden(int flags) {
-                        var value = (NetInfoExt.SegmentInfoFlags)fieldInfo.GetValue(target);
+                        var value = (NetInfoExtionsion.SegmentInfoFlags)fieldInfo.GetValue(target);
                         value.Forbidden = (NetSegmentExt.Flags)flags;
                         fieldInfo.SetValue(target, value);
                     };
@@ -192,22 +192,22 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         setHandler: SetForbidden,
                         getHandler: GetForbidden,
                         true);
-                } else if (fieldInfo.FieldType == typeof(NetInfoExt.SegmentEndInfoFlags)) {
+                } else if (fieldInfo.FieldType == typeof(NetInfoExtionsion.SegmentEndInfoFlags)) {
                     int GetRequired() {
-                        var value = (NetInfoExt.SegmentEndInfoFlags)fieldInfo.GetValue(target);
+                        var value = (NetInfoExtionsion.SegmentEndInfoFlags)fieldInfo.GetValue(target);
                         return (int)value.Required;
                     }
                     void SetRequired(int flags) {
-                        var value = (NetInfoExt.SegmentEndInfoFlags)fieldInfo.GetValue(target);
+                        var value = (NetInfoExtionsion.SegmentEndInfoFlags)fieldInfo.GetValue(target);
                         value.Required = (NetSegmentEnd.Flags)flags;
                         fieldInfo.SetValue(target, value);
                     };
                     int GetForbidden() {
-                        var value = (NetInfoExt.SegmentEndInfoFlags)fieldInfo.GetValue(target);
+                        var value = (NetInfoExtionsion.SegmentEndInfoFlags)fieldInfo.GetValue(target);
                         return (int)value.Forbidden;
                     };
                     void SetForbidden(int flags) {
-                        var value = (NetInfoExt.SegmentEndInfoFlags)fieldInfo.GetValue(target);
+                        var value = (NetInfoExtionsion.SegmentEndInfoFlags)fieldInfo.GetValue(target);
                         value.Forbidden = (NetSegmentEnd.Flags)flags;
                         fieldInfo.SetValue(target, value);
                     };
@@ -227,22 +227,22 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         setHandler: SetForbidden,
                         getHandler: GetForbidden,
                         true);
-                } else if (fieldInfo.FieldType == typeof(NetInfoExt.NodeInfoFlags)) {
+                } else if (fieldInfo.FieldType == typeof(NetInfoExtionsion.NodeInfoFlags)) {
                     int GetRequired() {
-                        var value = (NetInfoExt.NodeInfoFlags)fieldInfo.GetValue(target);
+                        var value = (NetInfoExtionsion.NodeInfoFlags)fieldInfo.GetValue(target);
                         return (int)value.Required;
                     }
                     void SetRequired(int flags) {
-                        var value = (NetInfoExt.NodeInfoFlags)fieldInfo.GetValue(target);
+                        var value = (NetInfoExtionsion.NodeInfoFlags)fieldInfo.GetValue(target);
                         value.Required = (NetNodeExt.Flags)flags;
                         fieldInfo.SetValue(target, value);
                     };
                     int GetForbidden() {
-                        var value = (NetInfoExt.NodeInfoFlags)fieldInfo.GetValue(target);
+                        var value = (NetInfoExtionsion.NodeInfoFlags)fieldInfo.GetValue(target);
                         return (int)value.Forbidden;
                     };
                     void SetForbidden(int flags) {
-                        var value = (NetInfoExt.NodeInfoFlags)fieldInfo.GetValue(target);
+                        var value = (NetInfoExtionsion.NodeInfoFlags)fieldInfo.GetValue(target);
                         value.Forbidden = (NetNodeExt.Flags)flags;
                         fieldInfo.SetValue(target, value);
                     };
@@ -262,22 +262,22 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         setHandler: SetForbidden,
                         getHandler: GetForbidden,
                         true);
-                } else if (fieldInfo.FieldType == typeof(NetInfoExt.VanillaSegmentInfoFlags)) {
+                } else if (fieldInfo.FieldType == typeof(NetInfoExtionsion.VanillaSegmentInfoFlags)) {
                     int GetRequired() {
-                        var value = (NetInfoExt.VanillaSegmentInfoFlags)fieldInfo.GetValue(target);
+                        var value = (NetInfoExtionsion.VanillaSegmentInfoFlags)fieldInfo.GetValue(target);
                         return (int)value.Required;
                     }
                     void SetRequired(int flags) {
-                        var value = (NetInfoExt.VanillaSegmentInfoFlags)fieldInfo.GetValue(target);
+                        var value = (NetInfoExtionsion.VanillaSegmentInfoFlags)fieldInfo.GetValue(target);
                         value.Required = (NetSegment.Flags)flags;
                         fieldInfo.SetValue(target, value);
                     };
                     int GetForbidden() {
-                        var value = (NetInfoExt.VanillaSegmentInfoFlags)fieldInfo.GetValue(target);
+                        var value = (NetInfoExtionsion.VanillaSegmentInfoFlags)fieldInfo.GetValue(target);
                         return (int)value.Forbidden;
                     };
                     void SetForbidden(int flags) {
-                        var value = (NetInfoExt.VanillaSegmentInfoFlags)fieldInfo.GetValue(target);
+                        var value = (NetInfoExtionsion.VanillaSegmentInfoFlags)fieldInfo.GetValue(target);
                         value.Forbidden = (NetSegment.Flags)flags;
                         fieldInfo.SetValue(target, value);
                     };
@@ -300,7 +300,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 } else {
                     Log.Error($"CreateExtendedComponent: Unhandled field: {fieldInfo} att:{att.name} ");
                 }
-            } else if (fieldInfo.FieldType == typeof(NetInfoExt.Range) &&
+            } else if (fieldInfo.FieldType == typeof(NetInfoExtionsion.Range) &&
                        fieldInfo.Name.ToLower().Contains("speed")) {
                 SpeedRangePanel.Add(
                     roadEditorPanel: instance,

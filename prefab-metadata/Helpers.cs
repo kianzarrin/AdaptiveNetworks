@@ -21,15 +21,39 @@ namespace PrefabMetadata.Helpers {
         }
 
         /// <summary>
-        /// returns an extended clone of <paramref name="segment"/>
+        /// returns an extended clone of <paramref name="info"/>
         /// that can accept metadata.
         /// </summary>
-        public static IInfoExtended<NetInfo.Segment> Extend(this NetInfo.Segment segment) {
+        public static IInfoExtended<NetInfo.Segment> Extend(this NetInfo.Segment info) {
             MethodInfo m =
                  GetLatestAssembly()
                 .GetType(nameof(NetInfoMetaDataExtension.Segment))
                 .GetMethod(nameof(NetInfoMetaDataExtension.Segment.Extend));
-            return m.Invoke(null, new[] { segment }) as IInfoExtended<NetInfo.Segment>;
+            return m.Invoke(null, new[] { info }) as IInfoExtended<NetInfo.Segment>;
+        }
+
+        /// <summary>
+        /// returns an extended clone of <paramref name="info"/>
+        /// that can accept metadata.
+        /// </summary>
+        public static IInfoExtended<NetInfo.Node> Extend(this NetInfo.Node info) {
+            MethodInfo m =
+                 GetLatestAssembly()
+                .GetType(nameof(NetInfoMetaDataExtension.Node))
+                .GetMethod(nameof(NetInfoMetaDataExtension.Node.Extend));
+            return m.Invoke(null, new[] { info }) as IInfoExtended<NetInfo.Node>;
+        }
+
+        /// <summary>
+        /// returns an extended clone of <paramref name="info"/>
+        /// that can accept metadata.
+        /// </summary>
+        public static IInfoExtended<NetLaneProps.Prop> Extend(this NetLaneProps.Prop info) {
+            MethodInfo m =
+                 GetLatestAssembly()
+                .GetType(nameof(NetInfoMetaDataExtension.Prop))
+                .GetMethod(nameof(NetInfoMetaDataExtension.Prop.Extend));
+            return m.Invoke(null, new[] { info }) as IInfoExtended<NetLaneProps.Prop>;
         }
 
         public static MetaDataType GetMetaData<MetaDataType>(this IInfoExtended info)
@@ -60,6 +84,14 @@ namespace PrefabMetadata.Helpers {
                 }
             }
             list.Add(data);
+        }
+
+        public static List<ICloneable> Clone(this List<ICloneable> list) {
+            var ret = new List<ICloneable>(list);
+            for (int i = 0; i < list.Count; ++i) {
+                list[i] = list[i].Clone() as ICloneable;
+            }
+            return ret;
         }
     }
 }

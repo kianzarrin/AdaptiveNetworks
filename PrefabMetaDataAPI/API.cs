@@ -6,7 +6,10 @@ namespace PrefabMetadata.API {
         List<ICloneable> MetaData { get; set; }
     }
 
-    public interface IInfoExtended<T> where T : class {
+    public interface IInfoExtended<T>
+        : IInfoExtended
+        where T : class
+    {
         IInfoExtended<T> Clone();
         T RolledBackClone();
     }

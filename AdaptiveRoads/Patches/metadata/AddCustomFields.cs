@@ -1,4 +1,5 @@
-namespace AdaptiveRoads.Patches.RoadEditor {
+namespace AdaptiveRoads.Patches.metadata {
+    using AdaptiveRoads.Patches.RoadEditor;
     using HarmonyLib;
     using AdaptiveRoads.Manager;
 
@@ -8,7 +9,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     /// TODO move this pacth to prefab indeces mod.
     /// </summary>
     [HarmonyPatch(typeof(RoadEditorPanel))]
-
     public static class AddCustomFields {
         [HarmonyPatch("AddCustomFields")]
         public static void Postfix(RoadEditorPanel __instance, object ___m_Target) {

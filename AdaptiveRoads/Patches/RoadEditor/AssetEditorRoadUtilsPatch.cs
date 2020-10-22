@@ -2,7 +2,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using AdaptiveRoads.Manager;
     using HarmonyLib;
     using KianCommons;
-    using PrefabIndeces;
     using System;
     using System.Reflection;
     using static KianCommons.Assertion;
@@ -18,7 +17,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         static void AddArrayElement(object target, FieldInfo field, ref object __result) {
             try {
                 Log.Debug($"AddArrayElement({target}, {field}, {__result}\n" + Environment.StackTrace);
-                NetInfoExt.ReExtendEditedPrefabIndeces();
+                NetInfoExtionsion.ReExtendEditedPrefabIndeces();
 
                 int found = 0;
                 object array = field.GetValue(target);
@@ -33,7 +32,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         Assert(info.m_nodes.Length == InfoExt.NodeInfoExts.Length + 1, "new nodes == old nodes + 1");
                         __result = info.m_nodes.Last();
                         Assert(__result is NetInfoExtension.Node);
-                        var item = new NetInfoExt.Node(info.m_nodes.Last());
+                        var item = new NetInfoExtionsion.Node(info.m_nodes.Last());
                         AppendElement(ref InfoExt.NodeInfoExts, item);
 
                     }
@@ -41,18 +40,18 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         found++;
                         Assert(info.m_segments.Length == InfoExt.SegmentInfoExts.Length + 1, "new segments == old segments + 1");
                         __result = info.m_segments.Last();
-                        var item = new NetInfoExt.Segment(info.m_segments.Last());
+                        var item = new NetInfoExtionsion.Segment(info.m_segments.Last());
                         AppendElement(ref InfoExt.SegmentInfoExts, item);
                     }
                     if ((array == info.m_lanes)) {
                         found++;
                         Assert(info.m_lanes.Length == InfoExt.LaneInfoExts.Length + 1, "new lanes == old lanes + 1");
                         __result = info.m_lanes.Last();
-                        var item = new NetInfoExt.Lane(info.m_lanes.Last());
+                        var item = new NetInfoExtionsion.Lane(info.m_lanes.Last());
                         AppendElement(ref InfoExt.LaneInfoExts, item);
                     }
                 } else if (array is NetLaneProps.Prop[]) {
-                    foreach (NetInfo info2 in NetInfoExt.EditNetInfos) {
+                    foreach (NetInfo info2 in NetInfoExtionsion.EditedNetInfos) {
                         var InfoExt = info2.GetExt();
                         for (int laneIndex = 0; laneIndex < info2.m_lanes.Length; ++laneIndex) {
                             var props = info2.m_lanes[laneIndex].m_laneProps.m_props;
@@ -61,7 +60,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                                 found++;
                                 Assert(props.Length == laneExt.PropInfoExts.Length + 1, "new lane props == old lane props + 1");
                                 __result = props.Last();
-                                var item = new NetInfoExt.LaneProp(props.Last());
+                                var item = new NetInfoExtionsion.LaneProp(props.Last());
                                 AppendElement(ref laneExt.PropInfoExts, item);
                             }
                         }
@@ -82,24 +81,24 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             try {
                 if (element is NetInfoExtension.Node node) {
                     DropElement(
-                        ref NetInfoExt.Buffer[node.PrefabIndex].NodeInfoExts,
+                        ref NetInfoExtionsion.Buffer[node.PrefabIndex].NodeInfoExts,
                         node.Index);
                 } else if (element is NetInfoExtension.Segment segment) {
                     DropElement(
-                        ref NetInfoExt.Buffer[segment.PrefabIndex].SegmentInfoExts,
+                        ref NetInfoExtionsion.Buffer[segment.PrefabIndex].SegmentInfoExts,
                         segment.Index);
                 } else if (element is NetInfoExtension.Lane lane) {
                     DropElement(
-                        ref NetInfoExt.Buffer[lane.PrefabIndex].LaneInfoExts,
+                        ref NetInfoExtionsion.Buffer[lane.PrefabIndex].LaneInfoExts,
                         lane.Index);
                 } else if (element is NetInfoExtension.Lane.Prop prop) {
                     DropElement(
-                        ref NetInfoExt.Buffer[prop.PrefabIndex].LaneInfoExts[prop.LaneIndex].PropInfoExts,
+                        ref NetInfoExtionsion.Buffer[prop.PrefabIndex].LaneInfoExts[prop.LaneIndex].PropInfoExts,
                         prop.Index);
                 } else {
                     throw new Exception($"Could not find the element to drop: {element}");
                 }
-                NetInfoExt.ReExtendEditedPrefabIndeces();
+                NetInfoExtionsion.ReExtendEditedPrefabIndeces();
             }
             catch (Exception e) {
                 Log.Exception(e);

@@ -78,7 +78,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 if (upper == 0) {
                     Range = null;
                 } else {
-                    Range = new NetInfoExt.Range {
+                    Range = new NetInfoExtionsion.Range {
                         Lower = lower / ApiConstants.SPEED_TO_KMPH,
                         Upper = upper / ApiConstants.SPEED_TO_KMPH,
                     };
@@ -87,8 +87,8 @@ namespace AdaptiveRoads.UI.RoadEditor {
             EventPropertyChanged?.Invoke();
         }
 
-        public NetInfoExt.Range Range{
-            get => fieldInfo_.GetValue(target_) as NetInfoExt.Range;
+        public NetInfoExtionsion.Range Range{
+            get => fieldInfo_.GetValue(target_) as NetInfoExtionsion.Range;
             set => fieldInfo_.SetValue(target_, value.LogRet("set_Range"));
         }
 

@@ -1,3 +1,7 @@
+clone all metadata after
+ - AssetImporterAssetTemplate.OnContinue()
+ - AssetEditorRoadUtils.Instantiate(NetInfo)
+
 high p:
     compatibility with NS2.
     fix saving error

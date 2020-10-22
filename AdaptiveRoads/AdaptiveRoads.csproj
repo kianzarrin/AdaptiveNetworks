@@ -61,6 +61,7 @@
     <Compile Remove="KianCommons\KianCommons\Patches\PrefixUtils.cs" />
     <Compile Remove="KianCommons\KianCommons\Util\CSURUtil.cs" />
     <Compile Remove="KianCommons\KianCommons\Util\MeshUtil.cs" />
+    <Compile Remove="LifeCycle\AssetDataExtension.cs" />
     <Compile Remove="Patches\HarmonyExtension.cs" />
     <Compile Remove="Patches\Lane\CalculateLane.cs" />
     <Compile Remove="Patches\Lane\NetAI_UpdateLanes.cs" />
@@ -104,12 +105,6 @@
       <HintPath>$(MangedDLLPath)\ICities.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="PrefabIndeces">
-      <HintPath>..\Indeces\bin\PrefabIndeces.dll</HintPath>
-      <Private>true</Private>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-      <SpecificVersion>false</SpecificVersion>
-    </Reference>
     <Reference Include="TMPE.API">
       <HintPath>..\libs\TMPE.API.dll</HintPath>
       <Private>false</Private>
@@ -145,6 +140,7 @@
     <Folder Include="Util\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\prefab-metadata\Prefab Metadata.csproj" />
     <ProjectReference Include="..\PrefabMetaDataAPI\Prefab Metadata API.csproj" />
   </ItemGroup>
   <Target Name="DeployToModDirectory" AfterTargets="Build">

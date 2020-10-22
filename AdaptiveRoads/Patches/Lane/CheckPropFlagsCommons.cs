@@ -73,7 +73,7 @@ namespace AdaptiveRoads.Patches.Lane {
 
         // TODO use the other checkflags.
         public static bool CheckFlags(NetLaneProps.Prop prop, NetInfo.Lane laneInfo, uint laneID) {
-            var propInfoExt = prop?.GetExt();
+            var propInfoExt = prop?.GetMetaData();
             //var propIndex = prop as NetInfoExtension.Lane.Prop;
             //Log.DebugWait($"CheckFlags called for lane:{laneID} propInfoExt={propInfoExt} propIndex={propIndex} prop={prop}", (int)laneID);
             if (propInfoExt == null) return true;

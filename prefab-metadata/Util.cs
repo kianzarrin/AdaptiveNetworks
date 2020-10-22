@@ -14,14 +14,6 @@ namespace PrefabMetadata.Utils {
         public static Version Take(this Version version, int fieldCount) =>
             new Version(version.ToString(fieldCount));
 
-        public static List<ICloneable> Clone(this List<ICloneable> list) {
-            var ret = new List<ICloneable>(list);
-            for (int i = 0; i < list.Count; ++i) {
-                list[i] = list[i].Clone() as ICloneable;
-            }
-            return ret;
-        }
-
         public static void CopyProperties(object target, object origin) {
             Assert(target.GetType().IsSubclassOf(origin.GetType()));
             FieldInfo[] fields = origin.GetType().GetFields();

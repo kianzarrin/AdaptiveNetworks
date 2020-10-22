@@ -81,10 +81,10 @@ namespace AdaptiveRoads.LifeCycle
 
                 // ensure buffer is large enough after everything has been loaded.
                 // also extends loaded prefabs with indeces.
-                NetInfoExt.ExpandBuffer();
-                NetInfoExt.ApplyDataDict();
+                NetInfoExtionsion.ExpandBuffer();
+                NetInfoExtionsion.ApplyDataDict();
                 NetworkExtensionManager.Instance.OnLoad();
-                NetInfoExt.EnsureEditNetInfoExt(); // useful for asset editor hot reload.
+                NetInfoExtionsion.EnsureEditNetInfoExt(); // useful for asset editor hot reload.
                 HarmonyUtil.InstallHarmony(HARMONY_ID);
             }
             catch (Exception e) {
@@ -99,7 +99,7 @@ namespace AdaptiveRoads.LifeCycle
             //MainPanel.Release();
             HarmonyUtil.UninstallHarmony(HARMONY_ID);
             Log.Info("setting NetInfoExt.Buffer = null");
-            NetInfoExt.Buffer = null;
+            NetInfoExtionsion.Buffer = null;
             NetworkExtensionManager.Instance.OnUnload();
         }
 

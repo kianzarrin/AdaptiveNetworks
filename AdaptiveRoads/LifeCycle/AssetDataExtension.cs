@@ -14,14 +14,14 @@ namespace AdaptiveRoads.LifeCycle {
     public static class SaveRoutinePatch {
         public static void Prefix() {
             Log.Debug($"SaveAssetPanel.SaveRoutine reversing ...");
-            foreach (var info in NetInfoExt.EditNetInfos) {
+            foreach (var info in NetInfoExtionsion.EditedNetInfos) {
                 info.ApplyVanillaForbidden();
                 info.ReversePrefab();
             }
         }
         public static void PostFix() {
             Log.Debug($"SaveAssetPanel.SaveRoutine re extending ...");
-            foreach (var info in NetInfoExt.EditNetInfos) {
+            foreach (var info in NetInfoExtionsion.EditedNetInfos) {
                 info.ExtendPrefab();
                 info.RollBackVanillaForbidden();
             }
@@ -61,14 +61,14 @@ namespace AdaptiveRoads.LifeCycle {
         public static void Postfix() {
             if (ToolsModifierControl.toolController.m_templatePrefabInfo is NetInfo source) {
                 NetInfo target = ToolsModifierControl.toolController.m_editPrefabInfo as NetInfo;
-                NetInfoExt.CopyAll(source: source, target: target, forceCreate:true);
+                NetInfoExtionsion.CopyAll(source: source, target: target, forceCreate:true);
             }
         }
     }
 
     [Serializable]
     public class AssetData {
-        public NetInfoExt Ground, Elevated, Bridge, Slope, Tunnel;
+        public NetInfoExtionsion Ground, Elevated, Bridge, Slope, Tunnel;
 
         public static AssetData CreateFromEditPrefab() {
             NetInfo ground = ToolsModifierControl.toolController.m_editPrefabInfo as NetInfo;
@@ -103,7 +103,7 @@ namespace AdaptiveRoads.LifeCycle {
             slope?.SetExt(assetData.Slope);
             tunnel?.SetExt(assetData.Tunnel);
 
-            foreach (var info in NetInfoExt.AllElevations(groundInfo))
+            foreach (var info in NetInfoExtionsion.AllElevations(groundInfo))
                 info.RollBackVanillaForbidden();
         }
     }
@@ -116,12 +116,12 @@ namespace AdaptiveRoads.LifeCycle {
             base.OnCreated(assetData);
             Instance = this;
             // initiliazes buffer and extend prefab indeces if necessary (ie not hot reload)
-            NetInfoExt.EnsureBuffer();
-            NetInfoExt.DataDict = new Dictionary<NetInfo, NetInfoExt>();
+            NetInfoExtionsion.EnsureBuffer();
+            NetInfoExtionsion.DataDict = new Dictionary<NetInfo, NetInfoExtionsion>();
         }
         public override void OnReleased() {
             Log.Debug("NetInfoExt.Buffer = null;\n"+ Environment.StackTrace);
-            NetInfoExt.Buffer = null;
+            NetInfoExtionsion.Buffer = null;
             Instance = null;
         }
 
