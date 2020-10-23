@@ -34,22 +34,13 @@
     <RootNamespace>AdaptiveRoads</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="KianCommons\KianCommons\ObjUnity3D\**" />
-    <Compile Remove="KianCommons\KianCommons\obj\**" />
-    <Compile Remove="KianCommons\KianCommons\Properties\**" />
-    <Compile Remove="KianCommons\libs\**" />
+    <Compile Remove="KianCommons\**" />
     <Compile Remove="Resources\**" />
     <Compile Remove="UI\MainPanel\**" />
-    <EmbeddedResource Remove="KianCommons\KianCommons\ObjUnity3D\**" />
-    <EmbeddedResource Remove="KianCommons\KianCommons\obj\**" />
-    <EmbeddedResource Remove="KianCommons\KianCommons\Properties\**" />
-    <EmbeddedResource Remove="KianCommons\libs\**" />
+    <EmbeddedResource Remove="KianCommons\**" />
     <EmbeddedResource Remove="Resources\**" />
     <EmbeddedResource Remove="UI\MainPanel\**" />
-    <None Remove="KianCommons\KianCommons\ObjUnity3D\**" />
-    <None Remove="KianCommons\KianCommons\obj\**" />
-    <None Remove="KianCommons\KianCommons\Properties\**" />
-    <None Remove="KianCommons\libs\**" />
+    <None Remove="KianCommons\**" />
     <None Remove="Resources\**" />
     <None Remove="UI\MainPanel\**" />
   </ItemGroup>
@@ -58,9 +49,6 @@
     <Compile Remove="DecompiledSources\NetLane.cs" />
     <Compile Remove="DecompiledSources\NetNode.cs" />
     <Compile Remove="DecompiledSources\NetSegment.cs" />
-    <Compile Remove="KianCommons\KianCommons\Patches\PrefixUtils.cs" />
-    <Compile Remove="KianCommons\KianCommons\Util\CSURUtil.cs" />
-    <Compile Remove="KianCommons\KianCommons\Util\MeshUtil.cs" />
     <Compile Remove="LifeCycle\AssetDataExtension.cs" />
     <Compile Remove="Patches\HarmonyExtension.cs" />
     <Compile Remove="Patches\Lane\CalculateLane.cs" />
@@ -79,9 +67,31 @@
     <Compile Remove="Patches\TMPE\UpdateSegmentEnd.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="KianCommons\.git" />
-    <None Remove="KianCommons\.gitattributes" />
-    <None Remove="KianCommons\.gitignore" />
+    <Compile Include="KianCommons\KianCommons\Math\BezierUtil.cs" />
+    <Compile Include="KianCommons\KianCommons\Math\ControlPoint2.cs" />
+    <Compile Include="KianCommons\KianCommons\Math\ControlPoint3.cs" />
+    <Compile Include="KianCommons\KianCommons\Math\CubicBezier3.cs" />
+    <Compile Include="KianCommons\KianCommons\Math\LineUtil.cs" />
+    <Compile Include="KianCommons\KianCommons\Math\MathUtil.cs" />
+    <Compile Include="KianCommons\KianCommons\Math\VecetorUtils.cs" />
+    <Compile Include="KianCommons\KianCommons\Math\Vector2D.cs" />
+    <Compile Include="KianCommons\KianCommons\Math\Vector3D.cs" />
+    <Compile Include="KianCommons\KianCommons\Math\Vector3Serializable.cs" />
+    <Compile Include="KianCommons\KianCommons\Patches\HarmonyUtil.cs" />
+    <Compile Include="KianCommons\KianCommons\Patches\TranspilerUtils.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\Helpers\UIAutoSizePanel.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\Helpers\UIButtonExt.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\Helpers\UICheckboxDropDownExt.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\Helpers\UICheckBoxExt.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\Helpers\UIDropDownExt.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\Helpers\UISliderExt.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\TextureUtil.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\UIUtils.cs" />
+    <Compile Include="KianCommons\KianCommons\Util\HelpersExtensions.cs" />
+    <Compile Include="KianCommons\KianCommons\Util\Log.cs" />
+    <Compile Include="KianCommons\KianCommons\Util\NetUtil.cs" />
+    <Compile Include="KianCommons\KianCommons\Util\PluginUtil.cs" />
+    <Compile Include="KianCommons\KianCommons\Util\SerializationUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CitiesHarmony.API" Version="1.0.5" />
