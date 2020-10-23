@@ -12,7 +12,6 @@ namespace AdaptiveRoads.LifeCycle
     using PrefabMetadata.API;
     using PrefabMetadata.Helpers;
 
-
     public static class LifeCycle
     {
         //public static string AssemblyName = Assembly.GetExecutingAssembly().GetName().Name;
