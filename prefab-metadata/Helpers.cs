@@ -1,21 +1,29 @@
 namespace PrefabMetadata.Helpers {
     using PrefabMetadata.API;
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Reflection;
+    using System.Linq;
+    using UnityEngine;
 
     public static class PrefabMetadataHelpers {
         /// <summary>
         /// returns the latest version of PrefabMetadata.dll in the app domain
         /// </summary>
-        public static Assembly GetLatestAssembly() {
+        public static Assembly GetLatestAssembly(bool throwOnError=true) {
             Assembly ret = null;
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies()) {
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (var assembly in assemblies) {
                 if (assembly.GetName().Name != "PrefabMetadata")
                     continue;
                 if (ret == null || ret.GetName().Version < assembly.GetName().Version) {
                     ret = assembly;
                 }
+            }
+            if (ret == null && throwOnError) {
+                string sAssemblies = string.Join("\n", assemblies.Select(asm => asm.ToString()).ToArray());
+                throw new Exception("failed to get latest PrefabMetadata. assemblies are:\n" + sAssemblies);
             }
             return ret;
         }
@@ -27,9 +35,11 @@ namespace PrefabMetadata.Helpers {
         public static IInfoExtended<NetInfo.Segment> Extend(this NetInfo.Segment info) {
             MethodInfo m =
                  GetLatestAssembly()
-                .GetType(nameof(NetInfoMetaDataExtension.Segment))
+                .GetType(typeof(NetInfoMetaDataExtension.Segment).FullName, throwOnError: true)
                 .GetMethod(nameof(NetInfoMetaDataExtension.Segment.Extend));
+            if (m == null) throw new Exception("could not get NetInfoMetaDataExtension.Segment.Extend()");
             return m.Invoke(null, new[] { info }) as IInfoExtended<NetInfo.Segment>;
+            //return NetInfoMetaDataExtension.Segment.Extend(info);
         }
 
         /// <summary>
@@ -37,11 +47,11 @@ namespace PrefabMetadata.Helpers {
         /// that can accept metadata.
         /// </summary>
         public static IInfoExtended<NetInfo.Node> Extend(this NetInfo.Node info) {
-            MethodInfo m =
-                 GetLatestAssembly()
-                .GetType(nameof(NetInfoMetaDataExtension.Node))
+            MethodInfo m = GetLatestAssembly()
+                .GetType(typeof(NetInfoMetaDataExtension.Node).FullName, throwOnError: true)
                 .GetMethod(nameof(NetInfoMetaDataExtension.Node.Extend));
             return m.Invoke(null, new[] { info }) as IInfoExtended<NetInfo.Node>;
+            //return NetInfoMetaDataExtension.Node.Extend(info);
         }
 
         /// <summary>
@@ -50,10 +60,25 @@ namespace PrefabMetadata.Helpers {
         /// </summary>
         public static IInfoExtended<NetLaneProps.Prop> Extend(this NetLaneProps.Prop info) {
             MethodInfo m =
-                 GetLatestAssembly()
-                .GetType(nameof(NetInfoMetaDataExtension.Prop))
-                .GetMethod(nameof(NetInfoMetaDataExtension.Prop.Extend));
-            return m.Invoke(null, new[] { info }) as IInfoExtended<NetLaneProps.Prop>;
+                GetLatestAssembly()
+               .GetType(typeof(NetInfoMetaDataExtension.LaneProp).FullName, throwOnError: true)
+               .GetMethod(nameof(NetInfoMetaDataExtension.LaneProp.Extend));
+                return m.Invoke(null, new[] { info }) as IInfoExtended<NetLaneProps.Prop>;
+            //return NetInfoMetaDataExtension.LaneProp.Extend(info);
+        }
+
+        /// <summary>
+        /// returns an extended clone of <paramref name="info"/> that can accept metadata.
+        /// returns null if info is unsupported type.
+        /// </summary>
+        public static IInfoExtended Extend(object info) {
+            if (info.GetType() == typeof(NetInfo.Segment))
+                return Extend(info as NetInfo.Segment);
+            if (info.GetType() == typeof(NetInfo.Node))
+                return Extend(info as NetInfo.Node);
+            if (info.GetType() == typeof(NetLaneProps.Prop))
+                return Extend(info as NetLaneProps.Prop);
+            return null;
         }
 
         public static MetaDataType GetMetaData<MetaDataType>(this IInfoExtended info)
@@ -93,6 +118,9 @@ namespace PrefabMetadata.Helpers {
             }
             return ret;
         }
+
+        public static int IndexOf(Array array, object value)
+            => (array as IList).IndexOf(value);
     }
 }
 

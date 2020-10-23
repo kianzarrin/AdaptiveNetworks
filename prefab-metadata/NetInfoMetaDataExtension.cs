@@ -2,6 +2,7 @@ using PrefabMetadata.API;
 using PrefabMetadata.Utils;
 using System;
 using System.Collections.Generic;
+using PrefabMetadata.Helpers;
 
 namespace PrefabMetadata {
     public static class NetInfoMetaDataExtension {
@@ -84,7 +85,7 @@ namespace PrefabMetadata {
         }
 
         [Serializable]
-        public class Prop : NetLaneProps.Prop, IInfoExtended<NetLaneProps.Prop> {
+        public class LaneProp : NetLaneProps.Prop, IInfoExtended<NetLaneProps.Prop> {
             public List<ICloneable> m_metaData;
             public List<ICloneable> MetaData {
                 get => m_metaData;
@@ -92,7 +93,7 @@ namespace PrefabMetadata {
             }
 
             public IInfoExtended<NetLaneProps.Prop> Clone() {
-                var ret = new Prop();
+                var ret = new LaneProp();
                 Utils.Util.CopyProperties<NetLaneProps.Prop>(ret, this);
                 ret.m_metaData = m_metaData.Clone();
                 return ret;
@@ -104,13 +105,13 @@ namespace PrefabMetadata {
                 return ret;
             }
 
-            public static Prop Extend(NetLaneProps.Prop template) {
+            public static LaneProp Extend(NetLaneProps.Prop template) {
                 if (template.GetType() == typeof(NetLaneProps.Prop)) {
-                    var ret = new Prop();
+                    var ret = new LaneProp();
                     Utils.Util.CopyProperties<NetLaneProps.Prop>(ret, template);
                     ret.m_metaData = new List<ICloneable>();
                     return ret;
-                } else if (template is Prop template2) {
+                } else if (template is LaneProp template2) {
                     return template2;
                 } else {
                     throw new Exception("unrecognised type:" + template.GetType());
