@@ -1,7 +1,7 @@
 namespace AdaptiveRoads.Patches.metadata {
     using AdaptiveRoads.Patches.RoadEditor;
     using HarmonyLib;
-    using AdaptiveRoads.Manager;
+    using PrefabMetadata.API;
 
     /// <summary>
     /// changeing types confuses AddCustomFields.
@@ -14,6 +14,8 @@ namespace AdaptiveRoads.Patches.metadata {
         public static void Postfix(RoadEditorPanel __instance, object ___m_Target) {
             object target = ___m_Target;
             //Log.Debug($"AddCustomFields.PostFix() target={target}\n" + Environment.StackTrace);
+            if (!(target is IInfoExtended))
+                return;// handle extended target.
             if (target is NetInfo.Segment) {
                 __instance.AddCrossImportField();
                 __instance.AddModelImportField(true);

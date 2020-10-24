@@ -375,10 +375,9 @@ namespace AdaptiveRoads.Manager {
                         netInfo.m_nodes[i] = netInfo.m_nodes[i].Extend() as NetInfo.Node;
                 }
                 for (int i = 0; i < netInfo.m_segments.Length; ++i) {
-                    if (!(netInfo.m_segments[i] is IInfoExtended)) {
+                    if (!(netInfo.m_segments[i] is IInfoExtended)) 
                         netInfo.m_segments[i] = netInfo.m_segments[i].Extend() as NetInfo.Segment;
-                        Log.Debug($"EnsureExtended({netInfo}): netInfo.m_segments[{i}]={netInfo.m_segments[i]}");
-                    }
+                    
                 }
                 foreach (var lane in netInfo.m_lanes) {
                     var props = lane.m_laneProps.m_props;
@@ -394,10 +393,42 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
+        public static void RollBack(this NetInfo netInfo) {
+            try {
+                Log.Debug($"RollBack({netInfo}): called");
+                for (int i = 0; i < netInfo.m_nodes.Length; ++i) {
+                    if (netInfo.m_nodes[i] is IInfoExtended<NetInfo.Node> ext) 
+                        netInfo.m_nodes[i] = ext.RolledBackClone();
+                }
+                for (int i = 0; i < netInfo.m_segments.Length; ++i) {
+                    if (netInfo.m_segments[i] is IInfoExtended<NetInfo.Segment> ext)
+                        netInfo.m_segments[i] = ext.RolledBackClone();
+                }
+                foreach (var lane in netInfo.m_lanes) {
+                    var props = lane.m_laneProps.m_props;
+                    for (int i = 0; i < props.Length; ++i) {
+                        if (props[i] is IInfoExtended<NetLaneProps.Prop> ext)
+                            props[i] = ext.RolledBackClone();
+                    }
+                }
+            }
+            catch (Exception e) {
+                Log.Exception(e);
+            }
+        }
+
         public static void EnsureEditedNetInfosExtended() {
             Log.Debug($"EnsureEditedNetInfosExtended() was called");
             foreach (var info in EditedNetInfos)
                 EnsureExtended(info);
+            Log.Debug($"EnsureEditedNetInfosExtended() was successful");
+        }
+
+        public static void RollBackEditedNetInfos() {
+            Log.Debug($"EnsureEditedNetInfosExtended() was called");
+            foreach (var info in EditedNetInfos)
+                RollBack(info);
+            Log.Debug($"RollBackEditedNetInfos() was successful");
         }
         #endregion
     }

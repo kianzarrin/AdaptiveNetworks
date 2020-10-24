@@ -4,27 +4,39 @@ namespace AdaptiveRoads.LifeCycle {
     using HarmonyLib;
     using ICities;
     using KianCommons;
-    using PrefabIndeces;
     using System;
     using System.Collections.Generic;
     using static KianCommons.Assertion;
+    using PrefabMetadata.API;
+    using PrefabMetadata.Helpers;
 
-    // TODO move to prefab indeces.
     [HarmonyPatch(typeof(SaveAssetPanel), "SaveAsset")]
     public static class SaveRoutinePatch {
         public static void Prefix() {
-            Log.Debug($"SaveAssetPanel.SaveRoutine reversing ...");
-            foreach (var info in NetInfoExtionsion.EditedNetInfos) {
-                info.ApplyVanillaForbidden();
-                info.ReversePrefab();
+            try {
+                Log.Debug($"SaveAssetPanel.SaveRoutine reversing ...");
+                SimulationManager.instance.ForcedSimulationPaused = true;
+                AssetData.TakeSnapshot();
+                foreach (var info in NetInfoExtionsion.EditedNetInfos)
+                    info.ApplyVanillaForbidden();
+                NetInfoExtionsion.RollBackEditedNetInfos();
+            } catch (Exception e) {
+                Log.Exception(e);
+                throw e;
             }
         }
+
         public static void PostFix() {
             Log.Debug($"SaveAssetPanel.SaveRoutine re extending ...");
             foreach (var info in NetInfoExtionsion.EditedNetInfos) {
-                info.ExtendPrefab();
                 info.RollBackVanillaForbidden();
             }
+            AssetData.ApplySnapshot();
+        }
+
+        public static void Finalizer(Exception __exception) {
+            SimulationManager.instance.ForcedSimulationPaused = false;
+            Log.Exception(__exception);
         }
     }
 
@@ -52,26 +64,56 @@ namespace AdaptiveRoads.LifeCycle {
         }
     }
 
-    //private void AssetImporterAssetTemplate::OnContinue(UIComponent comp, UIMouseEventParameter p)
-    [HarmonyPatch(typeof(AssetImporterAssetTemplate), "OnContinue")]
-    public static class OnContinuePatch {
-        /// <summary>
-        /// copy NetInfoExt when road editor is create new asset based on another road.
-        /// </summary>
-        public static void Postfix() {
-            if (ToolsModifierControl.toolController.m_templatePrefabInfo is NetInfo source) {
-                NetInfo target = ToolsModifierControl.toolController.m_editPrefabInfo as NetInfo;
-                NetInfoExtionsion.CopyAll(source: source, target: target, forceCreate:true);
-            }
-        }
-    }
-
     [Serializable]
     public class AssetData {
-        public NetInfoExtionsion Ground, Elevated, Bridge, Slope, Tunnel;
+        [Serializable]
+        public class NetInfoMetaData {
+            public List<NetInfoExtionsion.Node> Nodes = new List<NetInfoExtionsion.Node>();
+            public List<NetInfoExtionsion.Segment> Segments = new List<NetInfoExtionsion.Segment>();
+            public List<NetInfoExtionsion.LaneProp> Props = new List<NetInfoExtionsion.LaneProp>();
+
+            public static NetInfoMetaData Create(NetInfo info){
+                if (info == null)
+                    return null;
+                return new NetInfoMetaData(info);
+            }
+
+            public NetInfoMetaData(NetInfo info) {
+                foreach (var item in info.m_nodes)
+                    Nodes.Add(item.GetMetaData());
+                foreach (var item in info.m_segments)
+                    Segments.Add(item.GetMetaData());
+                foreach (var lane in info.m_lanes) {
+                    var props = lane.m_laneProps?.m_props;
+                    if (props == null)
+                        continue;
+                    foreach (var item in props)
+                        Props.Add(item.GetMetaData());
+                }
+            }
+
+            public void Apply(NetInfo info) {
+                info.EnsureExtended();
+                for(int i = 0; i < Nodes.Count; ++i)
+                    (info.m_nodes[i] as IInfoExtended).SetMetaData(Nodes[i]);
+                for (int i = 0; i < Segments.Count; ++i)
+                    (info.m_segments[i] as IInfoExtended).SetMetaData(Segments[i]);
+
+                foreach (var lane in info.m_lanes) {
+                    var props = lane.m_laneProps?.m_props;
+                    if (props == null)
+                        continue;
+                    int i = 0;
+                    foreach (var item in props) 
+                        (item as IInfoExtended).SetMetaData(Props[i++]);
+                }
+            }
+        }
+
+        public NetInfoMetaData Ground, Elevated, Bridge, Slope, Tunnel;
 
         public static AssetData CreateFromEditPrefab() {
-            NetInfo ground = ToolsModifierControl.toolController.m_editPrefabInfo as NetInfo;
+            NetInfo ground = NetInfoExtionsion.EditedNetInfo;
             if (ground == null)
                 return null;
             NetInfo elevated = AssetEditorRoadUtils.TryGetElevated(ground);
@@ -80,16 +122,15 @@ namespace AdaptiveRoads.LifeCycle {
             NetInfo tunnel = AssetEditorRoadUtils.TryGetTunnel(ground);
 
             var ret = new AssetData {
-                Ground = ground.GetExt(),
-                Elevated = elevated?.GetExt(),
-                Bridge = bridge?.GetExt(),
-                Slope = slope?.GetExt(),
-                Tunnel = tunnel?.GetExt(),
+                Ground = NetInfoMetaData.Create(ground),
+                Elevated = NetInfoMetaData.Create(elevated),
+                Bridge = NetInfoMetaData.Create(bridge),
+                Slope = NetInfoMetaData.Create(slope),
+                Tunnel = NetInfoMetaData.Create(tunnel),
             };
 
             return ret;
         }
-
 
         public static void Load(AssetData assetData, NetInfo groundInfo) {
             NetInfo elevated = AssetEditorRoadUtils.TryGetElevated(groundInfo);
@@ -97,15 +138,25 @@ namespace AdaptiveRoads.LifeCycle {
             NetInfo slope = AssetEditorRoadUtils.TryGetSlope(groundInfo);
             NetInfo tunnel = AssetEditorRoadUtils.TryGetTunnel(groundInfo);
 
-            groundInfo?.SetExt(assetData.Ground);
-            elevated?.SetExt(assetData.Elevated);
-            bridge?.SetExt(assetData.Bridge);
-            slope?.SetExt(assetData.Slope);
-            tunnel?.SetExt(assetData.Tunnel);
+            assetData.Ground?.Apply(groundInfo);
+            assetData.Elevated?.Apply(elevated);
+            assetData.Bridge?.Apply(bridge);
+            assetData.Slope?.Apply(slope);
+            assetData.Tunnel?.Apply(tunnel);
 
             foreach (var info in NetInfoExtionsion.AllElevations(groundInfo))
                 info.RollBackVanillaForbidden();
         }
+
+        #region Snapshot
+        public static AssetData Snapshot;
+
+        public static void TakeSnapshot() =>
+            Snapshot = CreateFromEditPrefab();
+
+        public static void ApplySnapshot() =>
+            Load(Snapshot, NetInfoExtionsion.EditedNetInfo);
+        #endregion
     }
 
     public class AssetDataExtension : AssetDataExtensionBase {
@@ -115,13 +166,8 @@ namespace AdaptiveRoads.LifeCycle {
         public override void OnCreated(IAssetData assetData) {
             base.OnCreated(assetData);
             Instance = this;
-            // initiliazes buffer and extend prefab indeces if necessary (ie not hot reload)
-            NetInfoExtionsion.EnsureBuffer();
-            NetInfoExtionsion.DataDict = new Dictionary<NetInfo, NetInfoExtionsion>();
         }
         public override void OnReleased() {
-            Log.Debug("NetInfoExt.Buffer = null;\n"+ Environment.StackTrace);
-            NetInfoExtionsion.Buffer = null;
             Instance = null;
         }
 
@@ -140,9 +186,10 @@ namespace AdaptiveRoads.LifeCycle {
                         Log.Debug("AssetDataExtension.OnAssetLoaded(): Asset Data=" + assetData);
                     }
                 } else if (asset is BuildingInfo buildingInfo) {
-                    // load stored custom road flags for intersections or buildings.
+                    // TODO: load stored custom road flags for intersections or buildings.
                 }
-            }catch(Exception e) {
+            }
+            catch (Exception e) {
                 Log.Exception(e);
             }
         }
@@ -152,7 +199,7 @@ namespace AdaptiveRoads.LifeCycle {
             userData = null;
             if (asset is NetInfo prefab) {
                 Log.Info("AssetDataExtension.OnAssetSaved():  prefab is " + prefab);
-                var assetData = AssetData.CreateFromEditPrefab();
+                var assetData = AssetData.Snapshot; //AssetData.CreateFromEditPrefab();
                 Log.Debug("AssetDataExtension.OnAssetSaved(): assetData=" + assetData);
                 userData = new Dictionary<string, byte[]>();
                 userData.Add(ID_NetInfo, SerializationUtil.Serialize(assetData));
