@@ -25,8 +25,8 @@ namespace AdaptiveRoads.Manager {
             (prop as IInfoExtended)?.GetMetaData<LaneProp>();
 
         public static Segment GetOrCreateMetaData(this NetInfo.Segment segment) {
+            Assertion.Assert(segment is IInfoExtended);
             var segment2 = segment as IInfoExtended;
-            Assertion.AssertNotNull(segment2, "segment2|segment:" + segment);
             var ret = segment2.GetMetaData<Segment>();
             if (ret == null) {
                 ret = new Segment(segment);
@@ -36,6 +36,7 @@ namespace AdaptiveRoads.Manager {
         }
 
         public static Node GetOrCreateMetaData(this NetInfo.Node node) {
+            Assertion.Assert(node is IInfoExtended);
             var node2 = node as IInfoExtended;
             var ret = node2.GetMetaData<Node>();
             if (ret == null) {
@@ -46,6 +47,7 @@ namespace AdaptiveRoads.Manager {
         }
 
         public static LaneProp GetOrCreateMetaData(this NetLaneProps.Prop prop) {
+            Assertion.Assert(prop is IInfoExtended);
             var prop2 = prop as IInfoExtended;
             var ret = prop2.GetMetaData<LaneProp>();
             if (ret == null) {
