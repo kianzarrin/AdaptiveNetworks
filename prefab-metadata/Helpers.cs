@@ -3,15 +3,15 @@ namespace PrefabMetadata.Helpers {
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Reflection;
     using System.Linq;
-    using UnityEngine;
+    using System.Reflection;
+    using PrefabMetadata.Utils;
 
     public static class PrefabMetadataHelpers {
         /// <summary>
         /// returns the latest version of PrefabMetadata.dll in the app domain
         /// </summary>
-        public static Assembly GetLatestAssembly(bool throwOnError=true) {
+        public static Assembly GetLatestAssembly(bool throwOnError = true) {
             Assembly ret = null;
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach (var assembly in assemblies) {
@@ -36,7 +36,7 @@ namespace PrefabMetadata.Helpers {
             MethodInfo m =
                  GetLatestAssembly()
                 .GetType(typeof(NetInfoMetaDataExtension.Segment).FullName, throwOnError: true)
-                .GetMethod(nameof(NetInfoMetaDataExtension.Segment.Extend));
+                .GetMethod(nameof(NetInfoMetaDataExtension.Segment.Extend), BindingFlags.NonPublic | BindingFlags.Static);
             if (m == null) throw new Exception("could not get NetInfoMetaDataExtension.Segment.Extend()");
             return m.Invoke(null, new[] { info }) as IInfoExtended<NetInfo.Segment>;
             //return NetInfoMetaDataExtension.Segment.Extend(info);
@@ -49,10 +49,11 @@ namespace PrefabMetadata.Helpers {
         public static IInfoExtended<NetInfo.Node> Extend(this NetInfo.Node info) {
             MethodInfo m = GetLatestAssembly()
                 .GetType(typeof(NetInfoMetaDataExtension.Node).FullName, throwOnError: true)
-                .GetMethod(nameof(NetInfoMetaDataExtension.Node.Extend));
+                .GetMethod(nameof(NetInfoMetaDataExtension.Node.Extend), BindingFlags.NonPublic | BindingFlags.Static);
             return m.Invoke(null, new[] { info }) as IInfoExtended<NetInfo.Node>;
             //return NetInfoMetaDataExtension.Node.Extend(info);
         }
+
 
         /// <summary>
         /// returns an extended clone of <paramref name="info"/>
@@ -62,8 +63,8 @@ namespace PrefabMetadata.Helpers {
             MethodInfo m =
                 GetLatestAssembly()
                .GetType(typeof(NetInfoMetaDataExtension.LaneProp).FullName, throwOnError: true)
-               .GetMethod(nameof(NetInfoMetaDataExtension.LaneProp.Extend));
-                return m.Invoke(null, new[] { info }) as IInfoExtended<NetLaneProps.Prop>;
+               .GetMethod(nameof(NetInfoMetaDataExtension.LaneProp.Extend), BindingFlags.NonPublic | BindingFlags.Static);
+            return m.Invoke(null, new[] { info }) as IInfoExtended<NetLaneProps.Prop>;
             //return NetInfoMetaDataExtension.LaneProp.Extend(info);
         }
 
@@ -109,6 +110,15 @@ namespace PrefabMetadata.Helpers {
                 }
             }
             list.Add(data);
+        }
+
+        public static T Clone<T>(T subinfo)
+            where T : class, new() {
+            if (subinfo is IInfoExtended<T> ext)
+                return ext.Clone() as T;
+            T ret = new T();
+            Util.CopyProperties<T>(ret, subinfo);
+            return ret;
         }
 
         public static List<ICloneable> Clone(this List<ICloneable> list) {

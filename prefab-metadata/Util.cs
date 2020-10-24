@@ -1,20 +1,19 @@
 namespace PrefabMetadata.Utils {
     using System;
-    using System.Collections.Generic;
     using System.Reflection;
     using UnityEngine;
 
-    public static class Util {
-        public static string NameOf(this Assembly asm) => asm.GetName().Name;
+    internal static class Util {
+        internal static string NameOf(this Assembly asm) => asm.GetName().Name;
 
-        public static Version VersionOf(this Assembly asm) => asm.GetName().Version;
-        public static Version VersionOf(Type t) => t.Assembly.GetName().Version;
-        public static Version VersionOf(this object obj) => VersionOf(obj.GetType());
+        internal static Version VersionOf(this Assembly asm) => asm.GetName().Version;
+        internal static Version VersionOf(Type t) => t.Assembly.GetName().Version;
+        internal static Version VersionOf(this object obj) => VersionOf(obj.GetType());
 
-        public static Version Take(this Version version, int fieldCount) =>
+        internal static Version Take(this Version version, int fieldCount) =>
             new Version(version.ToString(fieldCount));
 
-        public static void CopyProperties(object target, object origin) {
+        internal static void CopyProperties(object target, object origin) {
             Assert(target.GetType().IsSubclassOf(origin.GetType()));
             FieldInfo[] fields = origin.GetType().GetFields();
             foreach (FieldInfo fieldInfo in fields) {
@@ -27,7 +26,7 @@ namespace PrefabMetadata.Utils {
             }
         }
 
-        public static void CopyProperties<T>(object target, object origin) {
+        internal static void CopyProperties<T>(object target, object origin) {
             Assert(target is T, "target is T");
             Assert(origin is T, "origin is T");
             FieldInfo[] fields = typeof(T).GetFields();
@@ -45,7 +44,7 @@ namespace PrefabMetadata.Utils {
             if (!con) throw new Exception("Assertion failed: " + m);
         }
 
-        public static ushort Clamp2U16(int value) => (ushort)Mathf.Clamp(value, 0, ushort.MaxValue);
+        internal static ushort Clamp2U16(int value) => (ushort)Mathf.Clamp(value, 0, ushort.MaxValue);
     }
 }
 

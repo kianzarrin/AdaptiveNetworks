@@ -7,7 +7,7 @@
     <Product>PrefabMetadata</Product>
     <Copyright>Copyright ©  2020</Copyright>
     <Deterministic>false</Deterministic>
-    <AssemblyVersion>0.0.1.*</AssemblyVersion>
+    <AssemblyVersion>0.0.2.*</AssemblyVersion>
     <FileAlignment>512</FileAlignment>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>

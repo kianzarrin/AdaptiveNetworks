@@ -4,6 +4,7 @@ using PrefabMetadata.API;
 using PrefabMetadata.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using static AdaptiveRoads.Manager.NetInfoExtionsion;
 
 namespace AdaptiveRoads.Manager {
@@ -278,7 +279,17 @@ namespace AdaptiveRoads.Manager {
 
         #endregion
 
-        #region static 
+        #region static
+        private static IEnumerable<NetLaneProps.Prop> IterateProps(NetInfo.Lane lane)
+            => lane?.m_laneProps?.m_props ?? Enumerable.Empty<NetLaneProps.Prop>();
+
+        private static IEnumerable<NetLaneProps.Prop> IterateProps(NetInfo info) {
+            foreach (var lane in info?.m_lanes ?? Enumerable.Empty<NetInfo.Lane>()) {
+                foreach (var prop in IterateProps(lane))
+                    yield return prop;
+            }
+        }
+
         public static bool IsAdaptive(NetInfo info) {
             Assertion.AssertNotNull(info);
             foreach (var item in info.m_nodes) {
@@ -289,11 +300,9 @@ namespace AdaptiveRoads.Manager {
                 if (item.GetMetaData() != null)
                     return true;
             }
-            foreach (var lane in info.m_lanes) {
-                foreach (var item in lane.m_laneProps.m_props) {
-                    if (item.GetMetaData() != null)
-                        return true;
-                }
+            foreach (var item in IterateProps(info)) {
+                if (item.GetMetaData() != null)
+                    return true;
             }
             return false;
         }
@@ -343,13 +352,11 @@ namespace AdaptiveRoads.Manager {
                         segment.m_backwardRequired |= NetSegment.Flags.Created & NetSegment.Flags.Deleted;
                 }
             }
-            foreach (var lane in info.m_lanes) {
-                foreach (var prop in lane.m_laneProps.m_props) {
-                    if (prop.GetMetaData() is LaneProp metadata) {
-                        bool vanillaForbidden = metadata.SegmentFlags.Forbidden.IsFlagSet(NetSegmentExt.Flags.Vanilla);
-                        if (vanillaForbidden)
-                            prop.m_flagsRequired |= NetLane.Flags.Created & NetLane.Flags.Deleted;
-                    }
+            foreach (var prop in IterateProps(info)) {
+                if (prop.GetMetaData() is LaneProp metadata) {
+                    bool vanillaForbidden = metadata.SegmentFlags.Forbidden.IsFlagSet(NetSegmentExt.Flags.Vanilla);
+                    if (vanillaForbidden)
+                        prop.m_flagsRequired |= NetLane.Flags.Created & NetLane.Flags.Deleted;
                 }
             }
         }
@@ -362,11 +369,10 @@ namespace AdaptiveRoads.Manager {
                 segment.m_forwardRequired &= ~(NetSegment.Flags.Created & NetSegment.Flags.Deleted);
                 segment.m_backwardRequired &= ~(NetSegment.Flags.Created & NetSegment.Flags.Deleted);
             }
-            foreach (var lane in info.m_lanes) {
-                foreach (var prop in lane.m_laneProps.m_props) {
-                    prop.m_flagsRequired &= ~(NetLane.Flags.Created & NetLane.Flags.Deleted);
-                }
+            foreach (var prop in IterateProps(info)) {
+                prop.m_flagsRequired &= ~(NetLane.Flags.Created & NetLane.Flags.Deleted);
             }
+
         }
 
         public static void EnsureExtended(this NetInfo netInfo) {
@@ -377,13 +383,14 @@ namespace AdaptiveRoads.Manager {
                         netInfo.m_nodes[i] = netInfo.m_nodes[i].Extend() as NetInfo.Node;
                 }
                 for (int i = 0; i < netInfo.m_segments.Length; ++i) {
-                    if (!(netInfo.m_segments[i] is IInfoExtended)) 
+                    if (!(netInfo.m_segments[i] is IInfoExtended))
                         netInfo.m_segments[i] = netInfo.m_segments[i].Extend() as NetInfo.Segment;
-                    
+
                 }
                 foreach (var lane in netInfo.m_lanes) {
-                    var props = lane.m_laneProps.m_props;
-                    for (int i = 0; i < props.Length; ++i) {
+                    var props = lane.m_laneProps?.m_props;
+                    int n = props?.Length ?? 0; 
+                    for (int i = 0; i < n; ++i) {
                         if (!(props[i] is IInfoExtended))
                             props[i] = props[i].Extend() as NetLaneProps.Prop;
                     }
@@ -399,7 +406,7 @@ namespace AdaptiveRoads.Manager {
             try {
                 Log.Debug($"RollBack({netInfo}): called");
                 for (int i = 0; i < netInfo.m_nodes.Length; ++i) {
-                    if (netInfo.m_nodes[i] is IInfoExtended<NetInfo.Node> ext) 
+                    if (netInfo.m_nodes[i] is IInfoExtended<NetInfo.Node> ext)
                         netInfo.m_nodes[i] = ext.RolledBackClone();
                 }
                 for (int i = 0; i < netInfo.m_segments.Length; ++i) {
@@ -408,7 +415,8 @@ namespace AdaptiveRoads.Manager {
                 }
                 foreach (var lane in netInfo.m_lanes) {
                     var props = lane.m_laneProps.m_props;
-                    for (int i = 0; i < props.Length; ++i) {
+                    int n = props?.Length ?? 0;
+                    for (int i = 0; i < n; ++i) {
                         if (props[i] is IInfoExtended<NetLaneProps.Prop> ext)
                             props[i] = ext.RolledBackClone();
                     }

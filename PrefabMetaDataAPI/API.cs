@@ -1,8 +1,9 @@
 namespace PrefabMetadata.API {
     using System;
     using System.Collections.Generic;
+    using System.Collections;
 
-    public interface IInfoExtended {
+    public interface IInfoExtended: ICloneable {
         List<ICloneable> MetaData { get; set; }
     }
 
