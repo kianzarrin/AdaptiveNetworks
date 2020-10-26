@@ -372,7 +372,6 @@ namespace AdaptiveRoads.Manager {
             foreach (var prop in IterateProps(info)) {
                 prop.m_flagsRequired &= ~(NetLane.Flags.Created & NetLane.Flags.Deleted);
             }
-
         }
 
         public static void EnsureExtended(this NetInfo netInfo) {
@@ -385,7 +384,6 @@ namespace AdaptiveRoads.Manager {
                 for (int i = 0; i < netInfo.m_segments.Length; ++i) {
                     if (!(netInfo.m_segments[i] is IInfoExtended))
                         netInfo.m_segments[i] = netInfo.m_segments[i].Extend() as NetInfo.Segment;
-
                 }
                 foreach (var lane in netInfo.m_lanes) {
                     var props = lane.m_laneProps?.m_props;
@@ -435,7 +433,7 @@ namespace AdaptiveRoads.Manager {
         }
 
         public static void RollBackEditedNetInfos() {
-            Log.Debug($"EnsureEditedNetInfosExtended() was called");
+            Log.Debug($"RollBackEditedNetInfos() was called");
             foreach (var info in EditedNetInfos)
                 RollBack(info);
             Log.Debug($"RollBackEditedNetInfos() was successful");

@@ -2,9 +2,9 @@ namespace AdaptiveRoads.Patches.metadata {
     using HarmonyLib;
     using AdaptiveRoads.Manager;
 
+    [HarmonyPatch(typeof(AssetImporterWizard), nameof(AssetImporterWizard.Complete))]
     [HarmonyPriority(100)]
-    [HarmonyPatch(typeof(AssetImporterAssetTemplate), "OnContinue")]
-    public static class OnContinuePatch {
+    public static class AssetImporterWizard_Complete {
         public static void Postfix() {
             if (ToolsModifierControl.toolController.m_templatePrefabInfo is NetInfo) {
                 NetInfoExtionsion.EnsureEditedNetInfosExtended();

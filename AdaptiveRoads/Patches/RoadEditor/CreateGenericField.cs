@@ -28,6 +28,10 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     container = __instance.GetGroupPanel(groupName).Container;
                 }
                 var att = field.GetCustomAttributes(typeof(CustomizablePropertyAttribute), false)[0] as CustomizablePropertyAttribute;
+                var enumType = field.FieldType;
+                if (enumType == typeof(NetSegment.Flags))
+                    enumType = typeof(NetSegmentFlags);
+
                 var bitMaskPanel = BitMaskPanel.Add(
                     roadEditorPanel: __instance,
                     container: container,

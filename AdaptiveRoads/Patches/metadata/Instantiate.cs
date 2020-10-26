@@ -2,9 +2,6 @@ namespace AdaptiveRoads.Patches.metadata {
     using HarmonyLib;
     using PrefabMetadata.API;
     using PrefabMetadata.Helpers;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Linq;
     using KianCommons;
 
     [HarmonyPatch(typeof(AssetEditorRoadUtils), "Instantiate")]

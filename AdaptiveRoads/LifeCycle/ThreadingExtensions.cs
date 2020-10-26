@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ICities;
 using AdaptiveRoads.Manager;
+using ICities;
 
 namespace AdaptiveRoads.LifeCycle {
     public class ThreadingExtensions : ThreadingExtensionBase {
