@@ -65,6 +65,7 @@
     <Compile Remove="Patches\TMPE\PublishSegmentChanges.cs" />
     <Compile Remove="Patches\TMPE\SetParkingAllowed.cs" />
     <Compile Remove="Patches\TMPE\UpdateSegmentEnd.cs" />
+    <Compile Remove="UI\RoadEditor\CursorInfoLabel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="KianCommons\KianCommons\Math\BezierUtil.cs" />

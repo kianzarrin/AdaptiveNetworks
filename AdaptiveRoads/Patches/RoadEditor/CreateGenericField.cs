@@ -36,7 +36,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     roadEditorPanel: __instance,
                     container: container,
                     label: att.name,
-                    enumType: field.FieldType,
+                    enumType: enumType,
                     setHandler: val => field.SetValue(target, val),
                     getHandler: () => (int)field.GetValue(target),
                     false);

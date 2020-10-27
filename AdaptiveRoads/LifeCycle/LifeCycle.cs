@@ -1,19 +1,15 @@
-namespace AdaptiveRoads.LifeCycle
-{
-    using KianCommons;
-    using System;
+namespace AdaptiveRoads.LifeCycle {
     using AdaptiveRoads.Manager;
-    using UnityEngine;
+    using AdaptiveRoads.Patches;
     using CitiesHarmony.API;
     using ICities;
+    using KianCommons;
+    using System;
     using System.Diagnostics;
     using UnityEngine.SceneManagement;
-    using AdaptiveRoads.Patches;
-    using PrefabMetadata.API;
-    using PrefabMetadata.Helpers;
+    using AdaptiveRoads.UI.RoadEditor;
 
-    public static class LifeCycle
-    {
+    public static class LifeCycle {
         //public static string AssemblyName = Assembly.GetExecutingAssembly().GetName().Name;
         //public static string HARMONY_ID = "CS.Kian." + AssemblyName;
         public static string HARMONY_ID = "CS.Kian.AdaptiveRoads";
@@ -75,26 +71,25 @@ namespace AdaptiveRoads.LifeCycle
             HelpersExtensions.VERBOSE = false;
         }
 
-        public static void Load()
-        {
+        public static void Load() {
             try {
                 Log.Info("LifeCycle.Load() called");
-                Log.Info("testing stack trace:\n" + Environment.StackTrace , false);
+                Log.Info("testing stack trace:\n" + Environment.StackTrace, false);
 
                 NetworkExtensionManager.Instance.OnLoad();
                 HarmonyUtil.InstallHarmony(HARMONY_ID);
                 NetInfoExtionsion.EnsureEditedNetInfosExtended();
+                HintBox.Create();
             }
             catch (Exception e) {
-                Log.Error(e.ToString()+"\n --- \n");
+                Log.Error(e.ToString() + "\n --- \n");
                 throw e;
             }
         }
 
-        public static void Unload()
-        {
+        public static void Unload() {
             Log.Info("LifeCycle.Release() called");
-            //MainPanel.Release();
+            HintBox.Release();
             HarmonyUtil.UninstallHarmony(HARMONY_ID);
             NetworkExtensionManager.Instance.OnUnload();
         }

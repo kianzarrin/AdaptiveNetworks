@@ -32,16 +32,17 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             .GetMethod("OnEnable", BindingFlags.Instance | BindingFlags.NonPublic);
 
         public static void Postfix(UIButton ___m_SelectButton, UIButton ___m_DeleteButton, object __instance) {
-            ___m_SelectButton.eventMouseEnter += (_, __) => OnMouseEnter(__instance);
-            ___m_DeleteButton.eventMouseEnter += (_, __) => OnMouseEnter(__instance);
-            ___m_SelectButton.eventMouseLeave += (_, __) => OnMouseLeave(__instance);
-            ___m_DeleteButton.eventMouseLeave += (_, __) => OnMouseLeave(__instance);
+            ___m_SelectButton.eventMouseEnter += OnMouseEnter;
+            ___m_DeleteButton.eventMouseEnter += OnMouseEnter;
+            ___m_SelectButton.eventMouseLeave += OnMouseLeave;
+            ___m_DeleteButton.eventMouseLeave += OnMouseLeave;
         }
 
-        static void OnMouseEnter(object instance) {
+        static void OnMouseEnter(UIComponent component, UIMouseEventParameter eventParam) {
             //Log.Debug("RoadEditorDynamicPropertyToggle_OnEnable.GetLaneIndex():" +
             //    $" m_TargetObject(instance)={m_TargetObject(instance)}" +
             //    $" m_TargetElement(instance)={m_TargetElement(instance)}");
+            object instance = component.parent.GetComponent(tRoadEditorDynamicPropertyToggle);
             if ((m_TargetObject(instance) is NetInfo netInfo)
                 && (m_TargetElement(instance) is NetInfo.Lane laneInfo)) {
                 LaneIndex = netInfo.m_lanes.IndexOf(laneInfo);
@@ -49,7 +50,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             }
         }
 
-        static void OnMouseLeave(object instance) {
+        static void OnMouseLeave(UIComponent component, UIMouseEventParameter eventParam) {
+            object instance = component.parent.GetComponent(tRoadEditorDynamicPropertyToggle);
             if ((m_TargetObject(instance) is NetInfo netInfo)
                 && (m_TargetElement(instance) is NetInfo.Lane laneInfo)) {
                 int laneIndex = netInfo.m_lanes.IndexOf(laneInfo);

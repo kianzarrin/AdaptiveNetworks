@@ -1,11 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ColossalFramework;
-using CSUtil.Commons;
-using KianCommons;
-using Log = KianCommons.Log;
 
 namespace AdaptiveRoads.Manager {
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
@@ -25,6 +18,7 @@ namespace AdaptiveRoads.Manager {
         public HintAttribute(string text) => Text = text;
     }
 
+    [Flags]
     public enum NetSegmentFlags {
         None = 0,
         //Created = 1,

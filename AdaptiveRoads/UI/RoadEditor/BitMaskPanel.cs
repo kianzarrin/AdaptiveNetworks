@@ -8,6 +8,9 @@ namespace AdaptiveRoads.UI.RoadEditor {
     using System.Reflection;
     using HarmonyLib;
     using System.Linq;
+    using KianCommons.UI.Helpers;
+    using AdaptiveRoads.Manager;
+
 
     public class BitMaskPanel: UIPanel  {
         public UILabel Label;
@@ -221,5 +224,34 @@ namespace AdaptiveRoads.UI.RoadEditor {
             }
             uibutton.text = text;
         }
+
+        static T[] GetEnumMemberAttributes<T>(Type enumType, object value)
+            where T:Attribute {
+            string name = Enum.GetName(enumType, value);
+            var member = enumType.GetMember(name).FirstOrDefault();
+            var atts = member.GetCustomAttributes(typeof(T), false);
+            return atts as T[];
+        }
+
+
+        public bool IsHovered() {
+            if (containsMouse)
+                return true;
+            if (DropDown.GetHoverIndex() >= 0)
+                return true;
+            return false;
+        }
+
+        public string GetHint() {
+            int i = DropDown.GetHoverIndex();
+            if (DropDown.GetItemUserData(i) is int flag) {
+                var atts = GetEnumMemberAttributes<HintAttribute>(EnumType, flag);
+                if (!atts.IsNullorEmpty()) {
+                    return atts.Select(item => item.Text).Join(delimiter: "\n");
+                }
+            }
+            return null;
+        }
+
     }
 }

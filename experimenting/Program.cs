@@ -1,37 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Reflection;
-using UnityEngine;
-
-namespace experimenting
+﻿namespace experimenting
 {
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            V2 v2 = new V2 { x = 1, y = 2 };
-            //V3 v3 = v2 as V3;
-        }
-    }
+	using System;
 
-    class V2
-    {
-        public int x;
-        public int y;
+	public class Program
+	{
+		public static bool IsPow2(long x) => x != 0 && (x & (x - 1)) == 0;
+		public static bool IsPow2(int x) => x != 0 && (x & (x - 1)) == 0;
 
-        public static implicit operator V3(V2 v2)
-        {
-            return new V3 { x = v2.x, y = v2.y, z = 0 };
-        }
-    }
-
-    class V3
-    {
-        public int x;
-        public int y;
-        public int z;
-    }
-
+		public static void Main()
+		{
+			Console.WriteLine("result=" + IsPow2(-2147483648));
+		}
+	}
 }
