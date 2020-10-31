@@ -7,7 +7,7 @@ namespace AdaptiveRoads.Patches.metadata {
     public static class AssetImporterWizard_Complete {
         public static void Postfix() {
             if (ToolsModifierControl.toolController.m_templatePrefabInfo is NetInfo) {
-                NetInfoExtionsion.EnsureEditedNetInfosExtended();
+                NetInfoExtionsion.EnsureExtended_EditedNetInfos();
             }
         }
     }

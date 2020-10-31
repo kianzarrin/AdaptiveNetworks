@@ -187,6 +187,8 @@ namespace AdaptiveRoads.Manager {
     using TrafficManager.Manager.Impl;
     using KianCommons;
     using Log = KianCommons.Log;
+    using UnityEngine;
+    using ColossalFramework.Math;
 
     public static class AdvanedFlagsExtensions {
         public static bool CheckFlags(this NetLaneExt.Flags value, NetLaneExt.Flags required, NetLaneExt.Flags forbidden) =>
@@ -290,7 +292,9 @@ namespace AdaptiveRoads.Manager {
             None = 0,
             Vanilla = 1 << 0,
             KeepClearAll = 1 << 1, // all entering segment ends keep clear of the junction.
-            All = (1 << 2) - 1,
+            TwoSegments = 1 << 2,
+
+            //All = (1 << 3) - 1,
         }
 
         public static JunctionRestrictionsManager JRMan => JunctionRestrictionsManager.Instance;
@@ -304,6 +308,7 @@ namespace AdaptiveRoads.Manager {
 
             }
             m_flags = m_flags.SetFlags(Flags.KeepClearAll, keepClearAll);
+            m_flags = m_flags.SetFlags(Flags.TwoSegments, NodeID.ToNode().CountSegments() == 2);
         }
 
         public Flags m_flags;
@@ -332,6 +337,7 @@ namespace AdaptiveRoads.Manager {
         }
 
         public float AverageSpeedLimit;
+        public float Curve;
 
         public Flags m_flags;
 
@@ -352,6 +358,7 @@ namespace AdaptiveRoads.Manager {
         public void UpdateFlags() {
             m_flags = Flags.None; // not vanila
         }
+
 
         public void UpdateAllFlags() {
             UpdateFlags();
@@ -396,8 +403,47 @@ namespace AdaptiveRoads.Manager {
 
             AverageSpeedLimit = speedLimitAcc / speedLaneCount;
 
+            Curve = CalculateCurve();
+
             Log.Debug($"NetSegmentExt.UpdateAllFlags() succeeded for {this}" /*Environment.StackTrace*/,false);
+
         }
+
+        /// <summary>
+        /// Calculates Raduis of a curved segment assuming it is part of a circle.
+        /// </summary>
+        public float CalculateRadius() {
+            // TDOO: to calculate maximum curviture for eleptical road, cut the bezier in 10 portions
+            // and then find the bezier with minimum raduis.
+            ref NetSegment segment = ref SegmentID.ToSegment();
+            Vector2 startDir = VectorUtils.XZ(segment.m_startDirection);
+            Vector2 endDir = VectorUtils.XZ(segment.m_endDirection);
+            Vector2 startPos = VectorUtils.XZ(segment.m_startNode.ToNode().m_position);
+            Vector2 endPos = VectorUtils.XZ(segment.m_endNode.ToNode().m_position);
+            float dot = Vector2.Dot(startDir, -endDir);
+            float len = (startPos - endPos).magnitude;
+            return len / Mathf.Sqrt(2 - 2 * dot); // see https://github.com/CitiesSkylinesMods/TMPE/issues/793#issuecomment-616351792
+        }
+
+        public float CalculateCurve() {
+            // see NetLane.UpdateLength()
+            var bezier = SegmentID.ToSegment().CalculateSegmentBezier3();
+            Vector3 d1 = bezier.b - bezier.a;
+            Vector3 d2 = bezier.c - bezier.b;
+            Vector3 d3 = bezier.d - bezier.c;
+            float m1 = d1.magnitude;
+            float m2 = d2.magnitude;
+            float m3 = d3.magnitude;
+            if (m1 > 0.1f) d1 /= m1;
+            if (m3 > 0.1f) d3 /= m3;
+            
+            var length = m1 + m2 + m3;
+            var curve = (Mathf.PI * 0.5f) * (1f - Vector3.Dot(d1, d3));
+            if (length > 0.1f) curve /= length;
+            
+            return curve;
+        }
+
     }
 
     [Serializable]
@@ -430,7 +476,7 @@ namespace AdaptiveRoads.Manager {
             IsStartNode = 1 << 15,
             IsTailNode = 1 << 16,
 
-            All = (1 << 15)-1,
+            //All = (1 << 15)-1,
         }
 
         public Flags m_flags;
@@ -466,6 +512,7 @@ namespace AdaptiveRoads.Manager {
 
             flags = flags.SetFlags(Flags.IsStartNode, StartNode);
             flags = flags.SetFlags(Flags.IsTailNode, NetUtil.GetTailNode(SegmentID) == NodeID);
+
             m_flags = flags;
             
             //Log.Debug("NetSegmentEnd.UpdateFlags() result: " + this);

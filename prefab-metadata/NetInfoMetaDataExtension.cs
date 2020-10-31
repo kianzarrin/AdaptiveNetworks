@@ -31,7 +31,7 @@ namespace PrefabMetadata {
 
             object ICloneable.Clone() => Clone();
 
-            public NetInfo.Segment RolledBackClone() {
+            public NetInfo.Segment UndoExtend() {
                 NetInfo.Segment ret = new NetInfo.Segment();
                 Utils.Util.CopyProperties<NetInfo.Segment>(ret, this);
                 return ret;
@@ -68,7 +68,7 @@ namespace PrefabMetadata {
 
             object ICloneable.Clone() => Clone();
 
-            public NetInfo.Node RolledBackClone() {
+            public NetInfo.Node UndoExtend() {
                 NetInfo.Node ret = new NetInfo.Node();
                 Utils.Util.CopyProperties<NetInfo.Node>(ret, this);
                 return ret;
@@ -105,7 +105,7 @@ namespace PrefabMetadata {
 
             object ICloneable.Clone() => Clone();
 
-            public NetLaneProps.Prop RolledBackClone() {
+            public NetLaneProps.Prop UndoExtend() {
                 NetLaneProps.Prop ret = new NetLaneProps.Prop();
                 Utils.Util.CopyProperties<NetLaneProps.Prop>(ret, this);
                 return ret;

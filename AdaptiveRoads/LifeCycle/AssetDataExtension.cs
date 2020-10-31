@@ -4,39 +4,70 @@ namespace AdaptiveRoads.LifeCycle {
     using HarmonyLib;
     using ICities;
     using KianCommons;
+    using PrefabMetadata.API;
+    using PrefabMetadata.Helpers;
     using System;
     using System.Collections.Generic;
     using static KianCommons.Assertion;
-    using PrefabMetadata.API;
-    using PrefabMetadata.Helpers;
 
     [HarmonyPatch(typeof(SaveAssetPanel), "SaveAsset")]
     public static class SaveRoutinePatch {
         public static void Prefix() {
             try {
-                Log.Debug($"SaveAssetPanel.SaveRoutine reversing ...");
+                Log.Debug($"SaveAssetPanel.SaveRoutine(): reversing ...");
                 SimulationManager.instance.ForcedSimulationPaused = true;
                 AssetData.TakeSnapshot();
                 foreach (var info in NetInfoExtionsion.EditedNetInfos)
                     info.ApplyVanillaForbidden();
-                NetInfoExtionsion.RollBackEditedNetInfos();
-            } catch (Exception e) {
+                NetInfoExtionsion.UndoExtend_EditedNetInfos();
+
+                // test if reversal was successful.
+                //foreach (var netInfo in NetInfoExtionsion.EditedNetInfos) {
+                //    for (int i = 0; i < netInfo.m_nodes.Length; ++i) {
+                //        if (!(netInfo.m_nodes[i].GetType() == typeof(NetInfo.Node)))
+                //            throw new Exception($"reversal unsuccessfull. nodes[{i}]={netInfo.m_nodes[i]}");
+                //    }
+                //    for (int i = 0; i < netInfo.m_segments.Length; ++i) {
+                //        if (!(netInfo.m_segments[i].GetType() == typeof(NetInfo.Segment)))
+                //            throw new Exception($"reversal unsuccessfull. segments[{i}]={netInfo.m_segments[i]}");
+                //    }
+                //    foreach (var lane in netInfo.m_lanes) {
+                //        var props = lane.m_laneProps?.m_props;
+                //        int n = props?.Length ?? 0;
+                //        for (int i = 0; i < n; ++i) {
+                //            if (!(props[i].GetType() == typeof(NetLaneProps.Prop)))
+                //                throw new Exception($"reversal unsuccessfull. props[{i}]={props[i]}");
+                //        }
+                //    }
+                //}
+            }
+            catch (Exception e) {
+                Log.Exception(e);
+                throw e;
+            }
+            Log.Debug("SaveAssetPanel.SaveRoutine() was successfull");
+        }
+
+        public static void PostFix() {
+            try {
+
+                Log.Debug($"SaveAssetPanel.SaveRoutine re extending ...");
+                foreach (var info in NetInfoExtionsion.EditedNetInfos) {
+                    info.UndoVanillaForbidden();
+                }
+                AssetData.ApplySnapshot();
+            }
+            catch (Exception e) {
                 Log.Exception(e);
                 throw e;
             }
         }
 
-        public static void PostFix() {
-            Log.Debug($"SaveAssetPanel.SaveRoutine re extending ...");
-            foreach (var info in NetInfoExtionsion.EditedNetInfos) {
-                info.RollBackVanillaForbidden();
-            }
-            AssetData.ApplySnapshot();
-        }
-
         public static void Finalizer(Exception __exception) {
+            Log.Debug("SaveAssetPanel.Finalizer() called with " + __exception.STR() ); 
             SimulationManager.instance.ForcedSimulationPaused = false;
-            Log.Exception(__exception);
+            if(__exception!=null)
+                Log.Exception(__exception);
         }
     }
 
@@ -72,7 +103,7 @@ namespace AdaptiveRoads.LifeCycle {
             public List<NetInfoExtionsion.Segment> Segments = new List<NetInfoExtionsion.Segment>();
             public List<NetInfoExtionsion.LaneProp> Props = new List<NetInfoExtionsion.LaneProp>();
 
-            public static NetInfoMetaData Create(NetInfo info){
+            public static NetInfoMetaData Create(NetInfo info) {
                 if (info == null)
                     return null;
                 return new NetInfoMetaData(info);
@@ -94,7 +125,7 @@ namespace AdaptiveRoads.LifeCycle {
 
             public void Apply(NetInfo info) {
                 info.EnsureExtended();
-                for(int i = 0; i < Nodes.Count; ++i)
+                for (int i = 0; i < Nodes.Count; ++i)
                     (info.m_nodes[i] as IInfoExtended).SetMetaData(Nodes[i]);
                 for (int i = 0; i < Segments.Count; ++i)
                     (info.m_segments[i] as IInfoExtended).SetMetaData(Segments[i]);
@@ -104,7 +135,7 @@ namespace AdaptiveRoads.LifeCycle {
                     if (props == null)
                         continue;
                     int i = 0;
-                    foreach (var item in props) 
+                    foreach (var item in props)
                         (item as IInfoExtended).SetMetaData(Props[i++]);
                 }
             }
@@ -145,7 +176,7 @@ namespace AdaptiveRoads.LifeCycle {
             assetData.Tunnel?.Apply(tunnel);
 
             foreach (var info in NetInfoExtionsion.AllElevations(groundInfo))
-                info.RollBackVanillaForbidden();
+                info.UndoVanillaForbidden();
         }
 
         #region Snapshot

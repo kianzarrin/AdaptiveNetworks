@@ -12,7 +12,7 @@ namespace PrefabMetadata.API {
         where T : class
     {
         IInfoExtended<T> Clone();
-        T RolledBackClone();
+        T UndoExtend();
     }
 }
 

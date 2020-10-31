@@ -58,11 +58,6 @@ namespace AdaptiveRoads.Manager {
             return ret;
         }
 
-        public static bool IsAdaptive(this NetInfo info) => NetInfoExtionsion.IsAdaptive(info);
-
-        public static IEnumerable<NetInfo> AllElevations(this NetInfo ground) =>
-            NetInfoExtionsion.AllElevations(ground);
-
         public static bool CheckRange(this Range range, float value) => range?.InRange(value) ?? true;
 
         public static bool CheckFlags(this NetInfo.Segment segmentInfo, NetSegment.Flags flags, bool turnAround) {
@@ -71,9 +66,6 @@ namespace AdaptiveRoads.Manager {
             else
                 return flags.CheckFlags(segmentInfo.m_backwardRequired, segmentInfo.m_backwardForbidden);
         }
-
-        public static void ApplyVanillaForbidden(this NetInfo info) => NetInfoExtionsion.ApplyVanillaForbiddden(info);
-        public static void RollBackVanillaForbidden(this NetInfo info) => NetInfoExtionsion.RollBackVanillaForbidden(info);
     }
 
     [Serializable]
@@ -244,6 +236,12 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Average Speed Limit Range")]
             public Range AverageSpeedLimit; // null => N/A
 
+            //[CustomizableProperty("Lane Curve")]
+            //public Range LaneCurve; // minimum |curve| with same sign
+
+            //[CustomizableProperty("Segment Curve")]
+            //public Range SegmentCurve;
+
             /// <param name="laneSpeed">game speed</param>
             /// <param name="averageSpeed">game speed</param>
             public bool Check(
@@ -290,7 +288,7 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
-        public static bool IsAdaptive(NetInfo info) {
+        public static bool IsAdaptive(this NetInfo info) {
             Assertion.AssertNotNull(info);
             foreach (var item in info.m_nodes) {
                 if (item.GetMetaData() != null)
@@ -318,7 +316,7 @@ namespace AdaptiveRoads.Manager {
         /// </summary>
         public static int NetInfoCount => PrefabCollection<NetInfo>.PrefabCount();
 
-        public static IEnumerable<NetInfo> AllElevations(NetInfo ground) {
+        public static IEnumerable<NetInfo> AllElevations(this NetInfo ground) {
             if (ground == null) yield break;
 
             NetInfo elevated = AssetEditorRoadUtils.TryGetElevated(ground);
@@ -334,7 +332,7 @@ namespace AdaptiveRoads.Manager {
         }
 
 
-        public static void ApplyVanillaForbiddden(NetInfo info) {
+        public static void ApplyVanillaForbidden(this NetInfo info) {
             foreach (var node in info.m_nodes) {
                 if (node.GetMetaData() is Node metadata) {
                     bool vanillaForbidden = metadata.SegmentFlags.Forbidden.IsFlagSet(NetSegmentExt.Flags.Vanilla);
@@ -361,7 +359,7 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
-        public static void RollBackVanillaForbidden(NetInfo info) {
+        public static void UndoVanillaForbidden(this NetInfo info) {
             foreach (var node in info.m_nodes) {
                 node.m_flagsRequired &= ~(NetNode.Flags.Created & NetNode.Flags.Deleted);
             }
@@ -400,23 +398,23 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
-        public static void RollBack(this NetInfo netInfo) {
+        public static void UndoExtend(this NetInfo netInfo) {
             try {
-                Log.Debug($"RollBack({netInfo}): called");
+                Log.Debug($"UndoExtend({netInfo}): called");
                 for (int i = 0; i < netInfo.m_nodes.Length; ++i) {
                     if (netInfo.m_nodes[i] is IInfoExtended<NetInfo.Node> ext)
-                        netInfo.m_nodes[i] = ext.RolledBackClone();
+                        netInfo.m_nodes[i] = ext.UndoExtend();
                 }
                 for (int i = 0; i < netInfo.m_segments.Length; ++i) {
                     if (netInfo.m_segments[i] is IInfoExtended<NetInfo.Segment> ext)
-                        netInfo.m_segments[i] = ext.RolledBackClone();
+                        netInfo.m_segments[i] = ext.UndoExtend();
                 }
                 foreach (var lane in netInfo.m_lanes) {
                     var props = lane.m_laneProps.m_props;
                     int n = props?.Length ?? 0;
                     for (int i = 0; i < n; ++i) {
                         if (props[i] is IInfoExtended<NetLaneProps.Prop> ext)
-                            props[i] = ext.RolledBackClone();
+                            props[i] = ext.UndoExtend();
                     }
                 }
             }
@@ -425,18 +423,18 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
-        public static void EnsureEditedNetInfosExtended() {
-            Log.Debug($"EnsureEditedNetInfosExtended() was called");
+        public static void EnsureExtended_EditedNetInfos() {
+            Log.Debug($"EnsureExtended_EditedNetInfos() was called");
             foreach (var info in EditedNetInfos)
                 EnsureExtended(info);
-            Log.Debug($"EnsureEditedNetInfosExtended() was successful");
+            Log.Debug($"EnsureExtended_EditedNetInfos() was successful");
         }
 
-        public static void RollBackEditedNetInfos() {
-            Log.Debug($"RollBackEditedNetInfos() was called");
+        public static void UndoExtend_EditedNetInfos() {
+            Log.Debug($"UndoExtend_EditedNetInfos() was called");
             foreach (var info in EditedNetInfos)
-                RollBack(info);
-            Log.Debug($"RollBackEditedNetInfos() was successful");
+                UndoExtend(info);
+            Log.Debug($"UndoExtend_EditedNetInfos() was successful");
         }
         #endregion
     }

@@ -1,4 +1,12 @@
 high p:
-
 meduim p:
+    hints for vanilla stuff: wait for JurrijnP
+    hints for my own flags.
+
+
+version 2:
     mixed enum type bitmask
+    custom flags
+        data manaer to manage them.
+        UI to control them.
+        all the network persistancy features.
