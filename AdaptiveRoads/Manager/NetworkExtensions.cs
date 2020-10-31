@@ -355,13 +355,8 @@ namespace AdaptiveRoads.Manager {
                 return ref End;
         }
 
-        public void UpdateFlags() {
-            m_flags = Flags.None; // not vanila
-        }
-
-
         public void UpdateAllFlags() {
-            UpdateFlags();
+            Log.Debug($"NetSegmentExt.UpdateAllFlags() called" /*Environment.StackTrace*/, false);
 
             Start.UpdateFlags();
             Start.UpdateDirections();
