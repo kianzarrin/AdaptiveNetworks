@@ -31,7 +31,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
             Type enumType,
             SetHandlerD setHandler,
             GetHandlerD getHandler,
-            string Hint, 
+            string hint, 
             bool dark) {
             Log.Debug($"BitMaskPanel.Add(container:{container}, label:{label}, enumType:{enumType})");
             var subPanel = UIView.GetAView().AddUIComponent(typeof(BitMaskPanel)) as BitMaskPanel;
@@ -40,6 +40,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
             subPanel.GetHandler = getHandler;
             subPanel.Initialize();
             subPanel.Label.text = label + ":";
+            subPanel.Hint = hint;
             //if (dark)
             //    subPanel.opacity = 0.1f;
             //else
@@ -252,7 +253,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
                     return atts.Select(item => item.Text).Join(delimiter: "\n");
                 }
             }
-            if (containsFocus) {
+            if (DropDown.containsMouse || Label.containsMouse) {
                 return Hint;
             }
 

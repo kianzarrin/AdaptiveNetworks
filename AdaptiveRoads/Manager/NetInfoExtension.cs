@@ -96,6 +96,7 @@ namespace AdaptiveRoads.Manager {
 
         [FlagPair]
         [Serializable]
+        [Hint("segment specific node flags")]
         public struct SegmentEndInfoFlags {
             [BitMask]
             public NetSegmentEnd.Flags Required, Forbidden;
