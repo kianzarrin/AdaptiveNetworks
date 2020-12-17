@@ -208,8 +208,8 @@ namespace AdaptiveRoads.Manager {
         [Serializable]
         public class LaneProp : ICloneable {
             object ICloneable.Clone() => Clone();
-
             [CustomizableProperty("Lane")]
+            [Hint("lane extension flags")]
             public LaneInfoFlags LaneFlags = new LaneInfoFlags();
 
             //[CustomizableProperty("SegmentExt")]

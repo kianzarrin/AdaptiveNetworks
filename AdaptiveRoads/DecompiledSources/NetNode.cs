@@ -1778,9 +1778,10 @@ public partial struct NetNode2
         segment.CalculateCorner(SegmentID, true, bStartNode, true, out cornerPos_left, out cornerDir_left, out _);
         if (segmentID_A != 0 && segmentID_B != 0)
         {
-            float pavementRatio_avgA = info.m_pavementWidth / info.m_halfWidth * 0.5f;
-            float averageWidthA = 1f;
-            if (segmentID_A != 0)
+            float pavementRatio = info.m_pavementWidth / info.m_halfWidth * 0.5f;
+            float pavementRatio_avgA; // = pavementRatio; // redundant
+            float widthRatioA = 1f;
+            //if (segmentID_A != 0) // redundant
             {
                 NetSegment segment_A = instance.m_segments.m_buffer[(int)segmentID_A];
                 NetInfo infoA = segment_A.Info;
@@ -1788,12 +1789,12 @@ public partial struct NetNode2
                 segment_A.CalculateCorner(segmentID_A, true, bStartNode, true, out cornerPosA_right, out cornerDirA_right, out _);
                 segment_A.CalculateCorner(segmentID_A, true, bStartNode, false, out cornerPosA_left, out cornerDirA_left, out _);
                 float pavementRatioA = infoA.m_pavementWidth / infoA.m_halfWidth * 0.5f;
-                pavementRatio_avgA = (pavementRatio_avgA + pavementRatioA) * 0.5f;
-                averageWidthA = 2f * info.m_halfWidth / (info.m_halfWidth + infoA.m_halfWidth);
+                pavementRatio_avgA = (pavementRatio + pavementRatioA) * 0.5f;
+                widthRatioA = 2f * info.m_halfWidth / (info.m_halfWidth + infoA.m_halfWidth);
             }
-            float pavementRatio_avgB = info.m_pavementWidth / info.m_halfWidth * 0.5f;
-            float averageWithB = 1f;
-            if (segmentID_B != 0)
+            float pavementRatio_avgB =  // = pavementRatio; // redundant
+            float widthRatioB = 1f;
+            //if (segmentID_B != 0) redundant
             {
                 NetSegment segment_B = instance.m_segments.m_buffer[(int)segmentID_B];
                 NetInfo infoB = segment_B.Info;
@@ -1802,7 +1803,7 @@ public partial struct NetNode2
                 segment_B.CalculateCorner(segmentID_B, true, bStartNode, false, out cornerPosB_left, out cornerDirB_left, out _);
                 float pavementRatioB = infoB.m_pavementWidth / infoB.m_halfWidth * 0.5f;
                 pavementRatio_avgB = (pavementRatio_avgB + pavementRatioB) * 0.5f;
-                averageWithB = 2f * info.m_halfWidth / (info.m_halfWidth + infoB.m_halfWidth);
+                widthRatioB = 2f * info.m_halfWidth / (info.m_halfWidth + infoB.m_halfWidth);
             }
 
             Bezier3 bezierA_right = new Bezier3
@@ -1825,7 +1826,7 @@ public partial struct NetNode2
             data.m_dataVector0 = new Vector4(0.5f / info.m_halfWidth, 1f / info.m_segmentLength, 0.5f - info.m_pavementWidth / info.m_halfWidth * 0.5f, info.m_pavementWidth / info.m_halfWidth * 0.5f);
             data.m_dataVector1 = centerPos - data.m_position;
             data.m_dataVector1.w = (data.m_dataMatrix0.m31 + data.m_dataMatrix0.m32 + data.m_extraData.m_dataMatrix2.m31 + data.m_extraData.m_dataMatrix2.m32 + data.m_extraData.m_dataMatrix3.m31 + data.m_extraData.m_dataMatrix3.m32 + data.m_dataMatrix1.m31 + data.m_dataMatrix1.m32) * 0.125f;
-            data.m_dataVector2 = new Vector4(pavementRatio_avgA, averageWidthA, pavementRatio_avgB, averageWithB);
+            data.m_dataVector2 = new Vector4(pavementRatio_avgA, widthRatioA, pavementRatio_avgB, widthRatioB);
         }
         else
         {

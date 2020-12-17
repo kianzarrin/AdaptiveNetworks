@@ -64,13 +64,13 @@ namespace AdaptiveRoads.Patches.Node {
             */
             index = SearchInstruction(codes, new CodeInstruction(OpCodes.Ldfld, fNodes), index, counter: counter, dir: dir);
             index = SearchGeneric(codes, i => codes[i].IsStloc(), index, counter: 1, dir: 1);
-            return BuildLdLocFromStLoc(codes[index]);
+            return codes[index].BuildLdLocFromStLoc();
         }
 
         public static CodeInstruction BuildSegnentLDLocFromPrevSTLoc(List<CodeInstruction> codes, int index, int counter = 1) {
             index = SearchInstruction(codes, new CodeInstruction(OpCodes.Call, mGetSegment), index, counter: counter, dir: -1);
             index = SearchGeneric(codes, i => codes[i].IsStloc(), index, counter: 1, dir: 1);
-            return BuildLdLocFromStLoc(codes[index]);
+            return codes[index].BuildLdLocFromStLoc();
         }
     }
 }

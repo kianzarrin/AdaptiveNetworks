@@ -1,4 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using KianCommons;
 
 namespace AdaptiveRoads.Manager {
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
@@ -12,10 +16,19 @@ namespace AdaptiveRoads.Manager {
         }
     }
 
-    [AttributeUsage(AttributeTargets.Field, AllowMultiple = true)]
+    //[AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
     public class HintAttribute : Attribute {
         public string Text;
         public HintAttribute(string text) => Text = text;
+    }
+
+    public static class HintExtension {
+        public static List<string> GetHints(this MemberInfo info) {
+            return info
+                .GetCustomAttributes(typeof(HintAttribute), true)
+                .Select(_item => (_item as HintAttribute).Text)
+                .ToList();
+        }
     }
 
     [Flags]
@@ -90,12 +103,12 @@ namespace AdaptiveRoads.Manager {
         //NameVisible2 = 536870912,
         [Hint(
                 "Active for segments which have a stop sign assigned by the player at the start of the segment\n" +
-                "Related to the direction in which the player draws the road"
+                "Relative to the direction in which the player draws the road"
         )]
         YieldStart = 1073741824,
         [Hint(
                 "Active for segments which have a stop sign assigned by the player at the end of the segment\n" +
-                "Related to the direction in which the player draws the road"
+                "Relative to the direction in which the player draws the road"
         )]
         YieldEnd = -2147483648,
         [Hint("Has (Sightseeing) Bus stops on both sides")]
@@ -110,6 +123,97 @@ namespace AdaptiveRoads.Manager {
         )]
         CombustionEngineBan = 256,
         All = -1
+    }
+
+
+    public enum NetNodeFlags {
+        None = 0,
+
+        // Created = 1,
+        // Deleted = 2,
+        // Original = 4,
+        // Disabled = 8,
+
+        End = 16,
+
+        Middle = 32,
+
+        // this node is used where two compatible roads are connected at an angle
+        // also when asymmeterical road changes direction (see also AsymForward and AsymBackward)
+        // bend nodes use segment texture
+        Bend = 64,
+        Junction = 128,
+        Moveable = 256,
+        Untouchable = 512,
+        Outside = 1024,
+        Temporary = 2048,
+        Double = 4096,
+        Fixed = 8192,
+        OnGround = 16384,
+        Ambiguous = 32768,
+        Water = 65536,
+        Sewage = 131072,
+        ForbidLaneConnection = 262144,
+        Underground = 524288,
+        Transition = 1048576,
+        LevelCrossing = 2097152,
+        OneWayOut = 4194304,
+        TrafficLights = 8388608,
+        OneWayIn = 16777216,
+        Heating = 33554432,
+        Electricity = 67108864,
+        Collapsed = 134217728,
+        DisableOnlyMiddle = 268435456,
+        AsymForward = 536870912,
+        AsymBackward = 1073741824,
+        CustomTrafficLights = -2147483648,
+        OneWayOutTrafficLights = 12582912,
+        UndergroundTransition = 1572864,
+        All = -1
+    }
+
+
+    [Flags]
+    public enum NetLaneFlags {
+        None = 0,
+
+        // hide
+        Created = 1,
+
+        // hide
+        Deleted = 2,
+
+        // HINT: bla bla bla
+        Inverted = 4,
+
+        // show only: lane panel
+        JoinedJunction = 8,
+
+        // show only: prop panel
+        JoinedJunctionInverted = 12,
+
+        // HINT: forward lane arrow
+        Forward = 16,
+        Left = 32,
+        Right = 64,
+        Merge = 128,
+        LeftForward = 48,
+        LeftRight = 96,
+        ForwardRight = 80,
+        LeftForwardRight = 112,
+        Stop = 256,
+        Stop2 = 512,
+        Stops = 768,
+        YieldStart = 1024,
+        YieldEnd = 2048,
+        StartOneWayLeft = 4096,
+        StartOneWayRight = 8192,
+        EndOneWayLeft = 16384,
+        EndOneWayRight = 32768,
+        StartOneWayLeftInverted = 4100,
+        StartOneWayRightInverted = 8196,
+        EndOneWayLeftInverted = 16388,
+        EndOneWayRightInverted = 32772
     }
 
 

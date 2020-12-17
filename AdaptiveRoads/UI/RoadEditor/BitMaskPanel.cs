@@ -21,6 +21,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
         public SetHandlerD SetHandler;
         public GetHandlerD GetHandler;
         public Type EnumType;
+        public string Hint;
         public event REPropertySet.PropertyChangedHandler EventPropertyChanged;
 
         public static BitMaskPanel Add(
@@ -30,6 +31,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
             Type enumType,
             SetHandlerD setHandler,
             GetHandlerD getHandler,
+            string Hint, 
             bool dark) {
             Log.Debug($"BitMaskPanel.Add(container:{container}, label:{label}, enumType:{enumType})");
             var subPanel = UIView.GetAView().AddUIComponent(typeof(BitMaskPanel)) as BitMaskPanel;
@@ -250,6 +252,10 @@ namespace AdaptiveRoads.UI.RoadEditor {
                     return atts.Select(item => item.Text).Join(delimiter: "\n");
                 }
             }
+            if (containsFocus) {
+                return Hint;
+            }
+
             return null;
         }
 

@@ -1,5 +1,4 @@
-high p:
-meduim p:
+    hints for the drop downs
     hints for vanilla stuff: wait for JurrijnP
     hints for my own flags.
 
@@ -7,6 +6,6 @@ meduim p:
 version 2:
     mixed enum type bitmask
     custom flags
-        data manaer to manage them.
+        data manager to manage them.
         UI to control them.
         all the network persistancy features.

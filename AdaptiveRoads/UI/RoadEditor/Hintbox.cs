@@ -98,7 +98,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
         }
 
         static object FieldValue(string fieldName, object target) =>
-            AssemblyTypeExtensions.GetDeclaredFieldValue(fieldName, target);
+            ReflectionHelpers.GetFieldValue(fieldName, target);
         static string Str(REPropertySet re) =>
             $"{re.GetType().Name}(target:{FieldValue("m_Target", re)}, field:{FieldValue("m_Target", re)}";
 

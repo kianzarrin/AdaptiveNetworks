@@ -5,7 +5,6 @@ namespace PrefabMetadata.Helpers {
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Linq.Expressions;
     using System.Reflection;
 
     public static class PrefabMetadataHelpers {

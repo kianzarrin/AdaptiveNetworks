@@ -8,8 +8,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using System.Linq;
     using System.Reflection;
     using static KianCommons.Assertion;
-    using PrefabMetadata.API;
-    using PrefabMetadata.Helpers;
 
     /// <summary>
     /// extend CreateGenericField to support flag extension types.
@@ -22,8 +20,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 return true; // ignore this outside of asset editor.
             if (Extensions.RequiresUserFlag(field.FieldType))
                 return true;
-            if(field.HasAttribute<BitMaskAttribute>() && field.HasAttribute<CustomizablePropertyAttribute>()) {
-                UIComponent container = __instance.m_Container; 
+            if (field.HasAttribute<BitMaskAttribute>() && field.HasAttribute<CustomizablePropertyAttribute>()) {
+                UIComponent container = __instance.m_Container;
                 if (!string.IsNullOrEmpty(groupName)) {
                     container = __instance.GetGroupPanel(groupName).Container;
                 }
@@ -31,7 +29,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 var enumType = field.FieldType;
                 if (enumType == typeof(NetSegment.Flags))
                     enumType = typeof(NetSegmentFlags);
-
                 var bitMaskPanel = BitMaskPanel.Add(
                     roadEditorPanel: __instance,
                     container: container,
@@ -39,7 +36,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     enumType: enumType,
                     setHandler: val => field.SetValue(target, val),
                     getHandler: () => (int)field.GetValue(target),
-                    false);
+                    Hint: null,
+                    dark: false);
                 return false;
             }
             return true;
@@ -75,22 +73,21 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         foreach (var field2 in fields) {
                             CreateExtendedComponent(groupName, field2, segment2.ForwardFlags, __instance, "Forward ");
                         }
-                    }else if(field.Name == nameof(NetInfo.Segment.m_backwardForbidden)) {
+                    } else if (field.Name == nameof(NetInfo.Segment.m_backwardForbidden)) {
                         foreach (var field2 in fields) {
                             CreateExtendedComponent(groupName, field2, segment2.BackwardFlags, __instance, "Backward ");
                         }
                     }
 
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 Log.Exception(e);
             }
 
         }
 
         public static void CreateExtendedComponent(
-            string groupName, FieldInfo fieldInfo, object target, RoadEditorPanel instance, string prefix="" ) {
+            string groupName, FieldInfo fieldInfo, object target, RoadEditorPanel instance, string prefix = "") {
             //Assert(string.IsNullOrEmpty(groupName), "groupName is empty");
             UIComponent container = instance.m_Container;  //instance.component.GetComponentInChildren<UIScrollablePanel>();
             if (!string.IsNullOrEmpty(groupName)) {
@@ -109,6 +106,10 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 false);
 
             var att = fieldInfo.GetCustomAttributes(typeof(CustomizablePropertyAttribute), false)[0] as CustomizablePropertyAttribute;
+
+            var hints = fieldInfo.GetHints();
+            hints.AddRange(fieldInfo.FieldType.GetHints());
+            string hint = hints.JoinLines();
 
             if (fieldInfo.FieldType.HasAttribute<FlagPairAttribute>()) {
                 Type enumType = fieldInfo.FieldType.GetField("Required").FieldType;
@@ -139,6 +140,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         enumType: typeof(NetLaneExt.Flags),
                         setHandler: SetRequired,
                         getHandler: GetRequired,
+                        Hint: hint,
                         false);
                     var bitMaskPanel1 = BitMaskPanel.Add(
                         roadEditorPanel: instance,
@@ -147,6 +149,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         enumType: typeof(NetLaneExt.Flags),
                         setHandler: SetForbidden,
                         getHandler: GetForbidden,
+                        Hint: hint,
                         true);
                 } else if (fieldInfo.FieldType == typeof(NetInfoExtionsion.SegmentInfoFlags)) {
                     int GetRequired() {
@@ -174,6 +177,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         enumType: typeof(NetSegmentExt.Flags),
                         setHandler: SetRequired,
                         getHandler: GetRequired,
+                        Hint: hint,
                         false);
                     var bitMaskPanel1 = BitMaskPanel.Add(
                         roadEditorPanel: instance,
@@ -182,6 +186,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         enumType: typeof(NetSegmentExt.Flags),
                         setHandler: SetForbidden,
                         getHandler: GetForbidden,
+                        Hint: hint,
                         true);
                 } else if (fieldInfo.FieldType == typeof(NetInfoExtionsion.SegmentEndInfoFlags)) {
                     int GetRequired() {
@@ -209,6 +214,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         enumType: typeof(NetSegmentEnd.Flags),
                         setHandler: SetRequired,
                         getHandler: GetRequired,
+                        Hint: hint,
                         false);
                     var bitMaskPanel1 = BitMaskPanel.Add(
                         roadEditorPanel: instance,
@@ -217,6 +223,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         enumType: typeof(NetSegmentEnd.Flags),
                         setHandler: SetForbidden,
                         getHandler: GetForbidden,
+                        Hint: hint,
                         true);
                 } else if (fieldInfo.FieldType == typeof(NetInfoExtionsion.NodeInfoFlags)) {
                     int GetRequired() {
@@ -244,6 +251,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         enumType: typeof(NetNodeExt.Flags),
                         setHandler: SetRequired,
                         getHandler: GetRequired,
+                        Hint: hint,
                         false);
                     var bitMaskPanel1 = BitMaskPanel.Add(
                         roadEditorPanel: instance,
@@ -252,6 +260,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         enumType: typeof(NetNodeExt.Flags),
                         setHandler: SetForbidden,
                         getHandler: GetForbidden,
+                        Hint: hint,
                         true);
                 } else if (fieldInfo.FieldType == typeof(NetInfoExtionsion.VanillaSegmentInfoFlags)) {
                     int GetRequired() {
@@ -276,18 +285,20 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         roadEditorPanel: instance,
                         container: container,
                         label: prefix + att.name + " Flags Required",
-                        enumType: typeof(NetSegment.Flags),
+                        enumType: typeof(NetSegmentFlags),
                         setHandler: SetRequired,
                         getHandler: GetRequired,
-                        false);
+                        Hint: hint,
+                       false);
                     var bitMaskPanel1 = BitMaskPanel.Add(
                         roadEditorPanel: instance,
                         container: container,
                         label: prefix + att.name + " Flags Forbidden",
-                        enumType: typeof(NetSegment.Flags),
+                        enumType: typeof(NetSegmentFlags),
                         setHandler: SetForbidden,
                         getHandler: GetForbidden,
-                        true);
+                        Hint: hint,
+                       true);
                 } else {
                     Log.Error($"CreateExtendedComponent: Unhandled field: {fieldInfo} att:{att.name} ");
                 }

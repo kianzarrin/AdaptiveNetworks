@@ -158,7 +158,7 @@ namespace AdaptiveRoads.Patches.Lane {
              * IL_0098: stloc.s      prop  <- seek to this -- build ldloc from this */
             index = SearchInstruction(codes, new CodeInstruction(OpCodes.Ldfld, fProps), index, counter: counter, dir: dir);
             index = SearchGeneric(codes, i => codes[i].IsStloc(), index, counter: 1, dir: 1);
-            return BuildLdLocFromStLoc(codes[index]);
+            return codes[index].BuildLdLocFromStLoc();
         }
     }
 }

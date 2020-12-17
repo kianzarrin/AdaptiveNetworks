@@ -78,7 +78,7 @@ namespace AdaptiveRoads.Patches.Segment {
              * IL_0572: stloc.s      segment <- seek to this then build ldloc from this*/
             index = SearchInstruction(codes, new CodeInstruction(OpCodes.Ldfld, fSegments), index, counter: counter, dir: dir);
             index = SearchGeneric(codes, i => codes[i].IsStloc(), index, counter: 1, dir: 1);
-            return BuildLdLocFromStLoc(codes[index]);
+            return codes[index].BuildLdLocFromStLoc();
         }
 
     }
