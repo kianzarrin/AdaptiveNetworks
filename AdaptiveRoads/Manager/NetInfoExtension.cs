@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using static AdaptiveRoads.Manager.NetInfoExtionsion;
+using KianCommons.Math;
 
 namespace AdaptiveRoads.Manager {
     [AttributeUsage(AttributeTargets.Struct)]
@@ -16,6 +17,12 @@ namespace AdaptiveRoads.Manager {
     }
 
     public static class Extensions {
+        internal static NetInfo GetInfo(ushort index) =>
+            PrefabCollection<NetInfo>.GetPrefab(index);
+
+        internal static ushort GetIndex(this NetInfo info) =>
+            MathUtil.Clamp2U16(info.m_prefabDataIndex);
+
         public static Segment GetMetaData(this NetInfo.Segment segment) =>
             (segment as IInfoExtended)?.GetMetaData<Segment>();
 
@@ -24,6 +31,22 @@ namespace AdaptiveRoads.Manager {
 
         public static LaneProp GetMetaData(this NetLaneProps.Prop prop) =>
             (prop as IInfoExtended)?.GetMetaData<LaneProp>();
+
+        public static Net GetMetaData(this NetInfo netInfo) =>
+            Net.GetAt(netInfo.GetIndex());
+        
+        public static Net GetOrCreateMetaData(this NetInfo netInfo) {
+            Assertion.Assert(netInfo);
+            var index = netInfo.GetIndex();
+            return Net.GetAt(index) ?? Net.SetAt(index, new Net(netInfo))
+                ?? throw new Exception("failed to create meta data for NetInfo " + netInfo);
+        }
+
+        public static void SetMeteData(this NetInfo netInfo, Net value) {
+            Assertion.Assert(netInfo);
+            var index = netInfo.GetIndex();
+            Net.SetAt(index, value);
+        }
 
         public static Segment GetOrCreateMetaData(this NetInfo.Segment segment) {
             Assertion.Assert(segment is IInfoExtended);
@@ -67,6 +90,7 @@ namespace AdaptiveRoads.Manager {
                 return flags.CheckFlags(segmentInfo.m_backwardRequired, segmentInfo.m_backwardForbidden);
         }
     }
+
 
     [Serializable]
     public static class NetInfoExtionsion {
@@ -120,6 +144,44 @@ namespace AdaptiveRoads.Manager {
         #endregion
 
         #region sub prefab extensions
+
+        public class Net :ICloneable{
+            object ICloneable.Clone() => Clone();
+            public Net() { }
+            public Net(NetInfo template) : this() { }
+
+            public Net Clone() => this.ShalowClone();
+
+
+            [CustomizableProperty("Pavement Width Right", "Properties")]
+            public float m_pavementWidthRight = 3;
+
+            [CustomizableProperty("Pavement Width Right2", "Properties")]
+            public float m_pavementWidthRight2 = 3;
+            /****************************************/
+            public static Net[] Buffer;
+            public static void EnsureBuffer() {
+                int count = PrefabCollection<NetInfo>.PrefabCount();
+                if(Buffer == null) {
+                    Buffer = new Net[count];
+                }else if(Buffer.Length < count) {
+                    var old = Buffer;
+                    Buffer = new Net[count];
+                    for (int i = 0; i < old.Length; ++i)
+                        Buffer[i] = old[i];
+                }
+            }
+            public static Net SetAt(int index, Net net) {
+                EnsureBuffer();
+                return Buffer[index] = net;
+            }
+            public static Net GetAt(int index) {
+                if (Buffer == null || index >= Buffer.Length)
+                    return null;
+                return Buffer[index];
+            }
+        }
+
         [Serializable]
         public class Segment : ICloneable {
             object ICloneable.Clone() => Clone();
@@ -312,11 +374,6 @@ namespace AdaptiveRoads.Manager {
         public static IEnumerable<NetInfo> EditedNetInfos =>
             AllElevations(EditedNetInfo);
 
-        /// <summary>
-        /// consistent with NetInfo.GetInex()
-        /// </summary>
-        public static int NetInfoCount => PrefabCollection<NetInfo>.PrefabCount();
-
         public static IEnumerable<NetInfo> AllElevations(this NetInfo ground) {
             if (ground == null) yield break;
 
@@ -386,15 +443,16 @@ namespace AdaptiveRoads.Manager {
                 }
                 foreach (var lane in netInfo.m_lanes) {
                     var props = lane.m_laneProps?.m_props;
-                    int n = props?.Length ?? 0; 
+                    int n = props?.Length ?? 0;
                     for (int i = 0; i < n; ++i) {
                         if (!(props[i] is IInfoExtended))
                             props[i] = props[i].Extend() as NetLaneProps.Prop;
                     }
                 }
+                netInfo.GetOrCreateMetaData();
+
                 Log.Debug($"EnsureExtended({netInfo}): successful");
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 Log.Exception(e);
             }
         }
@@ -418,8 +476,8 @@ namespace AdaptiveRoads.Manager {
                             props[i] = ext.UndoExtend();
                     }
                 }
-            }
-            catch (Exception e) {
+                netInfo.SetMeteData(null);
+            } catch (Exception e) {
                 Log.Exception(e);
             }
         }

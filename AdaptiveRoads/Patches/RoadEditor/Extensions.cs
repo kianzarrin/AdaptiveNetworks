@@ -4,6 +4,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using HarmonyLib;
     using KianCommons;
     using System.Reflection;
+    using static KianCommons.ReflectionHelpers;
 
     public static class Extensions {
         #region REPropertySet
@@ -36,6 +37,12 @@ namespace AdaptiveRoads.Patches.RoadEditor {
          => (string)mREEnumBitmaskSet_GetUserFlagName_.Invoke(instance, new object[] { flag });
 
         #endregion
+
+        static MethodInfo mCreateGenericField_ = GetMethod(typeof(RoadEditorPanel), "CreateGenericField");
+        public static void CreateGenericField(this RoadEditorPanel instance,
+            string groupName, FieldInfo field, object target) {
+            mCreateGenericField_.Invoke(instance, new object[] { groupName, field, target });
+        }
 
         static MethodInfo mCreateFieldComponent_ =
             AccessTools.DeclaredMethod(typeof(RoadEditorPanel), "CreateFieldComponent")

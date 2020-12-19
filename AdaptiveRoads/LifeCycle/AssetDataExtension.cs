@@ -102,6 +102,7 @@ namespace AdaptiveRoads.LifeCycle {
             public List<NetInfoExtionsion.Node> Nodes = new List<NetInfoExtionsion.Node>();
             public List<NetInfoExtionsion.Segment> Segments = new List<NetInfoExtionsion.Segment>();
             public List<NetInfoExtionsion.LaneProp> Props = new List<NetInfoExtionsion.LaneProp>();
+            public NetInfoExtionsion.Net NetData;
 
             public static NetInfoMetaData Create(NetInfo info) {
                 if (info == null)
@@ -121,6 +122,7 @@ namespace AdaptiveRoads.LifeCycle {
                     foreach (var item in props)
                         Props.Add(item.GetMetaData());
                 }
+                NetData = info.GetMetaData();
             }
 
             public void Apply(NetInfo info) {
@@ -138,6 +140,7 @@ namespace AdaptiveRoads.LifeCycle {
                     foreach (var item in props)
                         (item as IInfoExtended).SetMetaData(Props[i++]);
                 }
+                info.SetMeteData(NetData);
             }
         }
 

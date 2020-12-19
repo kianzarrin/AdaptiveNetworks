@@ -40,6 +40,12 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     dark: false);
                 return false;
             }
+            if(field.Name == nameof(NetInfo.m_pavementWidth)) {
+                var att = field.GetCustomAttributes(typeof(CustomizablePropertyAttribute), false)[0] as CustomizablePropertyAttribute;
+                string name = "Pavement Width Left";
+                if (att.name != name)
+                    att.name = name;
+            }
             return true;
         }
 
@@ -79,6 +85,19 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         }
                     }
 
+                } else if(target is NetInfo netInfo) {
+                    Log.Debug($"{__instance.name}.CreateGenericField.Prefix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
+                    //var fields = typeof(NetInfoExtionsion.Net).GetFields()
+                    //    .Where(_field => _field.HasAttribute<CustomizablePropertyAttribute>());
+
+                    var net = netInfo.GetOrCreateMetaData();
+                    AssertNotNull(net, $"{netInfo}");
+                    if (field.Name == nameof(NetInfo.m_pavementWidth)) {
+                        var f_pavementWidthRight = net.GetType().GetField(nameof(net.m_pavementWidthRight));
+                        __instance.CreateGenericField(groupName, f_pavementWidthRight, net);
+                        var f_pavementWidthRight2 = net.GetType().GetField(nameof(net.m_pavementWidthRight));
+                        __instance.CreateGenericField(groupName, f_pavementWidthRight2, net);
+                    }
                 }
             } catch (Exception e) {
                 Log.Exception(e);
