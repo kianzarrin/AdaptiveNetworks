@@ -110,7 +110,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
                 //var t = FindObjectsOfType<REPropertySet>()
                 //    .Select(re => Str(re)).ToSTR();
-
+                Hint1 = Hint2 = Hint3 = null;
                 foreach (var item in FindObjectsOfType<BitMaskPanel>()) {
                     if (item.IsHovered()) {
                         Hint1 = item.GetHint();
