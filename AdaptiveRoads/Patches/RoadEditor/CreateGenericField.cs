@@ -95,7 +95,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     if (field.Name == nameof(NetInfo.m_pavementWidth)) {
                         var f_pavementWidthRight = net.GetType().GetField(nameof(net.m_pavementWidthRight));
                         __instance.CreateGenericField(groupName, f_pavementWidthRight, net);
-                        var f_pavementWidthRight2 = net.GetType().GetField(nameof(net.m_pavementWidthRight));
+                        var f_pavementWidthRight2 = net.GetType().GetField(nameof(net.m_pavementWidthRight2));
                         __instance.CreateGenericField(groupName, f_pavementWidthRight2, net);
                     }
                 }
