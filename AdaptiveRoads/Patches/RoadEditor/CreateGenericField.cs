@@ -27,7 +27,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 if (!string.IsNullOrEmpty(groupName)) {
                     container = __instance.GetGroupPanel(groupName).Container;
                 }
-                var att = field.GetCustomAttributes(typeof(CustomizablePropertyAttribute), false)[0] as CustomizablePropertyAttribute;
+                var att = field.GetAttribute<CustomizablePropertyAttribute>();
                 var enumType = field.FieldType;
                 if (enumType == typeof(NetSegment.Flags))
                     enumType = typeof(NetSegmentFlags);
@@ -40,6 +40,13 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     getHandler: () => (int)field.GetValue(target),
                     hint: "Vanila segment flags");
                 return false;
+            }
+            if(field.Name == nameof(NetInfo.m_pavementWidth)) {
+                var att = field.GetAttribute<CustomizablePropertyAttribute>();
+                string name = "Pavement Width Left";
+                if (att.name != name)
+                    att.name = name;
+                Log.Debug($"m_pavementWidth.att.name = {att.name}");
             }
             return true;
         }
@@ -80,6 +87,18 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         }
                     }
 
+                } else if(target is NetInfo netInfo){
+                    // replace "Pavement Width" with Pavement Width Left
+                    if (field.Name == nameof(NetInfo.m_pavementWidth)) {
+                        Log.Debug($"{__instance.name}.CreateGenericField.Prefix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
+                        var net = netInfo.GetOrCreateMetaData();
+                        AssertNotNull(net, $"{netInfo}");
+                        var f = net.GetType().GetField(nameof(net.PavementWidthRight));
+                        __instance.CreateGenericField(groupName, f, net);
+                        __instance.gameObject.GetComponentsInChildren<UILabel>()
+                            .Single(_lbl => _lbl.text == "Pavement Width")
+                            .text = "Pavement Width Left";
+                    }
                 }
             } catch (Exception e) {
                 Log.Exception(e);

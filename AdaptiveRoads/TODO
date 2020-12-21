@@ -1,7 +1,6 @@
-    hints for the drop downs
-    hints for vanilla stuff: wait for JurrijnP
-    hints for my own flags.
-
+backend can handle all sort of hints. need to add hints for:
+    vanilla flags/drop-downs
+    my own flags/drop-downs.
 
 version 2:
     mixed enum type bitmask
