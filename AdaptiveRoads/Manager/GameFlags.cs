@@ -125,7 +125,7 @@ namespace AdaptiveRoads.Manager {
         All = -1
     }
 
-
+    [Flags]
     public enum NetNodeFlags {
         None = 0,
 

@@ -9,6 +9,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using System.Reflection;
     using static KianCommons.Assertion;
     using AdaptiveRoads.UI;
+    using static KianCommons.ReflectionHelpers;
 
     /// <summary>
     /// extend CreateGenericField to support flag extension types.
@@ -117,6 +118,30 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             hints.AddRange(fieldInfo.FieldType.GetHints());
             string hint = hints.JoinLines();
             Log.Debug("hint is " + hint);
+
+            // TODO : use these instead
+            int GetRequired2() {
+                object subTarget = fieldInfo.GetValue(target);
+                return (int)GetFieldValue("Required", subTarget);
+            }
+
+            void SetRequired2(int flags) {
+                var subTarget = fieldInfo.GetValue(target);
+                SetFieldValue("Required", subTarget, flags);
+                fieldInfo.SetValue(target, subTarget);
+            }
+
+            int GetForbidden2() {
+                object subTarget = fieldInfo.GetValue(target);
+                return (int)GetFieldValue("Forbidden", subTarget);
+            }
+
+            void SetForbidden2(int flags) {
+                var subTarget = fieldInfo.GetValue(target);
+                SetFieldValue("Forbidden", subTarget, flags);
+                fieldInfo.SetValue(target, subTarget);
+            }
+
 
             if (fieldInfo.FieldType.HasAttribute<FlagPairAttribute>()) {
                 Type enumType = fieldInfo.FieldType.GetField("Required").FieldType;
@@ -306,6 +331,43 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         getHandler: GetForbidden,
                         hint: hint,
                        true);
+                } else if (fieldInfo.FieldType == typeof(NetInfoExtionsion.VanillaNodeInfoFlags)) {
+                    int GetRequired() {
+                        var value = (NetInfoExtionsion.VanillaNodeInfoFlags)fieldInfo.GetValue(target);
+                        return (int)value.Required;
+                    }
+                    void SetRequired(int flags) {
+                        var value = (NetInfoExtionsion.VanillaNodeInfoFlags)fieldInfo.GetValue(target);
+                        value.Required = (NetNode.Flags)flags;
+                        fieldInfo.SetValue(target, value);
+                    };
+                    int GetForbidden() {
+                        var value = (NetInfoExtionsion.VanillaNodeInfoFlags)fieldInfo.GetValue(target);
+                        return (int)value.Forbidden;
+                    };
+                    void SetForbidden(int flags) {
+                        var value = (NetInfoExtionsion.VanillaNodeInfoFlags)fieldInfo.GetValue(target);
+                        value.Forbidden = (NetNode.Flags)flags;
+                        fieldInfo.SetValue(target, value);
+                    };
+                    var bitMaskPanel0 = BitMaskPanel.Add(
+                        roadEditorPanel: instance,
+                        container: container,
+                        label: prefix + att.name + " Flags Required",
+                        enumType: typeof(NetNodeFlags),
+                        setHandler: SetRequired,
+                        getHandler: GetRequired,
+                        hint: hint,
+                       false);
+                    var bitMaskPanel1 = BitMaskPanel.Add(
+                        roadEditorPanel: instance,
+                        container: container,
+                        label: prefix + att.name + " Flags Forbidden",
+                        enumType: typeof(NetNodeFlags),
+                        setHandler: SetForbidden,
+                        getHandler: GetForbidden,
+                        hint: hint,
+                       true);
                 } else {
                     Log.Error($"CreateExtendedComponent: Unhandled field: {fieldInfo} att:{att.name} ");
                 }
@@ -322,6 +384,16 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             }
         }
 
+        //static int GetRequired2(FieldInfo fieldInfo, object target) {
+        //    object subTarget = fieldInfo.GetValue(target);
+        //    return (int)GetFieldValue("Required", subTarget);
+        //}
+
+        //static void SetRequired2(int flags, FieldInfo fieldInfo, object target) {
+        //    var subTarget = fieldInfo.GetValue(target);
+        //    SetFieldValue("Required", subTarget, flags);
+        //    fieldInfo.SetValue(target, subTarget);
+        //}
 
         //public static void CreateExtendedComponentHelper(FieldInfo field, object target, RoadEditorPanel instance, string subFieldName) {
         //    Assertion.Assert(field.FieldType.HasAttribute<FlagPairAttribute>(), "HasAttribute:FlagsPair");
