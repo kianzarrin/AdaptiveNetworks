@@ -34,7 +34,7 @@ namespace AdaptiveRoads.Manager {
     [Flags]
     public enum NetSegmentFlags {
         None = 0,
-        //Created = 1,
+        Created = 1,
         //Deleted = 2,
         //Original = 4,
         [Hint("Segment has been destroyed due to a disaster")]
@@ -138,7 +138,7 @@ namespace AdaptiveRoads.Manager {
 
         Middle = 32,
 
-        // this node is used where two compatible roads are connected at an angle
+        // HINT: this node is used where two compatible roads are connected at an angle
         // also when asymmeterical road changes direction (see also AsymForward and AsymBackward)
         // bend nodes use segment texture
         Bend = 64,
@@ -148,8 +148,13 @@ namespace AdaptiveRoads.Manager {
         Outside = 1024,
         Temporary = 2048,
         Double = 4096,
+
+        // HINT: explanation
         Fixed = 8192,
+
+        // HINT: 
         OnGround = 16384,
+
         Ambiguous = 32768,
         Water = 65536,
         Sewage = 131072,
@@ -177,7 +182,6 @@ namespace AdaptiveRoads.Manager {
     public enum NetLaneFlags {
         None = 0,
 
-        // hide
         Created = 1,
 
         // hide

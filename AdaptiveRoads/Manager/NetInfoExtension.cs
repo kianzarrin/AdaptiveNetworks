@@ -9,11 +9,17 @@ using static AdaptiveRoads.Manager.NetInfoExtionsion;
 
 namespace AdaptiveRoads.Manager {
     [AttributeUsage(AttributeTargets.Struct)]
-    public class FlagPairAttribute : Attribute {
-        public string Name;
-        public FlagPairAttribute(string name) => Name = name;
-        public FlagPairAttribute() { }
+    public class FlagPairAttribute : Attribute { }
+
+    /// <summary>
+    /// Field visibility in asset is controlled by settings.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field)]
+    public class OptionalAttribute : Attribute {
+        public string Option;
+        public OptionalAttribute(string option) => Option = option;
     }
+
 
     public static class Extensions {
         public static Segment GetMetaData(this NetInfo.Segment segment) =>
@@ -88,6 +94,14 @@ namespace AdaptiveRoads.Manager {
 
         [FlagPair]
         [Serializable]
+        public struct VanillaNodeInfoFlags {
+            [BitMask]
+            public NetNode.Flags Required, Forbidden;
+            public bool CheckFlags(NetNode.Flags flags) => flags.CheckFlags(Required, Forbidden);
+        }
+
+        [FlagPair]
+        [Serializable]
         public struct SegmentInfoFlags {
             [BitMask]
             public NetSegmentExt.Flags Required, Forbidden;
@@ -129,20 +143,34 @@ namespace AdaptiveRoads.Manager {
                 [CustomizableProperty("Extension")]
                 public SegmentInfoFlags Flags;
 
-                //[CustomizableProperty("Segment Start")]
+                [CustomizableProperty("Start Node")]
+                [Optional("Segment.VanillaNode")]
+                public VanillaNodeInfoFlags VanillaStartNode;
+
+                [CustomizableProperty("End Node")]
+                [Optional("Segment.VanillaNode")]
+                public VanillaNodeInfoFlags VanillaEndNode;
+
+                [CustomizableProperty("Segment Start")]
+                [Optional("Segment.SegmentEnd")]
                 public SegmentEndInfoFlags Start;
 
-                //[CustomizableProperty("Segment End")]
+                [CustomizableProperty("Segment End")]
+                [Optional("Segment.SegmentEnd")]
                 public SegmentEndInfoFlags End;
 
                 public bool CheckFlags(
                     NetSegmentExt.Flags flags,
                     NetSegmentEnd.Flags startFlags,
-                    NetSegmentEnd.Flags endFlags) {
+                    NetSegmentEnd.Flags endFlags,
+                    NetNode.Flags startNodeFlags,
+                    NetNode.Flags endNodeFlags) {
                     return
                         Flags.CheckFlags(flags) &
                         Start.CheckFlags(startFlags) &
-                        End.CheckFlags(endFlags);
+                        End.CheckFlags(endFlags) &
+                        VanillaStartNode.CheckFlags(startNodeFlags) &
+                        VanillaEndNode.CheckFlags(endNodeFlags);
                 }
 
 
@@ -155,11 +183,13 @@ namespace AdaptiveRoads.Manager {
             public bool CheckFlags(NetSegmentExt.Flags flags,
                     NetSegmentEnd.Flags startFlags,
                     NetSegmentEnd.Flags endFlags,
+                    NetNode.Flags startNodeFlags,
+                    NetNode.Flags endNodeFlags,
                     bool turnAround) {
                 if (!turnAround)
-                    return ForwardFlags.CheckFlags(flags, startFlags, endFlags);
+                    return ForwardFlags.CheckFlags(flags, startFlags, endFlags, startNodeFlags, endNodeFlags);
                 else
-                    return BackwardFlags.CheckFlags(flags, startFlags, endFlags);
+                    return BackwardFlags.CheckFlags(flags, startFlags, endFlags, startNodeFlags, endNodeFlags);
             }
 
             private Segment() { }
@@ -183,9 +213,11 @@ namespace AdaptiveRoads.Manager {
             public SegmentEndInfoFlags SegmentEndFlags;
 
             [CustomizableProperty("Segment")]
+            [Optional("Node.Segment")]
             public VanillaSegmentInfoFlags VanillaSegmentFlags;
 
             [CustomizableProperty("Segment Extension")]
+            [Optional("Node.Segment")]
             public SegmentInfoFlags SegmentFlags;
 
             public bool CheckFlags(
@@ -194,16 +226,11 @@ namespace AdaptiveRoads.Manager {
                 NodeFlags.CheckFlags(nodeFlags) && SegmentEndFlags.CheckFlags(segmentEndFlags) &&
                 SegmentFlags.CheckFlags(segmentFlags) && VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags);
 
-            private Node() { }
+            public Node() { }
             public Node(NetInfo.Node template) { }
 
             /// <summary>clone</summary>
-            public Node Clone() {
-                var clone = new Node();
-                clone.NodeFlags = this.NodeFlags;
-                clone.SegmentEndFlags = this.SegmentEndFlags;
-                return clone;
-            }
+            public Node Clone()  => this.ShalowClone();
         }
 
         [Serializable]
@@ -213,23 +240,37 @@ namespace AdaptiveRoads.Manager {
             [Hint("lane extension flags")]
             public LaneInfoFlags LaneFlags = new LaneInfoFlags();
 
-            //[CustomizableProperty("SegmentExt")]
+            [CustomizableProperty("SegmentExt")]
+            [Optional("Lane.Segment")]
             public SegmentInfoFlags SegmentFlags = new SegmentInfoFlags();
 
             [CustomizableProperty("Segment")]
+            [Optional("Lane.Segment")]
             public VanillaSegmentInfoFlags VanillaSegmentFlags = new VanillaSegmentInfoFlags();
 
             [CustomizableProperty("Segment Start")]
+            [Optional("Lane.SegmentEnd")]
             public SegmentEndInfoFlags SegmentStartFlags = new SegmentEndInfoFlags();
 
             [CustomizableProperty("Segment End")]
+            [Optional("Lane.SegmentEnd")]
             public SegmentEndInfoFlags SegmentEndFlags = new SegmentEndInfoFlags();
 
-            //[CustomizableProperty("Start Node")]
+            //[CustomizableProperty("Start Node Extension")]
+            [Optional("Lane.Node")]
             public NodeInfoFlags StartNodeFlags = new NodeInfoFlags();
 
-            //[CustomizableProperty("End Node")]
+            //[CustomizableProperty("End Node Extension")]
+            [Optional("Lane.Node")]
             public NodeInfoFlags EndNodeFlags = new NodeInfoFlags();
+
+            [CustomizableProperty("Start Node")]
+            [Optional("Lane.Node")]
+            public VanillaNodeInfoFlags VanillaStartNodeFlags = new VanillaNodeInfoFlags();
+
+            [CustomizableProperty("End Node")]
+            [Optional("Lane.Node")]
+            public VanillaNodeInfoFlags VanillaEndNodeFlags = new VanillaNodeInfoFlags();
 
             [CustomizableProperty("Lane Speed Limit Range")]
             public Range SpeedLimit; // null => N/A
@@ -250,6 +291,7 @@ namespace AdaptiveRoads.Manager {
                 NetSegmentExt.Flags segmentFlags,
                 NetSegment.Flags vanillaSegmentFlags,
                 NetNodeExt.Flags startNodeFlags, NetNodeExt.Flags endNodeFlags,
+                NetNode.Flags vanillaStartNodeFlags, NetNode.Flags vanillaEndNodeFlags,
                 NetSegmentEnd.Flags segmentStartFlags, NetSegmentEnd.Flags segmentEndFlags,
                 float laneSpeed, float averageSpeed) =>
                 LaneFlags.CheckFlags(laneFlags) &&
@@ -259,21 +301,14 @@ namespace AdaptiveRoads.Manager {
                 SegmentEndFlags.CheckFlags(segmentEndFlags) &&
                 StartNodeFlags.CheckFlags(startNodeFlags) &&
                 EndNodeFlags.CheckFlags(endNodeFlags) &&
+                VanillaStartNodeFlags.CheckFlags(vanillaStartNodeFlags) &&
+                VanillaEndNodeFlags.CheckFlags(vanillaEndNodeFlags) &&
                 SpeedLimit.CheckRange(laneSpeed) &&
                 AverageSpeedLimit.CheckRange(averageSpeed);
 
             public LaneProp(NetLaneProps.Prop template) { }
-            private LaneProp() { }
-            public LaneProp Clone() {
-                var clone = new LaneProp();
-                clone.LaneFlags = LaneFlags;
-                clone.SegmentFlags = SegmentFlags;
-                clone.SegmentStartFlags = SegmentStartFlags;
-                clone.SegmentEndFlags = SegmentEndFlags;
-                clone.StartNodeFlags = StartNodeFlags;
-                clone.EndNodeFlags = EndNodeFlags;
-                return clone;
-            }
+            public LaneProp() { }
+            public LaneProp Clone() => this.ShalowClone();
         }
 
         #endregion

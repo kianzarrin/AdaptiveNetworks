@@ -313,8 +313,7 @@ namespace AdaptiveRoads.Manager {
             KeepClearAll = 1 << 1,
 
 
-            [Hint("the junction only has two segments.\n")]
-            TwoSegments = 1 << 2,
+
 
             //All = -1,
         }
@@ -330,7 +329,6 @@ namespace AdaptiveRoads.Manager {
 
             }
             m_flags = m_flags.SetFlags(Flags.KeepClearAll, keepClearAll);
-            m_flags = m_flags.SetFlags(Flags.TwoSegments, NodeID.ToNode().CountSegments() == 2);
         }
 
         public Flags m_flags;
@@ -528,6 +526,9 @@ namespace AdaptiveRoads.Manager {
             [Hint("traffic drives from tail node to head node (takes into account StartNode/LHT/Invert)")]
             IsTailNode = 1 << 16,
 
+
+            [Hint("the junction only has two segments.\n")]
+            TwoSegments = 1 << 17,
             ALL = -1,
         }
 
@@ -547,7 +548,7 @@ namespace AdaptiveRoads.Manager {
         }
 
         public void UpdateFlags() {
-            var flags = m_flags; // TODO is this necessary?
+            var flags = m_flags;
 
             PriorityType p = PMan.GetPrioritySign(SegmentID, StartNode);
             flags = flags.SetFlags(Flags.Yield, p == PriorityType.Yield);
@@ -564,6 +565,8 @@ namespace AdaptiveRoads.Manager {
 
             flags = flags.SetFlags(Flags.IsStartNode, StartNode);
             flags = flags.SetFlags(Flags.IsTailNode, NetUtil.GetTailNode(SegmentID) == NodeID);
+
+            flags = flags.SetFlags(Flags.TwoSegments, NodeID.ToNode().CountSegments() == 2);
 
             m_flags = flags;
             
