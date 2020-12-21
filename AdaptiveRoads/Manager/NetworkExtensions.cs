@@ -207,33 +207,37 @@ namespace AdaptiveRoads.Manager {
         public enum Flags {
             None = 0,
 
-            ParkingAllowed = 1 << 0,
+            [Hint("when required, the node will not be rendered when Adaptive Roads mod is enabled.\n" +
+                "when forbidden, the node will only be rendered when Adaptive Roads mod is enabled.")]
+            Vanilla = 1 << 0,
+
+            ParkingAllowed = 1 << 4,
 
             // Vehicle restrictions
             [Hint("private cars and motorbikes")]
-            Car = 1 << 1,
+            Car = 1 << 5,
 
             [Hint("Emergencies (active sirens)\n" +
                 "when siren is off, they act as Serive vehicles.")]
-            SOS = 1 << 2,
+            SOS = 1 << 6,
 
-            Taxi = 1 << 3,
+            Taxi = 1 << 7,
 
             [Hint("passenger, sightseeing and evacuation buses")]
-            Bus = 1 << 4,
+            Bus = 1 << 8,
 
             [Hint("all types of industry trucks and vans")]
-            CargoTruck = 1 << 5,
+            CargoTruck = 1 << 9,
 
             [Hint("all services including emergency services whithout active siren")]
-            Service = 1 << 6,
+            Service = 1 << 10,
 
-            CargoTrain = 1 << 10,
-            PassengerTrain = 1 << 11,
+            CargoTrain = 1 << 14,
+            PassengerTrain = 1 << 15,
 
             // misc
-            //MergesWithInnerLane = 1 << 15,
-            //MergesWithOuterLane = 1 << 16,
+            //MergesWithInnerLane = 1 << 17,
+            //MergesWithOuterLane = 1 << 18,
 
             All = -1,
         }
@@ -470,65 +474,67 @@ namespace AdaptiveRoads.Manager {
         public enum Flags {
             None = 0,
 
-            // priority signs
+            [Hint("when required, the node will not be rendered when Adaptive Roads mod is enabled.\n" +
+                "when forbidden, the node will only be rendered when Adaptive Roads mod is enabled.")]
+            Vanilla = 1 << 0,            // priority signs
             [Hint("checks if TMPE rules requires vehicles to yield to upcomming traffic\n" +
                 "differet than the vanila YieldStart/YieldEnd (Stop) flag.")]
-            Yield = 1 << 0,
+            Yield = 1 << 4,
 
             [Hint("checks if TMPE rules requires vehicles to Stop at junctions\n" +
                 "differet than the vanila YieldStart/YieldEnd (Stop) flag.")]
-            Stop = 1 << 1,
+            Stop = 1 << 5,
 
             [Hint("checks if TMPE rules gives priority to vehicles on this segment-end")]
-            PriorityMain = 1 << 2,
+            PriorityMain = 1 << 6,
 
             // junction restrictions.
             [Hint("TMPE allows pedestrian to cross.")]
-            ZebraCrossing = 1 << 3,
+            ZebraCrossing = 1 << 7,
 
             [Hint("TMPE bans vehicles from entering blocked junction (requires them to keep clear)")]
-            KeepClear = 1 << 4,
+            KeepClear = 1 << 8,
 
             [Hint("vehicles can take near turn (right turn with Right Hand Traffic) even when traffic light is red")]
-            NearTurnAtRed = 1 << 5,
+            NearTurnAtRed = 1 << 9,
 
             [Hint("in a oneway road vehicles can take far turn even when traffic light is red\n" +
                 "far turn is left turn with right hand traffic")]
-            FarTurnAtRed = 1 << 6,
+            FarTurnAtRed = 1 << 10,
 
             [Hint("vehicles can change lanes in the middle of the junction")]
-            LaneChangingGoingStraight = 1 << 7,
+            LaneChangingGoingStraight = 1 << 11,
 
             [Hint("cars can make a U-turn at this segment-end\n" +
                 "(provided that there is a lane with left lane arrow)")]
-            Uturn = 1 << 8,
+            Uturn = 1 << 12,
 
             // directions
             [Hint("there is a segment to the right (regardless of lane arrows or segment's direction)")]
-            HasRightSegment = 1 << 9,
+            HasRightSegment = 1 << 13,
 
             [Hint("TMPE lane arrow manager allows at least one lane to turn right")]
-            CanTurnRight = 1 << 10,
+            CanTurnRight = 1 << 14,
 
             [Hint("there is a segment to the left (regardless of lane arrows or segment's direction)")]
-            HasLeftSegment = 1 << 11,
+            HasLeftSegment = 1 << 15,
 
             [Hint("TMPE lane arrow manager allows at least one lane to turn left")]
-            CanTurnLeft = 1 << 12,
+            CanTurnLeft = 1 << 16,
 
             [Hint("TMPE lane arrow manager allows at least one lane to go straight")]
-            HasForwardSegment = 1 << 13,
-            CanGoForward = 1 << 14,
+            HasForwardSegment = 1 << 17,
+            CanGoForward = 1 << 18,
 
             [Hint("the start node from which road is placed (does not take into account StartNode/LHT/Invert)")]
-            IsStartNode = 1 << 15,
+            IsStartNode = 1 << 19,
 
             [Hint("traffic drives from tail node to head node (takes into account StartNode/LHT/Invert)")]
-            IsTailNode = 1 << 16,
-
+            IsTailNode = 1 << 20,
 
             [Hint("the junction only has two segments.\n")]
-            TwoSegments = 1 << 17,
+            TwoSegments = 1 << 21,
+
             ALL = -1,
         }
 
