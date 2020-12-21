@@ -8,6 +8,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using System.Linq;
     using System.Reflection;
     using static KianCommons.Assertion;
+    using AdaptiveRoads.UI;
 
     /// <summary>
     /// extend CreateGenericField to support flag extension types.
@@ -105,7 +106,12 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 $"CreateExtendedComponent(groupName={groupName}, fieldInfo={fieldInfo}, target={target}, instance={instance.name}) called",
                 false);
 
-            var att = fieldInfo.GetCustomAttributes(typeof(CustomizablePropertyAttribute), false)[0] as CustomizablePropertyAttribute;
+            var att = fieldInfo.GetAttribute<CustomizablePropertyAttribute>();
+            var optional = fieldInfo.GetAttribute<OptionalAttribute>();
+            if (optional != null && !ModSettings.GetOption(optional.Option)) {
+                Log.Debug($"Hiding {target.GetType().Name}::`{att.name}` because {optional.Option} is disabled");
+                return;
+            }
 
             var hints = fieldInfo.GetHints();
             hints.AddRange(fieldInfo.FieldType.GetHints());

@@ -21,7 +21,7 @@ namespace AdaptiveRoads.LifeCycle
 
         [UsedImplicitly]
         public void OnSettingsUI(UIHelperBase helper) {
-            UI.ModSettings.OnSettingsUI(helper);
+            UI.ModSettings.OnSettingsUI(helper as UIHelper);
         }
 
     }

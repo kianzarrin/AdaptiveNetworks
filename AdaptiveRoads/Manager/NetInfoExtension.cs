@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using static AdaptiveRoads.Manager.NetInfoExtionsion;
+using static AdaptiveRoads.UI.ModSettings;
 
 namespace AdaptiveRoads.Manager {
     [AttributeUsage(AttributeTargets.Struct)]
@@ -144,19 +145,19 @@ namespace AdaptiveRoads.Manager {
                 public SegmentInfoFlags Flags;
 
                 [CustomizableProperty("Start Node")]
-                [Optional("Segment.VanillaNode")]
+                [Optional(SEGMENT_VANILLA_NODE)]
                 public VanillaNodeInfoFlags VanillaStartNode;
 
                 [CustomizableProperty("End Node")]
-                [Optional("Segment.VanillaNode")]
+                [Optional(SEGMENT_VANILLA_NODE)]
                 public VanillaNodeInfoFlags VanillaEndNode;
 
                 [CustomizableProperty("Segment Start")]
-                [Optional("Segment.SegmentEnd")]
+                [Optional(SEGMENT_SEGMENT_END)]
                 public SegmentEndInfoFlags Start;
 
                 [CustomizableProperty("Segment End")]
-                [Optional("Segment.SegmentEnd")]
+                [Optional(SEGMENT_SEGMENT_END)]
                 public SegmentEndInfoFlags End;
 
                 public bool CheckFlags(
@@ -213,11 +214,11 @@ namespace AdaptiveRoads.Manager {
             public SegmentEndInfoFlags SegmentEndFlags;
 
             [CustomizableProperty("Segment")]
-            [Optional("Node.Segment")]
+            [Optional(NODE_SEGMENT)]
             public VanillaSegmentInfoFlags VanillaSegmentFlags;
 
             [CustomizableProperty("Segment Extension")]
-            [Optional("Node.Segment")]
+            [Optional(NODE_SEGMENT)]
             public SegmentInfoFlags SegmentFlags;
 
             public bool CheckFlags(
@@ -241,35 +242,35 @@ namespace AdaptiveRoads.Manager {
             public LaneInfoFlags LaneFlags = new LaneInfoFlags();
 
             [CustomizableProperty("SegmentExt")]
-            [Optional("Lane.Segment")]
+            [Optional(LANE_SEGMENT)]
             public SegmentInfoFlags SegmentFlags = new SegmentInfoFlags();
 
             [CustomizableProperty("Segment")]
-            [Optional("Lane.Segment")]
+            [Optional(LANE_SEGMENT)]
             public VanillaSegmentInfoFlags VanillaSegmentFlags = new VanillaSegmentInfoFlags();
 
             [CustomizableProperty("Segment Start")]
-            [Optional("Lane.SegmentEnd")]
+            [Optional(LANE_SEGMENT_END)]
             public SegmentEndInfoFlags SegmentStartFlags = new SegmentEndInfoFlags();
 
             [CustomizableProperty("Segment End")]
-            [Optional("Lane.SegmentEnd")]
+            [Optional(LANE_SEGMENT_END)]
             public SegmentEndInfoFlags SegmentEndFlags = new SegmentEndInfoFlags();
 
             //[CustomizableProperty("Start Node Extension")]
-            [Optional("Lane.Node")]
+            [Optional(LANE_NODE)]
             public NodeInfoFlags StartNodeFlags = new NodeInfoFlags();
 
             //[CustomizableProperty("End Node Extension")]
-            [Optional("Lane.Node")]
+            [Optional(LANE_NODE)]
             public NodeInfoFlags EndNodeFlags = new NodeInfoFlags();
 
             [CustomizableProperty("Start Node")]
-            [Optional("Lane.Node")]
+            [Optional(LANE_NODE)]
             public VanillaNodeInfoFlags VanillaStartNodeFlags = new VanillaNodeInfoFlags();
 
             [CustomizableProperty("End Node")]
-            [Optional("Lane.Node")]
+            [Optional(LANE_NODE)]
             public VanillaNodeInfoFlags VanillaEndNodeFlags = new VanillaNodeInfoFlags();
 
             [CustomizableProperty("Lane Speed Limit Range")]
