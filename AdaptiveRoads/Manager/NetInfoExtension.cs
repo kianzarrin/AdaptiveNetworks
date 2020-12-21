@@ -170,18 +170,22 @@ namespace AdaptiveRoads.Manager {
 
             [CustomizableProperty("Pavement Width Right", "Properties")]
             public float PavementWidthRight = 3;
+
             /****************************************/
             public static Net[] Buffer;
             public static void EnsureBuffer() {
                 int count = PrefabCollection<NetInfo>.PrefabCount();
                 if(Buffer == null) {
                     Buffer = new Net[count];
-                }else if(Buffer.Length < count) {
+                    Log.Debug($"Net.Buffer[{Buffer.Length}] created");
+                } else if(Buffer.Length < count) {
                     var old = Buffer;
                     Buffer = new Net[count];
                     for (int i = 0; i < old.Length; ++i)
                         Buffer[i] = old[i];
+                    Log.Debug($"Net.Buffer expanded from {old.Length} to {Buffer.Length}");
                 }
+
             }
             public static Net SetAt(int index, Net net) {
                 EnsureBuffer();

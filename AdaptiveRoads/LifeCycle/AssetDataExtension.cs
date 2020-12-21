@@ -140,7 +140,8 @@ namespace AdaptiveRoads.LifeCycle {
                     foreach (var item in props)
                         (item as IInfoExtended).SetMetaData(Props[i++]);
                 }
-                info.SetMeteData(NetData);
+                info.SetMeteData(NetData?.Clone());
+                Log.Debug("Net Metadata restored.");
             }
         }
 
