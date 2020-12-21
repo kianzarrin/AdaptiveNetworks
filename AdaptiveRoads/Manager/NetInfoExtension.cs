@@ -145,6 +145,7 @@ namespace AdaptiveRoads.Manager {
 
         #region sub prefab extensions
 
+        [Serializable]
         public class Net :ICloneable{
             object ICloneable.Clone() => Clone();
             public Net() { }
@@ -152,12 +153,8 @@ namespace AdaptiveRoads.Manager {
 
             public Net Clone() => this.ShalowClone();
 
-
             [CustomizableProperty("Pavement Width Right", "Properties")]
-            public float m_pavementWidthRight = 3;
-
-            //[CustomizableProperty("Pavement Width Right2", "Properties")]
-            //public float m_pavementWidthRight2 = 3;
+            public float PavementWidthRight = 3;
             /****************************************/
             public static Net[] Buffer;
             public static void EnsureBuffer() {

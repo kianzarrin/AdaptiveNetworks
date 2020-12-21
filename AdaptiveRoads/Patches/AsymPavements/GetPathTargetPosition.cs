@@ -56,7 +56,7 @@ namespace NodeController.Patches {
         public static float ModifyPavement(float width, ref NetInfo.Lane laneInfo, NetInfo info) {
             if (info.GetMetaData() is NetInfoExtionsion.Net netData) {
                 if (laneInfo.m_position > 0)
-                    width = netData.m_pavementWidthRight;
+                    width = netData.PavementWidthRight;
             }
             return width;
         }

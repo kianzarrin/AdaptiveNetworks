@@ -25,7 +25,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 if (!string.IsNullOrEmpty(groupName)) {
                     container = __instance.GetGroupPanel(groupName).Container;
                 }
-                var att = field.GetCustomAttributes(typeof(CustomizablePropertyAttribute), false)[0] as CustomizablePropertyAttribute;
+                var att = field.GetAttribute<CustomizablePropertyAttribute>();
                 var enumType = field.FieldType;
                 if (enumType == typeof(NetSegment.Flags))
                     enumType = typeof(NetSegmentFlags);
@@ -41,10 +41,11 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 return false;
             }
             if(field.Name == nameof(NetInfo.m_pavementWidth)) {
-                var att = field.GetCustomAttributes(typeof(CustomizablePropertyAttribute), false)[0] as CustomizablePropertyAttribute;
+                var att = field.GetAttribute<CustomizablePropertyAttribute>();
                 string name = "Pavement Width Left";
                 if (att.name != name)
                     att.name = name;
+                Log.Debug($"m_pavementWidth.att.name = {att.name}");
             }
             return true;
         }
@@ -85,18 +86,17 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         }
                     }
 
-                } else if(target is NetInfo netInfo) {
-                    Log.Debug($"{__instance.name}.CreateGenericField.Prefix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
-                    //var fields = typeof(NetInfoExtionsion.Net).GetFields()
-                    //    .Where(_field => _field.HasAttribute<CustomizablePropertyAttribute>());
-
-                    var net = netInfo.GetOrCreateMetaData();
-                    AssertNotNull(net, $"{netInfo}");
+                } else if(target is NetInfo netInfo){
+                    // replace "Pavement Width" with Pavement Width Left
                     if (field.Name == nameof(NetInfo.m_pavementWidth)) {
-                        var f_pavementWidthRight = net.GetType().GetField(nameof(net.m_pavementWidthRight));
-                        __instance.CreateGenericField(groupName, f_pavementWidthRight, net);
-                        //var f_pavementWidthRight2 = net.GetType().GetField(nameof(net.m_pavementWidthRight2));
-                        //__instance.CreateGenericField(groupName, f_pavementWidthRight2, net);
+                        Log.Debug($"{__instance.name}.CreateGenericField.Prefix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
+                        var net = netInfo.GetOrCreateMetaData();
+                        AssertNotNull(net, $"{netInfo}");
+                        var f = net.GetType().GetField(nameof(net.PavementWidthRight));
+                        __instance.CreateGenericField(groupName, f, net);
+                        __instance.gameObject.GetComponentsInChildren<UILabel>()
+                            .Single(_lbl => _lbl.text == "Pavement Width")
+                            .text = "Pavement Width Left";
                     }
                 }
             } catch (Exception e) {

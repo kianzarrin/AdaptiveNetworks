@@ -104,9 +104,10 @@ namespace NodeController.Patches {
                 // 9.5=right2 
 
                 if (occurance == 2) {
-                    return netData.m_pavementWidthRight;
+                    return netData.PavementWidthRight;
                 }else if(occurance == 3) {
-                    float A = 12; // netData.m_pavementWidthRight;
+                    // LeftPavementWidth * HalfWidth / RightPavementWidth - HalfWdith
+                    float A = info.m_pavementWidth * info.m_halfWidth / netData.PavementWidthRight - info.m_halfWidth;
                     float B = info.m_pavementWidth;
                     var info2 = segmentID2.ToSegment().Info;
                     float r = info2.m_pavementWidth / info2.m_halfWidth;
