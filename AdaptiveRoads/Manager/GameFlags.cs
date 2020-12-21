@@ -6,17 +6,20 @@ using KianCommons;
 
 namespace AdaptiveRoads.Manager {
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
+
     public class HideAttribute :Attribute {
-        bool Get = true;
-        bool Set = true;
-        public HideAttribute() { }
-        public HideAttribute(bool get, bool set) {
-            Get = get;
-            Set = set;
+        [Flags]
+        public enum HideMode {
+            None=0,
+            Get=1,
+            Set=2,
+            Both = Get | Set,
         }
+        public HideMode Mode = HideMode.Both;
+        public HideAttribute() { }
+        public HideAttribute(HideMode mode) => Mode = mode;
     }
 
-    //[AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
     public class HintAttribute : Attribute {
         public string Text;
         public HintAttribute(string text) => Text = text;
@@ -34,9 +37,12 @@ namespace AdaptiveRoads.Manager {
     [Flags]
     public enum NetSegmentFlags {
         None = 0,
+        //[Hide]
         Created = 1,
-        //Deleted = 2,
-        //Original = 4,
+        [Hide]
+        Deleted = 2,
+        [Hide]
+        Original = 4,
         [Hint("Segment has been destroyed due to a disaster")]
         Collapsed = 8,
         [Hint(
@@ -53,14 +59,22 @@ namespace AdaptiveRoads.Manager {
         End = 64,
         [Hint("Active for nodes for sharp corners where a road changes direction suddenly and nodes where an asymmetric network changes direction")]
         Bend = 128,
-        //WaitingPath = 256,
-        //PathFailed = 512,
-        //PathLength = 1024,
-        //AccessFailed = 2048,
-        //TrafficStart = 4096,
-        //TrafficEnd = 8192,
-        //CrossingStart = 16384,
-        //CrossingEnd = 32768,
+        [Hide]
+        WaitingPath = 256,
+        [Hide]
+        PathFailed = 512,
+        [Hide]
+        PathLength = 1024,
+        [Hide]
+        AccessFailed = 2048,
+        [Hide]
+        TrafficStart = 4096,
+        [Hide]
+        TrafficEnd = 8192,
+        [Hide]
+        CrossingStart = 16384,
+        [Hide]
+        CrossingEnd = 32768,
         [Hint("Has Bus stop on right side")]
         BusStopRight = 65536,
         [Hint("Has Bus stop on left side")]
@@ -99,17 +113,21 @@ namespace AdaptiveRoads.Manager {
         AsymmetricalBackward = 67108864,
         [Hint("Street has a custom name")]
         CustomStreetName = 134217728,
-        //NameVisible1 = 268435456,
-        //NameVisible2 = 536870912,
+        [Hide]
+        NameVisible1 = 268435456,
+        [Hide]
+        NameVisible2 = 536870912,
         [Hint(
                 "Active for segments which have a stop sign assigned by the player at the start of the segment\n" +
                 "Relative to the direction in which the player draws the road"
         )]
+        [Hide]
         YieldStart = 1073741824,
         [Hint(
                 "Active for segments which have a stop sign assigned by the player at the end of the segment\n" +
                 "Relative to the direction in which the player draws the road"
         )]
+        [Hide]
         YieldEnd = -2147483648,
         [Hint("Has (Sightseeing) Bus stops on both sides")]
         BusStopBoth = BusStopLeft | BusStopRight,
@@ -129,10 +147,14 @@ namespace AdaptiveRoads.Manager {
     public enum NetNodeFlags {
         None = 0,
 
-        // Created = 1,
-        // Deleted = 2,
-        // Original = 4,
-        // Disabled = 8,
+        [Hide]
+        Created = 1,
+        [Hide]
+        Deleted = 2,
+        [Hide]
+        Original = 4,
+        [Hide]
+        Disabled = 8,
 
         End = 16,
 
@@ -184,7 +206,6 @@ namespace AdaptiveRoads.Manager {
 
         Created = 1,
 
-        // hide
         Deleted = 2,
 
         // HINT: bla bla bla

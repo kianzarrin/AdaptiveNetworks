@@ -146,12 +146,20 @@ namespace AdaptiveRoads.UI.RoadEditor {
             var values = EnumBitMaskExtensions.GetPow2ValuesI32(enumType);
             foreach (int flag in values) {
                 bool hasFlag = (flags & flag) != 0;
+
+                // TODO hide lane flags based on set/get.
+                var itemInfo = enumType.GetEnumMember(flag);
+                bool hide = itemInfo.HasAttribute<HideAttribute>();
+                if (ModSettings.HideIrrelavant && !hasFlag && hide)
+                    continue; //hide
+
                 dropdown.AddItem(
                     item: Enum.GetName(enumType, flag),
                     isChecked: hasFlag,
                     userData: flag);
             }
         }
+
 
         public override void Start() {
             base.Start();
@@ -229,10 +237,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
         static T[] GetEnumMemberAttributes<T>(Type enumType, object value)
             where T:Attribute {
-            string name = Enum.GetName(enumType, value);
-            var member = enumType.GetMember(name).FirstOrDefault();
-            var atts = member.GetCustomAttributes(typeof(T), false);
-            return atts as T[];
+            return enumType.GetEnumMember(value).GetAttributes<T>();
         }
 
 

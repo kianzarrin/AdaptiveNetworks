@@ -17,7 +17,7 @@ namespace AdaptiveRoads.UI {
         //public static readonly SavedBool InLineLaneInfo = SavedBool("InLineLaneInfo", true);
         //public static readonly SavedBool InLineLaneInfo = SavedBool("InLineLaneInfo", true);
 
-        public static readonly SavedBool HideExtraFlags = SavedBool("HideExtraFlags", true);
+        public static readonly SavedBool HideIrrelavant = SavedBool("HideIrrelavant", true);
 
         public static readonly SavedBool Segment_Node = SavedBool(SEGMENT_VANILLA_NODE, false);
         public static readonly SavedBool Segment_SegmentEnd = SavedBool(SEGMENT_SEGMENT_END, true);
@@ -53,8 +53,8 @@ namespace AdaptiveRoads.UI {
         }
 
         public static void OnSettingsUI(UIHelperBase helper) {
-            //var general = helper.AddGroup("General");
-            //general.AddToggle("hide uncessary flags", HideExtraFlags);
+            var general = helper.AddGroup("General");
+            general.AddToggle("hide irrelevant flags", HideIrrelavant);
 
             var extensions = helper.AddGroup("UI components visible in asset editor:");
             var segment = extensions.AddGroup("Segment");
