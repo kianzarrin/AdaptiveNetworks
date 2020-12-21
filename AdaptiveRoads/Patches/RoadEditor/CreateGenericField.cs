@@ -158,6 +158,13 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 }
 
                 Type enumType = fieldInfo.FieldType.GetField("Required").FieldType;
+                if (enumType == typeof(NetSegment.Flags))
+                    enumType = typeof(NetSegmentFlags);
+                else if (enumType == typeof(NetLane.Flags))
+                    enumType = typeof(NetLaneFlags);
+                else if (enumType == typeof(NetNode.Flags))
+                    enumType = typeof(NetNodeFlags);
+
                 var bitMaskPanel0 = BitMaskPanel.Add(
                     roadEditorPanel: instance,
                     container: container,

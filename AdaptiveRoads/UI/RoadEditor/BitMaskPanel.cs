@@ -150,8 +150,10 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 // TODO hide lane flags based on set/get.
                 var itemInfo = enumType.GetEnumMember(flag);
                 bool hide = itemInfo.HasAttribute<HideAttribute>();
-                if (ModSettings.HideIrrelavant && !hasFlag && hide)
-                    continue; //hide
+                hide &= ModSettings.HideIrrelavant;
+                hide &= !hasFlag;
+                if (hide)
+                    continue; // hide
 
                 dropdown.AddItem(
                     item: Enum.GetName(enumType, flag),
