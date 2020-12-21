@@ -31,8 +31,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
             Type enumType,
             SetHandlerD setHandler,
             GetHandlerD getHandler,
-            string hint, 
-            bool dark) {
+            string hint) {
             Log.Debug($"BitMaskPanel.Add(container:{container}, label:{label}, enumType:{enumType})");
             var subPanel = UIView.GetAView().AddUIComponent(typeof(BitMaskPanel)) as BitMaskPanel;
             subPanel.EnumType = enumType;

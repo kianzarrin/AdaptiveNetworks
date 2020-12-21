@@ -21,10 +21,10 @@ namespace AdaptiveRoads.UI.RoadEditor {
         public override void Awake() {
             base.Awake();
             wordWrap = false;
-            byte intensity = 32;
-            color = new Color32(intensity, intensity, intensity, 190);
+            byte intensity = 0; //32;
+            color = new Color32(intensity, intensity, intensity, 255 /*190*/);
             textColor = Color.white;
-            textScale = 0.8f;
+            textScale = 1f; //.8f
             padding = new RectOffset(5, 5, 5, 5);
             atlas = TextureUtil.Ingame;
             relativePosition = default;

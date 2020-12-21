@@ -1,5 +1,6 @@
 namespace AdaptiveRoads.Patches.RoadEditor {
     using AdaptiveRoads.Manager;
+    using AdaptiveRoads.UI;
     using AdaptiveRoads.UI.RoadEditor;
     using ColossalFramework.UI;
     using HarmonyLib;
@@ -8,7 +9,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using System.Linq;
     using System.Reflection;
     using static KianCommons.Assertion;
-    using AdaptiveRoads.UI;
     using static KianCommons.ReflectionHelpers;
 
     /// <summary>
@@ -38,8 +38,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     enumType: enumType,
                     setHandler: val => field.SetValue(target, val),
                     getHandler: () => (int)field.GetValue(target),
-                    hint: null,
-                    dark: false);
+                    hint: "Vanila segment flags");
                 return false;
             }
             return true;
@@ -119,258 +118,43 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             string hint = hints.JoinLines();
             Log.Debug("hint is " + hint);
 
-            // TODO : use these instead
-            int GetRequired2() {
-                object subTarget = fieldInfo.GetValue(target);
-                return (int)GetFieldValue("Required", subTarget);
-            }
-
-            void SetRequired2(int flags) {
-                var subTarget = fieldInfo.GetValue(target);
-                SetFieldValue("Required", subTarget, flags);
-                fieldInfo.SetValue(target, subTarget);
-            }
-
-            int GetForbidden2() {
-                object subTarget = fieldInfo.GetValue(target);
-                return (int)GetFieldValue("Forbidden", subTarget);
-            }
-
-            void SetForbidden2(int flags) {
-                var subTarget = fieldInfo.GetValue(target);
-                SetFieldValue("Forbidden", subTarget, flags);
-                fieldInfo.SetValue(target, subTarget);
-            }
-
-
             if (fieldInfo.FieldType.HasAttribute<FlagPairAttribute>()) {
-                Type enumType = fieldInfo.FieldType.GetField("Required").FieldType;
-                if (fieldInfo.FieldType == typeof(NetInfoExtionsion.LaneInfoFlags)) {
-
-                    int GetRequired() {
-                        var value = (NetInfoExtionsion.LaneInfoFlags)fieldInfo.GetValue(target);
-                        return (int)value.Required;
-                    }
-                    void SetRequired(int flags) {
-                        var value = (NetInfoExtionsion.LaneInfoFlags)fieldInfo.GetValue(target);
-                        value.Required = (NetLaneExt.Flags)flags;
-                        fieldInfo.SetValue(target, value);
-                    };
-                    int GetForbidden() {
-                        var value = (NetInfoExtionsion.LaneInfoFlags)fieldInfo.GetValue(target);
-                        return (int)value.Forbidden;
-                    };
-                    void SetForbidden(int flags) {
-                        var value = (NetInfoExtionsion.LaneInfoFlags)fieldInfo.GetValue(target);
-                        value.Forbidden = (NetLaneExt.Flags)flags;
-                        fieldInfo.SetValue(target, value);
-                    };
-                    var bitMaskPanel0 = BitMaskPanel.Add(
-                        roadEditorPanel: instance,
-                        container: container,
-                        label: prefix + att.name + " Flags Required",
-                        enumType: typeof(NetLaneExt.Flags),
-                        setHandler: SetRequired,
-                        getHandler: GetRequired,
-                        hint: hint,
-                        false);
-                    var bitMaskPanel1 = BitMaskPanel.Add(
-                        roadEditorPanel: instance,
-                        container: container,
-                        label: prefix + att.name + " Flags Forbidden",
-                        enumType: typeof(NetLaneExt.Flags),
-                        setHandler: SetForbidden,
-                        getHandler: GetForbidden,
-                        hint: hint,
-                        true);
-                } else if (fieldInfo.FieldType == typeof(NetInfoExtionsion.SegmentInfoFlags)) {
-                    int GetRequired() {
-                        var value = (NetInfoExtionsion.SegmentInfoFlags)fieldInfo.GetValue(target);
-                        return (int)value.Required;
-                    }
-                    void SetRequired(int flags) {
-                        var value = (NetInfoExtionsion.SegmentInfoFlags)fieldInfo.GetValue(target);
-                        value.Required = (NetSegmentExt.Flags)flags;
-                        fieldInfo.SetValue(target, value);
-                    };
-                    int GetForbidden() {
-                        var value = (NetInfoExtionsion.SegmentInfoFlags)fieldInfo.GetValue(target);
-                        return (int)value.Forbidden;
-                    };
-                    void SetForbidden(int flags) {
-                        var value = (NetInfoExtionsion.SegmentInfoFlags)fieldInfo.GetValue(target);
-                        value.Forbidden = (NetSegmentExt.Flags)flags;
-                        fieldInfo.SetValue(target, value);
-                    };
-                    var bitMaskPanel0 = BitMaskPanel.Add(
-                        roadEditorPanel: instance,
-                        container: container,
-                        label: prefix + att.name + " Flags Required",
-                        enumType: typeof(NetSegmentExt.Flags),
-                        setHandler: SetRequired,
-                        getHandler: GetRequired,
-                        hint: hint,
-                        false);
-                    var bitMaskPanel1 = BitMaskPanel.Add(
-                        roadEditorPanel: instance,
-                        container: container,
-                        label: prefix + att.name + " Flags Forbidden",
-                        enumType: typeof(NetSegmentExt.Flags),
-                        setHandler: SetForbidden,
-                        getHandler: GetForbidden,
-                        hint: hint,
-                        true);
-                } else if (fieldInfo.FieldType == typeof(NetInfoExtionsion.SegmentEndInfoFlags)) {
-                    int GetRequired() {
-                        var value = (NetInfoExtionsion.SegmentEndInfoFlags)fieldInfo.GetValue(target);
-                        return (int)value.Required;
-                    }
-                    void SetRequired(int flags) {
-                        var value = (NetInfoExtionsion.SegmentEndInfoFlags)fieldInfo.GetValue(target);
-                        value.Required = (NetSegmentEnd.Flags)flags;
-                        fieldInfo.SetValue(target, value);
-                    };
-                    int GetForbidden() {
-                        var value = (NetInfoExtionsion.SegmentEndInfoFlags)fieldInfo.GetValue(target);
-                        return (int)value.Forbidden;
-                    };
-                    void SetForbidden(int flags) {
-                        var value = (NetInfoExtionsion.SegmentEndInfoFlags)fieldInfo.GetValue(target);
-                        value.Forbidden = (NetSegmentEnd.Flags)flags;
-                        fieldInfo.SetValue(target, value);
-                    };
-                    var bitMaskPanel0 = BitMaskPanel.Add(
-                        roadEditorPanel: instance,
-                        container: container,
-                        label: prefix + att.name + " Flags Required",
-                        enumType: typeof(NetSegmentEnd.Flags),
-                        setHandler: SetRequired,
-                        getHandler: GetRequired,
-                        hint: hint,
-                        false);
-                    var bitMaskPanel1 = BitMaskPanel.Add(
-                        roadEditorPanel: instance,
-                        container: container,
-                        label: prefix + att.name + " Flags Forbidden",
-                        enumType: typeof(NetSegmentEnd.Flags),
-                        setHandler: SetForbidden,
-                        getHandler: GetForbidden,
-                        hint: hint,
-                        true);
-                } else if (fieldInfo.FieldType == typeof(NetInfoExtionsion.NodeInfoFlags)) {
-                    int GetRequired() {
-                        var value = (NetInfoExtionsion.NodeInfoFlags)fieldInfo.GetValue(target);
-                        return (int)value.Required;
-                    }
-                    void SetRequired(int flags) {
-                        var value = (NetInfoExtionsion.NodeInfoFlags)fieldInfo.GetValue(target);
-                        value.Required = (NetNodeExt.Flags)flags;
-                        fieldInfo.SetValue(target, value);
-                    };
-                    int GetForbidden() {
-                        var value = (NetInfoExtionsion.NodeInfoFlags)fieldInfo.GetValue(target);
-                        return (int)value.Forbidden;
-                    };
-                    void SetForbidden(int flags) {
-                        var value = (NetInfoExtionsion.NodeInfoFlags)fieldInfo.GetValue(target);
-                        value.Forbidden = (NetNodeExt.Flags)flags;
-                        fieldInfo.SetValue(target, value);
-                    };
-                    var bitMaskPanel0 = BitMaskPanel.Add(
-                        roadEditorPanel: instance,
-                        container: container,
-                        label: prefix + att.name + " Flags Required",
-                        enumType: typeof(NetNodeExt.Flags),
-                        setHandler: SetRequired,
-                        getHandler: GetRequired,
-                        hint: hint,
-                        false);
-                    var bitMaskPanel1 = BitMaskPanel.Add(
-                        roadEditorPanel: instance,
-                        container: container,
-                        label: prefix + att.name + " Flags Forbidden",
-                        enumType: typeof(NetNodeExt.Flags),
-                        setHandler: SetForbidden,
-                        getHandler: GetForbidden,
-                        hint: hint,
-                        true);
-                } else if (fieldInfo.FieldType == typeof(NetInfoExtionsion.VanillaSegmentInfoFlags)) {
-                    int GetRequired() {
-                        var value = (NetInfoExtionsion.VanillaSegmentInfoFlags)fieldInfo.GetValue(target);
-                        return (int)value.Required;
-                    }
-                    void SetRequired(int flags) {
-                        var value = (NetInfoExtionsion.VanillaSegmentInfoFlags)fieldInfo.GetValue(target);
-                        value.Required = (NetSegment.Flags)flags;
-                        fieldInfo.SetValue(target, value);
-                    };
-                    int GetForbidden() {
-                        var value = (NetInfoExtionsion.VanillaSegmentInfoFlags)fieldInfo.GetValue(target);
-                        return (int)value.Forbidden;
-                    };
-                    void SetForbidden(int flags) {
-                        var value = (NetInfoExtionsion.VanillaSegmentInfoFlags)fieldInfo.GetValue(target);
-                        value.Forbidden = (NetSegment.Flags)flags;
-                        fieldInfo.SetValue(target, value);
-                    };
-                    var bitMaskPanel0 = BitMaskPanel.Add(
-                        roadEditorPanel: instance,
-                        container: container,
-                        label: prefix + att.name + " Flags Required",
-                        enumType: typeof(NetSegmentFlags),
-                        setHandler: SetRequired,
-                        getHandler: GetRequired,
-                        hint: hint,
-                       false);
-                    var bitMaskPanel1 = BitMaskPanel.Add(
-                        roadEditorPanel: instance,
-                        container: container,
-                        label: prefix + att.name + " Flags Forbidden",
-                        enumType: typeof(NetSegmentFlags),
-                        setHandler: SetForbidden,
-                        getHandler: GetForbidden,
-                        hint: hint,
-                       true);
-                } else if (fieldInfo.FieldType == typeof(NetInfoExtionsion.VanillaNodeInfoFlags)) {
-                    int GetRequired() {
-                        var value = (NetInfoExtionsion.VanillaNodeInfoFlags)fieldInfo.GetValue(target);
-                        return (int)value.Required;
-                    }
-                    void SetRequired(int flags) {
-                        var value = (NetInfoExtionsion.VanillaNodeInfoFlags)fieldInfo.GetValue(target);
-                        value.Required = (NetNode.Flags)flags;
-                        fieldInfo.SetValue(target, value);
-                    };
-                    int GetForbidden() {
-                        var value = (NetInfoExtionsion.VanillaNodeInfoFlags)fieldInfo.GetValue(target);
-                        return (int)value.Forbidden;
-                    };
-                    void SetForbidden(int flags) {
-                        var value = (NetInfoExtionsion.VanillaNodeInfoFlags)fieldInfo.GetValue(target);
-                        value.Forbidden = (NetNode.Flags)flags;
-                        fieldInfo.SetValue(target, value);
-                    };
-                    var bitMaskPanel0 = BitMaskPanel.Add(
-                        roadEditorPanel: instance,
-                        container: container,
-                        label: prefix + att.name + " Flags Required",
-                        enumType: typeof(NetNodeFlags),
-                        setHandler: SetRequired,
-                        getHandler: GetRequired,
-                        hint: hint,
-                       false);
-                    var bitMaskPanel1 = BitMaskPanel.Add(
-                        roadEditorPanel: instance,
-                        container: container,
-                        label: prefix + att.name + " Flags Forbidden",
-                        enumType: typeof(NetNodeFlags),
-                        setHandler: SetForbidden,
-                        getHandler: GetForbidden,
-                        hint: hint,
-                       true);
-                } else {
-                    Log.Error($"CreateExtendedComponent: Unhandled field: {fieldInfo} att:{att.name} ");
+                int GetRequired2() {
+                    object subTarget = fieldInfo.GetValue(target);
+                    return (int)GetFieldValue("Required", subTarget);
                 }
+                void SetRequired2(int flags) {
+                    var subTarget = fieldInfo.GetValue(target);
+                    SetFieldValue("Required", subTarget, flags);
+                    fieldInfo.SetValue(target, subTarget);
+                }
+                int GetForbidden2() {
+                    object subTarget = fieldInfo.GetValue(target);
+                    return (int)GetFieldValue("Forbidden", subTarget);
+                }
+                void SetForbidden2(int flags) {
+                    var subTarget = fieldInfo.GetValue(target);
+                    SetFieldValue("Forbidden", subTarget, flags);
+                    fieldInfo.SetValue(target, subTarget);
+                }
+
+                Type enumType = fieldInfo.FieldType.GetField("Required").FieldType;
+                var bitMaskPanel0 = BitMaskPanel.Add(
+                    roadEditorPanel: instance,
+                    container: container,
+                    label: prefix + att.name + " Flags Required",
+                    enumType: enumType,
+                    setHandler: SetRequired2,
+                    getHandler: GetRequired2,
+                    hint: hint);
+                var bitMaskPanel1 = BitMaskPanel.Add(
+                    roadEditorPanel: instance,
+                    container: container,
+                    label: prefix + att.name + " Flags Forbidden",
+                    enumType: enumType,
+                    setHandler: SetForbidden2,
+                    getHandler: GetForbidden2,
+                    hint: hint);
             } else if (fieldInfo.FieldType == typeof(NetInfoExtionsion.Range) &&
                        fieldInfo.Name.ToLower().Contains("speed")) {
                 SpeedRangePanel.Add(
