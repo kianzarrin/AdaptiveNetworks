@@ -156,8 +156,8 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Pavement Width Right", "Properties")]
             public float m_pavementWidthRight = 3;
 
-            [CustomizableProperty("Pavement Width Right2", "Properties")]
-            public float m_pavementWidthRight2 = 3;
+            //[CustomizableProperty("Pavement Width Right2", "Properties")]
+            //public float m_pavementWidthRight2 = 3;
             /****************************************/
             public static Net[] Buffer;
             public static void EnsureBuffer() {
