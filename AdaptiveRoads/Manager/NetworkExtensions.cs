@@ -1,5 +1,7 @@
 /*
- * inverted = LHT
+inverted = LHT
+
+TODO: is this correct?
 Stop sign:
 Inverted\Dir | Forward | Backward
 ----------------------------------
@@ -52,136 +54,13 @@ segment 2 (normal):
     backward forbidden =
 */
 
-
-/*
-    NetNode.Flags {
-        CustomTrafficLights = int.MinValue,
-        All = -1,
-        None = 0,
-        Created = 1,
-        Deleted = 2,
-        Original = 4, // new game from map: no need to pay
-        Disabled = 8, // if netInfo.m_canDisable and is part of a disabled building 
-        End = 16,
-        Middle = 32,
-        Bend = 64,
-        Junction = 128,
-        Moveable = 256,
-        Untouchable = 512,
-        Outside = 1024,
-        Temporary = 2048,
-        Double = 4096,
-        Fixed = 8192,
-        OnGround = 16384,
-        Ambiguous = 32768,
-        Water = 65536,
-        Sewage = 131072,
-        ForbidLaneConnection = 262144,
-        Underground = 524288,
-        Transition = 1048576, // urban junction: has at leas one segment that does not have NetInfo.m_HighwayRules (useful for highway sign)
-        UndergroundTransition = 1572864,
-        LevelCrossing = 2097152, // train track connection.
-        OneWayOut = 4194304,
-        TrafficLights = 8388608,
-        OneWayOutTrafficLights = 12582912,
-        OneWayIn = 16777216,
-        Heating = 33554432,
-        Electricity = 67108864, // powerLineAI
-        Collapsed = 134217728, // due to disaster
-        DisableOnlyMiddle = 268435456, // ShipAI
-        AsymForward = 536870912,
-        AsymBackward = 1073741824
-    }
-
-    NetSegment.Flags {
-        All = -1,
-        None = 0,
-        Created = 1,
-        Deleted = 2,
-        Original = 4,
-        Collapsed = 8,
-        Invert = 16,
-        Untouchable = 32,
-        End = 64,
-        Bend = 128,
-        WaitingPath = 256,
-        CombustionBan = 256,
-        PathFailed = 512,
-        PathLength = 1024,
-        AccessFailed = 2048,
-        TrafficStart = 4096,
-        TrafficEnd = 8192,
-        CrossingStart = 16384,
-        CrossingEnd = 32768,
-
-        // bus
-        StopRight = 1<<16,
-        StopLeft = 1<<17,
-        StopBoth = StopRight | StopLeft,
-
-        // tram
-        StopRight2 = 1<<18,
-        StopLeft2 = 1<<19,
-        StopBoth2 = StopRight2  | StopLeft2 ,
-
-        StopAll = StopBoth | StopBoth2,
-
-        HeavyBan = 1048576,
-        Blocked = 2097152,
-        Flooded = 4194304,
-        BikeBan = 8388608,
-        CarBan = 16777216,
-        AsymForward = 33554432,
-        AsymBackward = 67108864,
-        CustomName = 134217728,
-        NameVisible1 = 268435456,
-        NameVisible2 = 536870912,
-        YieldStart = 1073741824, //start ndoe 
-        YieldEnd = int.MinValue, // end node
-    }
-
-    [Flags]
-    public enum NetLane.Flags
-    {
-        None = 0,
-        Created = 1,
-        Deleted = 2,
-        Inverted = 4, //Left Hand Traffic
-        JoinedJunction = 8, two nodes are too close
-        JoinedJunctionInverted = 12, 
-        Forward = 16,
-        Left = 32,
-        LeftForward = 48,
-        Right = 64,
-        ForwardRight = 80,
-        LeftRight = 96,
-        LeftForwardRight = 112,
-        Merge = 128, // multiple lanes merge into one in an intersection. never used.
-        Stop = 256, // bus
-        Stop2 = 512, //tram
-        Stops = 768, // bus+tram
-        YieldStart = 1024, // yeild at tail(LHT=head)
-        YieldEnd = 2048, // yeald at head(LHT=tail)
-
-        
-        StartOneWayLeft = 4096,  // RHT: | LHT:
-        StartOneWayRight = 8192, // RHT: | LHT:
-        EndOneWayLeft = 16384,   // RHT: | LHT:
-        EndOneWayRight = 32768,  // RHT: | LHT:
-
-        StartOneWayLeftInverted = 4100, 
-        StartOneWayRightInverted = 8196,
-        EndOneWayLeftInverted = 16388,
-        EndOneWayRightInverted = 32772
-    }
- */
-
 namespace AdaptiveRoads.Manager {
     using ColossalFramework;
     using CSUtil.Commons;
     using System;
     using TrafficManager;
     using TrafficManager.API.Manager;
+    using TrafficManager.API;
     using TrafficManager.API.Traffic.Data;
     using TrafficManager.API.Traffic.Enums;
     using TrafficManager.Manager.Impl;
@@ -258,36 +137,41 @@ namespace AdaptiveRoads.Manager {
             m_flags = Flags.None;
         }
 
-        static ParkingRestrictionsManager PMan => ParkingRestrictionsManager.Instance;
-        static VehicleRestrictionsManager VRMan => VehicleRestrictionsManager.Instance;
-        static SpeedLimitManager SLMan => SpeedLimitManager.Instance;
+        static IManagerFactory TMPE => Constants.ManagerFactory;
+        static IParkingRestrictionsManager PMan => TMPE?.ParkingRestrictionsManager;
+        static IVehicleRestrictionsManager VRMan => TMPE?.VehicleRestrictionsManager;
+        static ISpeedLimitManager SLMan => TMPE?.SpeedLimitManager as SpeedLimitManager;
 
         public void UpdateLane(LaneData lane) {
             Assertion.AssertEqual(LaneData.LaneID, lane.LaneID, "lane id");
             LaneData = lane;
 
-            m_flags = m_flags.SetFlags(
-                Flags.ParkingAllowed,
-                LaneData.LaneInfo.m_laneType == NetInfo.LaneType.Parking &&
-                PMan.IsParkingAllowed(LaneData.SegmentID, LaneData.LaneInfo.m_finalDirection));
+            bool parkingAllowed = LaneData.LaneInfo.m_laneType == NetInfo.LaneType.Parking;
+            if (PMan != null)
+                parkingAllowed = PMan.IsParkingAllowed(LaneData.SegmentID, LaneData.LaneInfo.m_finalDirection);
+            m_flags = m_flags.SetFlags(Flags.ParkingAllowed, parkingAllowed);
 
-            var mask = VRMan.GetAllowedVehicleTypes(
-                segmentId:LaneData.SegmentID,
-                segmentInfo: LaneData.Segment.Info,
-                laneIndex:(uint)LaneData.LaneIndex,
-                laneInfo:LaneData.LaneInfo,
-                busLaneMode: VehicleRestrictionsMode.Configured);
+            if (VRMan != null) {
+                var mask = VRMan.GetAllowedVehicleTypes(
+                    segmentId: LaneData.SegmentID,
+                    segmentInfo: LaneData.Segment.Info,
+                    laneIndex: (uint)LaneData.LaneIndex,
+                    laneInfo: LaneData.LaneInfo,
+                    busLaneMode: VehicleRestrictionsMode.Configured);
 
-            m_flags = m_flags.SetFlags(Flags.Car, VRMan.IsPassengerCarAllowed(mask));
-            m_flags = m_flags.SetFlags(Flags.SOS, VRMan.IsEmergencyAllowed(mask));
-            m_flags = m_flags.SetFlags(Flags.Bus, VRMan.IsBusAllowed(mask));
-            m_flags = m_flags.SetFlags(Flags.CargoTruck, VRMan.IsCargoTruckAllowed(mask));
-            m_flags = m_flags.SetFlags(Flags.Taxi, VRMan.IsTaxiAllowed(mask));
-            m_flags = m_flags.SetFlags(Flags.Service, VRMan.IsServiceAllowed(mask));
-            m_flags = m_flags.SetFlags(Flags.CargoTrain, VRMan.IsCargoTrainAllowed(mask));
-            m_flags = m_flags.SetFlags(Flags.PassengerTrain, VRMan.IsPassengerTrainAllowed(mask));
-
-            SpeedLimit = SLMan.GetGameSpeedLimit(LaneData.LaneID);
+                m_flags = m_flags.SetFlags(Flags.Car, VRMan.IsPassengerCarAllowed(mask));
+                m_flags = m_flags.SetFlags(Flags.SOS, VRMan.IsEmergencyAllowed(mask));
+                m_flags = m_flags.SetFlags(Flags.Bus, VRMan.IsBusAllowed(mask));
+                m_flags = m_flags.SetFlags(Flags.CargoTruck, VRMan.IsCargoTruckAllowed(mask));
+                m_flags = m_flags.SetFlags(Flags.Taxi, VRMan.IsTaxiAllowed(mask));
+                m_flags = m_flags.SetFlags(Flags.Service, VRMan.IsServiceAllowed(mask));
+                m_flags = m_flags.SetFlags(Flags.CargoTrain, VRMan.IsCargoTrainAllowed(mask));
+                m_flags = m_flags.SetFlags(Flags.PassengerTrain, VRMan.IsPassengerTrainAllowed(mask));
+            }
+            if (SLMan != null)
+                SpeedLimit = (SLMan as SpeedLimitManager).GetGameSpeedLimit(LaneData.LaneID);
+            else
+                SpeedLimit = lane.LaneInfo.m_speedLimit;
 
             //TODO lane connections
 
@@ -325,14 +209,16 @@ namespace AdaptiveRoads.Manager {
         public static JunctionRestrictionsManager JRMan => JunctionRestrictionsManager.Instance;
 
         public void UpdateFlags() {
-            bool keepClearAll = true;
-            foreach (var segmentID in NetUtil.IterateNodeSegments(NodeID)) {
-                bool startNode = NetUtil.IsStartNode(segmentId: segmentID, nodeId: NodeID);
-                bool keppClear = JRMan.IsEnteringBlockedJunctionAllowed(segmentID, startNode);
-                keepClearAll &= keppClear;
+            if (JRMan != null) {
+                bool keepClearAll = true;
+                foreach (var segmentID in NetUtil.IterateNodeSegments(NodeID)) {
+                    bool startNode = NetUtil.IsStartNode(segmentId: segmentID, nodeId: NodeID);
+                    bool keppClear = JRMan.IsEnteringBlockedJunctionAllowed(segmentID, startNode);
+                    keepClearAll &= keppClear;
 
+                }
+                m_flags = m_flags.SetFlags(Flags.KeepClearAll, keepClearAll);
             }
-            m_flags = m_flags.SetFlags(Flags.KeepClearAll, keepClearAll);
         }
 
         public Flags m_flags;
@@ -478,11 +364,11 @@ namespace AdaptiveRoads.Manager {
                 "when forbidden, the node will only be rendered when Adaptive Roads mod is enabled.")]
             Vanilla = 1 << 0,            // priority signs
             [Hint("checks if TMPE rules requires vehicles to yield to upcomming traffic\n" +
-                "differet than the vanila YieldStart/YieldEnd (Stop) flag.")]
+                "differet than the vanilla YieldStart/YieldEnd (Stop) flag.")]
             Yield = 1 << 4,
 
             [Hint("checks if TMPE rules requires vehicles to Stop at junctions\n" +
-                "differet than the vanila YieldStart/YieldEnd (Stop) flag.")]
+                "differet than the vanilla YieldStart/YieldEnd (Stop) flag.")]
             Stop = 1 << 5,
 
             [Hint("checks if TMPE rules gives priority to vehicles on this segment-end")]
@@ -556,19 +442,22 @@ namespace AdaptiveRoads.Manager {
         public void UpdateFlags() {
             var flags = m_flags;
 
-            PriorityType p = PMan.GetPrioritySign(SegmentID, StartNode);
-            flags = flags.SetFlags(Flags.Yield, p == PriorityType.Yield);
-            flags = flags.SetFlags(Flags.Stop, p == PriorityType.Stop);
-            flags = flags.SetFlags(Flags.PriorityMain, p == PriorityType.Main);
+            if (PMan != null) {
+                PriorityType p = PMan.GetPrioritySign(SegmentID, StartNode);
+                flags = flags.SetFlags(Flags.Yield, p == PriorityType.Yield);
+                flags = flags.SetFlags(Flags.Stop, p == PriorityType.Stop);
+                flags = flags.SetFlags(Flags.PriorityMain, p == PriorityType.Main);
+            }
 
-            flags = flags.SetFlags(Flags.KeepClear, !JRMan.IsEnteringBlockedJunctionAllowed(SegmentID, StartNode));
-            flags = flags.SetFlags(Flags.ZebraCrossing, JRMan.IsPedestrianCrossingAllowed(SegmentID, StartNode));
-            flags = flags.SetFlags(Flags.NearTurnAtRed, JRMan.IsNearTurnOnRedAllowed(SegmentID, StartNode));
-            flags = flags.SetFlags(Flags.FarTurnAtRed, JRMan.IsFarTurnOnRedAllowed(SegmentID, StartNode));
-            flags = flags.SetFlags(Flags.Uturn, JRMan.IsUturnAllowed(SegmentID, StartNode));
-            flags = flags.SetFlags(Flags.LaneChangingGoingStraight, JRMan.IsLaneChangingAllowedWhenGoingStraight(SegmentID, StartNode));
-            flags = flags.SetFlags(Flags.LaneChangingGoingStraight, JRMan.IsLaneChangingAllowedWhenGoingStraight(SegmentID, StartNode));
-
+            if (JRMan != null) {
+                flags = flags.SetFlags(Flags.KeepClear, !JRMan.IsEnteringBlockedJunctionAllowed(SegmentID, StartNode));
+                flags = flags.SetFlags(Flags.ZebraCrossing, JRMan.IsPedestrianCrossingAllowed(SegmentID, StartNode));
+                flags = flags.SetFlags(Flags.NearTurnAtRed, JRMan.IsNearTurnOnRedAllowed(SegmentID, StartNode));
+                flags = flags.SetFlags(Flags.FarTurnAtRed, JRMan.IsFarTurnOnRedAllowed(SegmentID, StartNode));
+                flags = flags.SetFlags(Flags.Uturn, JRMan.IsUturnAllowed(SegmentID, StartNode));
+                flags = flags.SetFlags(Flags.LaneChangingGoingStraight, JRMan.IsLaneChangingAllowedWhenGoingStraight(SegmentID, StartNode));
+                flags = flags.SetFlags(Flags.LaneChangingGoingStraight, JRMan.IsLaneChangingAllowedWhenGoingStraight(SegmentID, StartNode));
+            }
             flags = flags.SetFlags(Flags.IsStartNode, StartNode);
             flags = flags.SetFlags(Flags.IsTailNode, NetUtil.GetTailNode(SegmentID) == NodeID);
 

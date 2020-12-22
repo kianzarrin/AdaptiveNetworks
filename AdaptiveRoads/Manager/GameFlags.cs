@@ -1,25 +1,30 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using KianCommons;
+
+
 
 namespace AdaptiveRoads.Manager {
-    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+    using KianCommons;
+    using static HintExtension;
 
+    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
     public class HideAttribute :Attribute {
         [Flags]
         public enum HideMode {
             None=0,
-            Get=1,
-            Set=2,
-            Both = Get | Set,
+            Read=1,
+            Write=2,
+            Both = Read | Write,
         }
         public HideMode Mode = HideMode.Both;
         public HideAttribute() { }
         public HideAttribute(HideMode mode) => Mode = mode;
     }
 
+
+    [AttributeUsage(AttributeTargets.All, AllowMultiple = false)]
     public class HintAttribute : Attribute {
         public string Text;
         public HintAttribute(string text) => Text = text;
@@ -32,9 +37,30 @@ namespace AdaptiveRoads.Manager {
                 .Select(_item => (_item as HintAttribute).Text)
                 .ToList();
         }
+        public const string LANE_HEAD_TAIL =
+            "cars drive from tail to head.\n"+
+            "head/tail swap when:\n" +
+            "    - segment is inverted\n" +
+            "    - lane is backward" +
+            "    - lane is uni-directional (that excludes pavements/medians)\n" +
+            "      and traffic drives on left (LHT)\n";
+
+        const string YIELD_HEAD = nameof(NetLaneFlags.YieldHead); //former end
+        const string YIELD_TAIL = nameof(NetLaneFlags.YieldTail); // former start
+        public const string LANE_YIELD_HEAD_TAIL =
+            YIELD_HEAD + " and " + YIELD_TAIL + "swap when segment is inverted\n" +
+            "adidtionally if lane.final_direction is forward, " + YIELD_HEAD + " is removed\n" +
+            "and if lane.final_direction is backward, " + YIELD_TAIL + " is removed\n" +
+            "pavement/median lanes arn't uni-directional so no yield flags is removed on them.\n" +
+            "lane.final_direction is like lane.direction but considers LHT(Left Hand Traffic)\n" +
+            "this is different than TMPE's yield/stop flags";
+
+        public const string SEGMNET_START_END =
+            "actual start/end nodes. this is not influenced by segment.invert or LHT";
     }
 
     [Flags]
+    [Hint("Vanilla Segment Flags")]
     public enum NetSegmentFlags {
         None = 0,
         //[Hide]
@@ -229,8 +255,10 @@ namespace AdaptiveRoads.Manager {
         Stop = 256,
         Stop2 = 512,
         Stops = 768,
-        YieldStart = 1024,
-        YieldEnd = 2048,
+        [Hint(LANE_YIELD_HEAD_TAIL)]
+        YieldTail = 1024,
+        [Hint(LANE_YIELD_HEAD_TAIL)]
+        YieldHead = 2048,
         StartOneWayLeft = 4096,
         StartOneWayRight = 8192,
         EndOneWayLeft = 16384,

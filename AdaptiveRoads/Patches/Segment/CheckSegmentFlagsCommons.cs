@@ -18,6 +18,23 @@ namespace AdaptiveRoads.Patches.Segment {
             ref NetSegment netSegment = ref segmentID.ToSegment();
             ref NetNode netNodeStart = ref netSegment.m_startNode.ToNode();
             ref NetNode netNodeEnd = ref netSegment.m_endNode.ToNode();
+
+            var segmentStartFlags = netSegmentExt.Start.m_flags;
+            var segmentEndFlags = netSegmentExt.End.m_flags;
+            var nodeStartFlags = netNodeStart.m_flags;
+            var nodeEndFlags = netNodeEnd.m_flags;
+
+            // TODO: should I consider invert flags
+            // bi-directional lanes ignore LHT therefore I probabely need to ignore LHT for
+            // segments to for the sake of consistency.
+            bool reverse = false; // netSegment.IsInvert() /*&& !NetUtil.LHT*/;
+            if (reverse) {
+                segmentStartFlags = netSegmentExt.End.m_flags; // head
+                segmentEndFlags = netSegmentExt.Start.m_flags; // tail
+                nodeStartFlags = netNodeEnd.m_flags; // head
+                nodeEndFlags = netNodeStart.m_flags; //tail
+            }
+
             {
                 turnAround = false;
                 bool ret = segmentInfo.CheckFlags(netSegment.m_flags, turnAround);
@@ -29,6 +46,13 @@ namespace AdaptiveRoads.Patches.Segment {
                     netNodeEnd.m_flags,
                     turnAround);
                 if (ret) return true;
+            }
+            if(false) // TODO should I turn around these flags?
+            {
+                segmentStartFlags = netSegmentExt.End.m_flags; // head
+                segmentEndFlags = netSegmentExt.Start.m_flags; // tail
+                nodeStartFlags = netNodeEnd.m_flags; // head
+                nodeEndFlags = netNodeStart.m_flags; //tail
             }
             {
                 turnAround = true;

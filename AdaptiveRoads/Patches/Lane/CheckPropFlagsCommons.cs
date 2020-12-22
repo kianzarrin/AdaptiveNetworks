@@ -79,14 +79,11 @@ namespace AdaptiveRoads.Patches.Lane {
             //var laneInfoExt = laneInfo?.GetExt();
             //if (laneInfoExt == null) return true;
 
-            // TODO move prepration to prefix ... how can I read from state?
+            // TODO prepaire data at the begining.
             ushort segmentID = laneID.ToLane().m_segment;
             ref NetSegment segment = ref segmentID.ToSegment();
 
-            bool segmentInverted = segment.m_flags.IsFlagSet(NetSegment.Flags.Invert);
-            bool backward = (laneInfo.m_finalDirection & NetInfo.Direction.Both) == NetInfo.Direction.Backward ||
-                (laneInfo.m_finalDirection & NetInfo.Direction.AvoidBoth) == NetInfo.Direction.AvoidForward;
-            bool reverse = segmentInverted != backward; // xor
+            bool reverse = segment.IsInvert() != laneInfo.IsGoingBackward(); // xor
 
             ushort startNodeID =  !reverse ? segment.m_startNode : segment.m_endNode; // tail
             ushort endNodeID = reverse ? segment.m_startNode : segment.m_endNode; // head

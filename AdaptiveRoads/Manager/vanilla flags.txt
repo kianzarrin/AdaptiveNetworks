@@ -1,0 +1,133 @@
+[Flags]
+NetNode.Flags {
+    CustomTrafficLights = int.MinValue,
+    All = -1,
+    None = 0,
+    Created = 1,
+    Deleted = 2,
+    Original = 4,  new game from map: no need to pay
+    Disabled = 8,  if netInfo.m_canDisable and is part of a disabled building 
+    End = 16,
+    Middle = 32,
+    Bend = 64,
+    Junction = 128,
+    Moveable = 256,
+    Untouchable = 512,
+    Outside = 1024,
+    Temporary = 2048,
+    Double = 4096,
+    Fixed = 8192,
+    OnGround = 16384,
+    Ambiguous = 32768,
+    Water = 65536,
+    Sewage = 131072,
+    ForbidLaneConnection = 262144,
+    Underground = 524288,
+    Transition = 1048576,  // junction has segments from different classes. useful for highway signs.
+    UndergroundTransition = 1572864,
+    LevelCrossing = 2097152,  train track connection.
+    OneWayOut = 4194304,
+    TrafficLights = 8388608,
+    OneWayOutTrafficLights = 12582912,
+    OneWayIn = 16777216,
+    Heating = 33554432,
+    Electricity = 67108864,  powerLineAI
+    Collapsed = 134217728,  due to disaster
+    DisableOnlyMiddle = 268435456,  ShipAI
+    AsymForward = 536870912,
+    AsymBackward = 1073741824
+}
+
+NetSegment.Flags {
+    All = -1,
+    None = 0,
+    Created = 1,
+    Deleted = 2,
+    Original = 4,
+    Collapsed = 8,
+    Invert = 16,
+    Untouchable = 32,
+    End = 64,
+    Bend = 128,
+    WaitingPath = 256,
+    CombustionBan = 256,
+    PathFailed = 512,
+    PathLength = 1024,
+    AccessFailed = 2048,
+    TrafficStart = 4096,
+    TrafficEnd = 8192,
+    CrossingStart = 16384,
+    CrossingEnd = 32768,
+
+        bus
+    StopRight = 1<<16,
+    StopLeft = 1<<17,
+    StopBoth = StopRight | StopLeft,
+
+        tram
+    StopRight2 = 1<<18,
+    StopLeft2 = 1<<19,
+    StopBoth2 = StopRight2  | StopLeft2 ,
+
+    StopAll = StopBoth | StopBoth2,
+
+    HeavyBan = 1048576,
+    Blocked = 2097152,
+    Flooded = 4194304,
+    BikeBan = 8388608,
+    CarBan = 16777216,
+    AsymForward = 33554432,
+    AsymBackward = 67108864,
+    CustomName = 134217728,
+    NameVisible1 = 268435456,
+    NameVisible2 = 536870912,
+    YieldStart = 1073741824, start ndoe 
+    YieldEnd = int.MinValue,  end node
+}
+
+[Flags]
+public enum NetLane.Flags
+{
+    None = 0,
+    Created = 1,
+    Deleted = 2,
+    Inverted = 4, Left Hand Traffic
+    JoinedJunction = 8, two nodes are too close
+    JoinedJunctionInverted = 12, 
+    Forward = 16,
+    Left = 32,
+    LeftForward = 48,
+    Right = 64,
+    ForwardRight = 80,
+    LeftRight = 96,
+    LeftForwardRight = 112,
+    Merge = 128,  multiple lanes merge into one in an intersection. never used.
+    Stop = 256,  bus
+    Stop2 = 512, tram
+    Stops = 768,  bus+tram
+    YieldStart = 1024,  yield at tail(LHT=head)
+    YieldEnd = 2048,  yield at head(LHT=tail)
+
+        
+    StartOneWayLeft = 4096,   RHT: | LHT:
+    StartOneWayRight = 8192,  RHT: | LHT:
+    EndOneWayLeft = 16384,    RHT: | LHT:
+    EndOneWayRight = 32768,   RHT: | LHT:
+
+    StartOneWayLeftInverted = 4100, 
+    StartOneWayRightInverted = 8196,
+    EndOneWayLeftInverted = 16388,
+    EndOneWayRightInverted = 32772
+}
+
+[Flags]
+public enum Direction : byte {
+    None = 0,
+    Forward = 0b01,
+    Backward = 0b10,
+    Both = 0b11,
+    AvoidBackward = 0b1101,
+    AvoidForward = 0b1011,
+    Avoid = 0b1100
+    AvoidBoth = 1111
+}

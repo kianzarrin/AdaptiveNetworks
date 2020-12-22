@@ -1,6 +1,7 @@
-backend can handle all sort of hints. need to add hints for:
-    vanilla flags/drop-downs
-    my own flags/drop-downs.
+- hint for vanilla flags/drop-downs
+    - hoc to modify game flags
+- decide in which direction I need to layout the segment's start/end node/segmentEnd flags. should it be influenced by invert?
+- 
 
 version 2:
     mixed enum type bitmask
@@ -8,60 +9,3 @@ version 2:
         data manager to manage them.
         UI to control them.
         all the network persistancy features.
-
-
-start/end head/tail
-too many drop downs
-hoc to modify game flags
-
-
-
-
---------------------------------------------------------------------------------
-notes
-//simplified:
-segment = the segment we wan to calculate node.
-segmentA = another segment at the intersection. (to the left)
-segmentB = yet another segment at the intersection. (to the right)
-
-pavementRatio = segment.pavementWidth / segment.width;
-pavementRatioA = segmentA.pavementWidth / segmentA.width;
-pavementRatio_avgA = (pavementRatio + pavementRatioA) / 2;
-roadRatioA = 2*segment.width/(segment.width+segmentA.width);
-
-pavementRatio = segment.pavementWidth / segment.width;
-pavementRatioB = segmentB.pavementWidth / segmentB.width;
-pavementRatio_avgB = (pavementRatio + pavementRatioB) / 2
-roadRatioB = 2*segment.width/(segment.width+segmentB.width);
-
-data.m_dataVector0 = x: 1 / width | y: 1 / length | z: 0.5 - pavementRatio | w: pavementRatio
-data.m_dataVector2 = x: pavementRatio_avgA | y: roadRatioA | z: pavementRatio_avgB | w: roadRatioB
-
-
-
-
-y = Ar+B
-6 = A*25 + B
-6.25 = A*0.3125+B
-=> A=4 B=5
-
-y1 = A.x1 +B
-y2 = A.x2 +B
---------------
--: y1-y2 = A(x1-x2) => A = y1-y2/x1-x2
-+: y1+y2 = A(x1+x2)+2b => 2b = y1+y2 - A(x1+x2)
-
-------------------------------------------------------------------------------
-x1 = .25
-y1 = 6
-x2 = .3125
-y2 = 6.25
-
-
-a = (y1-y2) / (x1-x2)
-b2 = y1+y2 - a * (x1+x2)
-b = b2/2
-
-print(f'{y1}=A*{x1}+B | {y2}=A*{x2}+B => A={a} B={b}')
-
---------------------------------------------------------------------------------

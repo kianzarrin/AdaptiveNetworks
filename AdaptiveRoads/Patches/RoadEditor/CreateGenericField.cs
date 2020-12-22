@@ -28,9 +28,17 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     container = __instance.GetGroupPanel(groupName).Container;
                 }
                 var att = field.GetAttribute<CustomizablePropertyAttribute>();
+
+                var hints = field.GetHints();
+                hints.AddRange(field.FieldType.GetHints());
+                string hint = hints.JoinLines();
+                Log.Debug("hint is " + hint);
+
                 var enumType = field.FieldType;
-                if (enumType == typeof(NetSegment.Flags))
+                if (enumType == typeof(NetSegment.Flags)) {
                     enumType = typeof(NetSegmentFlags);
+                }
+                
                 var bitMaskPanel = BitMaskPanel.Add(
                     roadEditorPanel: __instance,
                     container: container,
@@ -38,7 +46,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     enumType: enumType,
                     setHandler: val => field.SetValue(target, val),
                     getHandler: () => (int)field.GetValue(target),
-                    hint: "Vanila segment flags");
+                    hint: hint);
                 return false;
             }
             if(field.Name == nameof(NetInfo.m_pavementWidth)) {

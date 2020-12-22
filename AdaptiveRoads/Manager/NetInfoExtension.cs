@@ -9,7 +9,10 @@ using static AdaptiveRoads.Manager.NetInfoExtionsion;
 using static AdaptiveRoads.UI.ModSettings;
 using KianCommons.Math;
 
+
 namespace AdaptiveRoads.Manager {
+    using static HintExtension;
+
     [AttributeUsage(AttributeTargets.Struct)]
     public class FlagPairAttribute : Attribute { }
 
@@ -164,12 +167,14 @@ namespace AdaptiveRoads.Manager {
         public class Net :ICloneable{
             object ICloneable.Clone() => Clone();
             public Net() { }
-            public Net(NetInfo template) : this() { }
+            public Net(NetInfo template) : this() {
+                PavementWidthRight = template.m_pavementWidth;
+            }
 
             public Net Clone() => this.ShalowClone();
 
             [CustomizableProperty("Pavement Width Right", "Properties")]
-            public float PavementWidthRight = 3;
+            public float PavementWidthRight;
 
             /****************************************/
             public static Net[] Buffer;
@@ -304,34 +309,40 @@ namespace AdaptiveRoads.Manager {
             [Hint("lane extension flags")]
             public LaneInfoFlags LaneFlags = new LaneInfoFlags();
 
-            [CustomizableProperty("SegmentExt")]
+            [CustomizableProperty("Segment Extionsion")]
             [Optional(LANE_SEGMENT)]
             public SegmentInfoFlags SegmentFlags = new SegmentInfoFlags();
 
-            [CustomizableProperty("Segment")]
+            [CustomizableProperty("Vanilla Segment")]
             [Optional(LANE_SEGMENT)]
             public VanillaSegmentInfoFlags VanillaSegmentFlags = new VanillaSegmentInfoFlags();
 
-            [CustomizableProperty("Segment Start")]
+            [Hint(LANE_HEAD_TAIL)]
+            [CustomizableProperty("Segment Tail")]
             [Optional(LANE_SEGMENT_END)]
             public SegmentEndInfoFlags SegmentStartFlags = new SegmentEndInfoFlags();
 
-            [CustomizableProperty("Segment End")]
+            [Hint(LANE_HEAD_TAIL)]
+            [CustomizableProperty("Segment Head")]
             [Optional(LANE_SEGMENT_END)]
             public SegmentEndInfoFlags SegmentEndFlags = new SegmentEndInfoFlags();
 
             //[CustomizableProperty("Start Node Extension")]
+            [Hint(LANE_HEAD_TAIL)]
             [Optional(LANE_NODE)]
             public NodeInfoFlags StartNodeFlags = new NodeInfoFlags();
 
             //[CustomizableProperty("End Node Extension")]
+            [Hint(LANE_HEAD_TAIL)]
             [Optional(LANE_NODE)]
             public NodeInfoFlags EndNodeFlags = new NodeInfoFlags();
 
+            [Hint(LANE_HEAD_TAIL)]
             [CustomizableProperty("Start Node")]
             [Optional(LANE_NODE)]
             public VanillaNodeInfoFlags VanillaStartNodeFlags = new VanillaNodeInfoFlags();
 
+            [Hint(LANE_HEAD_TAIL)]
             [CustomizableProperty("End Node")]
             [Optional(LANE_NODE)]
             public VanillaNodeInfoFlags VanillaEndNodeFlags = new VanillaNodeInfoFlags();

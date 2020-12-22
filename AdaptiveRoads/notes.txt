@@ -1,5 +1,13 @@
-RoadEditorPanel.Initialize(object target)
-RoadEditorPanel.AddCustomFields()
-RoadEditorPanel.CreateField(FieldInfo field, object target)
-RoadEditorPanel.OnToggle(RoadEditorDynamicPropertyToggle)
-private RoadEditorPanel.REPropertySet CreateFieldComponent(FieldInfo field)
+start/end flags:
+    lane Start/End Flags :
+        - it takes into consideration segment.invert, lane.direction, and LHT. ie segment.invert ^ lane.finalDirdection
+        - taking lane.direction is usually not useful because medians are non-directional and pavements are bi-drectional.
+        - my lane segment end start/end flags work in the exact same way (LHT only applicable to directional nodes)
+    Segment YieldStart/YieldEnd flags:
+        - means actual start and end node
+        - currently my segment's node/segmentEnd flags also mean actual start/end node.
+    Lane YieldStart/YieldEnd flags:
+        - it takes into account invert flag
+        - then forward lane removes YieldStart, and backward lane removes YieldEnd
+            - this usualy is of no help because medians are non-directional and pavements are bi-drectional.
+            - this also on a backward lane cars can go toward YieldStart
