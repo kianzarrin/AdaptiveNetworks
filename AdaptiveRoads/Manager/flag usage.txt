@@ -1,0 +1,54 @@
+
+inverted = LHT
+
+TODO: is this correct?
+Stop sign:
+Inverted\Dir | Forward | Backward
+----------------------------------
+   False     |         |  
+       Yield | End     | End
+angle/offset | 0/+1    | 0/+1
+----------------------------------   
+   True      |         |
+       Yield | Start   | Start
+angle/offset | 180/-1  | 180/-1
+
+ BusStop  (inverted: dont care)
+Forward:   angle:90   
+backward:  angle:-90
+ 
+--------------------------------------------------------------------------------------------------------
+
+segment 0 (Normal):
+    forward required =
+    forward forbidden = StopBoth
+    backward required =
+    backward forbidden = StopBoth
+segment 1 (BusStopSide):
+    forward required = StopLeft
+    forward forbidden = StopRight
+    backward required = StopRight
+    backward forbidden = StopLeft
+segment 2 (BusStopBoth):
+    forward required = StopBoth
+    forward forbidden =
+    backward required = StopBoth
+    backward forbidden =
+
+--------------------------------------------------------------------------------------------------------
+
+segment 0 (no parking):
+    forward required =
+    forward forbidden = ParkingAllowedBoth | vanilla
+    backward required =
+    backward forbidden = ParkingAllowedBoth | vanilla
+segment 1 (1 Side parking):
+    forward required = ParkingAllowedLeft 
+    forward forbidden = ParkingAllowedRight | vanilla
+    backward required = ParkingAllowedRight 
+    backward forbidden = ParkingAllowedLeft | vanilla
+segment 2 (normal):
+    forward required = ParkingAllowedBoth
+    forward forbidden =
+    backward required = ParkingAllowedBoth
+    backward forbidden =

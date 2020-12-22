@@ -105,6 +105,8 @@ namespace AdaptiveRoads.UI.RoadEditor {
         public override void Update() {
             base.Update();
             try {
+                if (ModSettings.HideHints) return;
+
                 position = Input.mousePosition;
                 //Camera.main.ViewportToScreenPoint()
 

@@ -18,6 +18,7 @@ namespace AdaptiveRoads.UI {
         //public static readonly SavedBool InLineLaneInfo = SavedBool("InLineLaneInfo", true);
 
         public static readonly SavedBool HideIrrelavant = SavedBool("HideIrrelavant", true);
+        public static readonly SavedBool HideHints = SavedBool("HideHints", false);
 
         public static readonly SavedBool Segment_Node = SavedBool(SEGMENT_VANILLA_NODE, false);
         public static readonly SavedBool Segment_SegmentEnd = SavedBool(SEGMENT_SEGMENT_END, true);
@@ -37,7 +38,7 @@ namespace AdaptiveRoads.UI {
         }
 
 
-        public static UICheckBox AddToggle(this UIHelperBase helper, string label, SavedBool savedBool) {
+        public static UICheckBox AddSavedToggle(this UIHelperBase helper, string label, SavedBool savedBool) {
             return helper.AddCheckbox(label, savedBool, delegate(bool value) {
                 savedBool.value = value;
             }) as UICheckBox;
@@ -54,20 +55,21 @@ namespace AdaptiveRoads.UI {
 
         public static void OnSettingsUI(UIHelperBase helper) {
             var general = helper.AddGroup("General");
-            general.AddToggle("hide irrelevant flags", HideIrrelavant);
+            general.AddSavedToggle("hide irrelevant flags", HideIrrelavant);
+            general.AddSavedToggle("hide floating hint box", HideHints);
 
             var extensions = helper.AddGroup("UI components visible in asset editor:");
             var segment = extensions.AddGroup("Segment");
-            segment.AddToggle("Node flags", Segment_Node);
-            segment.AddToggle("Segment End flags", Segment_SegmentEnd);
+            segment.AddSavedToggle("Node flags", Segment_Node);
+            segment.AddSavedToggle("Segment End flags", Segment_SegmentEnd);
 
             var node = extensions.AddGroup("Node");
-            node.AddToggle("Segment and Segment-extension flags", Node_Segment);
+            node.AddSavedToggle("Segment and Segment-extension flags", Node_Segment);
 
             var laneProp = extensions.AddGroup("Lane prop");
-            laneProp.AddToggle("Segment and Segment-extension flags", Lane_Segment);
-            laneProp.AddToggle("Node flags", Lane_Node);
-            laneProp.AddToggle("Segment End flags", Lane_SegmentEnd);
+            laneProp.AddSavedToggle("Segment and Segment-extension flags", Lane_Segment);
+            laneProp.AddSavedToggle("Node flags", Lane_Node);
+            laneProp.AddSavedToggle("Segment End flags", Lane_SegmentEnd);
         }
     }
 }
