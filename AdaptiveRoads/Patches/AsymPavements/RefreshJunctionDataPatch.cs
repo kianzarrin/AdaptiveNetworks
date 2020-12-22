@@ -37,23 +37,18 @@ namespace NodeController.Patches {
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, MethodBase original) {
             var codes = instructions.ToCodeList();
             var ldSegmentID = GetLDArg(original, "nodeSegment");
+
+            // TODO aquire dynamically
             var ldSegmentIDA = new CodeInstruction(OpCodes.Ldloc_S, 20);
             var ldSegmentIDB = new CodeInstruction(OpCodes.Ldloc_S, 21);
             int index;
 
-            //index = codes.Search(_c => _c.LoadsField(f_pavementWidth), count: 1); //main left
-            //codes.InsertInstructions(index + 1, //after
-            //    new[] {
-            //        ldSegmentID.Clone(), //ldInfo
-            //        new CodeInstruction(OpCodes.Ldc_I4_1), // occurance
-            //        new CodeInstruction(OpCodes.Call, mModifyPavement),
-            //    });
-
+            // non-invert
             index = codes.Search(_c => _c.LoadsField(f_pavementWidth), count: 2); //A left
             codes.InsertInstructions(index + 1, //after
                 new[] {
                     ldSegmentIDA.Clone(),
-                    ldSegmentIDA.Clone(), //doesn't matter
+                    ldSegmentID.Clone(), // does not matter
                     new CodeInstruction(OpCodes.Ldc_I4_2), // occurance
                     new CodeInstruction(OpCodes.Call, mModifyPavement),
                 });
@@ -67,29 +62,24 @@ namespace NodeController.Patches {
                     new CodeInstruction(OpCodes.Call, mModifyPavement),
                 });
 
-            //index = codes.Search(_c => _c.LoadsField(f_pavementWidth), count: 4); //B right
-            //codes.InsertInstructions(index + 1, //after
-            //    new[] {
-            //        ldSegmentIDB.Clone(),
-            //        new CodeInstruction(OpCodes.Ldc_I4_4), // occurance
-            //        new CodeInstruction(OpCodes.Call, mModifyPavement),
-            //    });
+            // invert
+            index = codes.Search(_c => _c.LoadsField(f_pavementWidth), count: 1); //A left
+            codes.InsertInstructions(index + 1, //after
+                new[] {
+                    ldSegmentID.Clone(),
+                    ldSegmentIDA.Clone(),
+                    new CodeInstruction(OpCodes.Ldc_I4_1), // occurance
+                    new CodeInstruction(OpCodes.Call, mModifyPavement),
+                });
 
-            //index = codes.Search(_c => _c.LoadsField(f_pavementWidth), count: 5); //.z
-            //codes.InsertInstructions(index + 1, //after
-            //    new[] {
-            //        ldSegmentID.Clone(),
-            //        new CodeInstruction(OpCodes.Ldc_I4_5), // occurance
-            //        new CodeInstruction(OpCodes.Call, mModifyPavement),
-            //    });
-
-            //index = codes.Search(_c => _c.LoadsField(f_pavementWidth), count: 6); //.w
-            //codes.InsertInstructions(index + 1, //after
-            //    new[] {
-            //        ldSegmentID.Clone(),
-            //        new CodeInstruction(OpCodes.Ldc_I4_6), // occurance
-            //        new CodeInstruction(OpCodes.Call, mModifyPavement),
-            //    });
+            index = codes.Search(_c => _c.LoadsField(f_pavementWidth), count: 4); //main right
+            codes.InsertInstructions(index + 1, //after
+                new[] {
+                    ldSegmentIDB.Clone(),
+                    ldSegmentID.Clone(), // does not matter
+                    new CodeInstruction(OpCodes.Ldc_I4_4), // occurance
+                    new CodeInstruction(OpCodes.Call, mModifyPavement),
+                });
             return codes;
         }
 
@@ -97,34 +87,42 @@ namespace NodeController.Patches {
         static FieldInfo f_pavementWidth = typeof(NetInfo).GetField("m_pavementWidth");
 
         public static float ModifyPavement(float width, ushort segmentID, ushort segmentID2, int occurance) {
-            NetInfo info = segmentID.ToSegment().Info;
+            ref var segment = ref segmentID.ToSegment();
+            NetInfo info = segment.Info;
             if (info.GetMetaData() is NetInfoExtionsion.Net netData) {
-                // 5=left
-                // 2=right
-                // 9.5=right2 
-
-                if (occurance == 2) {
-                    return netData.PavementWidthRight;
-                }else if(occurance == 3) {
-                    // LeftPavementWidth * HalfWidth / RightPavementWidth - HalfWdith
-                    float A = info.m_pavementWidth * info.m_halfWidth / netData.PavementWidthRight - info.m_halfWidth;
-                    float B = info.m_pavementWidth;
-                    var info2 = segmentID2.ToSegment().Info;
-                    float r = info2.m_pavementWidth / info2.m_halfWidth;
-                    return A * r + B;
+                ushort nodeID = segment.GetSharedNode(segmentID2);
+                bool startNode = segment.IsStartNode(nodeID);
+                bool reverse = startNode ^ segment.IsInvert();
+                switch (occurance) {
+                    case 2:
+                    case 3:
+                        if (reverse)
+                            return width;
+                        break;
+                    case 1:
+                    case 4:
+                        if (!reverse)
+                            return width;
+                        break;
+                    default:
+                        throw new ArgumentException("unexpected occurance:" + occurance);
                 }
-                throw new Exception("unexpected occurance:" + occurance);
 
-                //width = occurance switch
-                //{
-                //    1 => info.m_pavementWidth, //main Left (5=>-3)
-                //    2 => netData.m_pavementWidthRight, //A left 
-                //    3 => netData.m_pavementWidthRight2, //main right (2=>9.5)
-                //    4 => info.m_pavementWidth, //B right
-                //    5 => info.m_pavementWidth, //.z
-                //    6 => info.m_pavementWidth, //.w
-                //    _ => throw new Exception("unexoected occurance:" + occurance),
-                //};
+                switch (occurance) {
+                    case 2:
+                    case 4:
+                        return netData.PavementWidthRight;
+                    case 1:
+                    case 3:
+                        float pwLeft = info.m_pavementWidth;
+                        float pwRight = netData.PavementWidthRight;
+                        float A = pwLeft / pwRight - 1;
+                        var info2 = segmentID2.ToSegment().Info;
+                        float r = info2.m_pavementWidth * info.m_halfWidth / info2.m_halfWidth;
+                        return A * r + pwLeft;
+                    default:
+                        throw new ArgumentException("unexpected occurance:" + occurance);
+                }
             }
             return width;
         }

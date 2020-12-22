@@ -109,10 +109,13 @@ public enum NetLane.Flags
     YieldEnd = 2048,  yield at head(LHT=tail)
 
         
-    StartOneWayLeft = 4096,   RHT: | LHT:
-    StartOneWayRight = 8192,  RHT: | LHT:
-    EndOneWayLeft = 16384,    RHT: | LHT:
-    EndOneWayRight = 32768,   RHT: | LHT:
+    // OneWay = oneway road is comming toward the junction (so that you cannot turn into it)
+    // segment.invert swaps start/end.
+    // left and right are measured when you are going toward the junction.
+    StartOneWayLeft = 4096,  // oneway road[s] join from the left at tail node. 
+    StartOneWayRight = 8192, // oneway road[s] join from the right at tail node. 
+    EndOneWayLeft = 16384,   // oneway road[s] join from the left at head node. 
+    EndOneWayRight = 32768,  // oneway road[s] join from the right at head node. 
 
     StartOneWayLeftInverted = 4100, 
     StartOneWayRightInverted = 8196,

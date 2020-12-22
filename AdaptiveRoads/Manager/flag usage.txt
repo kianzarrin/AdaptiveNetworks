@@ -1,24 +1,39 @@
-
 inverted = LHT
-
-TODO: is this correct?
 Stop sign:
-Inverted\Dir | Forward | Backward
-----------------------------------
-   False     |         |  
-       Yield | End     | End
-angle/offset | 0/+1    | 0/+1
-----------------------------------   
-   True      |         |
-       Yield | Start   | Start
-angle/offset | 180/-1  | 180/-1
+Inverted\side │ +(Right) │ -(Left)
+──────────────┼──────────┼──────────
+   False      │          │  
+       Yield  │ End      │ Start
+angle/offset  │ 0/+1     │ 0/+1
+──────────────┼──────────┼──────────
+   True       │          │
+       Yield  │ Start    │ End
+angle/offset  │ 180/-1   │ 180/-1
+Notes:
+    - segment.invert swaps YieldStart/YiedEnd
+    - no furthur adjustment for pavement/median lanes
+    - unidirectional lanes remove YieldStart/YieldEnd based on finalDirection.
+
+═══════════════════════════════════════════════════════════════════════════════════════════
+OneWay Left/Right Start/End
+
+Inverted\side │   +      │   -    
+──────────────┼──────────┼──────────
+   False      │          │  
+      No Left │          │       
+     No Right │ EndRight │ StartRight
+angle/offset  │ 180/-1   │ 0/+1
+──────────────┼──────────┼──────────
+   True       │          │
+      No Left │ StartLeft│ EndLeft
+     No Right │          │ 
+angle/offset  │ 180/-1   │ 0/+1 
 
  BusStop  (inverted: dont care)
-Forward:   angle:90   
-backward:  angle:-90
- 
---------------------------------------------------------------------------------------------------------
+Right(Forward, +):  angle:90   
+Left(Backward, -):  angle:-90
 
+══════════════════════════════════════════════════════════════════════════════════════════
 segment 0 (Normal):
     forward required =
     forward forbidden = StopBoth
@@ -35,7 +50,7 @@ segment 2 (BusStopBoth):
     backward required = StopBoth
     backward forbidden =
 
---------------------------------------------------------------------------------------------------------
+═══════════════════════════════════════════════════════════════════════════════════════════
 
 segment 0 (no parking):
     forward required =

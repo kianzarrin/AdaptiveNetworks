@@ -2,11 +2,11 @@
     - hoc to modify game flags
 - decide in which direction I need to layout the segment's start/end node/segmentEnd flags. should it be influenced by invert?
 - check usage of vanilla lane flags:
-    - yield start/end
     - oneway left/right start/end
 - bug: fix vanilla drop down hints (probabely I just need a re-build)
 - option: hide hint box  
-
+- bug: fix asym pavements for all roads
+- bug: fix lod is not loaded the first time.
 
 version 2:
     mixed enum type bitmask
