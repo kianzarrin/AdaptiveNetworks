@@ -24,11 +24,14 @@ namespace AdaptiveRoads.Patches.Node {
             return ret;
         }
 
-        public static IEnumerable<CodeInstruction> Transpiler(ILGenerator il, IEnumerable<CodeInstruction> instructions) {
+        public static IEnumerable<CodeInstruction> Transpiler(
+            IEnumerable<CodeInstruction> instructions, MethodBase original) {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
                 //CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 1, counterGetSegment: 2); //DC
-                CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 2, counterGetSegment: 1); //Junction
+                CheckNodeFlagsCommons.PatchCheckFlags(codes, original, occurance: 2, counterGetSegment: 1); //Junction
+                CheckNodeFlagsCommons.PatchCheckFlags(codes, original, occurance: 3, counterGetSegment: 0); //End
+                // use NetSegment transpiler? //Bend
 
                 Log.Info(logPrefix_ + "successfully patched NetNode.RenderInstance");
                 return codes;

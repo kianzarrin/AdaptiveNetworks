@@ -28,6 +28,7 @@ namespace AdaptiveRoads.Patches.Node {
                 //CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 1, counterGetSegment: 2); //DC
                 //CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 2, counterGetSegment: 1); //DC
                 CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 3, counterGetSegment: 1); //Junction
+                CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 4, counterGetSegment: 0); //End
 
                 Log.Info(logPrefix_ + "successfully patched " + Target);
                 return codes;

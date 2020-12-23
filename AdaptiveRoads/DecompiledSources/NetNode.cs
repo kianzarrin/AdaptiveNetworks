@@ -3,9 +3,18 @@
 using ColossalFramework;
 using ColossalFramework.Math;
 using UnityEngine;
+using KianCommons;
+
 
 public partial struct NetNode2
 {
+    public NetInfo Info => null;
+    public ushort GetSegment(int i) => 0;
+    public NetNode.Flags m_flags;
+    public Notification.Problem m_problems;
+    public float m_heightOffset;
+    public Bounds m_bounds;
+    Vector3 m_position;
 
     public void PopulateGroupData(ushort nodeID, int groupX, int groupZ, int layer, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData data, ref Vector3 min, ref Vector3 max, ref float maxRenderDistance, ref float maxInstanceDistance, ref bool requireSurfaceMaps)
     {
@@ -1705,6 +1714,7 @@ public partial struct NetNode2
     // NetNode
     // Token: 0x060034C6 RID: 13510 RVA: 0x0023D1EC File Offset: 0x0023B5EC
 
+    /// not-DC node
     /// <param name="centerPos">position between left corner and right corner of segmentID (or something like that).</param>
     private static void RefreshJunctionData(ref NetNode This, ushort nodeID, int segmentIndex, ushort SegmentID, Vector3 centerPos, ref uint instanceIndex, ref RenderManager.Instance data)
     {
@@ -1778,9 +1788,8 @@ public partial struct NetNode2
         segment.CalculateCorner(SegmentID, true, bStartNode, true, out cornerPos_left, out cornerDir_left, out _);
         if (segmentID_A != 0 && segmentID_B != 0)
         {
-            float pavementRatio = info.m_pavementWidth / info.m_halfWidth * 0.5f;
-            float pavementRatio_avgA; // = pavementRatio; // redundant
-            float widthRatioA = 1f;
+            float pavementRatio_avgA = info.m_pavementWidth / info.m_halfWidth * 0.5f;
+            float widthRatioA = 1f;//redundant
             //if (segmentID_A != 0) // redundant
             {
                 NetSegment segment_A = instance.m_segments.m_buffer[(int)segmentID_A];
@@ -1789,11 +1798,12 @@ public partial struct NetNode2
                 segment_A.CalculateCorner(segmentID_A, true, bStartNode, true, out cornerPosA_right, out cornerDirA_right, out _);
                 segment_A.CalculateCorner(segmentID_A, true, bStartNode, false, out cornerPosA_left, out cornerDirA_left, out _);
                 float pavementRatioA = infoA.m_pavementWidth / infoA.m_halfWidth * 0.5f;
-                pavementRatio_avgA = (pavementRatio + pavementRatioA) * 0.5f;
+                pavementRatio_avgA = (pavementRatio_avgA + pavementRatioA) * 0.5f;
                 widthRatioA = 2f * info.m_halfWidth / (info.m_halfWidth + infoA.m_halfWidth);
             }
-            float pavementRatio_avgB =  // = pavementRatio; // redundant
-            float widthRatioB = 1f;
+            float pavementRatio_avgB = info.m_pavementWidth / info.m_halfWidth * 0.5f;
+            float widthRatioB = 1f; //redundant
+
             //if (segmentID_B != 0) redundant
             {
                 NetSegment segment_B = instance.m_segments.m_buffer[(int)segmentID_B];
@@ -1882,10 +1892,7 @@ public partial struct NetNode2
         instanceIndex = (uint)data.m_nextInstance;
     }
 
-    Vector3 m_position;
 
-    // NetNode
-    // Token: 0x060034C5 RID: 13509 RVA: 0x0023CECC File Offset: 0x0023B2CC
     private void RefreshJunctionData(ushort nodeID, int segmentIndex, int segmentIndex2, NetInfo info, NetInfo info2, ushort segmentID, ushort segmentID2, ref uint instanceIndex, ref RenderManager.Instance data)
     {
         data.m_position = this.m_position;
@@ -1933,5 +1940,99 @@ public partial struct NetNode2
         }
         instanceIndex = (uint)data.m_nextInstance;
     }
+
+    private void RefreshEndData(ushort nodeID, NetInfo info, uint instanceIndex, ref RenderManager.Instance data)
+    {
+        data.m_position = this.m_position;
+        data.m_rotation = Quaternion.identity;
+        data.m_initialized = true;
+        float vScale = info.m_netAI.GetVScale() / 1.5f;
+        Vector3 cornerR = Vector3.zero;
+        Vector3 cornerL = Vector3.zero;
+        Vector3 posA = Vector3.zero;
+        Vector3 posB = Vector3.zero;
+        Vector3 dirR = Vector3.zero;
+        Vector3 dirL = Vector3.zero;
+        Vector3 dirA = Vector3.zero;
+        Vector3 dirB = Vector3.zero;
+        bool flag = false;
+        ushort segmentID = 0;
+        int segmentIndex = 0;
+        for (int i = 0; i < 8; i++) {
+            ushort segmentIDi = this.GetSegment(i);
+            if (segmentIDi != 0) {
+                NetSegment netSegment = Singleton<NetManager>.instance.m_segments.m_buffer[(int)segmentIDi];
+                bool startNode = netSegment.m_startNode == nodeID;
+                netSegment.CalculateCorner(segmentIDi, true, startNode, false, out cornerR, out dirR, out _);
+                netSegment.CalculateCorner(segmentIDi, true, startNode, true, out cornerL, out dirL, out _);
+                if (flag) {
+                    dirA = -dirR;
+                    dirB = -dirL;
+                    dirR.y = 0.25f;
+                    dirL.y = 0.25f;
+                    dirA.y = -5f;
+                    dirB.y = -5f;
+                    posA = cornerR - dirR * 10f + dirA * 10f;
+                    posB = cornerL - dirL * 10f + dirB * 10f;
+                } else {
+                    posA = cornerL;
+                    posB = cornerR;
+                    dirA = dirL;
+                    dirB = dirR;
+                }
+                segmentID = segmentIDi;
+                segmentIndex = i;
+            }
+        }
+        if (flag) {
+            Vector3 vector3;
+            Vector3 vector4;
+            NetSegment.CalculateMiddlePoints(cornerR, -dirR, posA, -dirA, true, true, out vector3, out vector4);
+            Vector3 vector5;
+            Vector3 vector6;
+            NetSegment.CalculateMiddlePoints(cornerL, -dirL, posB, -dirB, true, true, out vector5, out vector6);
+            data.m_dataMatrix0 = NetSegment.CalculateControlMatrix(cornerR, vector3, vector4, posA, cornerL, vector5, vector6, posB, this.m_position, vScale);
+            data.m_extraData.m_dataMatrix2 = NetSegment.CalculateControlMatrix(cornerL, vector5, vector6, posB, cornerR, vector3, vector4, posA, this.m_position, vScale);
+            data.m_dataVector0 = new Vector4(0.5f / info.m_halfWidth, 1f / info.m_segmentLength, 1f, 1f);
+            Vector4 colorLocation = RenderManager.GetColorLocation(86016u + (uint)nodeID);
+            data.m_dataVector3 = new Vector4(colorLocation.x, colorLocation.y, colorLocation.x, colorLocation.y);
+            data.m_dataColor0 = info.m_color;
+            data.m_dataColor0.a = 0f;
+            data.m_dataFloat0 = Singleton<WeatherManager>.instance.GetWindSpeed(data.m_position);
+            data.m_dataInt0 = (8 | segmentIndex);
+        } else {
+            float d = info.m_netAI.GetEndRadius() * 1.33333337f;
+            Vector3 vector7 = cornerR - dirR * d;
+            Vector3 vector8 = posA - dirA * d;
+            Vector3 vector9 = cornerL - dirL * d;
+            Vector3 vector10 = posB - dirB * d;
+            Vector3 vector11 = cornerR + dirR * d;
+            Vector3 vector12 = posA + dirA * d;
+            Vector3 vector13 = cornerL + dirL * d;
+            Vector3 vector14 = posB + dirB * d;
+            data.m_dataMatrix0 = NetSegment.CalculateControlMatrix(cornerR, vector7, vector8, posA, cornerR, vector7, vector8, posA, this.m_position, vScale);
+            data.m_extraData.m_dataMatrix2 = NetSegment.CalculateControlMatrix(cornerL, vector13, vector14, posB, cornerL, vector13, vector14, posB, this.m_position, vScale);
+            data.m_extraData.m_dataMatrix3 = NetSegment.CalculateControlMatrix(cornerR, vector11, vector12, posA, cornerR, vector11, vector12, posA, this.m_position, vScale);
+            data.m_dataMatrix1 = NetSegment.CalculateControlMatrix(cornerL, vector9, vector10, posB, cornerL, vector9, vector10, posB, this.m_position, vScale);
+            data.m_dataMatrix0.SetRow(3, data.m_dataMatrix0.GetRow(3) + new Vector4(0.2f, 0.2f, 0.2f, 0.2f));
+            data.m_extraData.m_dataMatrix2.SetRow(3, data.m_extraData.m_dataMatrix2.GetRow(3) + new Vector4(0.2f, 0.2f, 0.2f, 0.2f));
+            data.m_extraData.m_dataMatrix3.SetRow(3, data.m_extraData.m_dataMatrix3.GetRow(3) + new Vector4(0.2f, 0.2f, 0.2f, 0.2f));
+            data.m_dataMatrix1.SetRow(3, data.m_dataMatrix1.GetRow(3) + new Vector4(0.2f, 0.2f, 0.2f, 0.2f));
+            data.m_dataVector0 = new Vector4(0.5f / info.m_halfWidth, 1f / info.m_segmentLength, 0.5f - info.m_pavementWidth / info.m_halfWidth * 0.5f, info.m_pavementWidth / info.m_halfWidth * 0.5f);
+            data.m_dataVector1 = new Vector4(0f, (float)this.m_heightOffset * 0.015625f, 0f, 0f);
+            data.m_dataVector1.w = (data.m_dataMatrix0.m31 + data.m_dataMatrix0.m32 + data.m_extraData.m_dataMatrix2.m31 + data.m_extraData.m_dataMatrix2.m32 + data.m_extraData.m_dataMatrix3.m31 + data.m_extraData.m_dataMatrix3.m32 + data.m_dataMatrix1.m31 + data.m_dataMatrix1.m32) * 0.125f;
+            data.m_dataVector2 = new Vector4(info.m_pavementWidth / info.m_halfWidth * 0.5f, 1f, info.m_pavementWidth / info.m_halfWidth * 0.5f, 1f);
+            Vector4 colorLocation2 = RenderManager.GetColorLocation((uint)(49152 + segmentID));
+            data.m_extraData.m_dataVector4 = new Vector4(colorLocation2.x, colorLocation2.y, colorLocation2.x, colorLocation2.y);
+            data.m_dataColor0 = info.m_color;
+            data.m_dataColor0.a = 0f;
+            data.m_dataFloat0 = Singleton<WeatherManager>.instance.GetWindSpeed(data.m_position);
+            data.m_dataInt0 = segmentIndex;
+        }
+        if (info.m_requireSurfaceMaps) {
+            Singleton<TerrainManager>.instance.GetSurfaceMapping(data.m_position, out data.m_dataTexture0, out data.m_dataTexture1, out data.m_dataVector3);
+        }
+    }
+
 
 }

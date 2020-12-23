@@ -3,6 +3,7 @@ namespace AdaptiveRoads.Patches.metadata {
     using PrefabMetadata.API;
     using PrefabMetadata.Helpers;
     using KianCommons;
+    using AdaptiveRoads.Manager;
 
     [HarmonyPatch(typeof(AssetEditorRoadUtils), "Instantiate")]
     public static class Instantiate {
@@ -29,6 +30,7 @@ namespace AdaptiveRoads.Patches.metadata {
                         item2.MetaData = item2.MetaData?.Clone();
                 }
             }
+            template.SetMeteData(template.GetMetaData()?.Clone());
         }
     }
 }
