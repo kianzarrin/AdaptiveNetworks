@@ -63,7 +63,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         public static void Postfix(string groupName, FieldInfo field, object target, RoadEditorPanel __instance) {
             try {
                 if (target is NetLaneProps.Prop prop) {
-                    Log.Debug($"{__instance.name}.CreateGenericField.Prefix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
+                    Log.Debug($"{__instance.name}.CreateGenericField.Postfix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
                     if (field.Name == nameof(NetLaneProps.Prop.m_endFlagsForbidden)) {
                         var metadata = prop.GetOrCreateMetaData();
                         foreach (var field2 in metadata.GetFieldsWithAttribute<CustomizablePropertyAttribute>()) {
@@ -71,7 +71,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         }
                     }
                 } else if (target is NetInfo.Node node) {
-                    Log.Debug($"{__instance.name}.CreateGenericField.Prefix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
+                    Log.Debug($"{__instance.name}.CreateGenericField.Postfix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
                     if (field.Name == nameof(NetInfo.Node.m_flagsForbidden)) {
                         var fields = typeof(NetInfoExtionsion.Node).GetFields()
                             .Where(_field => _field.HasAttribute<CustomizablePropertyAttribute>());
@@ -81,25 +81,27 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         }
                     }
                 } else if (target is NetInfo.Segment segment) {
-                    Log.Debug($"{__instance.name}.CreateGenericField.Prefix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
+                    Log.Debug($"{__instance.name}.CreateGenericField.Postfix({groupName}, {field}, {target})\n"/* + Environment.StackTrace*/);
                     var segment2 = segment.GetOrCreateMetaData();
                     AssertNotNull(segment2, $"{segment}");
+                    var fieldForward = typeof(NetInfoExtionsion.Segment).GetField(
+                        nameof(NetInfoExtionsion.Segment.Forward));
                     if (field.Name == nameof(NetInfo.Segment.m_forwardForbidden)) {
-                        var field2 =
-                            typeof(NetInfoExtionsion.Segment).GetField(
-                            nameof(NetInfoExtionsion.Segment.Forward));
-                        CreateExtendedComponent(groupName, field2, segment2, __instance);
+                        CreateExtendedComponent(groupName, fieldForward, segment2, __instance);
                     } else if (field.Name == nameof(NetInfo.Segment.m_backwardForbidden)) {
-                        var fields = typeof(NetInfoExtionsion.Segment)
+                        var fields = segment2
                             .GetFieldsWithAttribute<CustomizablePropertyAttribute>()
-                            .Where(_f => _f.Name != nameof(NetInfoExtionsion.Segment.Forward));
+                            .Where(_f => _f != fieldForward);
+                        int totalCount = typeof(NetInfoExtionsion.Segment)
+                            .GetFieldsWithAttribute<CustomizablePropertyAttribute>()
+                            .Count();
                         foreach (var field2 in fields)
                             CreateExtendedComponent(groupName, field2, segment2, __instance);
                     }
                 } else if (target is NetInfo netInfo) {
                     // replace "Pavement Width" with Pavement Width Left
                     if (field.Name == nameof(NetInfo.m_pavementWidth)) {
-                        Log.Debug($"{__instance.name}.CreateGenericField.Prefix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
+                        Log.Debug($"{__instance.name}.CreateGenericField.Postfix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
                         var net = netInfo.GetOrCreateMetaData();
                         AssertNotNull(net, $"{netInfo}");
                         var f = net.GetType().GetField(nameof(net.PavementWidthRight));

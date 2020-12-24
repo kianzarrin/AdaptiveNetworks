@@ -14,6 +14,25 @@
 - learn usage of vanilla lane flags:
     - oneway left/right start/end
 
+- buttons to set flags automatically:
+    copy props to other lanes
+    copy props to other elevations
+    invert button.
+    create LHT copy
+    create backward copy
+    auto create props:
+        traffic lights
+        man holes
+        lane arrows
+        yield/stop
+        uturn props/sign
+        parking/no paking
+        pedestrian crossing sign
+        no left/right turn
+        speed limits KPH/MPH
+        
+        
+    
 
 
 version 2:
@@ -22,3 +41,4 @@ version 2:
         data manager to manage them.
         UI to control them.
         all the network persistancy features.
+    do not change name postfix. 0<->1

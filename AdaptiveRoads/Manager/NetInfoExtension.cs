@@ -250,8 +250,8 @@ namespace AdaptiveRoads.Manager {
                     return Forward.CheckFlags(flags) && CheckEndFlags(
                         tailFlags, headFlags, tailNodeFlags, headNodeFlags);
                 } else {
-                    Helpers.Swap(ref tailFlags, ref headFlags);
-                    Helpers.Swap(ref tailNodeFlags, ref headNodeFlags);
+                    //Helpers.Swap(ref tailFlags, ref headFlags);
+                    //Helpers.Swap(ref tailNodeFlags, ref headNodeFlags);
                     return Backward.CheckFlags(flags) && CheckEndFlags(
                         tailFlags, headFlags, tailNodeFlags, headNodeFlags);
                 }
