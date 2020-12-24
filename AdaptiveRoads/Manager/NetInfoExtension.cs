@@ -248,12 +248,22 @@ namespace AdaptiveRoads.Manager {
                     bool turnAround) {
                 if (!turnAround) {
                     return Forward.CheckFlags(flags) && CheckEndFlags(
-                        tailFlags, headFlags, tailNodeFlags, headNodeFlags);
+                        tailFlags: tailFlags,
+                        headFlags: headFlags,
+                        tailNodeFlags: tailNodeFlags,
+                        headNodeFlags: headNodeFlags);
                 } else {
-                    //Helpers.Swap(ref tailFlags, ref headFlags);
-                    //Helpers.Swap(ref tailNodeFlags, ref headNodeFlags);
-                    return Backward.CheckFlags(flags) && CheckEndFlags(
-                        tailFlags, headFlags, tailNodeFlags, headNodeFlags);
+                    Helpers.Swap(ref tailFlags, ref headFlags);
+                    Helpers.Swap(ref tailNodeFlags, ref headNodeFlags);
+                    var ret =  Backward.CheckFlags(flags) && CheckEndFlags(
+                        tailFlags: tailFlags,
+                        headFlags: headFlags,
+                        tailNodeFlags: tailNodeFlags,
+                        headNodeFlags: headNodeFlags);
+                    if(ret) {
+                        Log.DebugWait($"Segment.CheckFlags: segment is reverse");
+                    }
+                    return ret;
                 }
             }
 

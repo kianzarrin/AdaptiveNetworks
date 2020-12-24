@@ -12,7 +12,7 @@ namespace AdaptiveRoads.Patches.Segment {
     public static class CheckSegmentFlagsCommons {
         public static bool CheckFlags(NetInfo.Segment segmentInfo, ushort segmentID, ref bool turnAround) {
             var segmentInfoExt = segmentInfo?.GetMetaData();
-            if (segmentInfoExt == null) return true;
+            if (segmentInfoExt == null) return true; // bypass
 
             ref NetSegmentExt netSegmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
             ref NetSegment netSegment = ref segmentID.ToSegment();
@@ -24,16 +24,17 @@ namespace AdaptiveRoads.Patches.Segment {
             var nodeTailFlags = netNodeStart.m_flags; 
             var nodeHeadFlags = netNodeEnd.m_flags; 
 
-            bool reverse = netSegment.IsInvert() ^ NetUtil.LHT;
+            bool reverse = /*netSegment.IsInvert() ^*/ NetUtil.LHT;
             if (reverse) {
                 Helpers.Swap(ref segmentTailFlags, ref segmentHeadFlags);
                 Helpers.Swap(ref nodeTailFlags, ref nodeHeadFlags);
+                Log.DebugWait($"CheckSegmentFlagsCommons: segment:{segmentID} is reverse");
             }
 
             {
                 turnAround = false;
                 bool ret = segmentInfo.CheckFlags(netSegment.m_flags, turnAround);
-                ret &= segmentInfoExt.CheckFlags(
+                ret = ret && segmentInfoExt.CheckFlags(
                     netSegmentExt.m_flags,
                     tailFlags: segmentTailFlags,
                     headFlags:segmentHeadFlags,
@@ -45,7 +46,7 @@ namespace AdaptiveRoads.Patches.Segment {
             {
                 turnAround = true;
                 bool ret = segmentInfo.CheckFlags(netSegment.m_flags, turnAround);
-                ret &= segmentInfoExt.CheckFlags(
+                ret = ret && segmentInfoExt.CheckFlags(
                     netSegmentExt.m_flags,
                     tailFlags: segmentTailFlags,
                     headFlags: segmentHeadFlags,
@@ -54,6 +55,8 @@ namespace AdaptiveRoads.Patches.Segment {
                     turnAround);
                 if (ret) return true;
             }
+
+            //fail
             turnAround = false;
             return false;
         }
