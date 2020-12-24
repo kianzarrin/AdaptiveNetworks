@@ -15,14 +15,17 @@ namespace NodeController.Patches {
         static void Postfix(ushort nodeID, NetInfo info, ref RenderManager.Instance data) {
             var net = info.GetMetaData();
             if (net == null) return;
-            ref var segment = ref nodeID.ToNode().GetFirstSegment().ToSegment();
-            bool reverse = segment.IsStartNode(nodeID) ^ segment.IsInvert();
-
             float pwL = info.m_pavementWidth;
             float pwR = net.PavementWidthRight;
-            float w = info.m_halfWidth * 2;
-            float r = (pwL - pwR * 0.5f) / w;
+            if (pwL == pwR) return;
 
+            float w = info.m_halfWidth * 2;
+
+            float pwM = pwR; // TODO calculate
+            float r = pwM / w;
+
+            ref var segment = ref nodeID.ToNode().GetFirstSegment().ToSegment();
+            bool reverse = segment.IsStartNode(nodeID) ^ segment.IsInvert();
             if (!reverse)
                 data.m_dataVector2.x = r;
             else

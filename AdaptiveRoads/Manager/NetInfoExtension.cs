@@ -25,7 +25,6 @@ namespace AdaptiveRoads.Manager {
         public OptionalAttribute(string option) => Option = option;
     }
 
-
     public static class Extensions {
         internal static NetInfo GetInfo(ushort index) =>
             PrefabCollection<NetInfo>.GetPrefab(index);
@@ -207,39 +206,43 @@ namespace AdaptiveRoads.Manager {
         public class Segment : ICloneable {
             object ICloneable.Clone() => Clone();
 
+
+
+
+
             [Serializable]
             public class FlagsT {
                 [CustomizableProperty("Extension")]
                 public SegmentInfoFlags Flags;
 
-                [CustomizableProperty("Start Node")]
+                [CustomizableProperty("Tail Node")]
                 [Optional(SEGMENT_VANILLA_NODE)]
-                public VanillaNodeInfoFlags VanillaStartNode;
+                public VanillaNodeInfoFlags VanillaTailtNode;
 
-                [CustomizableProperty("End Node")]
+                [CustomizableProperty("Head Node")]
                 [Optional(SEGMENT_VANILLA_NODE)]
-                public VanillaNodeInfoFlags VanillaEndNode;
+                public VanillaNodeInfoFlags VanillaHeadNode;
 
-                [CustomizableProperty("Segment Start")]
+                [CustomizableProperty("Segment Tail")]
                 [Optional(SEGMENT_SEGMENT_END)]
-                public SegmentEndInfoFlags Start;
+                public SegmentEndInfoFlags Tail;
 
-                [CustomizableProperty("Segment End")]
+                [CustomizableProperty("Segment Head")]
                 [Optional(SEGMENT_SEGMENT_END)]
-                public SegmentEndInfoFlags End;
+                public SegmentEndInfoFlags Head;
 
                 public bool CheckFlags(
                     NetSegmentExt.Flags flags,
-                    NetSegmentEnd.Flags startFlags,
-                    NetSegmentEnd.Flags endFlags,
-                    NetNode.Flags startNodeFlags,
-                    NetNode.Flags endNodeFlags) {
+                    NetSegmentEnd.Flags tailFlags,
+                    NetSegmentEnd.Flags headFlags,
+                    NetNode.Flags tailNodeFlags,
+                    NetNode.Flags headNodeFlags) {
                     return
                         Flags.CheckFlags(flags) &
-                        Start.CheckFlags(startFlags) &
-                        End.CheckFlags(endFlags) &
-                        VanillaStartNode.CheckFlags(startNodeFlags) &
-                        VanillaEndNode.CheckFlags(endNodeFlags);
+                        Tail.CheckFlags(tailFlags) &
+                        Head.CheckFlags(headFlags) &
+                        VanillaTailtNode.CheckFlags(tailNodeFlags) &
+                        VanillaHeadNode.CheckFlags(headNodeFlags);
                 }
 
 
@@ -250,15 +253,15 @@ namespace AdaptiveRoads.Manager {
             public FlagsT BackwardFlags = new FlagsT();
 
             public bool CheckFlags(NetSegmentExt.Flags flags,
-                    NetSegmentEnd.Flags startFlags,
-                    NetSegmentEnd.Flags endFlags,
-                    NetNode.Flags startNodeFlags,
-                    NetNode.Flags endNodeFlags,
+                    NetSegmentEnd.Flags tailFlags,
+                    NetSegmentEnd.Flags headFlags,
+                    NetNode.Flags tailNodeFlags,
+                    NetNode.Flags headNodeFlags,
                     bool turnAround) {
                 if (!turnAround)
-                    return ForwardFlags.CheckFlags(flags, startFlags, endFlags, startNodeFlags, endNodeFlags);
+                    return ForwardFlags.CheckFlags(flags, tailFlags, headFlags, tailNodeFlags, headNodeFlags);
                 else
-                    return BackwardFlags.CheckFlags(flags, startFlags, endFlags, startNodeFlags, endNodeFlags);
+                    return BackwardFlags.CheckFlags(flags, tailFlags, headFlags, tailNodeFlags, headNodeFlags);
             }
 
             private Segment() { }

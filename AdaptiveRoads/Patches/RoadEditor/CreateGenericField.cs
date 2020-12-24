@@ -29,15 +29,16 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 }
                 var att = field.GetAttribute<CustomizablePropertyAttribute>();
 
-                var hints = field.GetHints();
-                hints.AddRange(field.FieldType.GetHints());
-                string hint = hints.JoinLines();
-                Log.Debug("hint is " + hint);
-
                 var enumType = field.FieldType;
+                Assert(enumType.IsEnum, "enumType.IsEnum");
                 if (enumType == typeof(NetSegment.Flags)) {
                     enumType = typeof(NetSegmentFlags);
                 }
+
+                var hints = field.GetHints();
+                hints.AddRange(enumType.GetHints());
+                string hint = hints.JoinLines();
+                Log.Debug($"{field} -> hint is: " + hint);
                 
                 var bitMaskPanel = BitMaskPanel.Add(
                     roadEditorPanel: __instance,
