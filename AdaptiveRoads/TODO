@@ -1,15 +1,18 @@
 - Patch DC nodes and bend nodes to use AR flags.
-- hint for vanilla flags/drop-downs
-    - hoc to modify game flags
-- decide in which direction I need to layout the segment's start/end node/segmentEnd flags. should it be influenced by invert?
-- check usage of vanilla lane flags:
-    - oneway left/right start/end
-- bug: fix vanilla drop down hints (probabely I just need a re-build)
-- option: hide hint box  
+
 - bug: fix lod is not loaded the first time.
     - AR metadata is also not loaded.
     - calling rebuild lods in AssetImporterWizard and OnLoadPatch fixes the lod problem
       but I need a solution that also fixes the missing metadata.
+
+
+- decide in which direction I need to layout the segment's start/end node/segmentEnd flags.
+  should it be influenced by invert?
+
+- hint for vanilla flags/drop-downs (waiting for Hockenheim)
+
+- learn usage of vanilla lane flags:
+    - oneway left/right start/end
 
 
 
