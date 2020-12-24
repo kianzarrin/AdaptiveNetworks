@@ -39,7 +39,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 hints.AddRange(enumType.GetHints());
                 string hint = hints.JoinLines();
                 Log.Debug($"{field} -> hint is: " + hint);
-                
+
                 var bitMaskPanel = BitMaskPanel.Add(
                     roadEditorPanel: __instance,
                     container: container,
@@ -50,7 +50,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     hint: hint);
                 return false;
             }
-            if(field.Name == nameof(NetInfo.m_pavementWidth)) {
+            if (field.Name == nameof(NetInfo.m_pavementWidth)) {
                 var att = field.GetAttribute<CustomizablePropertyAttribute>();
                 string name = "Pavement Width Left";
                 if (att.name != name)
@@ -82,21 +82,21 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     }
                 } else if (target is NetInfo.Segment segment) {
                     Log.Debug($"{__instance.name}.CreateGenericField.Prefix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
-                    var fields = typeof(NetInfoExtionsion.Segment.FlagsT).GetFields()
-                        .Where(_field => _field.HasAttribute<CustomizablePropertyAttribute>());
                     var segment2 = segment.GetOrCreateMetaData();
                     AssertNotNull(segment2, $"{segment}");
                     if (field.Name == nameof(NetInfo.Segment.m_forwardForbidden)) {
-                        foreach (var field2 in fields) {
-                            CreateExtendedComponent(groupName, field2, segment2.ForwardFlags, __instance, "Forward ");
-                        }
+                        var field2 =
+                            typeof(NetInfoExtionsion.Segment).GetField(
+                            nameof(NetInfoExtionsion.Segment.Forward));
+                        CreateExtendedComponent(groupName, field2, segment2, __instance);
                     } else if (field.Name == nameof(NetInfo.Segment.m_backwardForbidden)) {
-                        foreach (var field2 in fields) {
-                            CreateExtendedComponent(groupName, field2, segment2.BackwardFlags, __instance, "Backward ");
-                        }
+                        var fields = typeof(NetInfoExtionsion.Segment)
+                            .GetFieldsWithAttribute<CustomizablePropertyAttribute>()
+                            .Where(_f => _f.Name != nameof(NetInfoExtionsion.Segment.Forward));
+                        foreach (var field2 in fields)
+                            CreateExtendedComponent(groupName, field2, segment2, __instance);
                     }
-
-                } else if(target is NetInfo netInfo){
+                } else if (target is NetInfo netInfo) {
                     // replace "Pavement Width" with Pavement Width Left
                     if (field.Name == nameof(NetInfo.m_pavementWidth)) {
                         Log.Debug($"{__instance.name}.CreateGenericField.Prefix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);

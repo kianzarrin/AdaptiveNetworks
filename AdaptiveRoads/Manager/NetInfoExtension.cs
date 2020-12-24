@@ -1,5 +1,6 @@
 using ColossalFramework;
 using KianCommons;
+using KianCommons.Math;
 using PrefabMetadata.API;
 using PrefabMetadata.Helpers;
 using System;
@@ -7,7 +8,6 @@ using System.Collections.Generic;
 using System.Linq;
 using static AdaptiveRoads.Manager.NetInfoExtionsion;
 using static AdaptiveRoads.UI.ModSettings;
-using KianCommons.Math;
 
 
 namespace AdaptiveRoads.Manager {
@@ -43,7 +43,7 @@ namespace AdaptiveRoads.Manager {
 
         public static Net GetMetaData(this NetInfo netInfo) =>
             Net.GetAt(netInfo.GetIndex());
-        
+
         public static Net GetOrCreateMetaData(this NetInfo netInfo) {
             Assertion.Assert(netInfo);
             var index = netInfo.GetIndex();
@@ -163,14 +163,14 @@ namespace AdaptiveRoads.Manager {
         #region sub prefab extensions
 
         [Serializable]
-        public class Net :ICloneable{
-            object ICloneable.Clone() => Clone();
+        public class Net : ICloneable {
+            [Obsolete("only useful for the purpose of shallow clone", error: true)]
             public Net() { }
-            public Net(NetInfo template) : this() {
+            public Net Clone() => this.ShalowClone();
+            object ICloneable.Clone() => Clone();
+            public Net(NetInfo template) {
                 PavementWidthRight = template.m_pavementWidth;
             }
-
-            public Net Clone() => this.ShalowClone();
 
             [CustomizableProperty("Pavement Width Right", "Properties")]
             public float PavementWidthRight;
@@ -179,10 +179,10 @@ namespace AdaptiveRoads.Manager {
             public static Net[] Buffer;
             public static void EnsureBuffer() {
                 int count = PrefabCollection<NetInfo>.PrefabCount();
-                if(Buffer == null) {
+                if (Buffer == null) {
                     Buffer = new Net[count];
                     Log.Debug($"Net.Buffer[{Buffer.Length}] created");
-                } else if(Buffer.Length < count) {
+                } else if (Buffer.Length < count) {
                     var old = Buffer;
                     Buffer = new Net[count];
                     for (int i = 0; i < old.Length; ++i)
@@ -206,51 +206,39 @@ namespace AdaptiveRoads.Manager {
         public class Segment : ICloneable {
             object ICloneable.Clone() => Clone();
 
+            [CustomizableProperty("Forward Extension")]
+            public SegmentInfoFlags Forward;
 
+            [CustomizableProperty("Backward Extension")]
+            public SegmentInfoFlags Backward;
 
+            [CustomizableProperty("Tail Node")]
+            [Optional(SEGMENT_VANILLA_NODE)]
+            public VanillaNodeInfoFlags VanillaTailtNode;
 
+            [CustomizableProperty("Head Node")]
+            [Optional(SEGMENT_VANILLA_NODE)]
+            public VanillaNodeInfoFlags VanillaHeadNode;
 
-            [Serializable]
-            public class FlagsT {
-                [CustomizableProperty("Extension")]
-                public SegmentInfoFlags Flags;
+            [CustomizableProperty("Segment Tail")]
+            [Optional(SEGMENT_SEGMENT_END)]
+            public SegmentEndInfoFlags Tail;
 
-                [CustomizableProperty("Tail Node")]
-                [Optional(SEGMENT_VANILLA_NODE)]
-                public VanillaNodeInfoFlags VanillaTailtNode;
+            [CustomizableProperty("Segment Head")]
+            [Optional(SEGMENT_SEGMENT_END)]
+            public SegmentEndInfoFlags Head;
 
-                [CustomizableProperty("Head Node")]
-                [Optional(SEGMENT_VANILLA_NODE)]
-                public VanillaNodeInfoFlags VanillaHeadNode;
-
-                [CustomizableProperty("Segment Tail")]
-                [Optional(SEGMENT_SEGMENT_END)]
-                public SegmentEndInfoFlags Tail;
-
-                [CustomizableProperty("Segment Head")]
-                [Optional(SEGMENT_SEGMENT_END)]
-                public SegmentEndInfoFlags Head;
-
-                public bool CheckFlags(
-                    NetSegmentExt.Flags flags,
+            public bool CheckEndFlags(
                     NetSegmentEnd.Flags tailFlags,
                     NetSegmentEnd.Flags headFlags,
                     NetNode.Flags tailNodeFlags,
                     NetNode.Flags headNodeFlags) {
-                    return
-                        Flags.CheckFlags(flags) &
-                        Tail.CheckFlags(tailFlags) &
-                        Head.CheckFlags(headFlags) &
-                        VanillaTailtNode.CheckFlags(tailNodeFlags) &
-                        VanillaHeadNode.CheckFlags(headNodeFlags);
-                }
-
-
-                public FlagsT Clone() => this.ShalowClone();
+                return
+                    Tail.CheckFlags(tailFlags) &
+                    Head.CheckFlags(headFlags) &
+                    VanillaTailtNode.CheckFlags(tailNodeFlags) &
+                    VanillaHeadNode.CheckFlags(headNodeFlags);
             }
-
-            public FlagsT ForwardFlags = new FlagsT();
-            public FlagsT BackwardFlags = new FlagsT();
 
             public bool CheckFlags(NetSegmentExt.Flags flags,
                     NetSegmentEnd.Flags tailFlags,
@@ -258,27 +246,25 @@ namespace AdaptiveRoads.Manager {
                     NetNode.Flags tailNodeFlags,
                     NetNode.Flags headNodeFlags,
                     bool turnAround) {
-                if (!turnAround)
-                    return ForwardFlags.CheckFlags(flags, tailFlags, headFlags, tailNodeFlags, headNodeFlags);
-                else
-                    return BackwardFlags.CheckFlags(flags, tailFlags, headFlags, tailNodeFlags, headNodeFlags);
+                if (!turnAround) {
+                    return Forward.CheckFlags(flags) && CheckEndFlags(
+                        tailFlags, headFlags, tailNodeFlags, headNodeFlags);
+                } else {
+                    Helpers.Swap(ref tailFlags, ref headFlags);
+                    Helpers.Swap(ref tailNodeFlags, ref headNodeFlags);
+                    return Backward.CheckFlags(flags) && CheckEndFlags(
+                        tailFlags, headFlags, tailNodeFlags, headNodeFlags);
+                }
             }
 
-            private Segment() { }
-            public Segment(NetInfo.Segment template) : this() { }
-
-            public Segment Clone() {
-                var clone = new Segment();
-                clone.ForwardFlags = ForwardFlags.Clone();
-                clone.BackwardFlags = BackwardFlags.Clone();
-                return clone;
-            }
+            [Obsolete("only useful for the purpose of shallow clone", error: true)]
+            public Segment() { }
+            public Segment Clone() => this.ShalowClone();
+            public Segment(NetInfo.Segment template) { }
         }
 
         [Serializable]
         public class Node : ICloneable {
-            object ICloneable.Clone() => Clone();
-
             public NodeInfoFlags NodeFlags;
 
             [CustomizableProperty("Segment End")]
@@ -298,16 +284,15 @@ namespace AdaptiveRoads.Manager {
                 NodeFlags.CheckFlags(nodeFlags) && SegmentEndFlags.CheckFlags(segmentEndFlags) &&
                 SegmentFlags.CheckFlags(segmentFlags) && VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags);
 
+            [Obsolete("only useful for the purpose of shallow clone", error: true)]
             public Node() { }
             public Node(NetInfo.Node template) { }
-
-            /// <summary>clone</summary>
-            public Node Clone()  => this.ShalowClone();
+            public Node Clone() => this.ShalowClone();
+            object ICloneable.Clone() => Clone();
         }
 
         [Serializable]
         public class LaneProp : ICloneable {
-            object ICloneable.Clone() => Clone();
             [CustomizableProperty("Lane")]
             [Hint("lane extension flags")]
             public LaneInfoFlags LaneFlags = new LaneInfoFlags();
@@ -384,9 +369,12 @@ namespace AdaptiveRoads.Manager {
                 SpeedLimit.CheckRange(laneSpeed) &&
                 AverageSpeedLimit.CheckRange(averageSpeed);
 
-            public LaneProp(NetLaneProps.Prop template) { }
+
+            [Obsolete("only useful for the purpose of shallow clone", error: true)]
             public LaneProp() { }
             public LaneProp Clone() => this.ShalowClone();
+            object ICloneable.Clone() => Clone();
+            public LaneProp(NetLaneProps.Prop template) { }
         }
 
         #endregion
@@ -451,8 +439,8 @@ namespace AdaptiveRoads.Manager {
             }
             foreach (var segment in info.m_segments) {
                 if (segment.GetMetaData() is Segment metadata) {
-                    bool forwardVanillaForbidden = metadata.ForwardFlags.Flags.Forbidden.IsFlagSet(NetSegmentExt.Flags.Vanilla);
-                    bool backwardVanillaForbidden = metadata.BackwardFlags.Flags.Forbidden.IsFlagSet(NetSegmentExt.Flags.Vanilla);
+                    bool forwardVanillaForbidden = metadata.Forward.Forbidden.IsFlagSet(NetSegmentExt.Flags.Vanilla);
+                    bool backwardVanillaForbidden = metadata.Backward.Forbidden.IsFlagSet(NetSegmentExt.Flags.Vanilla);
                     if (forwardVanillaForbidden)
                         segment.m_forwardRequired |= NetSegment.Flags.Created & NetSegment.Flags.Deleted;
                     if (backwardVanillaForbidden)

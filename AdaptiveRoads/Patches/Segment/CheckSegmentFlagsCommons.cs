@@ -42,11 +42,6 @@ namespace AdaptiveRoads.Patches.Segment {
                     turnAround);
                 if (ret) return true;
             }
-            if(false) // TODO should I turn around these flags?
-            {
-                Helpers.Swap(ref segmentTailFlags, ref segmentHeadFlags);
-                Helpers.Swap(ref nodeTailFlags, ref nodeHeadFlags);
-            }
             {
                 turnAround = true;
                 bool ret = segmentInfo.CheckFlags(netSegment.m_flags, turnAround);
