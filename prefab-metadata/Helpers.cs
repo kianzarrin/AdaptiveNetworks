@@ -103,11 +103,6 @@ namespace PrefabMetadata.Helpers {
         }
 
 
-
-
-
-
-
         public static MetaDataType GetMetaData<MetaDataType>(this IInfoExtended info)
             where MetaDataType : class {
             if (info.MetaData != null) {
@@ -120,22 +115,37 @@ namespace PrefabMetadata.Helpers {
         }
 
         /// <summary>
-        /// addas <paramref name="data"/> to <paramref name="info"/>.
+        /// adds <paramref name="data"/> to <paramref name="info"/>.
         /// if <paramref name="info"/> already has a meta data of the same type, it will be replaced.
+        /// if <paramref name="data"/> is null, any item of type MetaDataType or null will be removed.
         /// </summary>
         public static void SetMetaData<MetaDataType>(this IInfoExtended info, MetaDataType data)
             where MetaDataType : class, ICloneable {
-            if (data == null)
+            if (info.MetaData == null) {
+                RemoveMetaData<MetaDataType>(info);
                 return;
+            }
             if (info.MetaData == null)
                 info.MetaData = new List<ICloneable>();
+
             var list = info.MetaData;
-            for (int i = 0; i < list.Count; ++i) {
+            for (int i = 0; i < info.MetaData.Count; ++i) {
                 if (list[i] is MetaDataType) {
                     list[i] = data;
+                    return;
                 }
             }
             list.Add(data);
+        }
+
+        /// <summary>
+        /// removes any item of type MetaDataType or null from <paramref name="info"/>
+        /// </summary>
+        public static void RemoveMetaData<MetaDataType>(this IInfoExtended info)
+            where MetaDataType : class, ICloneable {
+            if (info.MetaData == null) return;
+            bool predicate(ICloneable _m) => !(_m is null || _m is MetaDataType);
+            info.MetaData = info.MetaData.Where(predicate).ToList();
         }
 
         public static T Clone<T>(T subinfo)
