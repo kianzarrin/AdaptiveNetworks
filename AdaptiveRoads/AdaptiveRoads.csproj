@@ -155,6 +155,7 @@
     <None Include="DecompiledSources\NetSegment.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="KianCommons\KianCommons\Serialization\" />
     <Folder Include="Util\" />
   </ItemGroup>
   <ItemGroup>

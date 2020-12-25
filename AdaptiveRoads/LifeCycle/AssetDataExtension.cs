@@ -48,7 +48,7 @@ namespace AdaptiveRoads.LifeCycle {
             Log.Debug("SaveAssetPanel.SaveRoutine() was successfull");
         }
 
-        public static void PostFix() {
+        public static void Postfix() {
             try {
 
                 Log.Debug($"SaveAssetPanel.SaveRoutine re extending ...");
@@ -173,14 +173,14 @@ namespace AdaptiveRoads.LifeCycle {
             NetInfo slope = AssetEditorRoadUtils.TryGetSlope(groundInfo);
             NetInfo tunnel = AssetEditorRoadUtils.TryGetTunnel(groundInfo);
 
+            foreach (var info in NetInfoExtionsion.AllElevations(groundInfo))
+                info.UndoVanillaForbidden();
+
             assetData.Ground?.Apply(groundInfo);
             assetData.Elevated?.Apply(elevated);
             assetData.Bridge?.Apply(bridge);
             assetData.Slope?.Apply(slope);
             assetData.Tunnel?.Apply(tunnel);
-
-            foreach (var info in NetInfoExtionsion.AllElevations(groundInfo))
-                info.UndoVanillaForbidden();
         }
 
         #region Snapshot
@@ -213,8 +213,9 @@ namespace AdaptiveRoads.LifeCycle {
                     Log.Debug("AssetDataExtension.OnAssetLoaded():  prefab is " + prefab);
                     if (userData.TryGetValue(ID_NetInfo, out byte[] data)) {
                         Log.Info("AssetDataExtension.OnAssetLoaded(): extracted data for " + ID_NetInfo);
+                        AssertNotNull(data, "data");
                         var assetData0 = SerializationUtil.Deserialize(data, default);
-                        AssertNotNull(assetData0, "assetData0");
+                        AssertNotNull(assetData0, "assetData0 | data version is too old");
                         var assetData = assetData0 as AssetData;
                         AssertNotNull(assetData, $"assetData: {assetData0.GetType()} is not ${typeof(AssetData)}");
                         AssetData.Load(assetData, prefab);

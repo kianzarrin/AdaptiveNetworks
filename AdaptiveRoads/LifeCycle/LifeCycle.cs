@@ -10,8 +10,6 @@ namespace AdaptiveRoads.LifeCycle {
     using AdaptiveRoads.UI.RoadEditor;
 
     public static class LifeCycle {
-        //public static string AssemblyName = Assembly.GetExecutingAssembly().GetName().Name;
-        //public static string HARMONY_ID = "CS.Kian." + AssemblyName;
         public static string HARMONY_ID = "CS.Kian.AdaptiveRoads";
         public static string HARMONY_ID_MANUAL = "CS.Kian.AdaptiveRoads.Manual";
 

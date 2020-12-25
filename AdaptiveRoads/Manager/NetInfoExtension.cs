@@ -439,12 +439,16 @@ namespace AdaptiveRoads.Manager {
         }
 
 
+        const NetNode.Flags vanillaNode = NetNode.Flags.Sewage  | NetNode.Flags.Deleted;
+        const NetSegment.Flags vanillaSegment = NetSegment.Flags.AccessFailed | NetSegment.Flags.Deleted;
+        const NetLane.Flags vanillaLane = NetLane.Flags.Created | NetLane.Flags.Deleted;
+
         public static void ApplyVanillaForbidden(this NetInfo info) {
             foreach (var node in info.m_nodes) {
                 if (node.GetMetaData() is Node metadata) {
                     bool vanillaForbidden = metadata.SegmentFlags.Forbidden.IsFlagSet(NetSegmentExt.Flags.Vanilla);
                     if (vanillaForbidden)
-                        node.m_flagsRequired |= NetNode.Flags.Created & NetNode.Flags.Deleted;
+                        node.m_flagsRequired |= vanillaNode;
                 }
             }
             foreach (var segment in info.m_segments) {
@@ -452,30 +456,34 @@ namespace AdaptiveRoads.Manager {
                     bool forwardVanillaForbidden = metadata.Forward.Forbidden.IsFlagSet(NetSegmentExt.Flags.Vanilla);
                     bool backwardVanillaForbidden = metadata.Backward.Forbidden.IsFlagSet(NetSegmentExt.Flags.Vanilla);
                     if (forwardVanillaForbidden)
-                        segment.m_forwardRequired |= NetSegment.Flags.Created & NetSegment.Flags.Deleted;
+                        segment.m_forwardRequired |= vanillaSegment;
                     if (backwardVanillaForbidden)
-                        segment.m_backwardRequired |= NetSegment.Flags.Created & NetSegment.Flags.Deleted;
+                        segment.m_backwardRequired |= vanillaSegment;
                 }
             }
             foreach (var prop in IterateProps(info)) {
                 if (prop.GetMetaData() is LaneProp metadata) {
                     bool vanillaForbidden = metadata.SegmentFlags.Forbidden.IsFlagSet(NetSegmentExt.Flags.Vanilla);
                     if (vanillaForbidden)
-                        prop.m_flagsRequired |= NetLane.Flags.Created & NetLane.Flags.Deleted;
+                        prop.m_flagsRequired |= vanillaLane;
                 }
             }
         }
 
         public static void UndoVanillaForbidden(this NetInfo info) {
             foreach (var node in info.m_nodes) {
-                node.m_flagsRequired &= ~(NetNode.Flags.Created & NetNode.Flags.Deleted);
+                if (node.m_flagsRequired.CheckFlags(vanillaNode))
+                    node.m_flagsRequired &= ~vanillaNode;
             }
             foreach (var segment in info.m_segments) {
-                segment.m_forwardRequired &= ~(NetSegment.Flags.Created & NetSegment.Flags.Deleted);
-                segment.m_backwardRequired &= ~(NetSegment.Flags.Created & NetSegment.Flags.Deleted);
+                if(segment.m_forwardRequired.CheckFlags(vanillaSegment))
+                    segment.m_forwardRequired &= ~vanillaSegment;
+                if (segment.m_backwardRequired.CheckFlags(vanillaSegment))
+                    segment.m_backwardRequired &= ~vanillaSegment;
             }
             foreach (var prop in IterateProps(info)) {
-                prop.m_flagsRequired &= ~(NetLane.Flags.Created & NetLane.Flags.Deleted);
+                if (prop.m_flagsRequired.CheckFlags(vanillaLane))
+                    prop.m_flagsRequired &= ~vanillaLane;
             }
         }
 
