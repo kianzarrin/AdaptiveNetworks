@@ -67,7 +67,7 @@ namespace AdaptiveRoads.Patches.Segment {
             ?? throw new Exception("mCheckFlags is null");
 
         // returns the position of First DrawMesh after index.
-        public static void PatchCheckFlags(List<CodeInstruction> codes, MethodInfo method, int occurance = 1) {
+        public static void PatchCheckFlags(List<CodeInstruction> codes, MethodBase method, int occurance = 1) {
             // callvirt NetInfo+Segment.CheckFlags(valuetype NetSegment+Flags, bool&)
             var index = SearchInstruction(codes, new CodeInstruction(OpCodes.Callvirt, mCheckFlags), 0, counter: occurance);
             Assertion.Assert(index != 0, "index!=0");
