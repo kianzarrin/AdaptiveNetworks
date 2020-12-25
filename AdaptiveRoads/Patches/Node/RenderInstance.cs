@@ -28,7 +28,7 @@ namespace AdaptiveRoads.Patches.Node {
             IEnumerable<CodeInstruction> instructions, MethodBase original) {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
-                //CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 1, counterGetSegment: 2); //DC
+                CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 1, counterGetSegment: 2); //DC
                 CheckNodeFlagsCommons.PatchCheckFlags(codes, original, occurance: 2, counterGetSegment: 1); //Junction
                 CheckNodeFlagsCommons.PatchCheckFlags(codes, original, occurance: 3, counterGetSegment: 0); //End
                 // use NetSegment transpiler? //Bend

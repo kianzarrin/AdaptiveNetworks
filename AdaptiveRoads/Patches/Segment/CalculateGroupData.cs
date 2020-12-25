@@ -25,11 +25,11 @@ namespace AdaptiveRoads.Patches.Segment {
             return ret;
         }
 
-        public static IEnumerable<CodeInstruction> Transpiler(ILGenerator il, IEnumerable<CodeInstruction> instructions) {
+        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, MethodBase original) {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
-                CheckSegmentFlagsCommons.PatchCheckFlags(codes, Target);
-                Log.Info(logPrefix_ + "successfully patched " + Target);
+                CheckSegmentFlagsCommons.PatchCheckFlags(codes, original);
+                Log.Info(logPrefix_ + "successfully patched " + original);
                 return codes;
             }
             catch (Exception e) {
