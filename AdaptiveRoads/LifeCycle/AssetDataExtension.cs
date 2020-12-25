@@ -56,6 +56,7 @@ namespace AdaptiveRoads.LifeCycle {
                     info.UndoVanillaForbidden();
                 }
                 AssetData.ApplySnapshot();
+                NetInfoExtionsion.InvokeEditPrefabChanged();
             }
             catch (Exception e) {
                 Log.Exception(e);

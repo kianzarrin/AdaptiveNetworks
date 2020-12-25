@@ -1,13 +1,10 @@
 - Patch DC nodes and bend nodes to use AR flags.
 
+- bug: reset RoadEditorMainPanel after save (done untested)
+
 - bug: fix lod is not loaded the first time.
-    - AR metadata is also not loaded.
     - calling rebuild lods in AssetImporterWizard and OnLoadPatch fixes the lod problem
       but I need a solution that also fixes the missing metadata.
-
-
-- decide in which direction I need to layout the segment's start/end node/segmentEnd flags.
-  should it be influenced by invert?
 
 - hint for vanilla flags/drop-downs (waiting for Hockenheim)
 

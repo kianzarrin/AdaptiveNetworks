@@ -438,6 +438,14 @@ namespace AdaptiveRoads.Manager {
             if (tunnel != null) yield return tunnel;
         }
 
+        public static void InvokeEditPrefabChanged() {
+            // invoke eventEditPrefabChanged
+            var tc = ToolsModifierControl.toolController;
+            ReflectionHelpers.EventToDelegate<ToolController.EditPrefabChanged>(
+                tc, nameof(tc.eventEditPrefabChanged))
+                ?.Invoke(tc.m_editPrefabInfo);
+        }
+
 
         const NetNode.Flags vanillaNode = NetNode.Flags.Sewage  | NetNode.Flags.Deleted;
         const NetSegment.Flags vanillaSegment = NetSegment.Flags.AccessFailed | NetSegment.Flags.Deleted;

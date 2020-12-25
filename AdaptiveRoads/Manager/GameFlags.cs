@@ -1,6 +1,3 @@
-
-
-
 namespace AdaptiveRoads.Manager {
     using System;
     using System.Collections.Generic;
@@ -22,7 +19,6 @@ namespace AdaptiveRoads.Manager {
         public HideAttribute() { }
         public HideAttribute(HideMode mode) => Mode = mode;
     }
-
 
     [AttributeUsage(AttributeTargets.All, AllowMultiple = false)]
     public class HintAttribute : Attribute {
