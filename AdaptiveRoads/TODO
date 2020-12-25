@@ -1,13 +1,7 @@
-- Patch DC nodes and bend nodes to use AR flags.
-
 - bug: reset RoadEditorMainPanel after save (done untested)
 
-- bug: fix lod is not loaded the first time.
-    - calling rebuild lods in AssetImporterWizard and OnLoadPatch fixes the lod problem
-      but I need a solution that also fixes the missing metadata.
-
-- hint for vanilla flags/drop-downs (waiting for Hockenheim)
-
+- Patch DC nodes and bend nodes to use AR flags.
+        
 - learn usage of vanilla lane flags:
     - oneway left/right start/end
 
@@ -28,6 +22,7 @@
         no left/right turn
         speed limits KPH/MPH
         
+- hint for vanilla flags/drop-downs (waiting for Hockenheim)
         
     
 

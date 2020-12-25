@@ -8,6 +8,8 @@ namespace AdaptiveRoads.Patches.metadata {
         public static void Postfix() {
             if (ToolsModifierControl.toolController.m_templatePrefabInfo is NetInfo) {
                 NetInfoExtionsion.EnsureExtended_EditedNetInfos();
+                // don't know why but the lods do not load the first time i load an asset.
+                NetManager.instance.RebuildLods(); 
             }
         }
     }

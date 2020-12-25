@@ -55,7 +55,9 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 string name = "Pavement Width Left";
                 if (att.name != name)
                     att.name = name;
+                att = field.GetAttribute<CustomizablePropertyAttribute>();
                 Log.Debug($"m_pavementWidth.att.name = {att.name}");
+                // TODO does this work? if not just take it out because I have alternative approach.
             }
             return true;
         }
