@@ -45,7 +45,7 @@ namespace AdaptiveRoads.LifeCycle {
                 Log.Exception(e);
                 throw e;
             }
-            Log.Debug("SaveAssetPanel.SaveRoutine() was successfull");
+            Log.Debug("SaveAssetPanel.SaveRoutine.Prefix() was successfull");
         }
 
         public static void Postfix() {
@@ -67,7 +67,7 @@ namespace AdaptiveRoads.LifeCycle {
         public static void Finalizer(Exception __exception) {
             Log.Debug("SaveAssetPanel.Finalizer() called with " + __exception.STR() ); 
             SimulationManager.instance.ForcedSimulationPaused = false;
-            if(__exception!=null)
+            if(__exception != null)
                 Log.Exception(__exception);
         }
     }
@@ -209,9 +209,9 @@ namespace AdaptiveRoads.LifeCycle {
 
         public override void OnAssetLoaded(string name, object asset, Dictionary<string, byte[]> userData) {
             try {
-                Log.Info($"AssetDataExtension.OnAssetLoaded({name}, {asset}, userData) called");
+                Log.Debug($"AssetDataExtension.OnAssetLoaded({name}, {asset}, userData) called",false);
                 if (asset is NetInfo prefab) {
-                    Log.Debug("AssetDataExtension.OnAssetLoaded():  prefab is " + prefab);
+                    Log.Debug("AssetDataExtension.OnAssetLoaded():  prefab is " + prefab,false);
                     if (userData.TryGetValue(ID_NetInfo, out byte[] data)) {
                         Log.Info("AssetDataExtension.OnAssetLoaded(): extracted data for " + ID_NetInfo);
                         AssertNotNull(data, "data");
