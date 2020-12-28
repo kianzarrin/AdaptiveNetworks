@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using static AdaptiveRoads.Manager.NetInfoExtionsion;
 using static AdaptiveRoads.UI.ModSettings;
-
+using ColossalFramework.Threading;
 
 namespace AdaptiveRoads.Manager {
     using static HintExtension;
@@ -440,10 +440,12 @@ namespace AdaptiveRoads.Manager {
 
         public static void InvokeEditPrefabChanged() {
             // invoke eventEditPrefabChanged
-            var tc = ToolsModifierControl.toolController;
-            ReflectionHelpers.EventToDelegate<ToolController.EditPrefabChanged>(
-                tc, nameof(tc.eventEditPrefabChanged))
-                ?.Invoke(tc.m_editPrefabInfo);
+            ThreadHelper.dispatcher.Dispatch(delegate () {
+                var tc = ToolsModifierControl.toolController;
+                ReflectionHelpers.EventToDelegate<ToolController.EditPrefabChanged>(
+                    tc, nameof(tc.eventEditPrefabChanged))
+                    ?.Invoke(tc.m_editPrefabInfo);
+            });
         }
 
 
@@ -558,7 +560,30 @@ namespace AdaptiveRoads.Manager {
             Log.Debug($"UndoExtend_EditedNetInfos() was called");
             foreach (var info in EditedNetInfos)
                 UndoExtend(info);
+            Verify_UndoExtend();
             Log.Debug($"UndoExtend_EditedNetInfos() was successful");
+        }
+
+        public static void Verify_UndoExtend() {
+            //test if UndoExtend_EditedNetInfos was successful.
+            foreach (var netInfo in NetInfoExtionsion.EditedNetInfos) {
+                for (int i = 0; i < netInfo.m_nodes.Length; ++i) {
+                    if (!(netInfo.m_nodes[i].GetType() == typeof(NetInfo.Node)))
+                        throw new Exception($"reversal unsuccessfull. nodes[{i}]={netInfo.m_nodes[i]}");
+                }
+                for (int i = 0; i < netInfo.m_segments.Length; ++i) {
+                    if (!(netInfo.m_segments[i].GetType() == typeof(NetInfo.Segment)))
+                        throw new Exception($"reversal unsuccessfull. segments[{i}]={netInfo.m_segments[i]}");
+                }
+                foreach (var lane in netInfo.m_lanes) {
+                    var props = lane.m_laneProps?.m_props;
+                    int n = props?.Length ?? 0;
+                    for (int i = 0; i < n; ++i) {
+                        if (!(props[i].GetType() == typeof(NetLaneProps.Prop)))
+                            throw new Exception($"reversal unsuccessfull. props[{i}]={props[i]}");
+                    }
+                }
+            }
         }
         #endregion
     }
