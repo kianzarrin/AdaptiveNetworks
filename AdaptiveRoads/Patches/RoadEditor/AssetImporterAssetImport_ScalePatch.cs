@@ -4,6 +4,7 @@ namespace AdaptiveRoads.Patches.RoadEditor.x {
     using System.Collections.Generic;
     using System.Reflection;
     using static KianCommons.ReflectionHelpers;
+    using JetBrains.Annotations;
 
     // set default scale to 100
     [HarmonyPatch]
@@ -13,6 +14,7 @@ namespace AdaptiveRoads.Patches.RoadEditor.x {
             yield return GetMethod(typeof(AssetImporterAssetImport), "ResetTransformFields");
             yield return GetMethod(typeof(AssetImporterAssetImport), "SetDefaultScale");
         }
+        [UsedImplicitly]
         static void Postfix(UITextField ___m_Scale) {
             if (___m_Scale.text == "1") // if CalculateDefaultScale() returned 1
                 ___m_Scale.text = "100";

@@ -12,6 +12,8 @@ namespace AdaptiveRoads.Manager {
     using Log = KianCommons.Log;
     using UnityEngine;
     using ColossalFramework.Math;
+    using System.Collections.Generic;
+    using ColossalFramework.IO;
 
     public static class AdvanedFlagsExtensions {
         public static bool CheckFlags(this NetLaneExt.Flags value, NetLaneExt.Flags required, NetLaneExt.Flags forbidden) =>
@@ -24,7 +26,6 @@ namespace AdaptiveRoads.Manager {
             (value & (required | forbidden)) == required;
     }
 
-    [Serializable]
     public struct NetLaneExt {
         [Flags]
         public enum Flags {
@@ -74,6 +75,9 @@ namespace AdaptiveRoads.Manager {
 
         public LaneData LaneData;
 
+        public bool IsEmpty => m_flags == Flags.None;
+        public void Serialize(DataSerializer s) => s.WriteInt32((int)m_flags);
+        public void Deserialize(DataSerializer s) => m_flags = (Flags)s.ReadInt32();
         public void Init(uint laneID) {
             LaneData.LaneID = laneID;
             LaneData.LaneIndex = 0;
@@ -127,9 +131,12 @@ namespace AdaptiveRoads.Manager {
         }
     }
 
-    [Serializable]
     public struct NetNodeExt {
         public ushort NodeID;
+        public Flags m_flags;
+
+        public void Serialize(DataSerializer s) => s.WriteInt32((int)m_flags);
+        public void Deserialize(DataSerializer s) => m_flags = (Flags)s.ReadInt32();
         public void Init(ushort nodeID) => NodeID = nodeID;
 
         [Flags]
@@ -150,7 +157,8 @@ namespace AdaptiveRoads.Manager {
             //All = -1,
         }
 
-        public static JunctionRestrictionsManager JRMan => JunctionRestrictionsManager.Instance;
+        public static IJunctionRestrictionsManager JRMan =>
+            TrafficManager.Constants.ManagerFactory.JunctionRestrictionsManager;
 
         public void UpdateFlags() {
             if (JRMan != null) {
@@ -165,13 +173,18 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
-        public Flags m_flags;
     }
 
-    [Serializable]
     public struct NetSegmentExt {
         public ushort SegmentID;
+        public float AverageSpeedLimit;
+        public float Curve;
+        public Flags m_flags;
+
+        public void Serialize(DataSerializer s) => s.WriteInt32((int)m_flags);
+        public void Deserialize(DataSerializer s) => m_flags = (Flags)s.ReadInt32();
         public void Init(ushort segmentID) => SegmentID = segmentID;
+
 
         [Flags]
         public enum Flags {
@@ -193,10 +206,7 @@ namespace AdaptiveRoads.Manager {
             //All = -1,
         }
 
-        public float AverageSpeedLimit;
-        public float Curve;
 
-        public Flags m_flags;
 
         public ref NetSegmentEnd Start => ref NetworkExtensionManager.Instance.GetSegmentEnd(SegmentID, true);
         public ref NetSegmentEnd End => ref NetworkExtensionManager.Instance.GetSegmentEnd(SegmentID, false);
@@ -298,7 +308,6 @@ namespace AdaptiveRoads.Manager {
 
     }
 
-    [Serializable]
     public struct NetSegmentEnd {
         [Flags]
         public enum Flags {
@@ -369,19 +378,21 @@ namespace AdaptiveRoads.Manager {
         }
 
         public Flags m_flags;
-
         public ushort SegmentID;
         public bool StartNode;
+
         public ushort NodeID => SegmentID.ToSegment().GetNode(StartNode);
 
-        public static JunctionRestrictionsManager JRMan => JunctionRestrictionsManager.Instance;
-        public static TrafficPriorityManager PMan => TrafficPriorityManager.Instance;
-
+        public void Serialize(DataSerializer s) => s.WriteInt32((int)m_flags);
+        public void Deserialize(DataSerializer s) => m_flags = (Flags)s.ReadInt32();
         public void Init(ushort segmentID, bool startNode) {
             m_flags = Flags.None;
             SegmentID = segmentID;
             StartNode = startNode;
         }
+
+        public static JunctionRestrictionsManager JRMan => JunctionRestrictionsManager.Instance;
+        public static TrafficPriorityManager PMan => TrafficPriorityManager.Instance;
 
         public void UpdateFlags() {
             var flags = m_flags;

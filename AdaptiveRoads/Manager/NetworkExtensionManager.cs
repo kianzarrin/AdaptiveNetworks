@@ -2,31 +2,73 @@ namespace AdaptiveRoads.Manager {
     using KianCommons;
     using System;
     using System.Collections.Generic;
+    using ColossalFramework.IO;
+    using System.Linq;
 
     [Serializable]
     public class NetworkExtensionManager {
         #region LifeCycle
         private NetworkExtensionManager(){
+            InitBuffers();
         }
         // this initalizesation maybe useful in case of a hot reload.
         public static NetworkExtensionManager Instance { get; private set; } = new NetworkExtensionManager();
 
-        public static byte[] Serialize() => SerializationUtil.Serialize(Instance);
-
-        public static void Deserialize(byte[] data, Version version) {
-            if (data == null) {
-                Instance = new NetworkExtensionManager();
-                Log.Debug($"NetworkExtensionManager.Deserialize(data=null)");
-            } else {
-                Log.Debug($"NetworkExtensionManager.Deserialize(data): data.Length={data?.Length}");
-                Instance = SerializationUtil.Deserialize(data, version) as NetworkExtensionManager;
+        public void Serialize(DataSerializer s) {
+            for (ushort i = 0; i < SegmentBuffer.Length; ++i) {
+                SegmentBuffer[i].Serialize(s);
+            }
+            for (int i = 0; i < SegmentEndBuffer.Length; ++i) {
+                SegmentEndBuffer[i].Serialize(s);
+            }
+            //for (ushort i = 0; i < NodeBuffer.Length; ++i) {
+            //  NodeBuffer[i].Serialize(s);
+            //}
+            uint n = (uint)LaneBuffer.LongCount(_l=>!_l.IsEmpty);
+            s.WriteUInt32(n);
+            for (uint i=0;i< LaneBuffer.Length; ++i) {
+                if (LaneBuffer[i].IsEmpty) continue;
+                s.WriteUInt32(i);
+                LaneBuffer[i].Serialize(s);
             }
         }
 
+        public static void Deserialize(DataSerializer s) {
+            if (s == null) {
+                Log.Debug($"NetworkExtensionManager.Deserialize(data=null)");
+                Instance = new NetworkExtensionManager();
+            } else {
+                Log.Debug($"NetworkExtensionManager.Deserialize(s)");
+                Instance = new NetworkExtensionManager();
+                Instance.DeserializeImp(s);
+            }
+        }
+
+        internal void DeserializeImp(DataSerializer s) { 
+            for (ushort i = 0; i < SegmentBuffer.Length; ++i) {
+                SegmentBuffer[i].Deserialize(s);
+            }
+            for (int i = 0; i < SegmentEndBuffer.Length; ++i) {
+                SegmentEndBuffer[i].Deserialize(s);
+            }
+            //for (ushort i = 0; i < NodeBuffer.Length; ++i) {
+            //  NodeBuffer[i].Serialize(s);
+            //}
+            uint n = s.ReadUInt32();
+            for (uint i = 0; i < n; ++i) {
+                uint laneID = s.ReadUInt32();
+                LaneBuffer[laneID].Deserialize(s);
+            }
+
+
+        }
+
+        /// <summary>
+        /// preconditions: none. does not need any patches.
+        /// </summary>
         public void OnLoad() {
             Log.Debug("NetworkExtensionManager.OnLoad() called");
-            InitBuffers();
-            for (ushort nodeID=0;nodeID< NetManager.MAX_NODE_COUNT;++nodeID) {
+            for (ushort nodeID = 0; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID) {
                 if (!NetUtil.IsNodeValid(nodeID)) continue;
                 NodeBuffer[nodeID].UpdateFlags();
             }
@@ -35,6 +77,7 @@ namespace AdaptiveRoads.Manager {
                 if (segmentID.ToSegment().Info.IsAdaptive()) continue;
                 SegmentBuffer[segmentID].UpdateAllFlags();
             }
+            Log.Debug("NetworkExtensionManager.OnLoad() successfull!");
         }
 
         public void OnUnload() {
@@ -132,6 +175,7 @@ namespace AdaptiveRoads.Manager {
         public NetSegmentExt[] SegmentBuffer = new NetSegmentExt[NetManager.MAX_SEGMENT_COUNT];
         public NetLaneExt[] LaneBuffer = new NetLaneExt[NetManager.MAX_LANE_COUNT];
         public NetSegmentEnd[] SegmentEndBuffer = new NetSegmentEnd[NetManager.MAX_SEGMENT_COUNT * 2];
+
         public ref NetSegmentEnd GetSegmentEnd(ushort segmentID, bool startNode) {
             if (startNode)
                 return ref SegmentEndBuffer[segmentID * 2];

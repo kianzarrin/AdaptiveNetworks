@@ -4,6 +4,7 @@ namespace AdaptiveRoads.LifeCycle
     using ICities;
     using System;
     using AdaptiveRoads.Manager;
+    using KianCommons;
 
     [UsedImplicitly]
     public class SerializableDataExtension
@@ -13,14 +14,19 @@ namespace AdaptiveRoads.LifeCycle
 
         public override void OnLoadData()
         {
+            Log.Info("OnLoadData() ...", true);
             byte[] data = serializableDataManager.LoadData(DATA_ID);
             NetworkExtensionManager.Deserialize(data, new Version(1,0));
+            Log.Info("OnLoadData() was successful!", true);
+
         }
 
         public override void OnSaveData()
         {
+            Log.Info("OnSaveData() ...", true);
             byte[] data = NetworkExtensionManager.Serialize();
             serializableDataManager.SaveData(DATA_ID, data);
+            Log.Info("OnSaveData() was successful!", true);
         }
     }
 }

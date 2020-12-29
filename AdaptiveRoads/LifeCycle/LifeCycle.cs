@@ -78,8 +78,9 @@ namespace AdaptiveRoads.LifeCycle {
                 HarmonyUtil.InstallHarmony(HARMONY_ID);
                 NetInfoExtionsion.EnsureExtended_EditedNetInfos();
                 HintBox.Create();
-            }
-            catch (Exception e) {
+                Log.Info("LifeCycle.Load() successfull!");
+
+            } catch (Exception e) {
                 Log.Error(e.ToString() + "\n --- \n");
                 throw e;
             }
