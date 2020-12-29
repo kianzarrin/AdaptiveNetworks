@@ -20,6 +20,21 @@
         
 - hint for vanilla flags/drop-downs (waiting for Hockenheim)
 
+----------------------------
+create road:
+    uturn sign (moddded)
+    yeild/sign (vanilla + modded)
+    stop/yeild lines.
+    no left/right turn sign (vanilla + modded)
+    parking signs (vanilla + modded)
+
+    no crossing texture
+    DC node
+
+
+----------------------------
+
+
 version 2:
     mixed enum type bitmask
     custom flags

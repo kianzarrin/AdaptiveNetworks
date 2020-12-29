@@ -68,7 +68,7 @@ namespace AdaptiveRoads.UI {
 
             var laneProp = extensions.AddGroup("Lane prop");
             laneProp.AddSavedToggle("Segment and Segment-extension flags", Lane_Segment);
-            laneProp.AddSavedToggle("Node flags", Lane_Node);
+            //laneProp.AddSavedToggle("Node flags", Lane_Node);
             laneProp.AddSavedToggle("Segment End flags", Lane_SegmentEnd);
         }
     }

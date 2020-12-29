@@ -335,16 +335,6 @@ namespace AdaptiveRoads.Manager {
             [Optional(LANE_NODE)]
             public NodeInfoFlags EndNodeFlags = new NodeInfoFlags();
 
-            [Hint(LANE_HEAD_TAIL)]
-            [CustomizableProperty("Start Node")]
-            [Optional(LANE_NODE)]
-            public VanillaNodeInfoFlags VanillaStartNodeFlags = new VanillaNodeInfoFlags();
-
-            [Hint(LANE_HEAD_TAIL)]
-            [CustomizableProperty("End Node")]
-            [Optional(LANE_NODE)]
-            public VanillaNodeInfoFlags VanillaEndNodeFlags = new VanillaNodeInfoFlags();
-
             [CustomizableProperty("Lane Speed Limit Range")]
             public Range SpeedLimit; // null => N/A
 
@@ -364,7 +354,6 @@ namespace AdaptiveRoads.Manager {
                 NetSegmentExt.Flags segmentFlags,
                 NetSegment.Flags vanillaSegmentFlags,
                 NetNodeExt.Flags startNodeFlags, NetNodeExt.Flags endNodeFlags,
-                NetNode.Flags vanillaStartNodeFlags, NetNode.Flags vanillaEndNodeFlags,
                 NetSegmentEnd.Flags segmentStartFlags, NetSegmentEnd.Flags segmentEndFlags,
                 float laneSpeed, float averageSpeed) =>
                 LaneFlags.CheckFlags(laneFlags) &&
@@ -374,8 +363,6 @@ namespace AdaptiveRoads.Manager {
                 SegmentEndFlags.CheckFlags(segmentEndFlags) &&
                 StartNodeFlags.CheckFlags(startNodeFlags) &&
                 EndNodeFlags.CheckFlags(endNodeFlags) &&
-                VanillaStartNodeFlags.CheckFlags(vanillaStartNodeFlags) &&
-                VanillaEndNodeFlags.CheckFlags(vanillaEndNodeFlags) &&
                 SpeedLimit.CheckRange(laneSpeed) &&
                 AverageSpeedLimit.CheckRange(averageSpeed);
 

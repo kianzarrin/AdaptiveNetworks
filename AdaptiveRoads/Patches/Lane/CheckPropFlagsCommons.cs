@@ -92,8 +92,6 @@ namespace AdaptiveRoads.Patches.Lane {
             ref NetSegmentExt netSegmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
             ref NetNodeExt netNodeExtStart = ref NetworkExtensionManager.Instance.NodeBuffer[startNodeID];
             ref NetNodeExt netNodeExtEnd = ref NetworkExtensionManager.Instance.NodeBuffer[endNodeID];
-            ref NetNode netNodeStart = ref startNodeID.ToNode();
-            ref NetNode netNodeEnd = ref endNodeID.ToNode();
             ref NetSegmentEnd netSegmentStart = ref netSegmentExt.GetEnd(startNodeID);
             ref NetSegmentEnd netSegmentEnd = ref netSegmentExt.GetEnd(endNodeID);
 
@@ -109,7 +107,6 @@ namespace AdaptiveRoads.Patches.Lane {
             return propInfoExt.Check(
                 netLaneExt.m_flags, netSegmentExt.m_flags, segment.m_flags,
                 netNodeExtStart.m_flags, netNodeExtEnd.m_flags,
-                netNodeStart.m_flags, netNodeEnd.m_flags,
                 netSegmentStart.m_flags, netSegmentEnd.m_flags,
                 laneSpeed: netLaneExt.SpeedLimit, averageSpeed: netSegmentExt.AverageSpeedLimit);
         }

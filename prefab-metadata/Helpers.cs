@@ -160,7 +160,7 @@ namespace PrefabMetadata.Helpers {
         public static List<ICloneable> Clone(this List<ICloneable> list) {
             var ret = new List<ICloneable>(list);
             for (int i = 0; i < list.Count; ++i) {
-                list[i] = list[i].Clone() as ICloneable;
+                list[i] = list[i]?.Clone() as ICloneable;
             }
             return ret;
         }
