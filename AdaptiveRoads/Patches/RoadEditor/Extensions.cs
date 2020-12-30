@@ -1,100 +1,78 @@
 namespace AdaptiveRoads.Patches.RoadEditor {
     using System;
+    using System.Reflection;
     using ColossalFramework.UI;
     using HarmonyLib;
     using KianCommons;
-    using System.Reflection;
-    using static KianCommons.ReflectionHelpers;
 
-    public static class Extensions {
-        #region REPropertySet
+    public static class REPropertySetExtensions {
+        public static MethodInfo GetMethod(string methodName) =>
+            ReflectionHelpers.GetMethod(typeof(REEnumBitmaskSet), methodName);
+
         //private int REEnumBitmaskSet.GetFlags()
-        static MethodInfo mGetFlags_ =
-            AccessTools.DeclaredMethod(typeof(REEnumBitmaskSet), "GetFlags")
-            ?? throw new Exception("mGetFlags_ is null");
-        public static int GetFlags(this REEnumBitmaskSet instance)
-            => (int)mGetFlags_.Invoke(instance, null);
+        public static int GetFlags(this REEnumBitmaskSet instance) =>
+            (int)GetMethod("GetFlags").Invoke(instance, null);
 
-        //protected override void REEnumBitmaskSet.Initialize(object target, FieldInfo targetField, string labelText)
-        static MethodInfo mREEnumBitmaskSet_Initialize_ =
-            AccessTools.DeclaredMethod(typeof(REEnumBitmaskSet), "Initialize")
-            ?? throw new Exception("mREEnumBitmaskSet_Initialize_ is null");
-        public static void Initialize(this REEnumBitmaskSet instance, object target, FieldInfo targetField, string labelText)
-         => mREEnumBitmaskSet_Initialize_.Invoke(instance, new object[] { target, targetField, labelText});
+        public static void Initialize(this REEnumBitmaskSet instance, object target, FieldInfo targetField, string labelText) =>
+            GetMethod("Initialize")
+            .Invoke(instance, new object[] { target, targetField, labelText });
 
-        //private bool REEnumBitmaskSet.RequiresUserFlag(Type type)
-        static MethodInfo mREEnumBitmaskSet_RequiresUserFlag_ =
-            AccessTools.DeclaredMethod(typeof(REEnumBitmaskSet), "RequiresUserFlag")
-            ?? throw new Exception("mREEnumBitmaskSet_RequiresUserFlag_ is null");
-        public static bool RequiresUserFlag(this REEnumBitmaskSet instance, Type type)
-         => (bool)mREEnumBitmaskSet_RequiresUserFlag_.Invoke(instance, new object[] { type});
+
+        public static bool RequiresUserFlag(this REEnumBitmaskSet instance, Type type) =>
+            (bool)GetMethod("RequiresUserFlag").Invoke(instance, new object[] { type });
 
         //private string REEnumBitmaskSet.GetUserFlagName(int flag)
-        static MethodInfo mREEnumBitmaskSet_GetUserFlagName_ =
-            AccessTools.DeclaredMethod(typeof(REEnumBitmaskSet), "GetUserFlagName")
-            ?? throw new Exception("mREEnumBitmaskSet_GetUserFlagName_ is null");
-        public static string GetUserFlagName(this REEnumBitmaskSet instance, int flag)
-         => (string)mREEnumBitmaskSet_GetUserFlagName_.Invoke(instance, new object[] { flag });
+        public static string GetUserFlagName(this REEnumBitmaskSet instance, int flag) =>
+            (string)GetMethod("GetUserFlagName").Invoke(instance, new object[] { flag });
+    }
 
-        #endregion
+    public static class RoadEditorPanelExtensions {
+        public static MethodInfo GetMethod(string methodName) =>
+            ReflectionHelpers.GetMethod(typeof(RoadEditorPanel), methodName);
 
-        static MethodInfo mCreateGenericField_ = GetMethod(typeof(RoadEditorPanel), "CreateGenericField");
+        static MethodInfo mCreateGenericField_ = GetMethod("CreateGenericField");
         public static void CreateGenericField(this RoadEditorPanel instance,
             string groupName, FieldInfo field, object target) {
             mCreateGenericField_.Invoke(instance, new object[] { groupName, field, target });
         }
 
-        static MethodInfo mCreateFieldComponent_ =
-            AccessTools.DeclaredMethod(typeof(RoadEditorPanel), "CreateFieldComponent")
-            ?? throw new Exception("mCreateFieldComponent_ is null");
+        public static void AddLanePropFields(this RoadEditorPanel instance) =>
+            GetMethod("AddLanePropFields").Invoke(instance, null);
 
-        static MethodInfo mAddLanePropFields_ =
-            AccessTools.DeclaredMethod(typeof(RoadEditorPanel), "AddLanePropFields")
-            ?? throw new Exception("mAddLanePropFields_ is null");
-        public static void AddLanePropFields(this RoadEditorPanel instance)
-            => mAddLanePropFields_.Invoke(instance, null);
+        public static void AddLanePropSelectField(this RoadEditorPanel instance) =>
+             GetMethod("AddLanePropSelectField").Invoke(instance, null);
 
-        static MethodInfo mAddLanePropSelectField_ =
-            AccessTools.DeclaredMethod(typeof(RoadEditorPanel), "AddLanePropSelectField")
-            ?? throw new Exception("mAddLanePropSelectField_ is null");
-        public static void AddLanePropSelectField(this RoadEditorPanel instance)
-            => mAddLanePropSelectField_.Invoke(instance, null);
+        public static void AddCrossImportField(this RoadEditorPanel instance) =>
+            GetMethod("AddCrossImportField").Invoke(instance, null);
 
-        static MethodInfo mAddCrossImportField_ =
-            AccessTools.DeclaredMethod(typeof(RoadEditorPanel), "AddCrossImportField")
-            ?? throw new Exception("mAddCrossImportField_ is null");
-        public static void AddCrossImportField(this RoadEditorPanel instance)
-            => mAddCrossImportField_.Invoke(instance, null);
-
-        static MethodInfo mAddModelImportField_ =
-            AccessTools.DeclaredMethod(typeof(RoadEditorPanel), "AddModelImportField")
-            ?? throw new Exception("mAddModelImportField_ is null");
-        public static void AddModelImportField(this RoadEditorPanel instance, bool showColorField = true)
-            => mAddModelImportField_.Invoke(instance, new object[] { showColorField });
+        public static void AddModelImportField(this RoadEditorPanel instance, bool showColorField = true) =>
+            GetMethod("AddModelImportField")
+            .Invoke(instance, new object[] { showColorField });
 
         //private void RoadEditorPanel.FitToContainer(UIComponent comp) 
-        static MethodInfo mFitToContainer_ =
-            AccessTools.DeclaredMethod(typeof(RoadEditorPanel), "FitToContainer")
-            ?? throw new Exception("mFitToContainer_ is null");
-        public static void FitToContainer(this RoadEditorPanel instance, UIComponent comp)
-            => mFitToContainer_.Invoke(instance, new object[] { comp });
+        public static void FitToContainer(this RoadEditorPanel instance, UIComponent comp) =>
+            GetMethod("FitToContainer")
+            .Invoke(instance, new object[] { comp });
 
-        // private void RoadEditorPanel.OnObjectModified()
-        static MethodInfo mOnObjectModified_ =
-            AccessTools.DeclaredMethod(typeof(RoadEditorPanel), "OnObjectModified")
-            ?? throw new Exception("mOnObjectModified_ is null");
-        public static void OnObjectModified(this RoadEditorPanel instance)
-            => mOnObjectModified_.Invoke(instance, null);
+        public static void OnObjectModified(this RoadEditorPanel instance) =>
+            GetMethod("OnObjectModified").Invoke(instance, null);
+
+        public static void AddToArrayField(this RoadEditorPanel instance,
+            RoadEditorCollapsiblePanel panel, object element, FieldInfo field, object targetObject) {
+            // private void AddToArrayField(RoadEditorCollapsiblePanel panel,
+            //      object element, FieldInfo field, object targetObject)
+            GetMethod("AddToArrayField")
+                .Invoke(instance, new[] { panel, element, field, targetObject });
+        }
 
         public static bool RequiresUserFlag(Type type) {
             return type == typeof(Building.Flags) || type == typeof(Vehicle.Flags);
         }
 
-        static FastInvokeHandler mGetGroupPanel = MethodInvoker.GetHandler(
-            AccessTools.DeclaredMethod(typeof(RoadEditorPanel), "GetGroupPanel"));
-
+        static FastInvokeHandler mGetGroupPanel_ = MethodInvoker.GetHandler(
+            GetMethod("GetGroupPanel"));
         public static RoadEditorCollapsiblePanel GetGroupPanel(this RoadEditorPanel instance, string name) {
-            return (RoadEditorCollapsiblePanel)mGetGroupPanel.Invoke(instance, new[] { name });
+            return (RoadEditorCollapsiblePanel)mGetGroupPanel_.Invoke(instance, new[] { name });
         }
     }
 }

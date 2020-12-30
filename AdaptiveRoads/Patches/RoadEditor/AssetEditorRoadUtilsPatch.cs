@@ -1,15 +1,16 @@
 namespace AdaptiveRoads.Patches.RoadEditor {
-    using AdaptiveRoads.Manager;
     using HarmonyLib;
     using KianCommons;
     using PrefabMetadata.Helpers;
     using System;
     using System.Reflection;
-    using static KianCommons.EnumerationExtensions;
 
-    // AssetEditorRoadUtils
-    //  public static object AddArrayElement(object target, FieldInfo field, object newObject = null)
-    //	public static void RemoveArrayElement(object element, object target, FieldInfo field)
+    //  public static object AssetEditorRoadUtils.AddArrayElement(object target, FieldInfo field, object newObject = null)
+    //	public static void AssetEditorRoadUtils.RemoveArrayElement(object element, object target, FieldInfo field)
+    /// <summary>
+    /// Extends the newly added element to hold metadata.
+    /// this makes sure the UI component is linked to the extended element.
+    /// </summary>
     [HarmonyPatch(typeof(AssetEditorRoadUtils))]
     public static class AssetEditorRoadUtilsPatch {
         [HarmonyPostfix]
@@ -28,8 +29,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 __result = newVal;
 
                 Log.Debug($"AddArrayElement -> return={__result}");
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 Log.Exception(e);
                 throw e;
             }
