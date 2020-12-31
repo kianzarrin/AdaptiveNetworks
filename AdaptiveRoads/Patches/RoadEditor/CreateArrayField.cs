@@ -21,7 +21,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             RoadEditorPanel __instance, object ___m_Target) {
             target = target ?? ___m_Target;
             RoadEditorCollapsiblePanel groupPanel = __instance.GetGroupPanel(name);
-
         }
     }
 }

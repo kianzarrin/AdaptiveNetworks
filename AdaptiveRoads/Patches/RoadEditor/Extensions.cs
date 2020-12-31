@@ -30,10 +30,9 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         public static MethodInfo GetMethod(string methodName) =>
             ReflectionHelpers.GetMethod(typeof(RoadEditorPanel), methodName);
 
-        static MethodInfo mCreateGenericField_ = GetMethod("CreateGenericField");
         public static void CreateGenericField(this RoadEditorPanel instance,
             string groupName, FieldInfo field, object target) {
-            mCreateGenericField_.Invoke(instance, new object[] { groupName, field, target });
+            GetMethod("CreateGenericField").Invoke(instance, new object[] { groupName, field, target });
         }
 
         public static void AddLanePropFields(this RoadEditorPanel instance) =>
@@ -69,8 +68,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             return type == typeof(Building.Flags) || type == typeof(Vehicle.Flags);
         }
 
-        static FastInvokeHandler mGetGroupPanel_ = MethodInvoker.GetHandler(
-            GetMethod("GetGroupPanel"));
+        static FastInvokeHandler mGetGroupPanel_ =
+            MethodInvoker.GetHandler(GetMethod("GetGroupPanel"));
         public static RoadEditorCollapsiblePanel GetGroupPanel(this RoadEditorPanel instance, string name) {
             return (RoadEditorCollapsiblePanel)mGetGroupPanel_.Invoke(instance, new[] { name });
         }

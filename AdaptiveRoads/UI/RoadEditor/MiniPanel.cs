@@ -12,36 +12,39 @@ using KianCommons.UI.Helpers;
 using AdaptiveRoads.Manager;
 
 namespace AdaptiveRoads.UI.RoadEditor {
-    public class MiniPanel: UIAutoSizePanel {
+    public class MiniPanel: UIPanel {
         public UILabel Label;
 
         public static void CloseAll() {
-            foreach (var panel in UIView.GetAView().GetComponents<MiniPanel>())
+            var panels = UIView.GetAView().GetComponents<MiniPanel>();
+            Log.Debug("CloseALL: open mini panel count: " + panels.Count());
+            foreach (var panel in panels)
                 Destroy(panel);
         }
 
         public static MiniPanel Display() {
             Log.Debug($"MiniPanel.Display() called");
             CloseAll();
-            Input.GetMouseButtonDown(1); //consume. is this neccessary?
-            var panel = UIView.GetAView().AddUIComponent(typeof(MiniPanel)) as MiniPanel;
-            return panel;
+            return UIView.GetAView().AddUIComponent(typeof(MiniPanel)) as MiniPanel;
         }
 
         public override void Awake() {
             base.Awake();
-            AutoSize2 = true;
-            isVisible = true;
             name = "MiniPanel";
+            autoLayout = true;
+            autoSize = true;
+            autoLayoutDirection = LayoutDirection.Vertical;
+            atlas = TextureUtil.Ingame;
             backgroundSprite = "GenericPanel";
-            absolutePosition = Input.mousePosition;
+            isVisible = true;
         }
 
         bool started = false;
         public override void Start() {
             base.Start();
+            position = Input.mousePosition;
+            Refresh();
             started = true;
-            RefreshSizeRecursive();
         }
 
         public override void Update() {
@@ -57,8 +60,12 @@ namespace AdaptiveRoads.UI.RoadEditor {
             btn.Action = action;
             btn.Hint = hint;
             btn.text = label;
-            if (started) RefreshSizeRecursive();
+            if (started) Refresh();
             return btn;
+        }
+
+        public void Refresh() {
+            this.FitChildren();
         }
 
         public class MiniPanelButton : UIButtonExt {

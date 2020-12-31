@@ -20,7 +20,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             RoadEditorPanel __instance) {
             if (NetInfoExtionsion.EditedNetInfo == null)
                 return true; // ignore this outside of asset editor.
-            if (Extensions.RequiresUserFlag(field.FieldType))
+            if (RoadEditorPanelExtensions.RequiresUserFlag(field.FieldType))
                 return true;
             if (field.HasAttribute<BitMaskAttribute>() && field.HasAttribute<CustomizablePropertyAttribute>()) {
                 UIComponent container = __instance.m_Container;
