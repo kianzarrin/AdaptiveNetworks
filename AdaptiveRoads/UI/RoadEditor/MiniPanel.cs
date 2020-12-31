@@ -69,10 +69,22 @@ namespace AdaptiveRoads.UI.RoadEditor {
             FitChildren();
             Invalidate();
         }
-
+        public override void OnDestroy() {
+            var buttons = GetComponentsInChildren<MiniPanelButton>();
+            Log.Debug($"MiniPanel.OnDestroy() called. {buttons.Length} buttons found");
+            foreach (var btn in buttons) {
+                btn.Hint = null;
+                btn.Action = null;
+            }
+            base.OnDestroy();
+        }
         public class MiniPanelButton : UIButtonExt {
             public Action Action;
             public string Hint;
+            public override void OnDestroy() {
+                Log.Debug("MiniPanelButton.OnDestroy() called");
+                base.OnDestroy();
+            }
 
             protected override void OnClick(UIMouseEventParameter p) {
                 base.OnClick(p);
