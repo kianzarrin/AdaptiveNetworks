@@ -29,6 +29,20 @@ angle/offset  │ 180/-1   │ 0/+1
      No Right │          │ 
 angle/offset  │ 180/-1   │ 0/+1 
 
+
+lane │     prop    │ invert │ flag             │ angle/offset │ pos X,Z  
+─────┼─────────────┼────────┼──────────────────┼──────────────┼────────
++    │ NoRightTurn │ no     │ EndOneWayRight   │ 0/1          │ -2.5,-5 
++    │ NoLeftTurn  │ yes    │ StartOneWayLeft  │ 180/-1       │ -2.5,+5
+-    │ NoLeftTurn  │ yes    │ EndOneWayLeft    │ 0/1          │ +2.5,-5
+-    │ NoRightTurn │ no     │ StartOneWayRight │ 180/-1       │ +2.5,+5
+m    │ NoLeftTurn  │ no     │ EndOneWayLeft    │ 0/1          │ +2.9,-5
+m    │ NoRightTurn │ yes    │ StartOneWayRight │ 180/-1       │ +2.9,+5
+m    │ NoLeftTurn  │ no     │ StartOneWayLeft  │ 180/-1       │ -2.9,+5
+m    │ NoRightTurn │ yes    │ EndOneWayRight   │ 0/1          │ -2.9,-5
+
+══════════════════════════════════════════════════════════════════════════════════════════
+
  BusStop  (inverted: dont care)
 Right(Forward, +):  angle:90   
 Left(Backward, -):  angle:-90

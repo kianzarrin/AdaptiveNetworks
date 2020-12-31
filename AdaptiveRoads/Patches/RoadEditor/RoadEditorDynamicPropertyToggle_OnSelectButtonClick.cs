@@ -10,6 +10,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using static KianCommons.ReflectionHelpers;
     using static KianCommons.Assertion;
     using static RoadEditorDynamicPropertyToggle_OnEnable;
+    using UnityEngine;
+    using KianCommons.Math;
 
     /// <summary>
     /// do no toggle if control is pressed.
@@ -56,12 +58,19 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 //}
                 var panel = MiniPanel.Display();
                 var f_props = typeof(NetLaneProps).GetField(nameof(NetLaneProps.m_props));
-                var clonableProp = prop as ICloneable;
-                AssertNotNull(clonableProp, "clonableProp");
+                var propExt = prop as IInfoExtended<NetLaneProps.Prop>;
+                AssertNotNull(propExt, "clonableProp");
                 panel.AddButton("Duplicate", null, delegate () {
+                    var newProp = propExt.Clone();
                     AddArrayElement(
                         sidePanel, groupPanel,
-                        target, f_props, clonableProp);
+                        target, f_props, newProp);
+                });
+                panel.AddButton("Duplicate", null, delegate () {
+                    var newProp = propExt.CloneInvert();
+                    AddArrayElement(
+                        sidePanel, groupPanel,
+                        target, f_props, newProp);
                 });
             }
         }

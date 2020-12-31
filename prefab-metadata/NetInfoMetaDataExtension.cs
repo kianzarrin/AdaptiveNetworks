@@ -22,6 +22,8 @@ namespace PrefabMetadata {
                 set => m_metaData = value;
             }
 
+            public NetInfo.Segment Self => this;
+
             public IInfoExtended<NetInfo.Segment> Clone() {
                 var ret = new Segment();
                 Utils.Util.CopyProperties<NetInfo.Segment>(ret, this);
@@ -58,6 +60,7 @@ namespace PrefabMetadata {
                 get => m_metaData;
                 set => m_metaData = value;
             }
+            public NetInfo.Node Self => this;
 
             public IInfoExtended<NetInfo.Node> Clone() {
                 var ret = new Node();
@@ -95,6 +98,8 @@ namespace PrefabMetadata {
                 get => m_metaData;
                 set => m_metaData = value;
             }
+
+            public NetLaneProps.Prop Self => this;
 
             public IInfoExtended<NetLaneProps.Prop> Clone() {
                 var ret = new LaneProp();

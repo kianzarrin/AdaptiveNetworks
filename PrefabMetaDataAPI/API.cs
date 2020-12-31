@@ -13,6 +13,7 @@ namespace PrefabMetadata.API {
     {
         IInfoExtended<T> Clone();
         T UndoExtend();
+        T Self { get; }
     }
 }
 

@@ -90,6 +90,45 @@ namespace AdaptiveRoads.Manager {
             return ret;
         }
 
+        public static IInfoExtended<NetLaneProps.Prop> CloneInvert(
+            this IInfoExtended<NetLaneProps.Prop> prop) {
+            var prop2 = prop.Self;
+            var propExt = prop2.GetMetaData();
+            var ret = prop.Clone();
+            var ret2 = ret as NetLaneProps.Prop;
+            var retExt = ret2.GetMetaData();
+
+            ret2.m_segmentOffset = -ret2.m_segmentOffset;
+            ret2.m_angle = (ret2.m_angle + 180) % 360;
+            ret2.m_position.z = -ret2.m_position.z; // TODO do I need this?
+
+            ret2.m_flagsRequired.SetFlags(
+                NetLane.Flags.YieldStart,
+                prop2.m_flagsRequired.IsFlagSet(NetLane.Flags.YieldEnd));
+            ret2.m_flagsRequired.SetFlags(
+                NetLane.Flags.YieldEnd,
+                prop2.m_flagsRequired.IsFlagSet(NetLane.Flags.YieldStart));
+            ret2.m_flagsForbidden.SetFlags(
+                NetLane.Flags.YieldStart,
+                prop2.m_flagsForbidden.IsFlagSet(NetLane.Flags.YieldEnd));
+            ret2.m_flagsForbidden.SetFlags(
+                NetLane.Flags.YieldEnd,
+                prop2.m_flagsForbidden.IsFlagSet(NetLane.Flags.YieldStart));
+
+            ret2.m_flagsRequired.SetFlags(
+                NetLane.Flags.Inverted,
+                prop2.m_flagsForbidden.IsFlagSet(NetLane.Flags.Inverted));
+            ret2.m_flagsForbidden.SetFlags(
+                NetLane.Flags.Inverted,
+                prop2.m_flagsRequired.IsFlagSet(NetLane.Flags.Inverted));
+
+            Helpers.Swap(ref ret2.m_startFlagsRequired, ref ret2.m_endFlagsRequired);
+            Helpers.Swap(ref ret2.m_startFlagsForbidden, ref ret2.m_endFlagsForbidden);
+            Helpers.Swap(ref retExt.StartNodeFlags, ref retExt.EndNodeFlags);
+            Helpers.Swap(ref retExt.SegmentStartFlags, ref retExt.SegmentEndFlags);
+            return ret;
+        }
+
         public static bool CheckRange(this Range range, float value) => range?.InRange(value) ?? true;
 
         public static bool CheckFlags(this NetInfo.Segment segmentInfo, NetSegment.Flags flags, bool turnAround) {
