@@ -2,21 +2,13 @@ using ColossalFramework.UI;
 using KianCommons;
 using KianCommons.UI;
 using System;
-using System.Diagnostics;
-using UnityEngine;
-using AdaptiveRoads.Patches.RoadEditor;
-using System.Reflection;
-using HarmonyLib;
 using System.Linq;
-using KianCommons.UI.Helpers;
-using AdaptiveRoads.Manager;
+using UnityEngine;
 
 namespace AdaptiveRoads.UI.RoadEditor {
-    public class MiniPanel: UIPanel {
-        public UILabel Label;
-
+    public class MiniPanel : UIPanel {
         public static void CloseAll() {
-            var panels = UIView.GetAView().GetComponents<MiniPanel>();
+            var panels = UIView.GetAView().GetComponentsInChildren<MiniPanel>();
             Log.Debug("CloseALL: open mini panel count: " + panels.Count());
             foreach (var panel in panels)
                 Destroy(panel);
@@ -41,8 +33,8 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
         bool started = false;
         public override void Start() {
+            Log.Debug("MiniPanel.Start() called");
             base.Start();
-            position = Input.mousePosition;
             Refresh();
             started = true;
         }
@@ -55,6 +47,13 @@ namespace AdaptiveRoads.UI.RoadEditor {
             }
         }
 
+        private void SetPosition() {
+            var uiView = GetUIView();
+            var mouse = Input.mousePosition;
+            var mouse2 = uiView.ScreenPointToGUI(mouse / uiView.inputScale);
+            relativePosition = mouse2;
+        }
+
         public UIButton AddButton(string label, string hint, Action action) {
             var btn = AddUIComponent<MiniPanelButton>();
             btn.Action = action;
@@ -65,7 +64,10 @@ namespace AdaptiveRoads.UI.RoadEditor {
         }
 
         public void Refresh() {
-            this.FitChildren();
+            Log.Debug("MiniPanel.Refresh() called");
+            SetPosition();
+            FitChildren();
+            Invalidate();
         }
 
         public class MiniPanelButton : UIButtonExt {
