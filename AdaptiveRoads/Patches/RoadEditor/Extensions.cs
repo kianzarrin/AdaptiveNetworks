@@ -93,10 +93,10 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         }
         public static FieldInfo GetField(
                 this RoadEditorCollapsiblePanel instance) =>
-                instance.GetAddButton().field;
+                instance.GetAddButton()?.field;
 
         public static object GetTarget(this RoadEditorCollapsiblePanel instance) =>
-            instance.GetAddButton().target;
+            instance.GetAddButton()?.target;
 
         public static object GetArray(this RoadEditorCollapsiblePanel instance) =>
             instance.GetField().GetValue(instance.GetTarget());

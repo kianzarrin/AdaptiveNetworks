@@ -1,43 +1,42 @@
 namespace AdaptiveRoads.Patches.RoadEditor {
+    using AdaptiveRoads.UI.RoadEditor;
+    using AdaptiveRoads.Util;
     using ColossalFramework.UI;
     using HarmonyLib;
     using KianCommons;
-    using System;
-    using System.Reflection;
-    using AdaptiveRoads.Manager;
-    using PrefabMetadata.API;
-    using AdaptiveRoads.UI.RoadEditor;
-    using AdaptiveRoads.Util;
-    using static KianCommons.ReflectionHelpers;
-    using static KianCommons.Assertion;
-    using System.Linq;
     using System.Collections.Generic;
+    using System.Linq;
 
     /// <summary>
     /// highlight lanes
     /// </summary>
     [HarmonyPatch(typeof(RoadEditorCollapsiblePanel))]
+    [HarmonyPatch("OnEnable")]
     internal static class RoadEditorCollapsiblePanelPatch {
-        [HarmonyPatch("OnEnable")]
         [HarmonyPostfix]
         static void OnEnablePostfix(RoadEditorCollapsiblePanel __instance) {
             var btn = __instance.LabelButton;
-            btn.eventClick -= OnClick;
-            btn.eventClick += OnClick;
-
-            var addbutton = __instance.m_Panel
-                .GetComponentInChildren<RoadEditorAddButton>();
-
-
-            if (__instance.GetArray() is NetLaneProps.Prop[]) {
+            btn.isTooltipLocalized = false;
+            if (__instance.LabelButton.text == "Props") {
                 string tooltip = ". CTRL+Click for more options";
                 if (!btn.tooltip.Contains(tooltip))
                     btn.tooltip += tooltip;
             }
         }
+    }
 
+    [HarmonyPatch(typeof(RoadEditorCollapsiblePanel))]
+    [HarmonyPatch("OnButtonClick")]
+    internal static class RoadEditorCollapsiblePanelPatch2 {
+        [HarmonyPrefix]
+        static bool OnButtonClickPrefix(UIComponent component) {
+            if (!HelpersExtensions.ControlIsPressed)
+                return true;
+            OnButtonControlClick(component);
+            return false;
+        }
 
-        static void OnClick(UIComponent component, UIMouseEventParameter eventParam) {
+        static void OnButtonControlClick(UIComponent component) {
             var groupPanel = component.GetComponentInParent<RoadEditorCollapsiblePanel>();
             if (groupPanel.GetArray() is NetLaneProps.Prop[] m_props) {
                 var panel = MiniPanel.Display();
@@ -46,8 +45,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 panel.AddButton("Paste all props", null,
                     () => PasteAll(groupPanel));
                 panel.AddButton("Clear all props", null,
-                    () => ClearAll(groupPanel)); 
-                    
+                    () => ClearAll(groupPanel));
+
             }
         }
 
@@ -55,7 +54,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             instance.SetArray(null);
             var roadEditor = instance.component.GetComponentInParent<RoadEditorPanel>();
             var sidePanel = roadEditor.GetSidePanel();
-            if(sidePanel !=null && sidePanel.GetTarget() is NetLaneProps.Prop)
+            if (sidePanel != null && sidePanel.GetTarget() is NetLaneProps.Prop)
                 roadEditor.DestroySidePanel();
 
             var toggleType = RoadEditorDynamicPropertyToggle_OnEnable.tRoadEditorDynamicPropertyToggle;
@@ -85,7 +84,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             }
             roadEditor.OnObjectModified();
         }
-
     }
+
+
 }
 

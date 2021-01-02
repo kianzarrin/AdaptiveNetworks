@@ -220,44 +220,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 Log.Error($"CreateExtendedComponent: Unhandled field: {fieldInfo} att:{att.name} ");
             }
         }
-
-        //static int GetRequired2(FieldInfo fieldInfo, object target) {
-        //    object subTarget = fieldInfo.GetValue(target);
-        //    return (int)GetFieldValue("Required", subTarget);
-        //}
-
-        //static void SetRequired2(int flags, FieldInfo fieldInfo, object target) {
-        //    var subTarget = fieldInfo.GetValue(target);
-        //    SetFieldValue("Required", subTarget, flags);
-        //    fieldInfo.SetValue(target, subTarget);
-        //}
-
-        //public static void CreateExtendedComponentHelper(FieldInfo field, object target, RoadEditorPanel instance, string subFieldName) {
-        //    Assertion.Assert(field.FieldType.HasAttribute<FlagPairAttribute>(), "HasAttribute:FlagsPair");
-        //    Assertion.Assert(field.HasAttribute<CustomizablePropertyAttribute>(), "HasAttribute:CustomizablePropertyAttribute");
-        //    CustomizablePropertyAttribute att =
-        //        field.GetCustomAttributes(typeof(CustomizablePropertyAttribute), true)[0] as CustomizablePropertyAttribute;
-        //    string label = att.name + "Flags" + subFieldName;
-        //    UIComponent container = instance.m_Container;
-
-
-        //    target = field.GetValue(target); // target should be the instance that contains subField. // BUG: DO struct does not work.
-        //    var subField = field.FieldType.GetField(subFieldName);
-
-        //    //from: CreateFieldComponent()
-        //    var repropertySet = UITemplateManager.Get<REPropertySet>(RoadEditorPanel.kEnumBitmaskSet);
-
-        //    //from CreateGenericField:
-        //    container.AttachUIComponent(repropertySet.gameObject);
-        //    instance.FitToContainer(repropertySet.component);
-        //    repropertySet.EventPropertyChanged += instance.OnObjectModified; //() => instance.OnObjectModified();
-
-        //    // from: repropertySet.SetTarget(target, field);
-        //    repropertySet.set_Target(target);
-        //    repropertySet.set_TargetField(subField);
-        //    (repropertySet as REEnumBitmaskSet).Initialize(target, subField, label);
-
-        //}
     }
 }
 
