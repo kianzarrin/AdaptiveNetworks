@@ -11,7 +11,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
             var panels = UIView.GetAView().GetComponentsInChildren<MiniPanel>();
             Log.Debug("CloseALL: open mini panel count: " + panels.Count());
             foreach (var panel in panels)
-                Destroy(panel);
+                Destroy(panel.gameObject);
         }
 
         public static MiniPanel Display() {
@@ -43,7 +43,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
             base.Update();
             if (Input.GetMouseButtonDown(1)) {
                 Log.Debug("MiniPanel.Update: rigt click => close this");
-                Destroy(this);
+                Destroy(this.gameObject);
             }
         }
 
@@ -69,20 +69,19 @@ namespace AdaptiveRoads.UI.RoadEditor {
             FitChildren();
             Invalidate();
         }
+
         public override void OnDestroy() {
-            var buttons = GetComponentsInChildren<MiniPanelButton>();
-            Log.Debug($"MiniPanel.OnDestroy() called. {buttons.Length} buttons found");
-            foreach (var btn in buttons) {
-                btn.Hint = null;
-                btn.Action = null;
-            }
+            Log.Debug($"MiniPanel.OnDestroy() called.");
             base.OnDestroy();
         }
+
         public class MiniPanelButton : UIButtonExt {
             public Action Action;
             public string Hint;
             public override void OnDestroy() {
                 Log.Debug("MiniPanelButton.OnDestroy() called");
+                Hint = null;
+                Action = null;
                 base.OnDestroy();
             }
 

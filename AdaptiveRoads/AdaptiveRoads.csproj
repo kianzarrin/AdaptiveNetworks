@@ -55,6 +55,7 @@
     <Compile Remove="Patches\Lane\NetAI_UpdateLanes.cs" />
     <Compile Remove="Patches\Node\CalculateNode.cs" />
     <Compile Remove="Patches\Node\NetAI_UpdateNodeFlags.cs" />
+    <Compile Remove="Patches\RoadEditor\CreateArrayField.cs" />
     <Compile Remove="Patches\RoadEditor\InstantiateTemplatePatch.cs" />
     <Compile Remove="Patches\RoadEditor\RoadEditorDynamicPropertyToggle_Refresh.cs" />
     <Compile Remove="Patches\Segment\CalculateSegment.cs" />
@@ -157,7 +158,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="KianCommons\KianCommons\Serialization\" />
-    <Folder Include="Util\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\prefab-metadata\Prefab Metadata.csproj" />

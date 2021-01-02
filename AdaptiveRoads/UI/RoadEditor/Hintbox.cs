@@ -17,7 +17,12 @@ namespace AdaptiveRoads.UI.RoadEditor {
             _instance = UIView.GetAView().AddUIComponent(typeof(HintBox)) as HintBox;
         public static void Release() =>
             DestroyImmediate(_instance);
-        
+        public override void OnDestroy() {
+            _instance = null;
+            ReflectionHelpers.SetAllDeclaredFieldsToNull(this);
+            base.OnDestroy();
+        }
+
         public override void Awake() {
             base.Awake();
             wordWrap = false;

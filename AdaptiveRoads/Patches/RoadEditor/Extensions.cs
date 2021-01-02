@@ -1,9 +1,9 @@
 namespace AdaptiveRoads.Patches.RoadEditor {
-    using System;
-    using System.Reflection;
     using ColossalFramework.UI;
     using HarmonyLib;
     using KianCommons;
+    using System;
+    using System.Reflection;
 
     public static class REPropertySetExtensions {
         public static MethodInfo GetMethod(string methodName) =>
@@ -73,5 +73,36 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         public static RoadEditorCollapsiblePanel GetGroupPanel(this RoadEditorPanel instance, string name) {
             return (RoadEditorCollapsiblePanel)mGetGroupPanel_.Invoke(instance, new[] { name });
         }
+
+        public static void DestroySidePanel(this RoadEditorPanel instance) =>
+            GetMethod("DestroySidePanel").Invoke(instance, null);
+
+        public static RoadEditorPanel GetSidePanel(this RoadEditorPanel instance) =>
+            ReflectionHelpers.GetFieldValue("m_SidePanel", instance) as RoadEditorPanel;
+
+        public static object GetTarget(this RoadEditorPanel instance) =>
+            ReflectionHelpers.GetFieldValue("m_Target", instance);
+
+
+    }
+
+    public static class RoadEditorCollapsiblePanelExtensions {
+        public static RoadEditorAddButton GetAddButton(
+            this RoadEditorCollapsiblePanel instance) {
+            return instance.component.GetComponentInChildren<RoadEditorAddButton>();
+        }
+        public static FieldInfo GetField(
+                this RoadEditorCollapsiblePanel instance) =>
+                instance.GetAddButton().field;
+
+        public static object GetTarget(this RoadEditorCollapsiblePanel instance) =>
+            instance.GetAddButton().target;
+
+        public static object GetArray(this RoadEditorCollapsiblePanel instance) =>
+            instance.GetField().GetValue(instance.GetTarget());
+
+        public static void SetArray(this RoadEditorCollapsiblePanel instance, object value) =>
+            instance.GetField().SetValue(instance.GetTarget(), value);
+
     }
 }

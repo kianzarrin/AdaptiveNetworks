@@ -45,9 +45,13 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             ___m_SelectButton.eventMouseLeave += OnMouseLeave;
             ___m_DeleteButton.eventMouseLeave += OnMouseLeave;
 
-            string tooltip = ". CTRL+Click for more options";
-            if(!___m_SelectButton.tooltip.Contains(tooltip))
-                ___m_SelectButton.tooltip += tooltip;
+            object element = m_TargetElement(__instance);
+
+            if (element is NetLaneProps.Prop) {
+                string tooltip = ". CTRL+Click for more options";
+                if (!___m_SelectButton.tooltip.Contains(tooltip))
+                    ___m_SelectButton.tooltip += tooltip;
+            }
         }
 
         static void OnMouseEnter(UIComponent component, UIMouseEventParameter eventParam) {

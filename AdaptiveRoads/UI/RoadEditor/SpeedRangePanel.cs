@@ -16,6 +16,11 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
         public event REPropertySet.PropertyChangedHandler EventPropertyChanged;
 
+        public override void OnDestroy() {
+            ReflectionHelpers.SetAllDeclaredFieldsToNull(this);
+            base.OnDestroy();
+        }
+
         public static SpeedRangePanel Add(
             RoadEditorPanel roadEditorPanel,
             UIComponent container,

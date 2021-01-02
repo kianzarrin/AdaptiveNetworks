@@ -4,14 +4,12 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using KianCommons;
     using System;
     using System.Reflection;
-    using AdaptiveRoads.Manager;
+    using AdaptiveRoads.Util;
     using PrefabMetadata.API;
     using AdaptiveRoads.UI.RoadEditor;
     using static KianCommons.ReflectionHelpers;
     using static KianCommons.Assertion;
     using static RoadEditorDynamicPropertyToggle_OnEnable;
-    using UnityEngine;
-    using KianCommons.Math;
 
     /// <summary>
     /// do no toggle if control is pressed.
@@ -36,10 +34,10 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
             var instance = component.GetComponentInParent(tRoadEditorDynamicPropertyToggle);
             var groupPanel = component.GetComponentInParent<RoadEditorCollapsiblePanel>();
-            var sidePanel = component.GetComponentInParent<RoadEditorPanel>();
+            var roadEditor = component.GetComponentInParent<RoadEditorPanel>();
             Log.Debug($"instance={instance} " +
                 $"collapsiblePanel={groupPanel} " +
-                $"sidePanel={sidePanel}");
+                $"roadEditor={roadEditor}");
 
             object target = m_TargetObject(instance);
             object element = m_TargetElement(instance);
@@ -63,17 +61,29 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 panel.AddButton("Duplicate", null, delegate () {
                     var newProp = propExt.Clone();
                     AddArrayElement(
-                        sidePanel, groupPanel,
+                        roadEditor, groupPanel,
                         target, f_props, newProp);
                 });
-                panel.AddButton("Duplicate", null, delegate () {
-                    var newProp = propExt.CloneInvert();
-                    AddArrayElement(
-                        sidePanel, groupPanel,
-                        target, f_props, newProp);
-                });
+
+                if (prop.CanInvert()) {
+                    panel.AddButton(
+                        "Inverted duplicate",
+                        "swaps: required.Inverted<->foribdden.inverted start<->end left<->right\n" +
+                        "negates: position.z offset angle",
+                        delegate () {
+                            var newProp = propExt.Clone();
+                            newProp.Self.ToggleRHT_LHT();
+                            AddArrayElement(
+                                roadEditor, groupPanel,
+                                target, f_props, newProp);
+                        });
+                    panel.AddButton("Copy", null, delegate () {
+                        ClipBoard.Data = propExt.Clone();
+                    });
+                }
             }
         }
+
         public static object AddArrayElement(
             RoadEditorPanel roadEditorPanel, RoadEditorCollapsiblePanel groupPanel,
             object target, FieldInfo arrayField, object newElement) {

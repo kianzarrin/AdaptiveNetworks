@@ -10,6 +10,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using System.Reflection;
     using static KianCommons.Assertion;
     using static KianCommons.ReflectionHelpers;
+    using AdaptiveRoads.Util;
 
     /// <summary>
     /// extend CreateGenericField to support flag extension types.
@@ -62,6 +63,24 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         foreach (var field2 in metadata.GetFieldsWithAttribute<CustomizablePropertyAttribute>()) {
                             CreateExtendedComponent(groupName, field2, metadata, __instance);
                         }
+                        ButtonPanel.Add(
+                            roadEditorPanel: __instance,
+                            container: __instance.m_Container,
+                            label: "Toggle Forward/Backward",
+                            null,
+                            action: ()=> {
+                                prop.ToggleForwardBackward();
+                                __instance.OnObjectModified();
+                            });
+                        ButtonPanel.Add(
+                            roadEditorPanel: __instance,
+                            container: __instance.m_Container,
+                            label: "Toggle RHT/LHT",
+                            null,
+                            action: () => {
+                                prop.ToggleRHT_LHT();
+                                __instance.OnObjectModified();
+                            });
                     }
                 } else if (target is NetInfo.Node node) {
                     Log.Debug($"{__instance.name}.CreateGenericField.Postfix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
@@ -142,20 +161,20 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             Log.Debug("hint is " + hint);
 
             if (fieldInfo.FieldType.HasAttribute<FlagPairAttribute>()) {
-                int GetRequired2() {
+                int GetRequired() {
                     object subTarget = fieldInfo.GetValue(target);
                     return (int)GetFieldValue("Required", subTarget);
                 }
-                void SetRequired2(int flags) {
+                void SetRequired(int flags) {
                     var subTarget = fieldInfo.GetValue(target);
                     SetFieldValue("Required", subTarget, flags);
                     fieldInfo.SetValue(target, subTarget);
                 }
-                int GetForbidden2() {
+                int GetForbidden() {
                     object subTarget = fieldInfo.GetValue(target);
                     return (int)GetFieldValue("Forbidden", subTarget);
                 }
-                void SetForbidden2(int flags) {
+                void SetForbidden(int flags) {
                     var subTarget = fieldInfo.GetValue(target);
                     SetFieldValue("Forbidden", subTarget, flags);
                     fieldInfo.SetValue(target, subTarget);
@@ -169,30 +188,34 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 else if (enumType == typeof(NetNode.Flags))
                     enumType = typeof(NetNodeFlags);
 
-                var bitMaskPanel0 = BitMaskPanel.Add(
+                var panel0 = BitMaskPanel.Add(
                     roadEditorPanel: instance,
                     container: container,
                     label: prefix + att.name + " Flags Required",
                     enumType: enumType,
-                    setHandler: SetRequired2,
-                    getHandler: GetRequired2,
+                    setHandler: SetRequired,
+                    getHandler: GetRequired,
                     hint: hint);
-                var bitMaskPanel1 = BitMaskPanel.Add(
+                panel0.EventPropertyChanged += instance.OnObjectModified;
+                var panel1 = BitMaskPanel.Add(
                     roadEditorPanel: instance,
                     container: container,
                     label: prefix + att.name + " Flags Forbidden",
                     enumType: enumType,
-                    setHandler: SetForbidden2,
-                    getHandler: GetForbidden2,
+                    setHandler: SetForbidden,
+                    getHandler: GetForbidden,
                     hint: hint);
+                panel1.EventPropertyChanged += instance.OnObjectModified;
             } else if (fieldInfo.FieldType == typeof(NetInfoExtionsion.Range) &&
                        fieldInfo.Name.ToLower().Contains("speed")) {
-                SpeedRangePanel.Add(
+                var panel = SpeedRangePanel.Add(
                     roadEditorPanel: instance,
                     container: container,
                     label: prefix + att.name,
                     target: target,
                     fieldInfo: fieldInfo);
+                panel.EventPropertyChanged += instance.OnObjectModified;
+
             } else {
                 Log.Error($"CreateExtendedComponent: Unhandled field: {fieldInfo} att:{att.name} ");
             }

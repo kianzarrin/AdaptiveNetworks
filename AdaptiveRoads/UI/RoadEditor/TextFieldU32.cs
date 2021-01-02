@@ -12,6 +12,10 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
         public override string ToString() => GetType().Name + $"({name})";
 
+        public override void OnDestroy() {
+            ReflectionHelpers.SetAllDeclaredFieldsToNull(this);
+            base.OnDestroy();
+        }
         public override void Awake() {
             base.Awake();
             atlas = TextureUtil.Ingame;

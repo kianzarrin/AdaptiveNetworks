@@ -24,6 +24,11 @@ namespace AdaptiveRoads.UI.RoadEditor {
         public string Hint;
         public event REPropertySet.PropertyChangedHandler EventPropertyChanged;
 
+        public override void OnDestroy() {
+            ReflectionHelpers.SetAllDeclaredFieldsToNull(this);
+            base.OnDestroy();
+        }
+
         public static BitMaskPanel Add(
             RoadEditorPanel roadEditorPanel,
             UIComponent container,
