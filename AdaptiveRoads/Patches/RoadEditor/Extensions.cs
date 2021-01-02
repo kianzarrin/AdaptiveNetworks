@@ -82,7 +82,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
         public static object GetTarget(this RoadEditorPanel instance) =>
             ReflectionHelpers.GetFieldValue("m_Target", instance);
-
+        public static void Reset(this RoadEditorPanel instance) =>
+            instance.Initialize(instance.GetTarget());
 
     }
 
@@ -103,6 +104,5 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
         public static void SetArray(this RoadEditorCollapsiblePanel instance, object value) =>
             instance.GetField().SetValue(instance.GetTarget(), value);
-
     }
 }

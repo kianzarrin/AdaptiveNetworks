@@ -12,7 +12,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
     using AdaptiveRoads.Manager;
 
 
-    public class BitMaskPanel: UIPanel  {
+    public class BitMaskPanel: UIPanel, IDataUI  {
         public UILabel Label;
         public UICheckboxDropDown DropDown;
 
@@ -146,6 +146,8 @@ namespace AdaptiveRoads.UI.RoadEditor {
             UpdateText();
             Enable();
         }
+
+        public void Refresh() => Initialize();
 
         public static void Populate(UICheckboxDropDown dropdown, int flags, Type enumType) {
             var values = EnumBitMaskExtensions.GetPow2ValuesI32(enumType);

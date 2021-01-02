@@ -71,6 +71,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             action: ()=> {
                                 prop.ToggleForwardBackward();
                                 __instance.OnObjectModified();
+                                __instance.Reset();
+
                             });
                         ButtonPanel.Add(
                             roadEditorPanel: __instance,
@@ -80,6 +82,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             action: () => {
                                 prop.ToggleRHT_LHT();
                                 __instance.OnObjectModified();
+                                __instance.Reset();
                             });
                     }
                 } else if (target is NetInfo.Node node) {

@@ -45,6 +45,11 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 Log.Debug("MiniPanel.Update: rigt click => close this");
                 Destroy(this.gameObject);
             }
+            if (Input.GetMouseButtonDown(0)) {
+                Log.Debug("MiniPanel.Update: left click => close this with delay");
+                Destroy(this.gameObject,0.1f);
+            }
+
         }
 
         private void SetPosition() {

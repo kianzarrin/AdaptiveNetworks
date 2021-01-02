@@ -34,7 +34,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
             subPanel.Initialize();
             subPanel.Label.text = label + ":";
 
-            roadEditorPanel.m_Container.AttachUIComponent(subPanel.gameObject);
+            container.AttachUIComponent(subPanel.gameObject);
             roadEditorPanel.FitToContainer(subPanel);
 
             return subPanel;

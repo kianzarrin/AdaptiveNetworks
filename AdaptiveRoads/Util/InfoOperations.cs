@@ -12,52 +12,53 @@ namespace AdaptiveRoads.Util {
     internal static class InfoOperations {
         public static void InvertStartEnd(ref this NetLane.Flags flags) {
             var copy = flags;
-            flags.SetFlags(
+            flags = flags.SetFlags(
                 NetLane.Flags.YieldStart,
                 copy.IsFlagSet(NetLane.Flags.YieldEnd));
-            flags.SetFlags(
+            flags = flags.SetFlags(
                 NetLane.Flags.YieldEnd,
                 copy.IsFlagSet(NetLane.Flags.YieldStart));
-            flags.SetFlags(
+            flags = flags.SetFlags(
                 NetLane.Flags.StartOneWayRight,
                 copy.IsFlagSet(NetLane.Flags.StartOneWayLeft));
-            flags.SetFlags(
+            flags = flags.SetFlags(
                 NetLane.Flags.StartOneWayLeft,
                 copy.IsFlagSet(NetLane.Flags.StartOneWayRight));
-            flags.SetFlags(
+            flags = flags.SetFlags(
                 NetLane.Flags.EndOneWayRight,
                 copy.IsFlagSet(NetLane.Flags.EndOneWayLeft));
-            flags.SetFlags(
+            flags = flags.SetFlags(
                 NetLane.Flags.EndOneWayLeft,
                 copy.IsFlagSet(NetLane.Flags.EndOneWayRight));
         }
         public static void InvertLeftRight(ref this NetLane.Flags flags) {
             var copy = flags;
-            flags.SetFlags(
+            flags = flags.SetFlags(
                 NetLane.Flags.StartOneWayRight,
                 copy.IsFlagSet(NetLane.Flags.EndOneWayRight));
-            flags.SetFlags(
+            flags = flags.SetFlags(
                 NetLane.Flags.EndOneWayRight,
                 copy.IsFlagSet(NetLane.Flags.StartOneWayRight));
-            flags.SetFlags(
+            flags = flags.SetFlags(
                 NetLane.Flags.StartOneWayLeft,
                 copy.IsFlagSet(NetLane.Flags.EndOneWayLeft));
-            flags.SetFlags(
+            flags = flags.SetFlags(
                 NetLane.Flags.EndOneWayLeft,
                 copy.IsFlagSet(NetLane.Flags.StartOneWayLeft));
         }
         public static void ChangeInvertedFlag(this NetLaneProps.Prop prop) {
             bool InvertRequired = prop.m_flagsRequired.IsFlagSet(NetLane.Flags.Inverted);
             bool InvertForbidden = prop.m_flagsForbidden.IsFlagSet(NetLane.Flags.Inverted);
-            prop.m_flagsRequired.SetFlags(
+            prop.m_flagsRequired = prop.m_flagsRequired.SetFlags(
                 NetLane.Flags.Inverted,
                 InvertForbidden);
-            prop.m_flagsForbidden.SetFlags(
+            prop.m_flagsForbidden = prop.m_flagsForbidden.SetFlags(
                 NetLane.Flags.Inverted,
                 InvertRequired);
         }
 
         public static void ToggleRHT_LHT(this NetLaneProps.Prop prop) {
+            Log.Debug("ToggleRHT_LHT() called for " + prop.m_prop.name);
             prop.m_segmentOffset = -prop.m_segmentOffset;
             prop.m_angle = (prop.m_angle + 180) % 360;
             prop.m_position.z = -prop.m_position.z;
@@ -76,6 +77,8 @@ namespace AdaptiveRoads.Util {
                 Helpers.Swap(ref propExt.StartNodeFlags, ref propExt.EndNodeFlags);
                 Helpers.Swap(ref propExt.SegmentStartFlags, ref propExt.SegmentEndFlags);
             }
+            Log.Debug("ToggleRHT_LHT() done");
+
         }
 
         public static void ToggleForwardBackward(this NetLaneProps.Prop prop) {
@@ -109,17 +112,12 @@ namespace AdaptiveRoads.Util {
                 for (int i = 0, j = 0; i < srcLanes.Count && j < targetLanes.Count;) {
                     var srcLane = srcLanes[i];
                     var targetLane = targetLanes[j];
-                    bool srcParking = srcLane.m_laneType.IsFlagSet(NetInfo.LaneType.Parking);
-                    bool targetParking = targetLane.m_laneType.IsFlagSet(NetInfo.LaneType.Parking);
                     if (srcLane.m_laneType == targetLane.m_laneType) {
                         CopyProps(srcLane, targetLane, clear);
                         i++; j++;
-                    } else if (srcParking && !targetParking) {
-                        i++;
-                    } else if (!srcParking && targetParking) {
-                        j++;
                     } else {
-                        i++; j++;
+                        // assuming that ground elevation has all the lanes of the other elevations.
+                        i++; 
                     }
                 }
             }
