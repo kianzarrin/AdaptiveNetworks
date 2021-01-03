@@ -1,23 +1,7 @@
 - learn usage of vanilla lane flags:
     - oneway left/right start/end
 
-- buttons to set flags automatically:
-        Lanes group button:
-            Copy and replace to other elevations(pre-clear).
-            Copy and paste to other elevations.
-        Prop toggle
-            Hint flag summary
-            Copy and paste to other elevations
-            Save prop as template
-        Props group button:
-            Save all as template
-        Props Group Panel:
-            Add from template
-
-
-
-
-    auto create props:
+- templates:
         traffic lights
         man holes
         lane arrows
@@ -27,6 +11,15 @@
         pedestrian crossing sign
         no left/right turn
         speed limits KPH/MPH
+        UI:
+            Load/Save template panel
+            Prop toggle
+                Save prop as template
+            Props group button:
+                Save all as template
+            Props Group Panel:
+                Add from template
+
     highlight nodes/segments/props ...
     add summary hint
 

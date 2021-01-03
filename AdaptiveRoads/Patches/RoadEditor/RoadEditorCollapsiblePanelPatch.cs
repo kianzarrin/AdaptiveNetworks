@@ -1,11 +1,14 @@
 namespace AdaptiveRoads.Patches.RoadEditor {
+    using AdaptiveRoads.Manager;
     using AdaptiveRoads.UI.RoadEditor;
     using AdaptiveRoads.Util;
     using ColossalFramework.UI;
     using HarmonyLib;
     using KianCommons;
     using System;
+    using System.Linq;
     using static RoadEditorDynamicPropertyToggleHelpers;
+
 
     [HarmonyPatch(typeof(RoadEditorCollapsiblePanel))]
     [HarmonyPatch("OnButtonClick")]
@@ -21,6 +24,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         static void OnButtonControlClick(UIComponent component) {
             try {
                 var groupPanel = component.GetComponentInParent<RoadEditorCollapsiblePanel>();
+                Array array = groupPanel.GetArray();
+                var target = groupPanel.GetTarget();
                 if (groupPanel.GetArray() is NetLaneProps.Prop[] m_props) {
                     bool hasItems = m_props.Length > 0;
                     bool clipBoardHasData = ClipBoard.HasData<NetLaneProps.Prop>();
@@ -37,6 +42,19 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                                 () => PasteAll(groupPanel));
                         }
                     }
+                } else if (
+                    array is NetInfo.Lane[] m_lanes
+                    && m_lanes.Any(_lane => _lane.HasProps())
+                    && target == NetInfoExtionsion.EditedNetInfo) {
+                    var panel = MiniPanel.Display();
+                    panel.AddButton(
+                        "Copy props to other elevation",
+                        "appends props to other elevations",
+                        () => PropHelpers.CopyPropsToOtherElevations(clear: false));
+                    panel.AddButton(
+                        "replace props to other elevation",
+                        "clears props from other elevations before copying.",
+                        () => PropHelpers.CopyPropsToOtherElevations(clear: true));
                 }
             } catch (Exception ex) {
                 Log.Exception(ex);

@@ -101,7 +101,15 @@ namespace AdaptiveRoads.Util {
             (prop.m_flagsRequired ^ prop.m_flagsForbidden)
             .IsFlagSet(NetLane.Flags.Inverted);
 
-        public static void CopyPropsToOtherElevations(bool clear = true) {
+        public static void CopyPropsToOtherElevations(bool clear = true) =>
+            CopyPropsToOtherElevations(-1, clear);
+
+        /// <summary>
+        /// copy props from ground to other elevations.
+        /// </summary>
+        /// <param name="laneIndex">copy only this lane index (-1 for all lanes)</param>
+        /// <param name="clear">clears target lane[s] before copying</param>
+        public static void CopyPropsToOtherElevations(int laneIndex, bool clear = true) {
             var srcInfo = NetInfoExtionsion.EditedNetInfo;
             var srcLanes = srcInfo.SortedLanes().ToList();
             foreach (var targetInfo in NetInfoExtionsion.EditedNetInfos.Skip(1)) {
@@ -110,7 +118,9 @@ namespace AdaptiveRoads.Util {
                     var srcLane = srcLanes[i];
                     var targetLane = targetLanes[j];
                     if (srcLane.m_laneType == targetLane.m_laneType) {
-                        CopyProps(srcLane, targetLane, clear);
+                        if (i == laneIndex || laneIndex < 0) {
+                            CopyProps(srcLane, targetLane, clear);
+                        }
                         i++; j++;
                     } else {
                         // assuming that ground elevation has all the lanes of the other elevations.

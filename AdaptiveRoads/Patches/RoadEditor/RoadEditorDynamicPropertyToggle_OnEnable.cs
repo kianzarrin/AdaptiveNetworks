@@ -22,13 +22,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         internal static int LaneIndex, NodeIndex, SegmentIndex, PropIndex;
         internal static NetInfo Info;
 
-        internal static object m_TargetObject(object instance) =>
-            GetFieldValue("m_TargetObject", instance);
-
-        internal static object m_TargetElement(object instance) =>
-            GetFieldValue("m_TargetElement", instance);
-
-
         static MethodBase TargetMethod() =>
             GetMethod(ToggleType, "OnEnable");
 
@@ -45,9 +38,9 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         }
 
         static void OnMouseEnter(UIComponent component, UIMouseEventParameter eventParam) {
-            object instance = component.parent.GetComponent(ToggleType);
-            object target = m_TargetObject(instance);
-            object element = m_TargetElement(instance);
+            UICustomControl instance = component.parent.GetComponent(ToggleType) as UICustomControl;
+            object target =  GetToggleTargetObject(instance);
+            object element = GetToggleTargetElement(instance);
             //Log.Debug("RoadEditorDynamicPropertyToggle_OnEnable.GetLaneIndex():" +
             //    $" m_TargetObject(instance)={m_TargetObject(instance)}" +
             //    $" m_TargetElement(instance)={m_TargetElement(instance)}");
@@ -59,9 +52,9 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         }
 
         static void OnMouseLeave(UIComponent component, UIMouseEventParameter eventParam) {
-            object instance = component.parent.GetComponent(ToggleType);
-            object target = m_TargetObject(instance);
-            object element = m_TargetElement(instance);
+            UICustomControl instance = component.parent.GetComponent(ToggleType) as UICustomControl;
+            object target = GetToggleTargetObject(instance);
+            object element = GetToggleTargetElement(instance);
             if (target is NetInfo netInfo && element is NetInfo.Lane laneInfo) {
                 int laneIndex = netInfo.m_lanes.IndexOf(laneInfo);
                 if (LaneIndex == laneIndex)

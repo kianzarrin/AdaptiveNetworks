@@ -100,7 +100,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             instance.GetAddButton()?.target;
 
         public static Array GetArray(this RoadEditorCollapsiblePanel instance) =>
-            instance.GetField().GetValue(instance.GetTarget()) as Array;
+            instance.GetField()?.GetValue(instance.GetTarget()) as Array;
 
         public static void SetArray(this RoadEditorCollapsiblePanel instance, Array value) =>
             instance.GetField().SetValue(instance.GetTarget(), value);
@@ -116,8 +116,16 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
         internal static UIButton GetToggleSelectButton(UICustomControl toggle) =>
             GetFieldValue<UIButton>("m_SelectButton", toggle);
+
+        // gets the element in array the toggle represents.
         internal static object GetToggleTargetElement(UICustomControl toggle) =>
             GetFieldValue<object>("m_TargetElement", toggle);
+
+        /// <summary>
+        /// gets the object that contains the array (m_field)
+        /// </summary>
+        internal static object GetToggleTargetObject(UICustomControl toggle) =>
+            GetFieldValue<object>("m_TargetObject", toggle);
 
 
     }

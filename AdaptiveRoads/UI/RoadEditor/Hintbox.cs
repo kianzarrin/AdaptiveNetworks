@@ -8,7 +8,9 @@ using System.Linq;
 using UnityEngine;
 using AdaptiveRoads.Util;
 using static AdaptiveRoads.Patches.RoadEditor.RoadEditorDynamicPropertyToggleHelpers;
-
+using AdaptiveRoads.Patches.RoadEditor;
+using AdaptiveRoads.Manager;
+using System.Linq;
 
 namespace AdaptiveRoads.UI.RoadEditor {
     public class HintBox : UILabel {
@@ -154,18 +156,26 @@ namespace AdaptiveRoads.UI.RoadEditor {
                         string h = "Clicl => toggle\n" + "Control + Click => more options";
                         var groupPanel = panel.GetComponent<RoadEditorCollapsiblePanel>();
                         if (groupPanel && groupPanel.LabelButton.containsMouse) {
+                            var target = groupPanel.GetTarget();
                             string label = groupPanel.LabelButton.text;
-                            if (label == "Props" || label == "Lanes") {
+                            if (label == "Props") {
+                                Hint2 = h;
+                            } else if (
+                                groupPanel.GetArray() is NetInfo.Lane [] m_lanes
+                                && m_lanes.Any(_lane=>_lane.HasProps())
+                                && target == NetInfoExtionsion.EditedNetInfo ) {
                                 Hint2 = h;
                             }
                         }
                         UICustomControl toggle = panel.GetComponent(ToggleType) as UICustomControl;
                         if (toggle && GetToggleSelectButton(toggle).containsMouse) {
                             object element = GetToggleTargetElement(toggle);
+                            var target = GetToggleTargetObject(toggle);
                             if (element is NetLaneProps.Prop prop) {
                                 Hint1 = prop.Description();
                                 Hint2 = h;
-                            } else if (element is NetInfo.Lane lane) {
+                            } else if (element is NetInfo.Lane lane && lane.HasProps()
+                                && target == NetInfoExtionsion.EditedNetInfo) {
                                 Hint2 = h;
                             }
                         }

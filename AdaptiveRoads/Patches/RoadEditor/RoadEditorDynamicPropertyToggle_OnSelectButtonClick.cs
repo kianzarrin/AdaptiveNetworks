@@ -1,15 +1,16 @@
 namespace AdaptiveRoads.Patches.RoadEditor {
+    using AdaptiveRoads.Manager;
+    using AdaptiveRoads.UI.RoadEditor;
+    using AdaptiveRoads.Util;
     using ColossalFramework.UI;
     using HarmonyLib;
     using KianCommons;
+    using PrefabMetadata.API;
     using System;
     using System.Reflection;
-    using AdaptiveRoads.Util;
-    using PrefabMetadata.API;
-    using AdaptiveRoads.UI.RoadEditor;
-    using static KianCommons.ReflectionHelpers;
     using static KianCommons.Assertion;
-    using static RoadEditorDynamicPropertyToggle_OnEnable;
+    using static KianCommons.ReflectionHelpers;
+    using static RoadEditorDynamicPropertyToggleHelpers;
 
     /// <summary>
     /// do no toggle if control is pressed.
@@ -32,18 +33,18 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         public static void OnSelectButtonCtrlClick(UIComponent component) {
             Log.Debug("OnSelectButtonCtrlClick() called");
 
-            var instance = component.GetComponentInParent(tRoadEditorDynamicPropertyToggle);
+            UICustomControl instance = component.parent.GetComponent(ToggleType) as UICustomControl;
             var groupPanel = component.GetComponentInParent<RoadEditorCollapsiblePanel>();
             var roadEditor = component.GetComponentInParent<RoadEditorPanel>();
             Log.Debug($"instance={instance} " +
                 $"collapsiblePanel={groupPanel} " +
                 $"roadEditor={roadEditor}");
 
-            object target = m_TargetObject(instance);
-            object element = m_TargetElement(instance);
+            object target = GetToggleTargetObject(instance);
+            object element = GetToggleTargetElement(instance);
             if (target is NetLaneProps netLaneProps
                 && element is NetLaneProps.Prop prop) {
-                int propIndex = netLaneProps.m_props.IndexOf(prop);
+                //int propIndex = netLaneProps.m_props.IndexOf(prop);
                 //NetInfo netInfo = null; ;
                 //int laneIndex = 0; ;
                 //foreach (var netInfo2 in NetInfoExtionsion.EditedNetInfos) {
@@ -81,6 +82,22 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 panel.AddButton("Copy", null, delegate () {
                     ClipBoard.SetData(prop);
                 });
+            } else if (element is NetInfo.Lane lane && lane.HasProps()
+                && target == NetInfoExtionsion.EditedNetInfo) {
+                var panel = MiniPanel.Display();
+                int laneIndex = NetInfoExtionsion.EditedNetInfo
+                    .m_lanes.IndexOf(lane);
+                panel.AddButton(
+                    "Copy props to other elevation",
+                    "appends props to equivalent lane on other elevations",
+                    () => PropHelpers.CopyPropsToOtherElevations(
+                        laneIndex: laneIndex, clear: false));
+                panel.AddButton(
+                    "replace props to other elevation",
+                    "clears props from other elevations before\n" +
+                    "copying props to equivalent lane on other elevations",
+                    () => PropHelpers.CopyPropsToOtherElevations(
+                        laneIndex: laneIndex, clear: true));
             }
         }
 
