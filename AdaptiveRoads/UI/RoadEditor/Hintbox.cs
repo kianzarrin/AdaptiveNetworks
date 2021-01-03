@@ -6,9 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using AdaptiveRoads.Patches.RoadEditor;
-using AdaptiveRoads.UI.RoadEditor;
-using static KianCommons.ReflectionHelpers;
+using AdaptiveRoads.Util;
 using static AdaptiveRoads.Patches.RoadEditor.RoadEditorDynamicPropertyToggleHelpers;
 
 
@@ -74,14 +72,14 @@ namespace AdaptiveRoads.UI.RoadEditor {
         public string hint1_, hint2_, hint3_;
 
         /// <summary>
-        /// Controller hotkeys
+        /// description
         /// </summary>
         public string Hint1;
 
-        // Controller description
+        // hotkeys description
         public string Hint2;
 
-        // tool 
+        // extra
         public string Hint3;
 
         public static IEnumerable<RoadEditorPanel> GetRoadEditorPanel() {
@@ -110,9 +108,35 @@ namespace AdaptiveRoads.UI.RoadEditor {
             $"{re.GetType().Name}(target:{FieldValue("m_Target", re)}, field:{FieldValue("m_Target", re)}";
 
         public override void Update() {
-            base.Update();
             try {
-                if (ModSettings.HideHints) return;
+                base.Update();
+                if (ModSettings.HideHints)
+                    return;
+                GetHint();
+                ShowInfo();
+            } catch (Exception ex) {
+                Log.Exception(ex);
+            }
+
+        }
+
+        private void ShowInfo() {
+            text = BuildText();
+            isVisible = !text.IsNullorEmpty();
+            if (!isVisible)
+                return;
+
+            var screenSize = ToolBase.fullscreenContainer?.size
+                ?? GetUIView().GetScreenResolution();
+
+            var pos = MouseGUIPosition() + new Vector3(25, 25);
+            pos.x = ClampToScreen(pos.x, width, screenSize.x);
+            pos.y = ClampToScreen(pos.y, height, screenSize.y);
+
+            relativePosition = pos;
+        }
+        public void GetHint() {
+            try {
 
                 position = Input.mousePosition;
                 //Camera.main.ViewportToScreenPoint()
@@ -126,70 +150,33 @@ namespace AdaptiveRoads.UI.RoadEditor {
                         // not to contain mouse but for the dropdown to contain mouse.
                         Hint1 = dataUI.GetHint();
                         break;
-                    } else if(panel.containsMouse) {
+                    } else if (panel.containsMouse) {
                         string h = "Clicl => toggle\n" + "Control + Click => more options";
                         var groupPanel = panel.GetComponent<RoadEditorCollapsiblePanel>();
                         if (groupPanel && groupPanel.LabelButton.containsMouse) {
-                            if(groupPanel.LabelButton.text == "Props") {
-                                Hint1 = h;
+                            string label = groupPanel.LabelButton.text;
+                            if (label == "Props" || label == "Lanes") {
+                                Hint2 = h;
                             }
                         }
                         UICustomControl toggle = panel.GetComponent(ToggleType) as UICustomControl;
-                        if(toggle && GetToggleSelectButton(toggle).containsMouse) {
-                            if(GetToggleTargetElement(toggle) is NetLaneProps.Prop) {
-                                Hint1 = h;
+                        if (toggle && GetToggleSelectButton(toggle).containsMouse) {
+                            object element = GetToggleTargetElement(toggle);
+                            if (element is NetLaneProps.Prop prop) {
+                                Hint1 = prop.Description();
+                                Hint2 = h;
+                            } else if (element is NetInfo.Lane lane) {
+                                Hint2 = h;
                             }
                         }
                     }
                 }
-                ShowInfo();
-                //Log.DebugWait(Hint1);
-
-
-                //if (containsMouse)
-                //    return; // prevent flickering on mouse hover
-
-                //    string h1 = null, h2 = null;
-                //    Component c = default;
-                //    if (c != null) {
-                //        //Log.DebugWait($"{component.name}-{c}@{rootname}");
-                //        h1 = c.HintHotkeys;
-                //        h2 = c.HintDescription;
-                //    }
-                //    // TODO get h3 from tool.
-                //    var prev_h1 = Hint1;
-                //    var prev_h2 = Hint2;
-                //    var prev_h3 = Hint3;
-
-                //    Hint1 = h1;
-                //    Hint2 = h2;
-
-                //    if (Hint1 != prev_h1 || Hint2 != prev_h2 || Hint3 != prev_h3) {
-                //        RefreshValues();
-                //    }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 Hint1 = e.ToString();
                 Log.DebugWait(Hint1);
             }
         }
 
-
-        private void ShowInfo() {
-            text = BuildText();
-            isVisible = !text.IsNullorEmpty();
-            if (!isVisible)
-                return;
-
-            var screenSize = ToolBase.fullscreenContainer?.size
-                ?? GetUIView().GetScreenResolution();
-
-            var pos = MouseGUIPosition() +  new Vector3(25, 25);
-            pos.x = ClampToScreen(pos.x, width, screenSize.x);
-            pos.y = ClampToScreen(pos.y, height, screenSize.y);
-
-            relativePosition = pos;
-        }
         private Vector3 MouseGUIPosition() {
             var uiView = GetUIView();
             return uiView.ScreenPointToGUI(Input.mousePosition / uiView.inputScale);

@@ -2,11 +2,14 @@ using ColossalFramework.UI;
 using KianCommons;
 using KianCommons.UI;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 namespace AdaptiveRoads.UI.RoadEditor {
     public class MiniPanel : UIPanel {
+        public IEnumerable<UIButton> Buttons => GetComponentsInChildren<UIButton>();
+
         public static void CloseAll() {
             var panels = UIView.GetAView().GetComponentsInChildren<MiniPanel>();
             Log.Debug("CloseALL: open mini panel count: " + panels.Count());
@@ -29,6 +32,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
             atlas = TextureUtil.Ingame;
             backgroundSprite = "GenericPanel";
             isVisible = true;
+            color = Color.black;
         }
 
         bool started = false;
@@ -49,7 +53,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 Log.Debug("MiniPanel.Update: left click outside buttons =? close this");
                 // escape if contains mouse
                 // OnClick will destroy the panel
-                foreach(var button in GetComponentsInChildren<UIButton>()) {
+                foreach(var button in Buttons) {
                     if (button.containsMouse)
                         return;
                 }
@@ -78,6 +82,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
             Log.Debug("MiniPanel.Refresh() called");
             SetPosition();
             FitChildren();
+            foreach (var btn in Buttons) btn.size = size;
             Invalidate();
         }
 

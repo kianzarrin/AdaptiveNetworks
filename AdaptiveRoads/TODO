@@ -2,17 +2,20 @@
     - oneway left/right start/end
 
 - buttons to set flags automatically:
-    UI Design:
-        Lanes group button or Settings:
-            Copy and replace from ground to other elevations.
-        Prop Select button: Done tested
-            Duplicate 
-            Duplicate Inverted
-            Copy
-        Prop group button: Done tested
-            Copy all
-            Clear All
-            Paste
+        Lanes group button:
+            Copy and replace to other elevations(pre-clear).
+            Copy and paste to other elevations.
+        Prop toggle
+            Hint flag summary
+            Copy and paste to other elevations
+            Save prop as template
+        Props group button:
+            Save all as template
+        Props Group Panel:
+            Add from template
+
+
+
 
     auto create props:
         traffic lights

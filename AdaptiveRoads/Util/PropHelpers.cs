@@ -5,11 +5,8 @@ namespace AdaptiveRoads.Util {
     using PrefabMetadata.Helpers;
     using System;
     using System.Linq;
-    using System.Collections;
-    using System.Collections.Generic;
 
-
-    internal static class InfoOperations {
+    internal static class PropHelpers {
         public static void InvertStartEnd(ref this NetLane.Flags flags) {
             var copy = flags;
             flags = flags.SetFlags(
@@ -117,7 +114,7 @@ namespace AdaptiveRoads.Util {
                         i++; j++;
                     } else {
                         // assuming that ground elevation has all the lanes of the other elevations.
-                        i++; 
+                        i++;
                     }
                 }
             }
@@ -156,6 +153,87 @@ namespace AdaptiveRoads.Util {
             var flags = propExt.SegmentFlags.Required | propExt.SegmentFlags.Forbidden;
             var parkingFlags = NetSegmentExt.Flags.ParkingAllowedBoth;
             return (flags & parkingFlags) != 0;
+        }
+
+        public static string DisplayName(this NetLaneProps.Prop prop) {
+            if (prop.m_prop != null) {
+                return prop.m_prop.name;
+            } else if (prop.m_tree != null) {
+                return prop.m_tree.name;
+            } else {
+                return "New prop";
+            }
+        }
+#pragma warning disable
+        public static string Description(this NetLaneProps.Prop prop) {
+            string ret = prop.DisplayName();
+            var propExt = prop.GetMetaData();
+            string text1;
+            {
+                var t = MergeFlagText(
+                    prop.m_flagsRequired,
+                    propExt?.LaneFlags.Required,
+                    propExt?.VanillaSegmentFlags.Required,
+                    propExt?.SegmentFlags.Required);
+                var tStart = MergeFlagText(
+                    prop.m_startFlagsRequired,
+                    propExt?.StartNodeFlags.Required,
+                    propExt?.SegmentStartFlags.Required);
+                if (!string.IsNullOrEmpty(tStart))
+                    tStart = " Start:" + tStart;
+                var tEnd = MergeFlagText(
+                    prop.m_endFlagsRequired,
+                    propExt?.EndNodeFlags.Required,
+                    propExt?.SegmentEndFlags.Required);
+                if (!string.IsNullOrEmpty(tEnd))
+                    tEnd = " End:" + tEnd;
+                text1 = t + tStart + tEnd;
+            }
+            string text2;
+            {
+                var t = MergeFlagText(
+                    prop.m_flagsForbidden,
+                    propExt?.LaneFlags.Forbidden,
+                    propExt?.VanillaSegmentFlags.Forbidden,
+                    propExt?.SegmentFlags.Forbidden);
+                var tStart = MergeFlagText(
+                    prop.m_startFlagsForbidden,
+                    propExt?.StartNodeFlags.Forbidden,
+                    propExt?.SegmentStartFlags.Forbidden);
+                if (!string.IsNullOrEmpty(tStart))
+                    tStart = " Start:" + tStart;
+                var tEnd = MergeFlagText(
+                    prop.m_endFlagsForbidden,
+                    propExt?.EndNodeFlags.Forbidden,
+                    propExt?.SegmentEndFlags.Forbidden);
+                if (!string.IsNullOrEmpty(tEnd))
+                    tEnd = " End:" + tEnd;
+                text2 = t + tStart + tEnd;
+            }
+
+            if (!string.IsNullOrEmpty(text1))
+                ret += "\n  Required:" + text1;
+            if (!string.IsNullOrEmpty(text2))
+                ret += "\n  Forbidden:" + text2;
+            return ret;
+        }
+#pragma warning restore
+
+        public static string MergeFlagText(params object[] flags) {
+            string ret = "";
+            foreach (object item in flags) {
+                try {
+                    if (item is null || (int)item == 0)
+                        continue;
+                    if (ret != "") ret += ", ";
+                    ret += item.ToString();
+                } catch (Exception ex) {
+                    throw new Exception(
+                        $"Bad argument type: {(item?.GetType()).ToSTR()}",
+                        ex);
+                }
+            }
+            return ret;
         }
 
     }
