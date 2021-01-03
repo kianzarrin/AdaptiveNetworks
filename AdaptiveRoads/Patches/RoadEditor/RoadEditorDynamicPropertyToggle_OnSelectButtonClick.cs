@@ -77,10 +77,10 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                                 roadEditor, groupPanel,
                                 target, f_props, newProp);
                         });
-                    panel.AddButton("Copy", null, delegate () {
-                        ClipBoard.Data = propExt.Clone();
-                    });
                 }
+                panel.AddButton("Copy", null, delegate () {
+                    ClipBoard.SetData(prop);
+                });
             }
         }
 

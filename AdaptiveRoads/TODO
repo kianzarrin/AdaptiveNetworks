@@ -11,15 +11,15 @@
     UI Design:
         Lanes group button or Settings:
             Copy and replace from ground to other elevations.
-        Prop Select button: Done untested
+        Prop Select button: Done tested
             Duplicate 
             Duplicate Inverted
             Copy
-        Prop group button: Done untested
+        Prop group button: Done tested
             Copy all
             Clear All
             Paste
-        Prop: Done untested
+        Prop: Done tested
             Toggle LHT/RHT
             Toggle Forward/Backward
 

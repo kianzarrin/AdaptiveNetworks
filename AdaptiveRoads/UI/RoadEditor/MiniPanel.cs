@@ -46,8 +46,14 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 Destroy(this.gameObject);
             }
             if (Input.GetMouseButtonDown(0)) {
-                Log.Debug("MiniPanel.Update: left click => close this with delay");
-                Destroy(this.gameObject,0.1f);
+                Log.Debug("MiniPanel.Update: left click outside buttons =? close this");
+                // escape if contains mouse
+                // OnClick will destroy the panel
+                foreach(var button in GetComponentsInChildren<UIButton>()) {
+                    if (button.containsMouse)
+                        return;
+                }
+                Destroy(this.gameObject);
             }
 
         }
@@ -75,16 +81,10 @@ namespace AdaptiveRoads.UI.RoadEditor {
             Invalidate();
         }
 
-        public override void OnDestroy() {
-            Log.Debug($"MiniPanel.OnDestroy() called.");
-            base.OnDestroy();
-        }
-
         public class MiniPanelButton : UIButtonExt {
             public Action Action;
             public string Hint;
             public override void OnDestroy() {
-                Log.Debug("MiniPanelButton.OnDestroy() called");
                 Hint = null;
                 Action = null;
                 base.OnDestroy();
@@ -92,7 +92,9 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
             protected override void OnClick(UIMouseEventParameter p) {
                 base.OnClick(p);
-                Action?.Invoke();
+                Assertion.AssertNotNull(Action);
+                Log.Info($"`{text}` clicked. Invoking {Action} ...", true);
+                Action();
                 MiniPanel.CloseAll();
             }
         }
