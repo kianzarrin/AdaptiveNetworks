@@ -87,7 +87,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
     }
 
-    public static class RoadEditorCollapsiblePanelExtensions {
+    internal static class RoadEditorCollapsiblePanelExtensions {
         public static RoadEditorAddButton GetAddButton(
             this RoadEditorCollapsiblePanel instance) {
             return instance.component.GetComponentInChildren<RoadEditorAddButton>();
@@ -104,5 +104,21 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
         public static void SetArray(this RoadEditorCollapsiblePanel instance, Array value) =>
             instance.GetField().SetValue(instance.GetTarget(), value);
+    }
+
+    internal static class RoadEditorDynamicPropertyToggleHelpers {
+        internal static Type ToggleType =
+            Type.GetType("RoadEditorDynamicPropertyToggle, Assembly-CSharp", throwOnError: true);
+        static T GetFieldValue<T>(string name, UICustomControl toggle) {
+            Assertion.Assert(toggle.GetType() == ToggleType);
+            return (T)ReflectionHelpers.GetFieldValue(name, toggle);
+        }
+
+        internal static UIButton GetToggleSelectButton(UICustomControl toggle) =>
+            GetFieldValue<UIButton>("m_SelectButton", toggle);
+        internal static object GetToggleTargetElement(UICustomControl toggle) =>
+            GetFieldValue<object>("m_TargetElement", toggle);
+
+
     }
 }

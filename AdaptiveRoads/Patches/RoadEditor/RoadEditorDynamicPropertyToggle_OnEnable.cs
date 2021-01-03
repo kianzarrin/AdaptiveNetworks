@@ -9,6 +9,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using AdaptiveRoads.UI.RoadEditor;
     using static KianCommons.ReflectionHelpers;
     using static KianCommons.Assertion;
+    using static RoadEditorDynamicPropertyToggleHelpers;
 
     /// <summary>
     /// highlight lanes
@@ -21,9 +22,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         internal static int LaneIndex, NodeIndex, SegmentIndex, PropIndex;
         internal static NetInfo Info;
 
-        internal static Type tRoadEditorDynamicPropertyToggle =
-            Type.GetType("RoadEditorDynamicPropertyToggle, Assembly-CSharp", throwOnError: true);
-
         internal static object m_TargetObject(object instance) =>
             GetFieldValue("m_TargetObject", instance);
 
@@ -32,7 +30,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
 
         static MethodBase TargetMethod() =>
-            GetMethod(tRoadEditorDynamicPropertyToggle, "OnEnable");
+            GetMethod(ToggleType, "OnEnable");
 
         static void Postfix(UIButton ___m_SelectButton, UIButton ___m_DeleteButton, object __instance) {
             ___m_SelectButton.eventMouseEnter -= OnMouseEnter;
@@ -44,18 +42,10 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             ___m_DeleteButton.eventMouseEnter += OnMouseEnter;
             ___m_SelectButton.eventMouseLeave += OnMouseLeave;
             ___m_DeleteButton.eventMouseLeave += OnMouseLeave;
-
-            object element = m_TargetElement(__instance);
-
-            if (element is NetLaneProps.Prop) {
-                string tooltip = ". CTRL+Click for more options";
-                if (!___m_SelectButton.tooltip.Contains(tooltip))
-                    ___m_SelectButton.tooltip += tooltip;
-            }
         }
 
         static void OnMouseEnter(UIComponent component, UIMouseEventParameter eventParam) {
-            object instance = component.parent.GetComponent(tRoadEditorDynamicPropertyToggle);
+            object instance = component.parent.GetComponent(ToggleType);
             object target = m_TargetObject(instance);
             object element = m_TargetElement(instance);
             //Log.Debug("RoadEditorDynamicPropertyToggle_OnEnable.GetLaneIndex():" +
@@ -69,7 +59,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         }
 
         static void OnMouseLeave(UIComponent component, UIMouseEventParameter eventParam) {
-            object instance = component.parent.GetComponent(tRoadEditorDynamicPropertyToggle);
+            object instance = component.parent.GetComponent(ToggleType);
             object target = m_TargetObject(instance);
             object element = m_TargetElement(instance);
             if (target is NetInfo netInfo && element is NetInfo.Lane laneInfo) {

@@ -8,6 +8,8 @@ using System.Linq;
 using UnityEngine;
 using AdaptiveRoads.Patches.RoadEditor;
 using AdaptiveRoads.UI.RoadEditor;
+using static KianCommons.ReflectionHelpers;
+using static AdaptiveRoads.Patches.RoadEditor.RoadEditorDynamicPropertyToggleHelpers;
 
 
 namespace AdaptiveRoads.UI.RoadEditor {
@@ -118,11 +120,26 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 //var t = FindObjectsOfType<REPropertySet>()
                 //    .Select(re => Str(re)).ToSTR();
                 Hint1 = Hint2 = Hint3 = null;
-                foreach (var item in FindObjectsOfType<UIPanel>()) {
-                    if(item is IDataUI dataUI)
-                    if (dataUI.IsHovered()) {
+                foreach (var panel in FindObjectsOfType<UIPanel>()) {
+                    if (panel is IDataUI dataUI && dataUI.IsHovered()) {
+                        // note that it is possible for the panel
+                        // not to contain mouse but for the dropdown to contain mouse.
                         Hint1 = dataUI.GetHint();
                         break;
+                    } else if(panel.containsMouse) {
+                        string h = "Clicl => toggle\n" + "Control + Click => more options";
+                        var groupPanel = panel.GetComponent<RoadEditorCollapsiblePanel>();
+                        if (groupPanel && groupPanel.LabelButton.containsMouse) {
+                            if(groupPanel.LabelButton.text == "Props") {
+                                Hint1 = h;
+                            }
+                        }
+                        UICustomControl toggle = panel.GetComponent(ToggleType) as UICustomControl;
+                        if(toggle && GetToggleSelectButton(toggle).containsMouse) {
+                            if(GetToggleTargetElement(toggle) is NetLaneProps.Prop) {
+                                Hint1 = h;
+                            }
+                        }
                     }
                 }
                 ShowInfo();

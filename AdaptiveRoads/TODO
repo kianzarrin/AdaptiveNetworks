@@ -2,12 +2,6 @@
     - oneway left/right start/end
 
 - buttons to set flags automatically:
-    copy props to other lanes
-    copy props to other elevations
-    toggle LHT/RHT button.
-    toggle forward/backward
-    create LHT copy
-    create backward copy
     UI Design:
         Lanes group button or Settings:
             Copy and replace from ground to other elevations.
@@ -19,11 +13,6 @@
             Copy all
             Clear All
             Paste
-        Prop: Done tested
-            Toggle LHT/RHT
-            Toggle Forward/Backward
-
-    
 
     auto create props:
         traffic lights

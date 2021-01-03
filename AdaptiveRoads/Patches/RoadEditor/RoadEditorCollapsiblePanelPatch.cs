@@ -5,30 +5,11 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using HarmonyLib;
     using KianCommons;
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-
-    /// <summary>
-    /// mini panel buttons.
-    /// </summary>
-    [HarmonyPatch(typeof(RoadEditorCollapsiblePanel))]
-    [HarmonyPatch("OnEnable")]
-    internal static class RoadEditorCollapsiblePanelPatch {
-        [HarmonyPostfix]
-        static void OnEnablePostfix(RoadEditorCollapsiblePanel __instance) {
-            var btn = __instance.LabelButton;
-            btn.isTooltipLocalized = false;
-            if (__instance.LabelButton.text == "Props") {
-                string tooltip = ". CTRL+Click for more options";
-                if (!btn.tooltip.Contains(tooltip))
-                    btn.tooltip += tooltip;
-            }
-        }
-    }
+    using static RoadEditorDynamicPropertyToggleHelpers;
 
     [HarmonyPatch(typeof(RoadEditorCollapsiblePanel))]
     [HarmonyPatch("OnButtonClick")]
-    internal static class RoadEditorCollapsiblePanelPatch2 {
+    internal static class RoadEditorCollapsiblePanelPatch {
         [HarmonyPrefix]
         static bool OnButtonClickPrefix(UIComponent component) {
             if (!HelpersExtensions.ControlIsPressed)
@@ -71,8 +52,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     roadEditor.DestroySidePanel();
                 }
 
-                var toggleType = RoadEditorDynamicPropertyToggle_OnEnable.tRoadEditorDynamicPropertyToggle;
-                var toggles = instance.m_Panel.GetComponentsInChildren(toggleType);
+                var toggles = instance.m_Panel.GetComponentsInChildren(ToggleType);
                 foreach (UICustomControl toggle in toggles) {
                     toggle.component.parent.RemoveUIComponent(toggle.component);
                     UnityEngine.Object.Destroy(toggle.gameObject);
