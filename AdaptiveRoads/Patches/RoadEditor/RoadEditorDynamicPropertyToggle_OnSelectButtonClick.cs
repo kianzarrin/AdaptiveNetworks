@@ -82,6 +82,10 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 panel.AddButton("Copy", null, delegate () {
                     ClipBoard.SetData(prop);
                 });
+                panel.AddButton("Copy to other elevations", null, delegate () {
+                    PropHelpers.CopyPropsToOtherElevations(prop);
+                });
+
             } else if (element is NetInfo.Lane lane && lane.HasProps()
                 && target == NetInfoExtionsion.EditedNetInfo) {
                 var panel = MiniPanel.Display();

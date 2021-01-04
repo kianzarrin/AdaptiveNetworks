@@ -5,6 +5,8 @@ namespace AdaptiveRoads.Util {
     using PrefabMetadata.Helpers;
     using System;
     using System.Linq;
+    using System.Collections.Generic;
+    using static KianCommons.EnumerationExtensions;
 
     internal static class PropHelpers {
         public static void InvertStartEnd(ref this NetLane.Flags flags) {
@@ -102,14 +104,30 @@ namespace AdaptiveRoads.Util {
             .IsFlagSet(NetLane.Flags.Inverted);
 
         public static void CopyPropsToOtherElevations(bool clear = true) =>
-            CopyPropsToOtherElevations(-1, clear);
+            CopyPropsToOtherElevations(clear);
+
+        public static void CopyPropsToOtherElevations(
+            bool clear, int laneIndex) =>
+            CopyPropsToOtherElevations(clear: clear, laneIndex: laneIndex);
+
+        public static void CopyPropsToOtherElevations(NetLaneProps.Prop prop) =>
+            CopyPropsToOtherElevations(clear: false, prop: prop);
+
 
         /// <summary>
         /// copy props from ground to other elevations.
+        /// if prop is provided,
+        ///     - clear is ignored.
+        ///     - if laneIndex=-1, it will be the lane that contains the prop.
+        ///     - if laneIndex>=0 , prop will be copied to all coresponding lanes of other elevations
         /// </summary>
         /// <param name="laneIndex">copy only this lane index (-1 for all lanes)</param>
         /// <param name="clear">clears target lane[s] before copying</param>
-        public static void CopyPropsToOtherElevations(int laneIndex, bool clear = true) {
+        /// <param name="prop">copy only this props. set null to copy all props</param>
+        static void CopyPropsToOtherElevations(
+            bool clear = true,
+            int laneIndex=-1,
+            NetLaneProps.Prop prop = null) {
             var srcInfo = NetInfoExtionsion.EditedNetInfo;
             var srcLanes = srcInfo.SortedLanes().ToList();
             foreach (var targetInfo in NetInfoExtionsion.EditedNetInfos.Skip(1)) {
@@ -118,7 +136,15 @@ namespace AdaptiveRoads.Util {
                     var srcLane = srcLanes[i];
                     var targetLane = targetLanes[j];
                     if (srcLane.m_laneType == targetLane.m_laneType) {
-                        if (i == laneIndex || laneIndex < 0) {
+                        if(prop != null){
+                            if(laneIndex < 0) {
+                                if (srcLane.m_laneProps.m_props.ContainsRef(prop)) {
+                                    AddProp(prop, targetLane);
+                                }
+                            } else {
+                                if (i == laneIndex) AddProp(prop, targetLane);
+                            }
+                        }else if (i == laneIndex || laneIndex < 0) {
                             CopyProps(srcLane, targetLane, clear);
                         }
                         i++; j++;
@@ -128,6 +154,10 @@ namespace AdaptiveRoads.Util {
                     }
                 }
             }
+        }
+
+        public static void AddProp(NetLaneProps.Prop prop, NetInfo.Lane targetLane) {
+            EnumerationExtensions.AppendElement(ref targetLane.m_laneProps.m_props, prop);
         }
 
         public static void CopyProps(NetInfo.Lane srcLane, NetInfo.Lane targetLane, bool clear) {

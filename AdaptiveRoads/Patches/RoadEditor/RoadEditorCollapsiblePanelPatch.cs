@@ -9,7 +9,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using System.Linq;
     using static RoadEditorDynamicPropertyToggleHelpers;
 
-
     [HarmonyPatch(typeof(RoadEditorCollapsiblePanel))]
     [HarmonyPatch("OnButtonClick")]
     internal static class RoadEditorCollapsiblePanelPatch {
