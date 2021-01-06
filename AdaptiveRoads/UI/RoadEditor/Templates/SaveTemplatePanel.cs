@@ -15,9 +15,7 @@ using System.IO;
 using System.Drawing.Imaging;
 
 namespace AdaptiveRoads.UI.RoadEditor.Templates {
-
-
-    public class SaveTemplatePanel : UIPanel {
+    public class SaveTemplatePanel : PanelBase {
         public UITextField NameField;
         public UITextField DescriptionField;
         public SummaryLabel SummaryBox;
@@ -33,60 +31,28 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
             return ret;
         }
 
-        const int WIDTH_LEFT = 425;
-        const int WIDTH_RIGHT = 475;
-        const int PAD = 10;
-
         public override void Awake() {
             base.Awake();
-            atlas = TextureUtil.Ingame;
-            backgroundSprite = "MenuPanel";
-            width = WIDTH_LEFT + WIDTH_RIGHT + PAD * 3;
-            color = new Color32(49, 52, 58, 255);
-
+            AddDrag("Save Prop Template");
             {
-                var drag = AddUIComponent<UIDragHandle>();
-                drag.width = width;
-                drag.height = 40;
-                drag.target = this;
-                drag.relativePosition = Vector2.zero;
-                var label = drag.AddUIComponent<UILabel>();
-                label.textScale = 1.5f;
-                label.text = "Save Prop Template";
-                label.autoHeight = label.autoSize = true;
-                label.relativePosition = new Vector2(0, 6);
-                label.anchor = UIAnchorStyle.CenterHorizontal;
-            }
-            {
-                UIPanel panel = AddUIComponent<UIPanel>();
-                panel.autoLayout = true;
-                panel.autoLayoutDirection = LayoutDirection.Vertical;
-                panel.width = WIDTH_LEFT;
-                panel.relativePosition = new Vector2(PAD, 46);
-                panel.autoLayoutPadding = new RectOffset(0, 0, 0, 5);
+                UIPanel panel = AddLeftPanel();
                 {
                     SavesListBox = panel.AddUIComponent<SavesListBoxT>();
                     SavesListBox.width = panel.width;
                     SavesListBox.height = 628;
                     SavesListBox.AddScrollBar();
                     SavesListBox.eventSelectedIndexChanged += (_, val) =>
-                        OnSelectedIndexChanged(val);
+                        OnSelectedSaveChanged(val);
                 }
                 {
                     NameField = panel.AddUIComponent<TextField>();
                     NameField.text = "New Template";
                     NameField.width = panel.width;
-                    NameField.eventTextCancelled += (_, __) => OnTextChanged();
+                    NameField.eventTextChanged += (_, __) => OnNameChanged();
                 }
-                panel.FitChildrenVertically();
             }
             {
-                UIPanel panel = AddUIComponent<UIPanel>();
-                panel.autoLayout = true;
-                panel.autoLayoutDirection = LayoutDirection.Vertical;
-                panel.width = WIDTH_RIGHT;
-                panel.relativePosition = new Vector2(WIDTH_LEFT + PAD * 2, 46);
-                panel.autoLayoutPadding = new RectOffset(0, 0, 0, 5);
+                UIPanel panel = AddRightPanel();
                 {
                     SummaryBox = panel.AddUIComponent<SummaryLabel>();
                     SummaryBox.width = panel.width;
@@ -101,8 +67,8 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
                 }
                 panel.FitChildrenVertically();
             }
-            FitChildrenVertically(10);
 
+            FitChildrenVertically(10);
             {
                 var cancel = AddUIComponent<Button>();
                 cancel.text = "Cancel";
@@ -120,18 +86,14 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
 
         bool started_ = false;
         public override void Start() {
-            Log.Debug("MiniPanel.Start() called");
+            Log.Debug("SaveTemplatePanel.Start() called");
             base.Start();
             if (Props == null) {
                 Destroy(gameObject);
                 return;
             }
-            SummaryBox.text = Props.Summary();
-            Invalidate(); // TODO is this necessary?
-            pivot = UIPivotPoint.MiddleCenter;
-            anchor = UIAnchorStyle.CenterHorizontal | UIAnchorStyle.CenterVertical;
-            //relativePosition = new Vector2(505, 154);
             started_ = true;
+            OnNameChanged();
         }
 
         public override void OnDestroy() {
@@ -141,44 +103,60 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
 
         public void OnSave() {
             if (string.IsNullOrEmpty(NameField.text)) return;
+            eventsOff_ = true;
             var template = PropTemplate.Create(
                 NameField.text,
                 Props.ToArray(),
                 DescriptionField.text);
             template.Save();
-            Destroy(gameObject);
+            SavesListBox.Populate();
+            eventsOff_ = false;
+            OnNameChanged();
         }
 
         public string RemoveInvalidChars(string s) =>
             s.Trim(Path.GetInvalidFileNameChars());
 
-        bool changingText_ = false;
-        public void OnTextChanged() {
-            if (!changingText_ && started_) {
-                changingText_ = true;
+        bool eventsOff_ = false;
+        public void OnNameChanged() {
+            try {
+                Log.Debug($"OnNameChanged called. " +
+                    $"eventsOff_={eventsOff_} " +
+                    $"NameField.text={NameField.text}\n"
+                    + Environment.StackTrace);
+                if (!eventsOff_ && started_) {
+                eventsOff_ = true;
                 NameField.text = RemoveInvalidChars(NameField.text);
                 SaveButton.isEnabled = !string.IsNullOrEmpty(NameField.text);
 
-                int index = SavesListBox.IndexOf(NameField.text);
-                SavesListBox.selectedIndex = index;
-                if (index < 0) {
+                SavesListBox.Select(NameField.text);
+                if (SavesListBox.selectedIndex < 0) {
                     SummaryBox.text = Props.Summary();
                     SaveButton.text = "Save";
                 } else {
                     SummaryBox.text = SavesListBox.SelectedTemplate.Summary;
                     SaveButton.text = "Overwrite";
                 }
-                changingText_ = false;
+                eventsOff_ = false;
                 Invalidate();
             }
+            } catch (Exception ex) {
+                Log.Exception(ex);
+            }
         }
-        public void OnSelectedIndexChanged(int newIndex) {
-            if (!changingText_ && newIndex >= 0 && started_) {
-                if (newIndex >= 0) {
-                    NameField.text = SavesListBox.SelectedTemplate.Name;
+        public void OnSelectedSaveChanged(int newIndex) {
+            Log.Debug($"OnSelectedSaveChanged({newIndex})\n" + Environment.StackTrace);
+            try {
+                if (!eventsOff_ && newIndex >= 0 && started_) {
                     DescriptionField.text = SavesListBox.SelectedTemplate.Description;
+                    NameField.text = SavesListBox.SelectedTemplate.Name;
+                    Invalidate();
                 }
-                Invalidate();
+            }catch(Exception ex) {
+                Log.Exception(ex, $"newIndex={newIndex} " +
+                    $"SelectedIndex={SavesListBox.selectedIndex} " +
+                    $"SelectedTemplate={SavesListBox.SelectedTemplate.ToSTR()} " +
+                    $"Saves[0]={SavesListBox.Saves[0].ToSTR()}");
             }
         }
 

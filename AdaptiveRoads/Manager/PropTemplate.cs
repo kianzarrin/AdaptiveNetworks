@@ -61,7 +61,7 @@ namespace AdaptiveRoads.Manager {
                 return "New Prop";
             }
         }
-        public string Desciption => PropHelpers.Summary(Prop, PropData, FinalName);
+        public string Summary => PropHelpers.Summary(Prop, PropData, FinalName);
         
         public static PropTemplateItem Create(NetLaneProps.Prop prop) {
             prop = prop.Clone();
@@ -99,22 +99,23 @@ namespace AdaptiveRoads.Manager {
         public string Name { get; private set; }
         public string Description;
         public DateTime Date;
+        public NetLaneProps.Prop[] GetProps() =>
+            PropItems.Select(_item => _item.Prop).ToArray();
 
         public string Summary {
             get {
                 string ret = Name + $"({Date})";
                 if (!string.IsNullOrEmpty(Description))
                     ret += "\n" + Description;
-                ret += "\n" + PropItems.AsEnumerable()
-                    .Select(_item => _item.Desciption);
+                var summaries = PropItems.Select(_item => _item.Summary);
+                ret += "\n" + summaries.JoinLines();
                 return ret;
             }
 
         }
-        public NetLaneProps.Prop [] LoadAllProps() {
+        void LoadAllProps() {
             foreach (var item in PropItems)
                 item.LoadProp();
-            return PropItems.Select(_item => _item.Prop).ToArray();
         }
 
         public static string Dir => Path.Combine(DataLocation.localApplicationData, "ARTemplates");
