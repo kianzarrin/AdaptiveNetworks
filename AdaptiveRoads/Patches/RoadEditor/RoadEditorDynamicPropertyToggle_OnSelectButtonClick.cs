@@ -11,6 +11,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using static KianCommons.Assertion;
     using static KianCommons.ReflectionHelpers;
     using static RoadEditorDynamicPropertyToggleHelpers;
+    using AdaptiveRoads.UI.RoadEditor.Templates;
 
     /// <summary>
     /// do no toggle if control is pressed.
@@ -73,7 +74,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         "negates: position.z offset angle",
                         delegate () {
                             var newProp = propExt.Clone();
-                            newProp.Self.ToggleRHT_LHT();
+                            newProp.Base.ToggleRHT_LHT();
                             AddArrayElement(
                                 roadEditor, groupPanel,
                                 target, f_props, newProp);
