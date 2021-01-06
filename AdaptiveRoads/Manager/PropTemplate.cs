@@ -10,12 +10,44 @@ using ColossalFramework.IO;
 using UnityEngine;
 using PrefabMetadata.Helpers;
 using PrefabMetadata.API;
+using KianCommons;
+using KianCommons.Math;
 
 namespace AdaptiveRoads.Manager {
     [Serializable]
+    public class PropSerializable {
+        public NetLane.Flags m_flagsRequired;
+        public int m_probability;
+        public float m_cornerAngle;
+        public float m_minLength;
+        public float m_repeatDistance;
+        public float m_segmentOffset;
+        public float m_angle;
+        public Vector3Serializable m_position;
+        public NetLaneProps.ColorMode m_colorMode;
+        public NetNode.Flags m_endFlagsForbidden;
+        public NetNode.Flags m_endFlagsRequired;
+        public NetNode.Flags m_startFlagsForbidden;
+        public NetNode.Flags m_startFlagsRequired;
+        public NetLane.Flags m_flagsForbidden;
+
+        public PropSerializable(NetLaneProps.Prop prop) {
+            ReflectionHelpers.CopyPropertiesForced<PropSerializable>(this, prop);
+            m_position = prop.m_position;
+        }
+        public NetLaneProps.Prop ToProp() {
+            var prop = new NetLaneProps.Prop();
+            ReflectionHelpers.CopyPropertiesForced<PropSerializable>(prop, this);
+            prop.m_position = m_position;
+            return prop;
+        }
+    }
+
+    [Serializable]
     public class PropTemplateItem {
-        public NetLaneProps.Prop Prop;
-        public NetInfoExtionsion.LaneProp PropExt;
+        [NonSerialized] public NetLaneProps.Prop Prop;
+        public PropSerializable Prop2;
+        public NetInfoExtionsion.LaneProp PropData;
         public string Name;
         public string PropInfoName;
         public string TreeInfoName;
@@ -29,7 +61,7 @@ namespace AdaptiveRoads.Manager {
                 return "New Prop";
             }
         }
-        public string Desciption => PropHelpers.Summary(Prop, PropExt, FinalName);
+        public string Desciption => PropHelpers.Summary(Prop, PropData, FinalName);
         
         public static PropTemplateItem Create(NetLaneProps.Prop prop) {
             prop = prop.Clone();
@@ -38,34 +70,26 @@ namespace AdaptiveRoads.Manager {
                 prop = prop2.UndoExtend();
             var ret = new PropTemplateItem {
                 Prop = prop,
-                PropExt = propExt,
+                Prop2 = new PropSerializable(prop),
+                PropData = propExt,
                 PropInfoName = prop.m_prop?.name,
                 TreeInfoName = prop.m_tree?.name,
             };
-            ret.ClearProps();
             return ret;
         }
 
+
         public void LoadProp() {
-            if (!string.IsNullOrEmpty(PropInfoName)) {
-                Prop.m_prop = GameObject.FindObjectsOfType<PropInfo>()
-                    .FirstOrDefault(_item => _item.name == PropInfoName);
-            }
-            if (!string.IsNullOrEmpty(TreeInfoName)) {
-                Prop.m_tree = GameObject.FindObjectsOfType<TreeInfo>()
-                    .FirstOrDefault(_item => _item.name == TreeInfoName);
-            }
+            var propExt = Prop2.ToProp().Extend();
+            propExt.SetMetaData(PropData);
+            Prop = propExt.Base;
+
+            if (!string.IsNullOrEmpty(PropInfoName))
+                Prop.m_prop = PrefabCollection<PropInfo>.FindLoaded(PropInfoName);
+            if (!string.IsNullOrEmpty(TreeInfoName))
+                Prop.m_tree = PrefabCollection<TreeInfo>.FindLoaded(TreeInfoName);
             Prop.m_finalProp = Prop.m_prop;
             Prop.m_finalTree = Prop.m_tree;
-
-            var prop2 = Prop.Extend();
-            prop2.SetMetaData(PropExt);
-            Prop = prop2.Base;
-        }
-
-        public void ClearProps() {
-            Prop.m_finalProp = Prop.m_prop = null;
-            Prop.m_finalTree = Prop.m_tree = null;
         }
     }
 
@@ -112,7 +136,7 @@ namespace AdaptiveRoads.Manager {
         public void Save() {
             if (Name.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
                 throw new Exception($"Name:{Name} contains invalid characters");
-
+            EnsureDir();
             using (FileStream fs = File.Create(FilePath(Name))) {
                 fs.Write(this.VersionOf());
                 fs.Write(SerializationUtil.Serialize(this));
@@ -126,22 +150,39 @@ namespace AdaptiveRoads.Manager {
              
         }
         public static PropTemplate LoadFile(string path) {
-            using (FileStream fs = File.OpenRead(path)) {
-                var version = fs.ReadVersion();
-                var data = fs.ReadToEnd();
-                var data2 = SerializationUtil.Deserialize(data, version);
-                AssertNotNull(data2, "data2");
-                var propTemplate = data2 as PropTemplate;
-                AssertNotNull(propTemplate, "propTemplate");
-                return propTemplate;
+            EnsureDir();
+            try {
+                using (FileStream fs = File.OpenRead(path)) {
+                    var version = fs.ReadVersion();
+                    var data = fs.ReadToEnd();
+                    var data2 = SerializationUtil.Deserialize(data, version);
+                    AssertNotNull(data2, "data2");
+                    var propTemplate = data2 as PropTemplate;
+                    AssertNotNull(propTemplate, "propTemplate");
+                    propTemplate.LoadAllProps();
+                    return propTemplate;
+                }
+            } catch(Exception ex) {
+                Log.Exception(ex, showInPanel: false);
+                return null;
             }
         }
 
-        public static IEnumerable<PropTemplate> LoadAll() {
+        public static IEnumerable<PropTemplate> LoadAllFiles() {
+            EnsureDir();
             var dir = new DirectoryInfo(Dir);
             var files = dir.GetFiles("*.dat");
-            foreach(var file in files)
-                yield return LoadFile(file.FullName);
+            foreach(var file in files) {
+                var ret = LoadFile(file.FullName);
+                if (ret != null)
+                    yield return ret;
+            }
+                
+        }
+
+        public static void EnsureDir() {
+            if (!Directory.Exists(Dir))
+                Directory.CreateDirectory(Dir);
         }
     }
 }

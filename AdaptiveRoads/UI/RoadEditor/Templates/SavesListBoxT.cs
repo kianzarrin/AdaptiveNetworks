@@ -18,7 +18,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
 
         public override void Awake() {
             base.Awake();
-            Saves = PropTemplate.LoadAll().ToList();
+            Saves = PropTemplate.LoadAllFiles().ToList();
             items = Saves.Select(item => item.Name).ToArray();
         }
 

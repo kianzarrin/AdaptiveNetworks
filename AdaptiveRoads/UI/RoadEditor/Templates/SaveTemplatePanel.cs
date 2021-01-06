@@ -12,12 +12,15 @@ using KianCommons.UI.Helpers;
 using AdaptiveRoads.Manager;
 using AdaptiveRoads.Util;
 using System.IO;
+using System.Drawing.Imaging;
 
 namespace AdaptiveRoads.UI.RoadEditor.Templates {
+
+
     public class SaveTemplatePanel : UIPanel {
         public UITextField NameField;
         public UITextField DescriptionField;
-        public SummaryLabel Summary;
+        public SummaryLabel SummaryBox;
         public SavesListBoxT SavesListBox;
         public UIButton SaveButton;
 
@@ -30,11 +33,15 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
             return ret;
         }
 
+        const int WIDTH_LEFT = 425;
+        const int WIDTH_RIGHT = 475;
+        const int PAD = 10;
+
         public override void Awake() {
             base.Awake();
             atlas = TextureUtil.Ingame;
             backgroundSprite = "MenuPanel";
-            size = new Vector2(880, 720);
+            width = WIDTH_LEFT + WIDTH_RIGHT + PAD * 3;
             color = new Color32(49, 52, 58, 255);
 
             {
@@ -54,8 +61,8 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
                 UIPanel panel = AddUIComponent<UIPanel>();
                 panel.autoLayout = true;
                 panel.autoLayoutDirection = LayoutDirection.Vertical;
-                panel.width = 425;
-                panel.relativePosition = new Vector2(10, 46);
+                panel.width = WIDTH_LEFT;
+                panel.relativePosition = new Vector2(PAD, 46);
                 panel.autoLayoutPadding = new RectOffset(0, 0, 0, 5);
                 {
                     SavesListBox = panel.AddUIComponent<SavesListBoxT>();
@@ -72,20 +79,18 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
                     NameField.eventTextCancelled += (_, __) => OnTextChanged();
                 }
                 panel.FitChildrenVertically();
-                FitChildrenVertically(10);
             }
             {
                 UIPanel panel = AddUIComponent<UIPanel>();
                 panel.autoLayout = true;
                 panel.autoLayoutDirection = LayoutDirection.Vertical;
-                panel.width = 425;
-                panel.relativePosition = new Vector2(425+20, 46);
+                panel.width = WIDTH_RIGHT;
+                panel.relativePosition = new Vector2(WIDTH_LEFT + PAD * 2, 46);
                 panel.autoLayoutPadding = new RectOffset(0, 0, 0, 5);
                 {
-                    Summary = panel.AddUIComponent<SummaryLabel>();
-                    Summary.width = panel.width;
-                    Summary.height = 400;
-                    Summary.text = "Summary";
+                    SummaryBox = panel.AddUIComponent<SummaryLabel>();
+                    SummaryBox.width = panel.width;
+                    SummaryBox.height = 400;
                 }
                 {
                     DescriptionField = panel.AddUIComponent<TextField>();
@@ -94,27 +99,38 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
                     DescriptionField.width = panel.width;
                     DescriptionField.height = 162;
                 }
-                {
-                    var cancel = AddUIComponent<Button>();
-                    cancel.text = "Cancel";
-                    var pos = size - cancel.size - new Vector2(20, 10);
-                    cancel.relativePosition = pos;
-                    cancel.eventClick += (_, __) => Destroy(gameObject);
-                    SaveButton = AddUIComponent<Button>();
-                    SaveButton.text = "Save";
-                    pos.x += -SaveButton.size.x - 20;
-                    SaveButton.relativePosition = pos;
-                    SaveButton.eventClick += (_, __) => OnSave();
-                }
+                panel.FitChildrenVertically();
+            }
+            FitChildrenVertically(10);
+
+            {
+                var cancel = AddUIComponent<Button>();
+                cancel.text = "Cancel";
+                var pos = size - cancel.size - new Vector2(20, 10);
+                cancel.relativePosition = pos;
+                cancel.eventClick += (_, __) => Destroy(gameObject);
+                SaveButton = AddUIComponent<Button>();
+                SaveButton.text = "Save";
+                pos.x += -SaveButton.size.x - 20;
+                SaveButton.relativePosition = pos;
+                SaveButton.eventClick += (_, __) => OnSave();
             }
         }
+
 
         bool started_ = false;
         public override void Start() {
             Log.Debug("MiniPanel.Start() called");
             base.Start();
+            if (Props == null) {
+                Destroy(gameObject);
+                return;
+            }
+            SummaryBox.text = Props.Summary();
             Invalidate(); // TODO is this necessary?
-            relativePosition = new Vector2(505, 154);
+            pivot = UIPivotPoint.MiddleCenter;
+            anchor = UIAnchorStyle.CenterHorizontal | UIAnchorStyle.CenterVertical;
+            //relativePosition = new Vector2(505, 154);
             started_ = true;
         }
 
@@ -138,7 +154,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
 
         bool changingText_ = false;
         public void OnTextChanged() {
-            if (!changingText_) {
+            if (!changingText_ && started_) {
                 changingText_ = true;
                 NameField.text = RemoveInvalidChars(NameField.text);
                 SaveButton.isEnabled = !string.IsNullOrEmpty(NameField.text);
@@ -146,21 +162,23 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
                 int index = SavesListBox.IndexOf(NameField.text);
                 SavesListBox.selectedIndex = index;
                 if (index < 0) {
-                    Summary.text = Props.Summary();
+                    SummaryBox.text = Props.Summary();
                     SaveButton.text = "Save";
                 } else {
-                    Summary.text = SavesListBox.SelectedTemplate.Summary;
+                    SummaryBox.text = SavesListBox.SelectedTemplate.Summary;
                     SaveButton.text = "Overwrite";
                 }
                 changingText_ = false;
+                Invalidate();
             }
         }
         public void OnSelectedIndexChanged(int newIndex) {
-            if (!changingText_ && newIndex >= 0) {
+            if (!changingText_ && newIndex >= 0 && started_) {
                 if (newIndex >= 0) {
                     NameField.text = SavesListBox.SelectedTemplate.Name;
                     DescriptionField.text = SavesListBox.SelectedTemplate.Description;
                 }
+                Invalidate();
             }
         }
 
