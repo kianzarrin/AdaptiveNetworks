@@ -65,7 +65,6 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
                     DescriptionField.width = panel.width;
                     DescriptionField.height = 162;
                 }
-                panel.FitChildrenVertically();
             }
 
             FitChildrenVertically(10);

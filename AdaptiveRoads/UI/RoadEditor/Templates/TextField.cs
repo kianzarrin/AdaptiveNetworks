@@ -29,6 +29,11 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
 
             builtinKeyNavigation = true;
         }
+        public override void Start() {
+            base.Start();
+            eventTooltipTextChanged += (_, __) => RefreshTooltip();
+        }
+
     }
 }
 

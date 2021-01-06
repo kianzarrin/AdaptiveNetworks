@@ -10,6 +10,7 @@ using System.Reflection;
 using HarmonyLib;
 using KianCommons.UI.Helpers;
 using AdaptiveRoads.Manager;
+
 namespace AdaptiveRoads.UI.RoadEditor.Templates {
     public class Button : UIButton {
         public override void Awake() {

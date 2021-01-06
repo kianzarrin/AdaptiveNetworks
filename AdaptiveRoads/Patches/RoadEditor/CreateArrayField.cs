@@ -31,8 +31,12 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
         public static void OnLoadFromTempalteClicked(
             UIComponent component, UIMouseEventParameter eventParam) {
-            var groupPanel = component.GetComponentInParent<RoadEditorCollapsiblePanel>();
-            LoadTemplatePanel.Display(loadedProps => AddProps(groupPanel, loadedProps));
+            try {
+                var groupPanel = component.GetComponentInParent<RoadEditorCollapsiblePanel>();
+                LoadTemplatePanel.Display(loadedProps => AddProps(groupPanel, loadedProps));
+            } catch (Exception ex) {
+                Log.Exception(ex);
+            }
         }
 
         public static void AddProps(

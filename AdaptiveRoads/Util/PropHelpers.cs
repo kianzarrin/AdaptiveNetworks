@@ -4,8 +4,8 @@ namespace AdaptiveRoads.Util {
     using KianCommons;
     using PrefabMetadata.Helpers;
     using System;
-    using System.Linq;
     using System.Collections.Generic;
+    using System.Linq;
     using static KianCommons.EnumerationExtensions;
 
     internal static class PropHelpers {
@@ -113,6 +113,16 @@ namespace AdaptiveRoads.Util {
         public static void CopyPropsToOtherElevations(NetLaneProps.Prop prop) =>
             CopyPropsToOtherElevations(clear: false, prop: prop);
 
+        public static void Displace(this NetLaneProps.Prop prop, int z) {
+            var pos = prop.m_position;
+            if (pos.z == 0)
+                return;
+            else if (pos.z < 0)
+                pos.z -= z;
+            else
+                pos.z += z;
+            prop.m_position = pos;
+        }
 
         /// <summary>
         /// copy props from ground to other elevations.
@@ -125,9 +135,9 @@ namespace AdaptiveRoads.Util {
         /// <param name="clear">clears target lane[s] before copying</param>
         /// <param name="prop">copy only this props. set null to copy all props</param>
         static void CopyPropsToOtherElevations(
-            bool clear = true,
-            int laneIndex=-1,
-            NetLaneProps.Prop prop = null) {
+        bool clear = true,
+        int laneIndex = -1,
+        NetLaneProps.Prop prop = null) {
             var srcInfo = NetInfoExtionsion.EditedNetInfo;
             var srcLanes = srcInfo.SortedLanes().ToList();
             foreach (var targetInfo in NetInfoExtionsion.EditedNetInfos.Skip(1)) {
@@ -136,15 +146,15 @@ namespace AdaptiveRoads.Util {
                     var srcLane = srcLanes[i];
                     var targetLane = targetLanes[j];
                     if (srcLane.m_laneType == targetLane.m_laneType) {
-                        if(prop != null){
-                            if(laneIndex < 0) {
+                        if (prop != null) {
+                            if (laneIndex < 0) {
                                 if (srcLane.m_laneProps.m_props.ContainsRef(prop)) {
                                     AddProp(prop, targetLane);
                                 }
                             } else {
                                 if (i == laneIndex) AddProp(prop, targetLane);
                             }
-                        }else if (i == laneIndex || laneIndex < 0) {
+                        } else if (i == laneIndex || laneIndex < 0) {
                             CopyProps(srcLane, targetLane, clear);
                         }
                         i++; j++;

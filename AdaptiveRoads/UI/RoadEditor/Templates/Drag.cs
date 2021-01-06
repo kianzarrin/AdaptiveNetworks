@@ -24,10 +24,11 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
 
             var label = AddUIComponent<UILabel>();
             label.textScale = 1.5f;
-            label.autoHeight = label.autoSize = true;
-            label.relativePosition = new Vector2(0, 6);
-            label.anchor = UIAnchorStyle.CenterHorizontal;
             label.text = caption;
+            label.autoHeight = true;
+            label.autoSize = true;
+            label.relativePosition = new Vector2(0,6);
+            label.anchor = UIAnchorStyle.CenterHorizontal;
         }
     }
 }

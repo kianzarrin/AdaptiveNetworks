@@ -12,13 +12,15 @@ using KianCommons.UI.Helpers;
 using AdaptiveRoads.Manager;
 using AdaptiveRoads.Util;
 using System.IO;
-using System.Drawing.Imaging;
 
 namespace AdaptiveRoads.UI.RoadEditor.Templates {
     public class LoadTemplatePanel : PanelBase {
         public SummaryLabel SummaryBox;
         public SavesListBoxT SavesListBox;
         public UIButton LoadButton;
+        public Checkbox ToggleDir;
+        public Checkbox ToggleSide;
+        public TextFieldInt Displacement;
 
         public delegate void OnPropsLoadedHandler(NetLaneProps.Prop[] props);
         public event OnPropsLoadedHandler OnPropsLoaded;
@@ -32,7 +34,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
 
         public override void Awake() {
             base.Awake();
-            AddDrag("Save Prop Template");
+            AddDrag("Load Prop Template");
             {
                 UIPanel panel = AddLeftPanel();
                 {
@@ -42,6 +44,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
                     SavesListBox.AddScrollBar();
                     SavesListBox.eventSelectedIndexChanged += (_, val) =>
                         OnSelectedSaveChanged(val);
+                    SavesListBox.eventDoubleClick += (_, __) => OnLoad();
                 }
 
             }
@@ -52,8 +55,30 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
                     SummaryBox.width = panel.width;
                     SummaryBox.height = 400;
                 }
+                {
+                    ToggleDir = panel.AddUIComponent<Checkbox>();
+                    ToggleDir.Label = "Toggle Forward/Backward";
+                    ToggleSide = panel.AddUIComponent<Checkbox>();
+                    ToggleSide.Label = "Toggle RHT/LHT";
+                }
+                {
+                    //Displacement = panel.AddUIComponent<TextFieldInt>();
+                    //Displacement.width = panel.width;
 
-                panel.FitChildrenVertically();
+                    UIPanel panel2 = panel.AddUIComponent<UIPanel>();
+                    panel2.autoLayout = true;
+                    panel2.autoLayoutDirection = LayoutDirection.Horizontal;
+                    panel2.autoLayoutPadding = new RectOffset(0, 5, 0, 0);
+                    var lbl = panel2.AddUIComponent<UILabel>();
+                    lbl.text = "Displacement:";
+                    Displacement = panel2.AddUIComponent<TextFieldInt>();
+                    Displacement.width = panel.width - Displacement.relativePosition.x;
+                    Displacement.tooltip = "put a posetive number to move props away from the junction.";
+                    lbl.height = Displacement.height;
+                    lbl.verticalAlignment = UIVerticalAlignment.Middle;
+                    panel2.FitChildren();
+                }
+
             }
 
             FitChildrenVertically(10);
@@ -87,10 +112,18 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
         public void OnLoad() {
             var template = SavesListBox.SelectedTemplate;
             var props = template.GetProps();
+            foreach(var prop in props) {
+                if (ToggleDir.isChecked)
+                    prop.ToggleRHT_LHT();
+                if (ToggleSide.isChecked)
+                    prop.ToggleForwardBackward();
+                if (Displacement.Number != 0) {
+                    prop.Displace(Displacement.Number);
+                }
+            }
             OnPropsLoaded(props);
             Destroy(gameObject);
         }
-
 
         public void OnSelectedSaveChanged(int newIndex) {
             Log.Debug($"OnSelectedSaveChanged({newIndex})\n" + Environment.StackTrace);
