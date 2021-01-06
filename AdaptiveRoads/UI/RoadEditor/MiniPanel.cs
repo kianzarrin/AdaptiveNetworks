@@ -12,10 +12,12 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
         public static void CloseAll() {
             var panels = UIView.GetAView().GetComponentsInChildren<MiniPanel>();
-            Log.Debug("CloseALL: open mini panel count: " + panels.Count());
+            Log.Debug("CloseALL: open mini panel count: " + panels.Count() + Environment.StackTrace);
             foreach (var panel in panels)
-                Destroy(panel.gameObject);
+                panel.Close();
         }
+
+        public void Close() => Destroy(gameObject);
 
         public static MiniPanel Display() {
             Log.Debug($"MiniPanel.Display() called");
@@ -47,17 +49,17 @@ namespace AdaptiveRoads.UI.RoadEditor {
             base.Update();
             if (Input.GetMouseButtonDown(1)) {
                 Log.Debug("MiniPanel.Update: rigt click => close this");
-                Destroy(this.gameObject);
+                Close();
             }
-            if (Input.GetMouseButtonDown(0)) {
-                Log.Debug("MiniPanel.Update: left click outside buttons =? close this");
+            if (Input.GetMouseButtonDown(0) && !containsMouse) {
+                Log.Debug("MiniPanel.Update: left click outside panel => close this");
                 // escape if contains mouse
                 // OnClick will destroy the panel
                 foreach(var button in Buttons) {
                     if (button.containsMouse)
                         return;
                 }
-                Destroy(this.gameObject);
+                Close();
             }
 
         }
@@ -106,7 +108,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 Assertion.AssertNotNull(Action);
                 Log.Info($"`{text}` clicked. Invoking {Action} ...", true);
                 Action();
-                MiniPanel.CloseAll();
+                GetComponentInParent<MiniPanel>().Close();
             }
         }
 
@@ -119,10 +121,11 @@ namespace AdaptiveRoads.UI.RoadEditor {
             public override void Awake() {
                 base.Awake();
                 atlas = TextureUtil.Ingame;
-                size = new Vector2(100, 30);
-                padding = new RectOffset(4, 4, 3, 3);
+                size = new Vector2(80, 20);
+                padding = new RectOffset(0, 0, 3, 3);
                 builtinKeyNavigation = true;
-                horizontalAlignment = UIHorizontalAlignment.Left;
+                horizontalAlignment = UIHorizontalAlignment.Center;
+                verticalAlignment = UIVerticalAlignment.Middle;
                 selectionSprite = "EmptySprite";
                 selectionBackgroundColor = new Color32(0, 172, 234, 255);
                 normalBgSprite = "TextFieldPanelHovered";

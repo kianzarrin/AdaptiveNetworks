@@ -9,12 +9,7 @@
         pedestrian crossing sign
         no left/right turn
         speed limits KPH/MPH
-- displacement:
-    NetLaneprops:
-        displace all
-    lanes:
-        displace all props
-  
+ 
 
 - highlight nodes/segments/props ...
 

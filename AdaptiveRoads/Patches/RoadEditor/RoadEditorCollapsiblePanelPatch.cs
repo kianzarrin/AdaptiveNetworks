@@ -10,6 +10,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using System.Collections.Generic;
     using System.Linq;
     using static RoadEditorDynamicPropertyToggleHelpers;
+    using ColossalFramework.Threading;
 
     [HarmonyPatch(typeof(RoadEditorCollapsiblePanel))]
     [HarmonyPatch("OnButtonClick")]
@@ -81,6 +82,10 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         }
 
         public static void DisplaceAll(IEnumerable<NetLaneProps.Prop> props) {
+            DisplaceAll2(props);
+        }
+
+        public static void DisplaceAll2(IEnumerable<NetLaneProps.Prop> props) {
             var panel = MiniPanel.Display();
             var numberField = panel.AddNumberField();
             panel.AddButton("Displace", null, () =>
