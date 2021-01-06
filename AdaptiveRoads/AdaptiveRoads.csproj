@@ -55,7 +55,6 @@
     <Compile Remove="Patches\Lane\NetAI_UpdateLanes.cs" />
     <Compile Remove="Patches\Node\CalculateNode.cs" />
     <Compile Remove="Patches\Node\NetAI_UpdateNodeFlags.cs" />
-    <Compile Remove="Patches\RoadEditor\CreateArrayField.cs" />
     <Compile Remove="Patches\RoadEditor\InstantiateTemplatePatch.cs" />
     <Compile Remove="Patches\RoadEditor\Refresh.cs" />
     <Compile Remove="Patches\RoadEditor\RoadEditorDynamicPropertyToggle_Refresh.cs" />

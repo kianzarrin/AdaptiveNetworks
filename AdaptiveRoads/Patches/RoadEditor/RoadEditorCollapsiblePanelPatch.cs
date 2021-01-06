@@ -89,28 +89,9 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         }
 
         static void PasteAll(RoadEditorCollapsiblePanel groupPanel) {
-            try {
-                Log.Debug("PasteAll called");
-                NetLaneProps.Prop[] props = ClipBoard.GetDataArray() as NetLaneProps.Prop[];
-                if (props == null || props.Length == 0) return;
-                NetLaneProps.Prop[] m_props = groupPanel.GetArray() as NetLaneProps.Prop[];
-                var m_props2 = m_props.AddRangeToArray(props);
-
-                var roadEditor = groupPanel.component.GetComponentInParent<RoadEditorPanel>();
-                var sidePanel = roadEditor.GetSidePanel();
-                var arrayField = groupPanel.GetField();
-                var target = roadEditor.GetTarget();
-
-
-                Log.Debug($"Pasting {props.Length}+{m_props.Length}={m_props2.Length}");
-                groupPanel.SetArray(m_props2);
-                foreach (var prop in props) {
-                    roadEditor.AddToArrayField(groupPanel, prop, arrayField, target);
-                }
-                roadEditor.OnObjectModified();
-            } catch (Exception ex) {
-                Log.Exception(ex);
-            }
+            Log.Debug("PasteAll called");
+            NetLaneProps.Prop[] props = ClipBoard.GetDataArray() as NetLaneProps.Prop[];
+            CreateArrayField.AddProps(groupPanel,props);
         }
     }
 }

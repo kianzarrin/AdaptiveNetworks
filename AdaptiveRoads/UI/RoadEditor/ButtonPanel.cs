@@ -1,13 +1,10 @@
 namespace AdaptiveRoads.UI.RoadEditor {
+    using AdaptiveRoads.Patches.RoadEditor;
     using ColossalFramework.UI;
     using KianCommons;
     using KianCommons.UI;
-    using UnityEngine;
-    using AdaptiveRoads.Patches.RoadEditor;
-    using System.Reflection;
-    using AdaptiveRoads.Manager;
-    using TrafficManager.API.Traffic;
     using System;
+    using UnityEngine;
 
     public class ButtonPanel : UIPanel {
         public UIButton Button;
@@ -27,7 +24,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
             subPanel.Enable();
             subPanel.Button.text = label;
             subPanel.Button.tooltip = hint;
-            subPanel.Button.eventClick += (_,__) => action();
+            subPanel.Button.eventClick += (_, __) => action();
 
             container.AttachUIComponent(subPanel.gameObject);
             roadEditorPanel.FitToContainer(subPanel);
@@ -46,24 +43,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
             autoLayoutDirection = LayoutDirection.Horizontal;
             padding = new RectOffset(3, 3, 3, 3);
 
-            Button = AddUIComponent<ButtonT>();
+            Button = AddUIComponent<EditorButon>();
         }
-
-        public class ButtonT : UIButton {
-            public override void Awake() {
-                base.Awake();
-                name = GetType().FullName;
-                canFocus = false;
-                size = new Vector2(363, 30);
-                textPadding = new RectOffset(1, 0, 0, 0);
-                textHorizontalAlignment = UIHorizontalAlignment.Center;
-
-                atlas = TextureUtil.InMapEditor;
-                normalBgSprite = "SubBarButtonBase";
-                hoveredBgSprite = "SubBarButtonBaseHovered";
-                pressedBgSprite = "SubBarButtonBasePressed";
-                disabledBgSprite = "SubBarButtonBaseDisabled";
-            }
-        } 
     }
 }
