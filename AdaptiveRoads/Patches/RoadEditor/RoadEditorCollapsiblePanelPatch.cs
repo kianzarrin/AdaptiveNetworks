@@ -7,6 +7,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using HarmonyLib;
     using KianCommons;
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using static RoadEditorDynamicPropertyToggleHelpers;
 
@@ -39,12 +40,15 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             panel.AddButton("Save Tamplate", null, () => {
                                 SaveTemplatePanel.Display(m_props);
                             });
-
                         }
                         if (clipBoardHasData) {
                             panel.AddButton("Paste all props", null,
                                 () => PasteAll(groupPanel));
                         }
+                        panel.AddButton(
+                            "Displace all",
+                            null,
+                            () => DisplaceAll(m_props));
                     }
                 } else if (
                     array is NetInfo.Lane[] m_lanes
@@ -59,10 +63,33 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         "replace props to other elevation",
                         "clears props from other elevations before copying.",
                         () => PropHelpers.CopyPropsToOtherElevations(clear: true));
+                    panel.AddButton(
+                        "Displace all",
+                        null,
+                        () => DisplaceAllProps(m_lanes));
                 }
             } catch (Exception ex) {
                 Log.Exception(ex);
             }
+        }
+
+        public static void DisplaceAllProps(NetInfo.Lane[] lanes) {
+            var props = (from lane in lanes
+                         from prop in lane.m_laneProps.m_props
+                         select prop);
+            DisplaceAll(props);
+        }
+
+        public static void DisplaceAll(IEnumerable<NetLaneProps.Prop> props) {
+            var panel = MiniPanel.Display();
+            var numberField = panel.AddNumberField();
+            panel.AddButton("Displace", null, () =>
+                DisplaceAll(props, numberField.Number));
+        }
+
+        public static void DisplaceAll(IEnumerable<NetLaneProps.Prop> props, int z) {
+            foreach (var prop in props) 
+                prop.Displace(z);
         }
 
         static void ClearAll(RoadEditorCollapsiblePanel instance) {

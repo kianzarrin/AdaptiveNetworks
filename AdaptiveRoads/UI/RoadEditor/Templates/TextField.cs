@@ -33,7 +33,6 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
             base.Start();
             eventTooltipTextChanged += (_, __) => RefreshTooltip();
         }
-
     }
 }
 

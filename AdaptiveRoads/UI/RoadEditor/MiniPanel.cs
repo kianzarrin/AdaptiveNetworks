@@ -78,6 +78,12 @@ namespace AdaptiveRoads.UI.RoadEditor {
             return btn;
         }
 
+        public MiniPanelNumberField AddNumberField() {
+            var field = AddUIComponent<MiniPanelNumberField>();
+            if (started) Refresh();
+            return field;
+        }
+
         public void Refresh() {
             Log.Debug("MiniPanel.Refresh() called");
             SetPosition();
@@ -102,6 +108,49 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 Action();
                 MiniPanel.CloseAll();
             }
+        }
+
+        public class MiniPanelNumberField : UITextField {
+            public string Hint;
+            public override void OnDestroy() {
+                Hint = null;
+                base.OnDestroy();
+            }
+            public override void Awake() {
+                base.Awake();
+                atlas = TextureUtil.Ingame;
+                size = new Vector2(100, 30);
+                padding = new RectOffset(4, 4, 3, 3);
+                builtinKeyNavigation = true;
+                horizontalAlignment = UIHorizontalAlignment.Left;
+                selectionSprite = "EmptySprite";
+                selectionBackgroundColor = new Color32(0, 172, 234, 255);
+                normalBgSprite = "TextFieldPanelHovered";
+                disabledBgSprite = "TextFieldPanelHovered";
+                textColor = new Color32(0, 0, 0, 255);
+                disabledTextColor = new Color32(80, 80, 80, 128);
+                color = new Color32(255, 255, 255, 255);
+                useDropShadow = true;
+                text = "0";
+
+                selectOnFocus = true;
+                numericalOnly = true;
+                allowFloats = false;
+                allowNegative = true;
+            }
+            public override void Start() {
+                base.Start();
+                eventTooltipTextChanged += (_, __) => RefreshTooltip();
+            }
+
+            public int Number {
+                get {
+                    if (int.TryParse(text, out int ret))
+                        return ret;
+                    return 0;
+                }
+            }
+
         }
     }
 }

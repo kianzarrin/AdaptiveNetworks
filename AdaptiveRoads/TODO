@@ -1,7 +1,5 @@
-- learn usage of vanilla lane flags:
-    - oneway left/right start/end
-
 - templates:
+    - built-ins:
         traffic lights
         man holes
         lane arrows
@@ -11,17 +9,14 @@
         pedestrian crossing sign
         no left/right turn
         speed limits KPH/MPH
-        UI:
-            Load/Save template panel
-            Prop toggle
-                Save prop as template
-            Props group button:
-                Save all as template
-            Props Group Panel:
-                Add from template
+- displacement:
+    NetLaneprops:
+        displace all
+    lanes:
+        displace all props
+  
 
-    highlight nodes/segments/props ...
-    add summary hint
+- highlight nodes/segments/props ...
 
         
 - hint for vanilla flags/drop-downs (waiting for Hockenheim)
