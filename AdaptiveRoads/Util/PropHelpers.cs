@@ -205,9 +205,16 @@ namespace AdaptiveRoads.Util {
             }
         }
 #pragma warning disable
-        public static string Description(this NetLaneProps.Prop prop) {
-            string ret = prop.DisplayName();
-            var propExt = prop.GetMetaData();
+        public static string Summary(this NetLaneProps.Prop prop) {
+            return Summary(prop, prop.GetMetaData(), prop.DisplayName());
+        }
+
+        public static string Summary(
+            NetLaneProps.Prop prop,
+            NetInfoExtionsion.LaneProp propExt,
+            string name) {
+            string ret = name ?? "New prop";
+
             string text1;
             {
                 var t = MergeFlagText(
@@ -274,6 +281,10 @@ namespace AdaptiveRoads.Util {
                 }
             }
             return ret;
+        }
+
+        public static string Summary(this IEnumerable<NetLaneProps.Prop> props) {
+            return props.Select(p => p.Summary()).JoinLines();
         }
 
     }

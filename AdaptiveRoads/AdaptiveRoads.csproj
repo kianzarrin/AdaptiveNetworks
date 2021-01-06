@@ -91,6 +91,7 @@
     <Compile Include="KianCommons\KianCommons\UI\Helpers\UISliderExt.cs" />
     <Compile Include="KianCommons\KianCommons\UI\RenderUtil.cs" />
     <Compile Include="KianCommons\KianCommons\UI\TextureUtil.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\UIExtensions.cs" />
     <Compile Include="KianCommons\KianCommons\UI\UIUtils.cs" />
     <Compile Include="KianCommons\KianCommons\Util\Assertion.cs" />
     <Compile Include="KianCommons\KianCommons\Util\EnumBitMaskExtensions.cs" />

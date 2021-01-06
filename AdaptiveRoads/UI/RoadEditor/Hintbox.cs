@@ -172,7 +172,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
                             object element = GetToggleTargetElement(toggle);
                             var target = GetToggleTargetObject(toggle);
                             if (element is NetLaneProps.Prop prop) {
-                                Hint1 = prop.Description();
+                                Hint1 = prop.Summary();
                                 Hint2 = h;
                             } else if (element is NetInfo.Lane lane && lane.HasProps()
                                 && target == NetInfoExtionsion.EditedNetInfo) {

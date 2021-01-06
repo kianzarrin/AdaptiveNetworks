@@ -1,6 +1,7 @@
 namespace AdaptiveRoads.Patches.RoadEditor {
     using AdaptiveRoads.Manager;
     using AdaptiveRoads.UI.RoadEditor;
+    using AdaptiveRoads.UI.RoadEditor.Templates;
     using AdaptiveRoads.Util;
     using ColossalFramework.UI;
     using HarmonyLib;
@@ -35,6 +36,10 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             () => ClipBoard.SetData(m_props));
                             panel.AddButton("Clear all props", null,
                                 () => ClearAll(groupPanel));
+                            panel.AddButton("Save Tamplate", null, () => {
+                                SaveTemplatePanel.Display(m_props);
+                            });
+
                         }
                         if (clipBoardHasData) {
                             panel.AddButton("Paste all props", null,
