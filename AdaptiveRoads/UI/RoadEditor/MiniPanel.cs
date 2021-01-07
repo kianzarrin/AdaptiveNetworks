@@ -129,7 +129,6 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 selectionSprite = "EmptySprite";
                 selectionBackgroundColor = new Color32(0, 172, 234, 255);
                 normalBgSprite = "TextFieldPanelHovered";
-                disabledBgSprite = "TextFieldPanelHovered";
                 textColor = new Color32(0, 0, 0, 255);
                 disabledTextColor = new Color32(80, 80, 80, 128);
                 color = new Color32(255, 255, 255, 255);

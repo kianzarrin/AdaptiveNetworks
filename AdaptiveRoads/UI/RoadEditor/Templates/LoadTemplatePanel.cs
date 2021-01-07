@@ -114,9 +114,9 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
             var props = template.GetProps();
             foreach(var prop in props) {
                 if (ToggleDir.isChecked)
-                    prop.ToggleRHT_LHT();
-                if (ToggleSide.isChecked)
                     prop.ToggleForwardBackward();
+                if (ToggleSide.isChecked)
+                    prop.ToggleRHT_LHT();
                 if (Displacement.Number != 0) {
                     prop.Displace(Displacement.Number);
                 }

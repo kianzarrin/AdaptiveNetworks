@@ -76,11 +76,11 @@ namespace AdaptiveRoads.Util {
                 Helpers.Swap(ref propExt.StartNodeFlags, ref propExt.EndNodeFlags);
                 Helpers.Swap(ref propExt.SegmentStartFlags, ref propExt.SegmentEndFlags);
             }
-            Log.Debug("ToggleRHT_LHT() done");
-
         }
 
         public static void ToggleForwardBackward(this NetLaneProps.Prop prop) {
+            Log.Debug("ToggleForwardBackward() called for " + prop.m_prop.name);
+
             prop.m_segmentOffset = -prop.m_segmentOffset;
             prop.m_angle = (prop.m_angle + 180) % 360;
             prop.m_position.z = -prop.m_position.z;

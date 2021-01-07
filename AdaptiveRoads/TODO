@@ -1,3 +1,6 @@
+- improved no binary
+    - can also deal with roads that are already on the WS
+
 - templates:
     - built-ins:
         traffic lights
