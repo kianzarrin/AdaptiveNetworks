@@ -2,7 +2,7 @@
     - can also deal with roads that are already on the WS
 
 - templates:
-    - built-ins:
+    - create built-ins:
         traffic lights
         man holes
         lane arrows
@@ -12,7 +12,15 @@
         pedestrian crossing sign
         no left/right turn
         speed limits KPH/MPH
- 
+    - prop requirements:
+        - no short/far turns (vanilla)
+        - stop (vanilla)
+        - give way (UK/ITA)
+        - pedestrian crossing (ITA)
+        - no u-turn (UK/Elly)
+        - parking (UK)
+        - no parking (vanilla)
+
 
 - highlight nodes/segments/props ...
 

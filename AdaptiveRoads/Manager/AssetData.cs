@@ -11,6 +11,10 @@ namespace AdaptiveRoads.Manager {
         public class NetInfoMetaData {
             public List<NetInfoExtionsion.Node> Nodes = new List<NetInfoExtionsion.Node>();
             public List<NetInfoExtionsion.Segment> Segments = new List<NetInfoExtionsion.Segment>();
+
+            /// <summary>
+            /// props for all lanes is stored here in order.
+            /// </summary>
             public List<NetInfoExtionsion.LaneProp> Props = new List<NetInfoExtionsion.LaneProp>();
             public NetInfoExtionsion.Net NetData;
 
@@ -36,22 +40,30 @@ namespace AdaptiveRoads.Manager {
             }
 
             public void Apply(NetInfo info) {
-                info.EnsureExtended();
-                for (int i = 0; i < Nodes.Count; ++i)
-                    (info.m_nodes[i] as IInfoExtended).SetMetaData(Nodes[i]);
-                for (int i = 0; i < Segments.Count; ++i)
-                    (info.m_segments[i] as IInfoExtended).SetMetaData(Segments[i]);
-
+                try {
+                    info.EnsureExtended();
+                    for (int i = 0; i < Nodes.Count; ++i)
+                        (info.m_nodes[i] as IInfoExtended).SetMetaData(Nodes[i]);
+                    for (int i = 0; i < Segments.Count; ++i)
+                        (info.m_segments[i] as IInfoExtended).SetMetaData(Segments[i]);
+                    ApplyProps(info);
+                    info.SetMeteData(NetData?.Clone());
+                    Log.Debug("Net Metadata restored.");
+                }catch(Exception ex) {
+                    Log.Exception(ex);
+                }
+            }
+            void ApplyProps(NetInfo info) {
+                // this.Props stores props for all lanes in order.
+                // so we need to extract them in order.
+                int i = 0;
                 foreach (var lane in info.m_lanes) {
                     var props = lane.m_laneProps?.m_props;
                     if (props == null)
                         continue;
-                    int i = 0;
                     foreach (var item in props)
                         (item as IInfoExtended).SetMetaData(Props[i++]);
                 }
-                info.SetMeteData(NetData?.Clone());
-                Log.Debug("Net Metadata restored.");
             }
         }
 

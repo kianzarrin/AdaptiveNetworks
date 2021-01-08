@@ -12,7 +12,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     /// this makes sure the UI component is linked to the extended element.
     /// </summary>
     [HarmonyPatch(typeof(AssetEditorRoadUtils))]
-    public static class AssetEditorRoadUtilsPatch {
+    public static class AddArrayElementPatch {
         [HarmonyPostfix]
         [HarmonyPatch("AddArrayElement")]
         static void AddArrayElement(object target, FieldInfo field, ref object __result) {

@@ -11,12 +11,16 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using static KianCommons.Assertion;
     using static KianCommons.ReflectionHelpers;
     using AdaptiveRoads.Util;
+    using UnityEngine;
 
     /// <summary>
-    /// extend CreateGenericField to support flag extension types.
+    /// most of the fields are managed here:
     /// </summary>
     [HarmonyPatch(typeof(RoadEditorPanel), "CreateGenericField")]
     public static class CreateGenericField {
+        /// <summary>
+        /// replace built-in fields
+        /// </summary>
         public static bool Prefix(string groupName, FieldInfo field, object target,
             RoadEditorPanel __instance) {
             if (NetInfoExtionsion.EditedNetInfo == null)
@@ -54,10 +58,20 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             return true;
         }
 
+        /// <summary>
+        /// Adds new custom fields after a built-in field.
+        /// or modify the name of the built-in fields
+        /// </summary>
         public static void Postfix(string groupName, FieldInfo field, object target, RoadEditorPanel __instance) {
             try {
                 if (target is NetLaneProps.Prop prop) {
                     Log.Debug($"{__instance.name}.CreateGenericField.Postfix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
+
+                    ReplaceLabel(__instance, "Start Flags Required", "Tail Flags Required");
+                    ReplaceLabel(__instance, "Start Flags Forbidden", "Tail Flags Forbidden");
+                    ReplaceLabel(__instance, "End Flags Required", "Head Flags Required");
+                    ReplaceLabel(__instance, "End Flags Forbidden", "Head Flags Forbidden");
+
                     if (field.Name == nameof(NetLaneProps.Prop.m_endFlagsForbidden)) {
                         var metadata = prop.GetOrCreateMetaData();
                         foreach (var field2 in metadata.GetFieldsWithAttribute<CustomizablePropertyAttribute>()) {
@@ -115,15 +129,14 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     }
                 } else if (target is NetInfo netInfo) {
                     // replace "Pavement Width" with Pavement Width Left
+                    ReplaceLabel(__instance, "Pavement Width", "Pavement Width Left");
+                    // inject our own field
                     if (field.Name == nameof(NetInfo.m_pavementWidth)) {
                         Log.Debug($"{__instance.name}.CreateGenericField.Postfix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
                         var net = netInfo.GetOrCreateMetaData();
                         AssertNotNull(net, $"{netInfo}");
                         var f = net.GetType().GetField(nameof(net.PavementWidthRight));
                         __instance.CreateGenericField(groupName, f, net);
-                        __instance.gameObject.GetComponentsInChildren<UILabel>()
-                            .Single(_lbl => _lbl.text == "Pavement Width")
-                            .text = "Pavement Width Left";
                     }
                 }
             } catch (Exception e) {
@@ -132,6 +145,26 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
         }
 
+        /// <summary>
+        /// replaces a label with text oldLabel with new Label
+        /// </summary>
+        /// <param name="component">this component and all its children are searched</param>
+        public static void ReplaceLabel(Component component,string oldLabel, string newLabel){
+            var labels = component.GetComponentsInChildren<UILabel>()
+                .Where(_lbl => _lbl.text == oldLabel);
+            if (labels == null) return;
+            foreach (var label in labels)
+                label.text = newLabel;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <param name="fieldInfo"></param>
+        /// <param name="target"></param>
+        /// <param name="instance"></param>
+        /// <param name="prefix"></param>
         public static void CreateExtendedComponent(
             string groupName, FieldInfo fieldInfo, object target, RoadEditorPanel instance, string prefix = "") {
             //Assert(string.IsNullOrEmpty(groupName), "groupName is empty");
