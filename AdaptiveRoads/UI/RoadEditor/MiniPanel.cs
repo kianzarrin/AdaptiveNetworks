@@ -9,7 +9,9 @@ using UnityEngine;
 namespace AdaptiveRoads.UI.RoadEditor {
     public class MiniPanel : UIPanel {
         public IEnumerable<UIButton> Buttons => GetComponentsInChildren<UIButton>();
-
+        public IEnumerable<UIComponent> Components =>
+            GetComponentsInChildren<UIComponent>()
+            .Where(c => c != this);
         public static void CloseAll() {
             var panels = UIView.GetAView().GetComponentsInChildren<MiniPanel>();
             Log.Debug("CloseALL: open mini panel count: " + panels.Count() + Environment.StackTrace);
@@ -85,18 +87,33 @@ namespace AdaptiveRoads.UI.RoadEditor {
             if (started) Refresh();
             return field;
         }
+        public MiniPanelTextField AddTextField() {
+            var field = AddUIComponent<MiniPanelTextField>();
+            if (started) Refresh();
+            return field;
+        }
 
         public void Refresh() {
             Log.Debug("MiniPanel.Refresh() called");
             SetPosition();
             FitChildren();
-            foreach (var btn in Buttons) btn.size = size;
+            foreach (var item in Components) {
+                item.autoSize = false;
+                item.width = width;
+            }
+            
             Invalidate();
         }
 
         public class MiniPanelButton : UIButtonExt {
             public Action Action;
             public string Hint;
+
+            public override void Awake() {
+                base.Awake();
+                this.textHorizontalAlignment = UIHorizontalAlignment.Center;
+            }
+
             public override void OnDestroy() {
                 Hint = null;
                 Action = null;
@@ -116,7 +133,31 @@ namespace AdaptiveRoads.UI.RoadEditor {
             }
         }
 
-        public class MiniPanelNumberField : UITextField {
+        public class MiniPanelNumberField : MiniPanelTextField {
+            public string Hint;
+            public override void OnDestroy() {
+                Hint = null;
+                base.OnDestroy();
+            }
+            public override void Awake() {
+                base.Awake();
+                text = "0";
+
+                numericalOnly = true;
+                allowFloats = false;
+                allowNegative = true;
+            }
+
+            public int Number {
+                get {
+                    if (int.TryParse(text, out int ret))
+                        return ret;
+                    return 0;
+                }
+            }
+
+        }
+        public class MiniPanelTextField : UITextField {
             public string Hint;
             public override void OnDestroy() {
                 Hint = null;
@@ -137,26 +178,12 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 disabledTextColor = new Color32(80, 80, 80, 128);
                 color = new Color32(255, 255, 255, 255);
                 useDropShadow = true;
-                text = "0";
-
                 selectOnFocus = true;
-                numericalOnly = true;
-                allowFloats = false;
-                allowNegative = true;
             }
             public override void Start() {
                 base.Start();
                 eventTooltipTextChanged += (_, __) => RefreshTooltip();
             }
-
-            public int Number {
-                get {
-                    if (int.TryParse(text, out int ret))
-                        return ret;
-                    return 0;
-                }
-            }
-
         }
     }
 }

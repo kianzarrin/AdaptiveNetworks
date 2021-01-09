@@ -1,9 +1,10 @@
-namespace AdaptiveRoads.Patches.RoadEditor {
+namespace AdaptiveRoads.Util {
     using ColossalFramework.UI;
     using HarmonyLib;
     using KianCommons;
     using System;
     using System.Reflection;
+    using UnityEngine;
 
     public static class REPropertySetExtensions {
         public static MethodInfo GetMethod(string methodName) =>
@@ -106,26 +107,42 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             instance.GetField().SetValue(instance.GetTarget(), value);
     }
 
-    internal static class RoadEditorDynamicPropertyToggleHelpers {
-        internal static Type ToggleType =
+    internal static class DPTHelpers {
+        internal static Type DPTType =
             Type.GetType("RoadEditorDynamicPropertyToggle, Assembly-CSharp", throwOnError: true);
-        static T GetFieldValue<T>(string name, UICustomControl toggle) {
-            Assertion.Assert(toggle.GetType() == ToggleType);
-            return (T)ReflectionHelpers.GetFieldValue(name, toggle);
+        static T GetFieldValue<T>(string name, UICustomControl dpt) {
+            Assertion.Assert(dpt.GetType() == DPTType);
+            return (T)ReflectionHelpers.GetFieldValue(name, dpt);
         }
+        static MethodInfo GetMethod(string methodName) =>
+            ReflectionHelpers.GetMethod(DPTType, methodName);
 
-        internal static UIButton GetToggleSelectButton(UICustomControl toggle) =>
-            GetFieldValue<UIButton>("m_SelectButton", toggle);
+        internal static UICustomControl GetDPTInParent(Component c) =>
+            c.GetComponentInParent(DPTType) as UICustomControl;
 
-        // gets the element in array the toggle represents.
-        internal static object GetToggleTargetElement(UICustomControl toggle) =>
-            GetFieldValue<object>("m_TargetElement", toggle);
+        internal static UICustomControl GetDPTInChildren(Component c) =>
+            c.GetComponentInChildren(DPTType) as UICustomControl;
+
+
+        internal static UIButton GetDPTSelectButton(UICustomControl dpt) =>
+            GetFieldValue<UIButton>("m_SelectButton", dpt);
+
+        // gets the element in array the DPT represents.
+        internal static object GetDPTTargetElement(UICustomControl dpt) =>
+            GetFieldValue<object>("m_TargetElement", dpt);
 
         /// <summary>
         /// gets the object that contains the array (m_field)
         /// </summary>
-        internal static object GetToggleTargetObject(UICustomControl toggle) =>
-            GetFieldValue<object>("m_TargetObject", toggle);
+        internal static object GetDPTTargetObject(UICustomControl dpt) =>
+            GetFieldValue<object>("m_TargetObject", dpt);
+
+        internal static FieldInfo GetDPTField(UICustomControl dpt) =>
+            GetFieldValue<object>("m_Field", dpt) as FieldInfo;
+        
+        internal static void ToggleDPTColor(UICustomControl dpt, bool selected) =>
+            GetMethod("ToggleColor").Invoke(dpt, new object[] { selected });
+
 
 
     }

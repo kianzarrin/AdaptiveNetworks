@@ -1,5 +1,5 @@
 namespace AdaptiveRoads.UI.RoadEditor {
-    using AdaptiveRoads.Patches.RoadEditor;
+    using AdaptiveRoads.Util;
     using ColossalFramework.UI;
     using KianCommons;
     using KianCommons.UI;

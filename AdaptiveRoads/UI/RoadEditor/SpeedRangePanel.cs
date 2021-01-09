@@ -3,7 +3,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
     using KianCommons;
     using KianCommons.UI;
     using UnityEngine;
-    using AdaptiveRoads.Patches.RoadEditor;
+    using AdaptiveRoads.Util;
     using System.Reflection;
     using AdaptiveRoads.Manager;
     using TrafficManager.API.Traffic;

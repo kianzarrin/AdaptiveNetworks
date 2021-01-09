@@ -8,6 +8,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using System;
     using System.Linq;
     using System.Reflection;
+    using AdaptiveRoads.Util;
 
     /// <summary>
     /// add from template
@@ -33,38 +34,12 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             UIComponent component, UIMouseEventParameter eventParam) {
             try {
                 var groupPanel = component.GetComponentInParent<RoadEditorCollapsiblePanel>();
-                LoadTemplatePanel.Display(loadedProps => AddProps(groupPanel, loadedProps));
+                LoadTemplatePanel.Display(loadedProps => RoadEditorUtils.AddProps(groupPanel, loadedProps));
             } catch (Exception ex) {
                 Log.Exception(ex);
             }
         }
 
-        public static void AddProps(
-            RoadEditorCollapsiblePanel groupPanel,
-            NetLaneProps.Prop[] props) {
-            try {
-                Log.Debug("AddProps called");
-                if (props == null || props.Length == 0) return;
-                NetLaneProps.Prop[] m_props = groupPanel.GetArray() as NetLaneProps.Prop[];
-                props = props.Select(_p => _p.Extend().Base).ToArray();
-                var m_props2 = m_props.AddRangeToArray(props);
-
-                var roadEditor = groupPanel.component.GetComponentInParent<RoadEditorPanel>();
-                var sidePanel = roadEditor.GetSidePanel();
-                var arrayField = groupPanel.GetField();
-                var target = roadEditor.GetTarget();
-
-
-                Log.Debug($"Adding props {props.Length}+{m_props.Length}={m_props2.Length}");
-                groupPanel.SetArray(m_props2);
-                foreach (var prop in props) {
-                    roadEditor.AddToArrayField(groupPanel, prop, arrayField, target);
-                }
-                roadEditor.OnObjectModified();
-            } catch (Exception ex) {
-                Log.Exception(ex);
-            }
-        }
 
     }
 }

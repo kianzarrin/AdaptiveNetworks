@@ -1,3 +1,5 @@
+using AdaptiveRoads.Manager;
+using AdaptiveRoads.Util;
 using ColossalFramework;
 using ColossalFramework.UI;
 using KianCommons;
@@ -6,11 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using AdaptiveRoads.Util;
-using static AdaptiveRoads.Patches.RoadEditor.RoadEditorDynamicPropertyToggleHelpers;
-using AdaptiveRoads.Patches.RoadEditor;
-using AdaptiveRoads.Manager;
-using System.Linq;
+using static AdaptiveRoads.Util.DPTHelpers;
 
 namespace AdaptiveRoads.UI.RoadEditor {
     public class HintBox : UILabel {
@@ -28,10 +26,10 @@ namespace AdaptiveRoads.UI.RoadEditor {
         public override void Awake() {
             base.Awake();
             wordWrap = false;
-            byte intensity = 0; //32;
-            color = new Color32(intensity, intensity, intensity, 255 /*190*/);
+            byte intensity = 0;
+            color = new Color32(intensity, intensity, intensity, 255);
             textColor = Color.white;
-            textScale = 1f; //.8f
+            textScale = 1f;
             padding = new RectOffset(5, 5, 5, 5);
             atlas = TextureUtil.Ingame;
             relativePosition = default;
@@ -137,6 +135,8 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
             relativePosition = pos;
         }
+
+#pragma warning disable CS0252 // Possible unintended reference comparison; left hand side needs cast
         public void GetHint() {
             try {
 
@@ -153,7 +153,9 @@ namespace AdaptiveRoads.UI.RoadEditor {
                         Hint1 = dataUI.GetHint();
                         break;
                     } else if (panel.containsMouse) {
-                        string h = "Clicl => toggle\n" + "Control + Click => more options";
+                        string h = "Click => toggle\n" +
+                            "Control + Click => multi-select\n"+
+                            "Left + Click => show more options";
                         var groupPanel = panel.GetComponent<RoadEditorCollapsiblePanel>();
                         if (groupPanel && groupPanel.LabelButton.containsMouse) {
                             var target = groupPanel.GetTarget();
@@ -161,16 +163,16 @@ namespace AdaptiveRoads.UI.RoadEditor {
                             if (label == "Props") {
                                 Hint2 = h;
                             } else if (
-                                groupPanel.GetArray() is NetInfo.Lane [] m_lanes
-                                && m_lanes.Any(_lane=>_lane.HasProps())
-                                && target == NetInfoExtionsion.EditedNetInfo ) {
+                                groupPanel.GetArray() is NetInfo.Lane[] m_lanes
+                                && m_lanes.Any(_lane => _lane.HasProps())
+                                && target == NetInfoExtionsion.EditedNetInfo) {
                                 Hint2 = h;
                             }
                         }
-                        UICustomControl toggle = panel.GetComponent(ToggleType) as UICustomControl;
-                        if (toggle && GetToggleSelectButton(toggle).containsMouse) {
-                            object element = GetToggleTargetElement(toggle);
-                            var target = GetToggleTargetObject(toggle);
+                        UICustomControl toggle = panel.GetComponent(DPTType) as UICustomControl;
+                        if (toggle && GetDPTSelectButton(toggle).containsMouse) {
+                            object element = GetDPTTargetElement(toggle);
+                            var target = GetDPTTargetObject(toggle);
                             if (element is NetLaneProps.Prop prop) {
                                 Hint1 = prop.Summary();
                                 Hint2 = h;
@@ -179,6 +181,11 @@ namespace AdaptiveRoads.UI.RoadEditor {
                                 Hint2 = h;
                             }
                         }
+                        var proprefset = panel.GetComponent<RERefSet>();
+                        if(proprefset && proprefset.m_SelectButton.containsMouse) {
+                            Hint2 = "Click => display load prop panel\n" +
+                                "Alt + Click => fast type in prop name";
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -186,6 +193,8 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 Log.DebugWait(Hint1);
             }
         }
+#pragma warning restore CS0252 // Possible unintended reference comparison; left hand side needs cast
+
 
         private Vector3 MouseGUIPosition() {
             var uiView = GetUIView();

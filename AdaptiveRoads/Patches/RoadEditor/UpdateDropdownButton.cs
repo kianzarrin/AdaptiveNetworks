@@ -5,6 +5,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using System;
     using System.Reflection;
     using AdaptiveRoads.UI.RoadEditor;
+    using AdaptiveRoads.Util;
 
     /// <summary>
     /// do not print mixed int the flags field.

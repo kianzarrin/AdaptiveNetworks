@@ -1,3 +1,5 @@
+- multi select props
+
 - improved no binary
     - can also deal with roads that are already on the WS
 
@@ -27,6 +29,16 @@
         
 - hint for vanilla flags/drop-downs (waiting for Hockenheim)
 
+- patch AssetImporterAssetTemplate.RefreshCoroutine() to speed up prop model loading time
+    thumb2.atlas = atlas2; // set to null
+    thumb2.spriteName = thumbnail2; // set to null
+    int steps2 = (!containerPanel2.isVisible) ? 10 : 1; // set to 10
+    if (l % steps2 == 0)
+    {
+	    yield return 0;
+    }
+     
+        
 ----------------------------
 create road:
     uturn sign (moddded)

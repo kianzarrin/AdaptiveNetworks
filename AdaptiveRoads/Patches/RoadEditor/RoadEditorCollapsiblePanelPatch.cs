@@ -7,10 +7,9 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using HarmonyLib;
     using KianCommons;
     using System;
-    using System.Collections.Generic;
     using System.Linq;
-    using static RoadEditorDynamicPropertyToggleHelpers;
-    using ColossalFramework.Threading;
+    using static Util.DPTHelpers;
+    using static AdaptiveRoads.Util.RoadEditorUtils;
 
     [HarmonyPatch(typeof(RoadEditorCollapsiblePanel))]
     [HarmonyPatch("OnButtonClick")]
@@ -67,30 +66,11 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     panel.AddButton(
                         "Displace all",
                         null,
-                        () => DisplaceAllProps(m_lanes));
+                        () => RoadEditorUtils.DisplaceAllProps(m_lanes));
                 }
             } catch (Exception ex) {
                 Log.Exception(ex);
             }
-        }
-
-        public static void DisplaceAllProps(NetInfo.Lane[] lanes) {
-            var props = (from lane in lanes
-                         from prop in lane.m_laneProps.m_props
-                         select prop);
-            DisplaceAll(props);
-        }
-
-        public static void DisplaceAll(IEnumerable<NetLaneProps.Prop> props) {
-            var panel = MiniPanel.Display();
-            var numberField = panel.AddNumberField();
-            panel.AddButton("Displace", null, () =>
-                DisplaceAll(props, numberField.Number));
-        }
-
-        public static void DisplaceAll(IEnumerable<NetLaneProps.Prop> props, int z) {
-            foreach (var prop in props) 
-                prop.Displace(z);
         }
 
         static void ClearAll(RoadEditorCollapsiblePanel instance) {
@@ -102,7 +82,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     roadEditor.DestroySidePanel();
                 }
 
-                var toggles = instance.m_Panel.GetComponentsInChildren(ToggleType);
+                var toggles = instance.m_Panel.GetComponentsInChildren(DPTType);
                 foreach (UICustomControl toggle in toggles) {
                     toggle.component.parent.RemoveUIComponent(toggle.component);
                     UnityEngine.Object.Destroy(toggle.gameObject);
@@ -119,8 +99,9 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         static void PasteAll(RoadEditorCollapsiblePanel groupPanel) {
             Log.Debug("PasteAll called");
             NetLaneProps.Prop[] props = ClipBoard.GetDataArray() as NetLaneProps.Prop[];
-            CreateArrayField.AddProps(groupPanel,props);
+            AddProps(groupPanel, props);
         }
+
     }
 }
 

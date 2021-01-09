@@ -4,7 +4,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
     using KianCommons.UI;
     using System;
     using UnityEngine;
-    using AdaptiveRoads.Patches.RoadEditor;
+    using AdaptiveRoads.Util;
     using System.Reflection;
     using HarmonyLib;
     using System.Linq;

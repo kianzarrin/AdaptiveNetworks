@@ -3,6 +3,7 @@ namespace AdaptiveRoads.Patches.metadata {
     using HarmonyLib;
     using PrefabMetadata.API;
     using System;
+    using AdaptiveRoads.Util;
 
     /// <summary>
     /// changeing types confuses AddCustomFields.
