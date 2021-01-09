@@ -178,16 +178,16 @@ namespace AdaptiveRoads.Util {
                 props = props.Select(_p => _p.Extend().Base).ToArray();
                 var m_props2 = m_props.AddRangeToArray(props);
 
-                var roadEditor = groupPanel.component.GetComponentInParent<RoadEditorPanel>();
+                var sidePanel = groupPanel.component.GetComponentInParent<RoadEditorPanel>();
                 var arrayField = groupPanel.GetField();
                 var target = groupPanel.GetTarget();
 
                 Log.Debug($"Adding props {props.Length}+{m_props.Length}={m_props2.Length}");
                 groupPanel.SetArray(m_props2);
                 foreach (var prop in props) {
-                    roadEditor.AddToArrayField(groupPanel, prop, arrayField, target);
+                    sidePanel.AddToArrayField(groupPanel, prop, arrayField, target);
                 }
-                roadEditor.OnObjectModified();
+                sidePanel.OnObjectModified();
             } catch (Exception ex) {
                 Log.Exception(ex);
             }

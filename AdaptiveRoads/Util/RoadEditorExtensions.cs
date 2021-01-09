@@ -142,8 +142,14 @@ namespace AdaptiveRoads.Util {
         
         internal static void ToggleDPTColor(UICustomControl dpt, bool selected) =>
             GetMethod("ToggleColor").Invoke(dpt, new object[] { selected });
+    }
 
+    internal static class RERefSetExtensions {
+        static MethodInfo GetMethod(string methodName) =>
+            ReflectionHelpers.GetMethod(typeof(RERefSet), methodName);
 
-
+        internal static void OnReferenceSelected(this RERefSet instance,  PrefabInfo info) =>
+            GetMethod("OnReferenceSelected")
+            .Invoke(instance, new object[] { info });
     }
 }

@@ -184,7 +184,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
                         var proprefset = panel.GetComponent<RERefSet>();
                         if(proprefset && proprefset.m_SelectButton.containsMouse) {
                             Hint2 = "Click => display load prop panel\n" +
-                                "Alt + Click => fast type in prop name";
+                                "Alt + Click => fast type in prop/tree name";
                         }
                     }
                 }

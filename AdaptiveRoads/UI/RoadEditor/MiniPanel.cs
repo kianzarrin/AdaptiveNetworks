@@ -101,8 +101,8 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 item.autoSize = false;
                 item.width = width;
             }
-            
             Invalidate();
+            GetComponentInChildren<UITextField>()?.Focus();
         }
 
         public class MiniPanelButton : UIButtonExt {
@@ -142,6 +142,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
             public override void Awake() {
                 base.Awake();
                 text = "0";
+                width = 80;
 
                 numericalOnly = true;
                 allowFloats = false;
@@ -166,7 +167,8 @@ namespace AdaptiveRoads.UI.RoadEditor {
             public override void Awake() {
                 base.Awake();
                 atlas = TextureUtil.Ingame;
-                size = new Vector2(80, 20);
+                height = 20;
+                width = 200;
                 padding = new RectOffset(0, 0, 3, 3);
                 builtinKeyNavigation = true;
                 horizontalAlignment = UIHorizontalAlignment.Center;
