@@ -1,17 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using AdaptiveRoads.Util;
-using KianCommons;
-using static KianCommons.Assertion;
-using System.IO;
 using ColossalFramework.IO;
-using UnityEngine;
-using PrefabMetadata.Helpers;
-using PrefabMetadata.API;
 using KianCommons;
 using KianCommons.Math;
+using PrefabMetadata.API;
+using PrefabMetadata.Helpers;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using static KianCommons.Assertion;
 
 namespace AdaptiveRoads.Manager {
     [Serializable]
@@ -62,7 +59,7 @@ namespace AdaptiveRoads.Manager {
             }
         }
         public string Summary => PropHelpers.Summary(Prop, PropData, FinalName);
-        
+
         public static PropTemplateItem Create(NetLaneProps.Prop prop) {
             prop = prop.Clone();
             var propExt = prop.GetMetaData();
@@ -148,7 +145,7 @@ namespace AdaptiveRoads.Manager {
             if (name.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
                 throw new ArgumentException($"name:{name} contains invalid characters");
             return Load(FilePath(name));
-             
+
         }
         public static PropTemplate LoadFile(string path) {
             EnsureDir();
@@ -163,7 +160,7 @@ namespace AdaptiveRoads.Manager {
                     propTemplate.LoadAllProps();
                     return propTemplate;
                 }
-            } catch(Exception ex) {
+            } catch (Exception ex) {
                 Log.Exception(ex, showInPanel: false);
                 return null;
             }
@@ -173,12 +170,12 @@ namespace AdaptiveRoads.Manager {
             EnsureDir();
             var dir = new DirectoryInfo(Dir);
             var files = dir.GetFiles("*.dat");
-            foreach(var file in files) {
+            foreach (var file in files) {
                 var ret = LoadFile(file.FullName);
                 if (ret != null)
                     yield return ret;
             }
-                
+
         }
 
         public static void EnsureDir() {

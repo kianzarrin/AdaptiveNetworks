@@ -30,6 +30,8 @@ namespace AdaptiveRoads.Patches.metadata {
                         item2.MetaData = item2.MetaData?.Clone();
                 }
             }
+
+            // all expect the line bellow should move to prefab metadata.
             template.SetMeteData(template.GetMetaData()?.Clone());
         }
     }

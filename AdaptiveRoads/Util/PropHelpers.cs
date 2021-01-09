@@ -104,23 +104,23 @@ namespace AdaptiveRoads.Util {
             .IsFlagSet(NetLane.Flags.Inverted);
 
         public static void CopyPropsToOtherElevations(bool clear = true) =>
-            CopyPropsToOtherElevations(clear);
+            CopyPropsToOtherElevationsMain(clear);
 
         public static void CopyPropsToOtherElevations(
             bool clear, int laneIndex) =>
-            CopyPropsToOtherElevations(clear: clear, laneIndex: laneIndex);
+            CopyPropsToOtherElevationsMain(clear: clear, laneIndex: laneIndex);
 
         public static void CopyPropsToOtherElevations(NetLaneProps.Prop prop) =>
-            CopyPropsToOtherElevations(clear: false, prop: prop);
+            CopyPropsToOtherElevationsMain(clear: false, prop: prop);
 
-        public static void Displace(this NetLaneProps.Prop prop, int z) {
+        public static void Displace(this NetLaneProps.Prop prop, int x) {
             var pos = prop.m_position;
-            if (pos.z == 0)
+            if (pos.x == 0)
                 return;
-            else if (pos.z < 0)
-                pos.z -= z;
+            else if (pos.x < 0)
+                pos.x -= x;
             else
-                pos.z += z;
+                pos.x += x;
             prop.m_position = pos;
         }
 
@@ -134,7 +134,7 @@ namespace AdaptiveRoads.Util {
         /// <param name="laneIndex">copy only this lane index (-1 for all lanes)</param>
         /// <param name="clear">clears target lane[s] before copying</param>
         /// <param name="prop">copy only this props. set null to copy all props</param>
-        static void CopyPropsToOtherElevations(
+        static void CopyPropsToOtherElevationsMain(
         bool clear = true,
         int laneIndex = -1,
         NetLaneProps.Prop prop = null) {

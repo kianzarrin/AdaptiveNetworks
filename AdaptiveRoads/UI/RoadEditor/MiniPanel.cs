@@ -104,11 +104,15 @@ namespace AdaptiveRoads.UI.RoadEditor {
             }
 
             protected override void OnClick(UIMouseEventParameter p) {
-                base.OnClick(p);
-                Assertion.AssertNotNull(Action);
-                Log.Info($"`{text}` clicked. Invoking {Action} ...", true);
-                Action();
-                GetComponentInParent<MiniPanel>().Close();
+                try {
+                    base.OnClick(p);
+                    Assertion.AssertNotNull(Action);
+                    Log.Info($"`{text}` clicked. Invoking {Action} ...", true);
+                    Action();
+                    GetComponentInParent<MiniPanel>().Close();
+                }catch(Exception ex) {
+                    Log.Exception(ex);
+                }
             }
         }
 

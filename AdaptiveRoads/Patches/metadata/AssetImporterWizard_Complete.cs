@@ -1,6 +1,5 @@
 namespace AdaptiveRoads.Patches.metadata {
     using HarmonyLib;
-    using AdaptiveRoads.Manager;
 
     [HarmonyPatch(typeof(AssetImporterWizard), nameof(AssetImporterWizard.Complete))]
     [HarmonyPriority(100)]

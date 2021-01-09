@@ -67,10 +67,10 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 if (target is NetLaneProps.Prop prop) {
                     Log.Debug($"{__instance.name}.CreateGenericField.Postfix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
 
-                    ReplaceLabel(__instance, "Start Flags Required", "Tail Flags Required");
-                    ReplaceLabel(__instance, "Start Flags Forbidden", "Tail Flags Forbidden");
-                    ReplaceLabel(__instance, "End Flags Required", "Head Flags Required");
-                    ReplaceLabel(__instance, "End Flags Forbidden", "Head Flags Forbidden");
+                    ReplaceLabel(__instance, "Start Flags Required:", "Tail Flags Required:");
+                    ReplaceLabel(__instance, "Start Flags Forbidden:", "Tail Flags Forbidden:");
+                    ReplaceLabel(__instance, "End Flags Required:", "Head Flags Required:");
+                    ReplaceLabel(__instance, "End Flags Forbidden:", "Head Flags Forbidden:");
 
                     if (field.Name == nameof(NetLaneProps.Prop.m_endFlagsForbidden)) {
                         var metadata = prop.GetOrCreateMetaData();

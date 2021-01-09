@@ -14,7 +14,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using AdaptiveRoads.UI.RoadEditor.Templates;
 
     /// <summary>
-    /// do no toggle if control is pressed.
+    /// if control is pressed, show more options instead of toggling the side panel.
     /// </summary>
     [HarmonyPatch]
     public static class RoadEditorDynamicPropertyToggle_OnSelectButtonClick {

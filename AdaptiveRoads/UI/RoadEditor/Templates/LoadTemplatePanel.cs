@@ -73,7 +73,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
                     lbl.text = "Displacement:";
                     Displacement = panel2.AddUIComponent<TextFieldInt>();
                     Displacement.width = panel.width - Displacement.relativePosition.x;
-                    Displacement.tooltip = "put a posetive number to move props away from the junction.";
+                    Displacement.tooltip = "put a posetive number to move props sideways.";
                     lbl.height = Displacement.height;
                     lbl.verticalAlignment = UIVerticalAlignment.Middle;
                     panel2.FitChildren();
