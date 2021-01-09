@@ -1,6 +1,7 @@
 namespace AdaptiveRoads.Patches.metadata {
     using HarmonyLib;
     using UnityEngine;
+    using System;
 
     /// <summary>
     /// changeing types confuses AddCustomFields.
