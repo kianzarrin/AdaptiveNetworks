@@ -20,11 +20,11 @@ namespace AdaptiveRoads.Patches.Lane {
             nameof(NetLane.RenderInstance));
         public static MethodBase TargetMethod() => Target;
 
-        public static IEnumerable<CodeInstruction> Transpiler(ILGenerator il, IEnumerable<CodeInstruction> instructions) {
+        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
-                CheckPropFlagsCommons.PatchCheckFlags(codes, Target); 
-
+                CheckPropFlagsCommons.PatchCheckFlags(codes, Target);
+                RenderOverlayHoveredProp.Patch(codes, Target);
                 Log.Info(logPrefix_ + "successfully patched NetLane.RenderInstance");
                 return codes;
             }

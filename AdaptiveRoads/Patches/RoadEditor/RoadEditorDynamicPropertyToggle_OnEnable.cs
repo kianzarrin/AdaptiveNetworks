@@ -7,6 +7,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using static AdaptiveRoads.Util.RoadEditorUtils;
     using static KianCommons.ReflectionHelpers;
     using static Util.DPTHelpers;
+    using static AdaptiveRoads.UI.RoadEditor.Rendering;
 
     /// <summary>
     /// highlight lanes
@@ -16,9 +17,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     /// </summary>
     [HarmonyPatch]
     internal static class RoadEditorDynamicPropertyToggle_OnEnable {
-        internal static int LaneIndex, NodeIndex, SegmentIndex, PropIndex;
-        internal static NetInfo Info;
-
         static MethodBase TargetMethod() =>
             GetMethod(DPTType, "OnEnable");
 
@@ -48,7 +46,9 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             if (target is NetInfo netInfo && element is NetInfo.Lane laneInfo) {
                 LaneIndex = netInfo.m_lanes.IndexOf(laneInfo);
                 Info = netInfo;
-                SegmentIndex = NodeIndex = PropIndex = 0;
+                Prop = null;
+            }else if (element is NetLaneProps.Prop prop) {
+                Prop = prop;
             }
         }
 
@@ -60,9 +60,9 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 int laneIndex = netInfo.m_lanes.IndexOf(laneInfo);
                 if (LaneIndex == laneIndex)
                     LaneIndex = -1;
-                if (Info == netInfo)
-                    Info = null;
-
+            } else if (element is NetLaneProps.Prop prop) {
+                if(prop==Prop)
+                    Prop = null;
             }
         }
 
