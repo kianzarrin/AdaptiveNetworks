@@ -1,13 +1,15 @@
 namespace AdaptiveRoads.LifeCycle {
     using AdaptiveRoads.Manager;
     using AdaptiveRoads.Patches;
+    using AdaptiveRoads.UI.RoadEditor;
     using CitiesHarmony.API;
     using ICities;
     using KianCommons;
     using System;
     using System.Diagnostics;
+    using System.Xml.Serialization;
     using UnityEngine.SceneManagement;
-    using AdaptiveRoads.UI.RoadEditor;
+    using static KianCommons.XMLSerializerUtil;
 
     public static class LifeCycle {
         public static string HARMONY_ID = "CS.Kian.AdaptiveRoads";
@@ -22,24 +24,48 @@ namespace AdaptiveRoads.LifeCycle {
         const bool fastTestHarmony = false;
 
         public static void Enable() {
-            Log.Debug("Testing StackTrace:\n" + new StackTrace(true).ToString(), copyToGameLog: false);
-            KianCommons.UI.TextureUtil.EmbededResources = false;
-            HelpersExtensions.VERBOSE = false;
-            Loaded = false;
+            try {
+                Log.Debug("Testing StackTrace:\n" + new StackTrace(true).ToString(), copyToGameLog: false);
+                KianCommons.UI.TextureUtil.EmbededResources = false;
+                HelpersExtensions.VERBOSE = false;
+                Loaded = false;
 
-            HarmonyHelper.EnsureHarmonyInstalled();
-            //LoadingManager.instance.m_simulationDataReady += SimulationDataReady; // load/update data
-            LoadingManager.instance.m_levelPreLoaded += Preload;
-            if (LoadingManager.instance.m_loadingComplete)
-                HotReload();
+                HarmonyHelper.EnsureHarmonyInstalled();
+                //LoadingManager.instance.m_simulationDataReady += SimulationDataReady; // load/update data
+                LoadingManager.instance.m_levelPreLoaded += Preload;
+                if (LoadingManager.instance.m_loadingComplete)
+                    HotReload();
 
-            if (fastTestHarmony) {
-                HarmonyHelper.DoOnHarmonyReady(() => {
-                    HarmonyUtil.InstallHarmony(HARMONY_ID_MANUAL);
-                    HarmonyUtil.InstallHarmony(HARMONY_ID);
-                });
+                if (fastTestHarmony) {
+                    HarmonyHelper.DoOnHarmonyReady(() => {
+                        HarmonyUtil.InstallHarmony(HARMONY_ID_MANUAL);
+                        HarmonyUtil.InstallHarmony(HARMONY_ID);
+                    });
+                }
+
+                var foo = new subclass.Foo { x = 1, y = new[] { 1, 2, 3 } };
+                string data = Serialize(foo);
+                Log.Debug(data);
+                var foo2 = Deserialize<subclass.Foo2>(data);
+                Log.Debug("y1=" + foo2?.y?[0].ToSTR());
+            } catch (Exception ex) {
+                Log.Exception(ex);
             }
         }
+
+        public class subclass {
+            public class Foo {
+                public int x;
+                public int[] y;
+            }
+
+            [XmlRoot("Foo")]
+            public class Foo2 {
+                public int x;
+                public int[] y;
+            }
+        }
+
 
         public static void HotReload() {
             bHotReload = true;

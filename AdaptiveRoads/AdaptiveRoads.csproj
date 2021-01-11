@@ -104,6 +104,7 @@
     <Compile Include="KianCommons\KianCommons\Util\ReflectionHelpers.cs" />
     <Compile Include="KianCommons\KianCommons\Util\SerializationUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Util\StringExtensions.cs" />
+    <Compile Include="KianCommons\KianCommons\Util\XMLUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CitiesHarmony.API" Version="1.0.5" />

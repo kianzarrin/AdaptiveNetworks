@@ -36,4 +36,13 @@ name binary:
         edited prefab:
             Road Name 6L_Data0
             Large Road Elevated0
-            
+
+
+- prop requirements:
+    - no short/far turns (vanilla)
+    - stop (vanilla)
+    - give way (UK/ITA)
+    - pedestrian crossing (ITA)
+    - no u-turn (UK/Elly)
+    - parking (UK)
+    - no parking (vanilla)

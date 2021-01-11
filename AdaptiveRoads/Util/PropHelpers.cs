@@ -221,6 +221,12 @@ namespace AdaptiveRoads.Util {
 
         public static string Summary(
             NetLaneProps.Prop prop,
+            NetInfoExtionsion.LaneProp propExt) {
+            return Summary(prop, propExt, prop.DisplayName());
+        }
+
+        public static string Summary(
+            NetLaneProps.Prop prop,
             NetInfoExtionsion.LaneProp propExt,
             string name) {
             string ret = name ?? "New prop";
