@@ -28,6 +28,7 @@ namespace AdaptiveRoads.Patches.Segment {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
                 CheckSegmentFlagsCommons.PatchCheckFlags(codes, original);
+                SegmentOverlay.Patch(codes, original);
                 Log.Info(logPrefix_ + "successfully patched NetSegment.RenderInstance");
                 return codes;
             }

@@ -13,7 +13,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     /// TODO multi-select
     /// </summary>
     [HarmonyPatch]
-    public static class RoadEditorDynamicPropertyToggle_OnSelectButtonClick {
+    public static class DPT_OnSelectButtonClick {
         static Type tRoadEditorDynamicPropertyToggle =
             Type.GetType("RoadEditorDynamicPropertyToggle, Assembly-CSharp", throwOnError: true);
 

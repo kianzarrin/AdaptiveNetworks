@@ -5,7 +5,7 @@ namespace AdaptiveRoads.Patches {
     [HarmonyPatch(typeof(RenderManager), "Managers_RenderOverlay")]
     public static class Managers_RenderOverlay {
         public static void Postfix(RenderManager.CameraInfo cameraInfo) =>
-            Rendering.RenderOverlay(cameraInfo);
+            Overlay.RenderOverlay(cameraInfo);
     }
 }
 

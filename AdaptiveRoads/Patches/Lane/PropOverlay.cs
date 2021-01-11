@@ -11,7 +11,7 @@ using UnityEngine;
 using AdaptiveRoads.UI.RoadEditor;
 
 namespace AdaptiveRoads.Patches.Lane {
-    public static class RenderOverlayHoveredProp {
+    public static class PropOverlay {
         static MethodInfo mPosition =
             typeof(Bezier3).GetMethod(nameof(Bezier3.Position), new[] { typeof(float) })??
             throw new Exception("mPosition is null");
@@ -61,15 +61,15 @@ namespace AdaptiveRoads.Patches.Lane {
             });
         }
 
-        static MethodInfo mOnAfterRenderInstance = GetMethod(typeof(RenderOverlayHoveredProp), nameof(OnAfterRenderInstance));
+        static MethodInfo mOnAfterRenderInstance = GetMethod(typeof(PropOverlay), nameof(OnAfterRenderInstance));
         public static void OnAfterRenderInstance(
             NetLaneProps.Prop prop,
             PropInfo propInfo,
             Vector3 pos,
             float angle,
             float scale) {
-            if (prop == Rendering.Prop) {
-                Rendering.PropRenderQueue.Enqueue(new Rendering.PropData {
+            if (prop == Overlay.Prop) {
+                Overlay.PropQueue.Enqueue(new Overlay.PropData {
                     Angle = angle,
                     Scale = scale,
                     Pos = pos,

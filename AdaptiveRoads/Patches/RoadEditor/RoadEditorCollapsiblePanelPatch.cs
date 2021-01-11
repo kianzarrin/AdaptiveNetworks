@@ -11,19 +11,20 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using static Util.DPTHelpers;
     using static AdaptiveRoads.Util.RoadEditorUtils;
 
-    [HarmonyPatch(typeof(RoadEditorCollapsiblePanel))]
-    [HarmonyPatch("OnButtonClick")]
-    internal static class RoadEditorCollapsiblePanel_OnButtonClick {
+    //[HarmonyPatch(typeof(RoadEditorCollapsiblePanel))]
+    //[HarmonyPatch("OnButtonClick")]
+    //internal static class RoadEditorCollapsiblePanel_OnButtonClick {
 
-        static bool Prefix(UIComponent component) =>
-            !HelpersExtensions.ControlIsPressed;
-    }
+    //    static bool Prefix(UIComponent component) =>
+    //        !HelpersExtensions.ControlIsPressed;
+    //}
 
     [HarmonyPatch(typeof(RoadEditorCollapsiblePanel))]
     [HarmonyPatch("OnEnable")]
-    internal static class RoadEditorCollapsiblePanel_OnEnablek {
+    internal static class RoadEditorCollapsiblePanel_OnEnable {
         static void Postfix(RoadEditorCollapsiblePanel __instance) {
-            var button = __instance.m_Button;
+            var button = __instance.LabelButton;
+            button.buttonsMask |= UIMouseButton.Right;
             button.eventMouseDown -= OnMouseDown;
             button.eventMouseDown += OnMouseDown;
         }
@@ -34,7 +35,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 var groupPanel = component.GetComponentInParent<RoadEditorCollapsiblePanel>();
                 OnShowOptions(groupPanel);
             }
-
         }
 
         static void OnShowOptions(RoadEditorCollapsiblePanel groupPanel) {

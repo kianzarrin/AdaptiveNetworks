@@ -7,7 +7,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using static AdaptiveRoads.Util.RoadEditorUtils;
     using static KianCommons.ReflectionHelpers;
     using static Util.DPTHelpers;
-    using static AdaptiveRoads.UI.RoadEditor.Rendering;
+    using AdaptiveRoads.UI.RoadEditor;
 
     /// <summary>
     /// highlight lanes
@@ -16,7 +16,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     /// TODO right-click to copy/duplicate/duplicate_invert
     /// </summary>
     [HarmonyPatch]
-    internal static class RoadEditorDynamicPropertyToggle_OnEnable {
+    internal static class DPT_OnEnable {
         static MethodBase TargetMethod() =>
             GetMethod(DPTType, "OnEnable");
 
@@ -44,11 +44,18 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             //    $" m_TargetObject(instance)={m_TargetObject(instance)}" +
             //    $" m_TargetElement(instance)={m_TargetElement(instance)}");
             if (target is NetInfo netInfo && element is NetInfo.Lane laneInfo) {
-                LaneIndex = netInfo.m_lanes.IndexOf(laneInfo);
-                Info = netInfo;
-                Prop = null;
-            }else if (element is NetLaneProps.Prop prop) {
-                Prop = prop;
+                Overlay.LaneIndex = netInfo.m_lanes.IndexOf(laneInfo);
+                Overlay.Info = netInfo;
+                Overlay.Prop = null;
+                Overlay.SegmentInfo = null;
+            } else if (element is NetLaneProps.Prop prop) {
+                Overlay.Prop = prop;
+                Overlay.LaneIndex = -1;
+                Overlay.SegmentInfo = null;
+            } else if(element is NetInfo.Segment segmentInfo) {
+                Overlay.SegmentInfo = segmentInfo;
+                Overlay.Prop = null;
+                Overlay.LaneIndex = -1;
             }
         }
 
@@ -58,11 +65,14 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             object element = GetDPTTargetElement(instance);
             if (target is NetInfo netInfo && element is NetInfo.Lane laneInfo) {
                 int laneIndex = netInfo.m_lanes.IndexOf(laneInfo);
-                if (LaneIndex == laneIndex)
-                    LaneIndex = -1;
+                if (Overlay.LaneIndex == laneIndex)
+                    Overlay.LaneIndex = -1;
             } else if (element is NetLaneProps.Prop prop) {
-                if(prop==Prop)
-                    Prop = null;
+                if(prop== Overlay.Prop)
+                    Overlay.Prop = null;
+            }else if (element is NetInfo.Segment segmentInfo) {
+                if (segmentInfo == Overlay.SegmentInfo)
+                    Overlay.SegmentInfo = null;
             }
         }
 
