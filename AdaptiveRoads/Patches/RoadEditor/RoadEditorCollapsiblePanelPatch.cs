@@ -13,18 +13,32 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
     [HarmonyPatch(typeof(RoadEditorCollapsiblePanel))]
     [HarmonyPatch("OnButtonClick")]
-    internal static class RoadEditorCollapsiblePanelPatch {
-        [HarmonyPrefix]
-        static bool OnButtonClickPrefix(UIComponent component) {
-            if (!HelpersExtensions.ControlIsPressed)
-                return true;
-            OnButtonControlClick(component);
-            return false;
+    internal static class RoadEditorCollapsiblePanel_OnButtonClick {
+
+        static bool Prefix(UIComponent component) =>
+            !HelpersExtensions.ControlIsPressed;
+    }
+
+    [HarmonyPatch(typeof(RoadEditorCollapsiblePanel))]
+    [HarmonyPatch("OnEnable")]
+    internal static class RoadEditorCollapsiblePanel_OnEnablek {
+        static void Postfix(RoadEditorCollapsiblePanel __instance) {
+            var button = __instance.m_Button;
+            button.eventMouseDown -= OnMouseDown;
+            button.eventMouseDown += OnMouseDown;
         }
 
-        static void OnButtonControlClick(UIComponent component) {
-            try {
+        static void OnMouseDown(UIComponent component, UIMouseEventParameter eventParam) {
+            bool right = eventParam.buttons == UIMouseButton.Right;
+            if (right) {
                 var groupPanel = component.GetComponentInParent<RoadEditorCollapsiblePanel>();
+                OnShowOptions(groupPanel);
+            }
+
+        }
+
+        static void OnShowOptions(RoadEditorCollapsiblePanel groupPanel) {
+            try {
                 Array array = groupPanel.GetArray();
                 var target = groupPanel.GetTarget();
                 if (groupPanel.GetArray() is NetLaneProps.Prop[] m_props) {
@@ -101,7 +115,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             NetLaneProps.Prop[] props = ClipBoard.GetDataArray() as NetLaneProps.Prop[];
             AddProps(groupPanel, props);
         }
-
     }
 }
 

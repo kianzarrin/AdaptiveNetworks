@@ -153,20 +153,20 @@ namespace AdaptiveRoads.UI.RoadEditor {
                         Hint1 = dataUI.GetHint();
                         break;
                     } else if (panel.containsMouse) {
-                        string h = "Click => toggle\n" +
-                            "Control + Click => multi-select\n"+
-                            "Left + Click => show more options";
+                        string h1 = "Click => toggle" +
+                            "\nRight-Click => show more options";
                         var groupPanel = panel.GetComponent<RoadEditorCollapsiblePanel>();
                         if (groupPanel && groupPanel.LabelButton.containsMouse) {
+                            string h2 = h1 + "\nControl + Click => multi-select";
                             var target = groupPanel.GetTarget();
                             string label = groupPanel.LabelButton.text;
                             if (label == "Props") {
-                                Hint2 = h;
+                                Hint2 = h2;
                             } else if (
                                 groupPanel.GetArray() is NetInfo.Lane[] m_lanes
                                 && m_lanes.Any(_lane => _lane.HasProps())
                                 && target == NetInfoExtionsion.EditedNetInfo) {
-                                Hint2 = h;
+                                Hint2 = h2;
                             }
                         }
                         UICustomControl toggle = panel.GetComponent(DPTType) as UICustomControl;
@@ -175,16 +175,16 @@ namespace AdaptiveRoads.UI.RoadEditor {
                             var target = GetDPTTargetObject(toggle);
                             if (element is NetLaneProps.Prop prop) {
                                 Hint1 = prop.Summary();
-                                Hint2 = h;
+                                Hint2 = h1;
                             } else if (element is NetInfo.Lane lane && lane.HasProps()
                                 && target == NetInfoExtionsion.EditedNetInfo) {
-                                Hint2 = h;
+                                Hint2 = h1;
                             }
                         }
                         var proprefset = panel.GetComponent<RERefSet>();
                         if(proprefset && proprefset.m_SelectButton.containsMouse) {
-                            Hint2 = "Click => display load prop panel\n" +
-                                "Alt + Click => fast type in prop/tree name";
+                            Hint2 = "Click => display load prop panel" +
+                                "\nAlt + Click => fast type in prop/tree name";
                         }
                     }
                 }

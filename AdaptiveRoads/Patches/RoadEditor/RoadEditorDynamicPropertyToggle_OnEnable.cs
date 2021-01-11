@@ -85,7 +85,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             }catch (Exception ex) {
                 Log.Exception(ex);
             }
-
         }
     }
 }
