@@ -12,10 +12,11 @@ using KianCommons.UI.Helpers;
 using AdaptiveRoads.Manager;
 
 namespace AdaptiveRoads.UI.RoadEditor.Templates {
-    public class TextField : UITextField {
+    public class MenuTextField : UITextField {
         public override void Awake() {
             base.Awake();
-            height = 29;
+            height = 35;
+            textScale = 1.3f;
             padding = new RectOffset(10, 10, 5, 2);
             horizontalAlignment = UIHorizontalAlignment.Left;
 

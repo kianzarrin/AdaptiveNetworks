@@ -12,7 +12,7 @@ using KianCommons.UI.Helpers;
 using AdaptiveRoads.Manager;
 
 namespace AdaptiveRoads.UI.RoadEditor.Templates {
-    public class Checkbox: UICheckBox {
+    public class MenuCheckbox: UICheckBox {
         public override void Awake() {
             base.Awake();
             name = nameof(UICheckBoxExt);

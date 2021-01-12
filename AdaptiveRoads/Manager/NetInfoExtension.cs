@@ -486,7 +486,7 @@ namespace AdaptiveRoads.Manager {
 
         public static void EnsureExtended(this NetInfo netInfo) {
             try {
-                Log.Debug($"EnsureExtended({netInfo}): called " + Environment.StackTrace);
+                Log.Debug($"EnsureExtended({netInfo}): called "/* + Environment.StackTrace*/);
                 for (int i = 0; i < netInfo.m_nodes.Length; ++i) {
                     if (!(netInfo.m_nodes[i] is IInfoExtended))
                         netInfo.m_nodes[i] = netInfo.m_nodes[i].Extend() as NetInfo.Node;

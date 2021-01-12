@@ -15,16 +15,14 @@ using System.IO;
 using System.Drawing.Imaging;
 
 namespace AdaptiveRoads.UI.RoadEditor.Templates {
-    public class PanelBase : UIPanel {
-        public const int WIDTH_LEFT = 425;
-        public const int WIDTH_RIGHT = 475;
+    public class MenuPanelBase : UIPanel {
         public const int PAD = 10;
+        public const int TITLE_HEIGHT = 46;
 
         public override void Awake() {
             base.Awake();
             atlas = TextureUtil.Ingame;
             backgroundSprite = "MenuPanel";
-            width = WIDTH_LEFT + WIDTH_RIGHT + PAD * 3;
             color = new Color32(49, 52, 58, 255);
         }
 
@@ -48,20 +46,6 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
             
             panel.autoLayoutPadding = new RectOffset(0, 0, 0, 5);
             panel.autoFitChildrenVertically = true;
-            return panel;
-        }
-
-        public UIPanel AddLeftPanel() {
-            var panel = AddSubPanel();
-            panel.relativePosition = new Vector2(PAD, 46);
-            panel.width = WIDTH_LEFT;
-            return panel;
-        }
-
-        public UIPanel AddRightPanel() {
-            var panel = AddSubPanel();
-            panel.relativePosition = new Vector2(WIDTH_LEFT + PAD * 2, 46);
-            panel.width = WIDTH_RIGHT;
             return panel;
         }
     }

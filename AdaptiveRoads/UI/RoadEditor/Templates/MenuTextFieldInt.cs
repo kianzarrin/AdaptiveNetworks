@@ -5,13 +5,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 namespace AdaptiveRoads.UI.RoadEditor.Templates {
-    public class TextFieldInt : TextField {
+    public class MenuTextFieldInt : MenuTextField {
         public override void Awake() {
             base.Awake();
             allowFloats = false;
             numericalOnly = true;
             allowNegative = true;
             text = "0";
+            height = 29;
+            textScale = 1;
         }
         public int Number {
             get {

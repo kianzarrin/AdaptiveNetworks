@@ -15,7 +15,7 @@ using System.IO;
 using System.Drawing.Imaging;
 
 namespace AdaptiveRoads.UI.RoadEditor.Templates {
-    public class SaveTemplatePanel : PanelBase {
+    public class SaveTemplatePanel : TemplatePanelBase {
         public UITextField NameField;
         public UITextField DescriptionField;
         public SummaryLabel SummaryBox;
@@ -45,7 +45,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
                         OnSelectedSaveChanged(val);
                 }
                 {
-                    NameField = panel.AddUIComponent<TextField>();
+                    NameField = panel.AddUIComponent<MenuTextField>();
                     NameField.text = "New Template";
                     NameField.width = panel.width;
                     NameField.eventTextChanged += (_, __) => OnNameChanged();
@@ -59,7 +59,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
                     SummaryBox.height = 400;
                 }
                 {
-                    DescriptionField = panel.AddUIComponent<TextField>();
+                    DescriptionField = panel.AddUIComponent<MenuTextField>();
                     DescriptionField.multiline = true;
                     DescriptionField.text = "Description";
                     DescriptionField.width = panel.width;
@@ -69,12 +69,12 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
 
             FitChildrenVertically(10);
             {
-                var cancel = AddUIComponent<Button>();
+                var cancel = AddUIComponent<MenuButton>();
                 cancel.text = "Cancel";
                 var pos = size - cancel.size - new Vector2(20, 10);
                 cancel.relativePosition = pos;
                 cancel.eventClick += (_, __) => Destroy(gameObject);
-                SaveButton = AddUIComponent<Button>();
+                SaveButton = AddUIComponent<MenuButton>();
                 SaveButton.text = "Save";
                 pos.x += -SaveButton.size.x - 20;
                 SaveButton.relativePosition = pos;

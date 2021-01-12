@@ -12,7 +12,7 @@ using KianCommons.UI.Helpers;
 using AdaptiveRoads.Manager;
 
 namespace AdaptiveRoads.UI.RoadEditor.Templates {
-    public class Button : UIButton {
+    public class MenuButton : UIButton {
         public override void Awake() {
             base.Awake();
             width = 153;

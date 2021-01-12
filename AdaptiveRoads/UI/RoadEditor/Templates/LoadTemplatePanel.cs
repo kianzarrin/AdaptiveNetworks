@@ -14,13 +14,13 @@ using AdaptiveRoads.Util;
 using System.IO;
 
 namespace AdaptiveRoads.UI.RoadEditor.Templates {
-    public class LoadTemplatePanel : PanelBase {
+    public class LoadTemplatePanel : TemplatePanelBase {
         public SummaryLabel SummaryBox;
         public SavesListBoxT SavesListBox;
         public UIButton LoadButton;
-        public Checkbox ToggleDir;
-        public Checkbox ToggleSide;
-        public TextFieldInt Displacement;
+        public MenuCheckbox ToggleDir;
+        public MenuCheckbox ToggleSide;
+        public MenuTextFieldInt Displacement;
 
         public delegate void OnPropsLoadedHandler(NetLaneProps.Prop[] props);
         public event OnPropsLoadedHandler OnPropsLoaded;
@@ -56,9 +56,9 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
                     SummaryBox.height = 400;
                 }
                 {
-                    ToggleDir = panel.AddUIComponent<Checkbox>();
+                    ToggleDir = panel.AddUIComponent<MenuCheckbox>();
                     ToggleDir.Label = "Toggle Forward/Backward";
-                    ToggleSide = panel.AddUIComponent<Checkbox>();
+                    ToggleSide = panel.AddUIComponent<MenuCheckbox>();
                     ToggleSide.Label = "Toggle RHT/LHT";
                 }
                 {
@@ -71,7 +71,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
                     panel2.autoLayoutPadding = new RectOffset(0, 5, 0, 0);
                     var lbl = panel2.AddUIComponent<UILabel>();
                     lbl.text = "Displacement:";
-                    Displacement = panel2.AddUIComponent<TextFieldInt>();
+                    Displacement = panel2.AddUIComponent<MenuTextFieldInt>();
                     Displacement.width = panel.width - Displacement.relativePosition.x;
                     Displacement.tooltip = "put a posetive number to move props sideways.";
                     lbl.height = Displacement.height;
@@ -83,12 +83,12 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
 
             FitChildrenVertically(10);
             {
-                var cancel = AddUIComponent<Button>();
+                var cancel = AddUIComponent<MenuButton>();
                 cancel.text = "Cancel";
                 var pos = size - cancel.size - new Vector2(20, 10);
                 cancel.relativePosition = pos;
                 cancel.eventClick += (_, __) => Destroy(gameObject);
-                LoadButton = AddUIComponent<Button>();
+                LoadButton = AddUIComponent<MenuButton>();
                 LoadButton.text = "Load";
                 pos.x += -LoadButton.size.x - 20;
                 LoadButton.relativePosition = pos;

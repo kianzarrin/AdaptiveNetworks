@@ -50,7 +50,6 @@
     <Compile Remove="DecompiledSources\NetNode.cs" />
     <Compile Remove="DecompiledSources\NetSegment.cs" />
     <Compile Remove="LifeCycle\SerializableDataExtension.cs" />
-    <Compile Remove="Patches\AssetPatches\GetUniqueNetInfoName.cs" />
     <Compile Remove="Patches\HarmonyExtension.cs" />
     <Compile Remove="Patches\Lane\CalculateLane.cs" />
     <Compile Remove="Patches\Lane\NetAI_UpdateLanes.cs" />

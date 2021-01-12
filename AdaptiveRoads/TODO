@@ -1,4 +1,7 @@
-- improved no binary
+- improve road naming:
+    - use strippabe prefix instead of postfix (done).
+    - do not rename ground road while saving (like pillars and other elevations) (done untested)
+    - conditionally rename ground/elevations/pillars before saving. (back-end: done. UI:)
 
 - load sub folders for segment/node model.
 

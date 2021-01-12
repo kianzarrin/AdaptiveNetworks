@@ -8,9 +8,6 @@ namespace AdaptiveRoads.LifeCycle {
     using System;
     using System.Diagnostics;
     using UnityEngine.SceneManagement;
-    using Newtonsoft.Json;
-    using UnityEngine;
-    using KianCommons.Serialization;
 
     public static class LifeCycle {
         public static string HARMONY_ID = "CS.Kian.AdaptiveRoads";
@@ -44,31 +41,10 @@ namespace AdaptiveRoads.LifeCycle {
                     });
                 }
 
-                var foo = new subclass.Foo { x = 1, y = new[] { 1, 2, 3 } ,v=new Vector3(1,2,3)};
-                string data = JsonConvert.SerializeObject(foo, JsonUtil.Settings);
-                Log.Debug(data);
-                var foo2 = JsonConvert.DeserializeObject<subclass.Foo2>(data, JsonUtil.Settings);
-                Log.Debug("v=" + foo2.v.ToSTR());
             } catch (Exception ex) {
                 Log.Exception(ex);
             }
         }
-
-        public class subclass {
-            public class Foo {
-                public int x;
-                public int[] y;
-                public Vector3 v;
-            }
-
-            //[XmlRoot("Foo")]
-            public class Foo2 {
-                public int x;
-                public Vector3 v;
-                public int[] y;
-            }
-        }
-
 
         public static void HotReload() {
             bHotReload = true;

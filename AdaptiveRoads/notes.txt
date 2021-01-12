@@ -36,7 +36,18 @@ name binary:
         edited prefab:
             Road Name 6L_Data0
             Large Road Elevated0
-
+    - conclusion:
+        - name prefixes are stripped 
+            when loading/saving
+            for pillars/elevations/ground    
+        - postfix is added to generate unique names
+            for ground/elevations (not pillars)
+            only when loading
+            my patch changes the postfix to strippable prefix.
+        - when saving:
+            elevations and pillars keep their names
+            ground will take the given asset name. TODO: change this
+            TODO: rename all ground/elevations/pillars before saving.
 
 - prop requirements:
     - no short/far turns (vanilla)
