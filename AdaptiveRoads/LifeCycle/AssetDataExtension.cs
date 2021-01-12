@@ -5,6 +5,7 @@ namespace AdaptiveRoads.LifeCycle {
     using System;
     using System.Collections.Generic;
     using static KianCommons.Assertion;
+    using KianCommons.Serialization;
 
     public class AssetDataExtension : AssetDataExtensionBase {
         public const string ID_NetInfo = "AdvancedRoadEditor_NetInfoExt";

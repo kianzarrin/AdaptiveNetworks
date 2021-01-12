@@ -2,6 +2,7 @@ using AdaptiveRoads.Util;
 using ColossalFramework.IO;
 using KianCommons;
 using KianCommons.Math;
+using KianCommons.Serialization;
 using PrefabMetadata.Helpers;
 using System;
 using System.Collections.Generic;

@@ -1,7 +1,8 @@
-- export/import road xml.
-
 - improved no binary
-    - can also deal with roads that are already on the WS
+
+- load sub folders for segment/node model.
+
+- export/import road xml.
 
 - templates:
     - create templates:

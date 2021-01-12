@@ -7,7 +7,7 @@
     <Product>AdaptiveRoads</Product>
     <Copyright>Copyright ©  2020</Copyright>
     <Deterministic>false</Deterministic>
-    <AssemblyVersion>1.5.2.*</AssemblyVersion>
+    <AssemblyVersion>1.6.1.*</AssemblyVersion>
     <FileAlignment>512</FileAlignment>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
@@ -83,6 +83,7 @@
     <Compile Include="KianCommons\KianCommons\Math\Vector3Serializable.cs" />
     <Compile Include="KianCommons\KianCommons\Patches\HarmonyUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Patches\TranspilerUtils.cs" />
+    <Compile Include="KianCommons\KianCommons\Serialization\JsonUtil.cs" />
     <Compile Include="KianCommons\KianCommons\UI\Helpers\UIAutoSizePanel.cs" />
     <Compile Include="KianCommons\KianCommons\UI\Helpers\UIButtonExt.cs" />
     <Compile Include="KianCommons\KianCommons\UI\Helpers\UICheckboxDropDownExt.cs" />
@@ -102,9 +103,9 @@
     <Compile Include="KianCommons\KianCommons\Util\NetUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Util\PluginUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Util\ReflectionHelpers.cs" />
-    <Compile Include="KianCommons\KianCommons\Util\SerializationUtil.cs" />
+    <Compile Include="KianCommons\KianCommons\Serialization\SerializationUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Util\StringExtensions.cs" />
-    <Compile Include="KianCommons\KianCommons\Util\XMLUtil.cs" />
+    <Compile Include="KianCommons\KianCommons\Serialization\XMLUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CitiesHarmony.API" Version="1.0.5" />
@@ -127,6 +128,10 @@
     <Reference Include="ICities">
       <HintPath>$(ManagedDLLPath)\ICities.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\libs\Newtonsoft.Json.dll</HintPath>
+      <Private>true</Private>
     </Reference>
     <Reference Include="TMPE.API">
       <HintPath>..\libs\TMPE.API.dll</HintPath>
@@ -151,16 +156,12 @@
       <HintPath>$(ManagedDLLPath)\UnityEngine.UI.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="System.Data.DataSetExtensions" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DecompiledSources\NetAI.cs" />
     <None Include="DecompiledSources\NetLane.cs" />
     <None Include="DecompiledSources\NetNode.cs" />
     <None Include="DecompiledSources\NetSegment.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="KianCommons\KianCommons\Serialization\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\prefab-metadata\Prefab Metadata.csproj" />
@@ -178,7 +179,7 @@
       <Now>$([System.DateTime]::Now.ToString("h:mmtt"))</Now>
     </PropertyGroup>
     <ItemGroup>
-      <AuxilaryFiles Include="$(TargetDir)PrefabMetaData*.dll;$(TargetDir)CitiesHarmony.API.dll" Exclude="$(TargetPath);$(TargetDir)*.pdb" />
+      <AuxilaryFiles Include="$(TargetDir)PrefabMetaData*.dll;$(TargetDir)CitiesHarmony.API.dll;$(TargetDir)Newtonsoft.Json.dll" Exclude="$(TargetPath);$(TargetDir)*.pdb" />
       <VersionNumber Include="@(Targets->'%(Version)')" />
     </ItemGroup>
     
