@@ -1,8 +1,9 @@
 using AdaptiveRoads.Util;
 using ColossalFramework.UI;
-using KianCommons.UI;
+using KianCommons;
 using ColossalFramework;
 using UnityEngine;
+
 
 namespace AdaptiveRoads.UI.RoadEditor.Templates {
     public class RenameRoadPanel : MenuPanelBase {
@@ -12,17 +13,37 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
             return ret;
         }
 
+        const float WIDTH = 350;
         public override void Awake() {
             base.Awake();
+            width = WIDTH + PAD*2;
 
             var panel = AddUIComponent<UIPanel>();
-            panel.autoFitChildrenHorizontally = true;
+            panel.width = WIDTH;
             panel.autoFitChildrenVertically = true;
             panel.autoLayout = true;
             panel.autoLayoutPadding = new RectOffset(0, 0, 0, 10);
             panel.autoLayoutDirection = LayoutDirection.Vertical;
 
+
             var name = panel.AddUIComponent<MenuTextField>();
+            name.width = WIDTH;
+
+            var summary = panel.AddUIComponent<SummaryLabel>();
+            summary.autoSize = true;
+            summary.wordWrap = false;
+            summary.minimumSize = Vector2.zero;
+            summary.maximumSize = new Vector2(1000,1000);
+
+            name.eventTextChanged += (_, __) => RefreshSummary();
+            RefreshSummary();
+            void RefreshSummary() {
+                if (name.text.IsNullOrWhiteSpace())
+                    summary.text = RoadUtils.GatherEditNames().JoinLines();
+                else
+                    summary.text = RoadUtils.RenameEditNet(name.text, true).JoinLines();
+            }
+
 
             var PanelBottom = panel.AddUIComponent<UIPanel>();
             {
@@ -36,22 +57,31 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
                 var apply = PanelBottom.AddUIComponent<MenuButton>();
                 apply.text = "Apply";
                 apply.eventClick += (_, __) => {
-                    RoadUtils.RenameEditNet(name.text);
+                    RoadUtils.RenameEditNet(name.text, false);
                     Destroy(this.gameObject);
                 };
-                name.eventTextChanged += (_, __) =>
+                void RefreshAppy() {
                     apply.isEnabled = !name.text.IsNullOrWhiteSpace();
-                apply.isEnabled = !name.text.IsNullOrWhiteSpace();
+                }
 
-                var cancel = PanelBottom.AddUIComponent<MenuButton>();
-                cancel.text = "Cencel";
-                cancel.eventClick += (_, __) => Destroy(this.gameObject);
+                name.eventTextChanged += (_, __) => RefreshAppy();
+                RefreshAppy();
+
+                var close = PanelBottom.AddUIComponent<MenuButton>();
+                close.text = "Close";
+                close.eventClick += (_, __) => Destroy(this.gameObject);
             }
 
             FitChildrenVertically(PAD);
-            FitChildrenHorizontally(PAD);
-            name.width = panel.width;
             AddDrag("Rename Road");
+
+            verticalSpacing = PAD;
+        }
+
+        protected override void OnVisibilityChanged() {
+            base.OnVisibilityChanged();
+            if (!isVisible)
+                Destroy(this.gameObject);
         }
     }
 }
