@@ -19,7 +19,7 @@ namespace AdaptiveRoads.Manager {
     /// <summary>
     /// Field visibility in asset is controlled by settings.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Class, AllowMultiple = true)]
     public class OptionalAttribute : Attribute {
         public string Option;
         public OptionalAttribute(string option) => Option = option;
@@ -163,6 +163,7 @@ namespace AdaptiveRoads.Manager {
         #region sub prefab extensions
 
         [Serializable]
+        [Optional(AR_META_DATA)]
         public class Net : ICloneable {
             [Obsolete("only useful for the purpose of shallow clone", error: true)]
             public Net() { }
@@ -203,6 +204,7 @@ namespace AdaptiveRoads.Manager {
         }
 
         [Serializable]
+        [Optional(AR_META_DATA)]
         public class Segment : ICloneable {
             object ICloneable.Clone() => Clone();
 
@@ -274,6 +276,7 @@ namespace AdaptiveRoads.Manager {
         }
 
         [Serializable]
+        [Optional(AR_META_DATA)]
         public class Node : ICloneable {
             public NodeInfoFlags NodeFlags;
 
@@ -302,6 +305,7 @@ namespace AdaptiveRoads.Manager {
         }
 
         [Serializable]
+        [Optional(AR_META_DATA)]
         public class LaneProp : ICloneable {
             [CustomizableProperty("Lane")]
             [Hint("lane extension flags")]

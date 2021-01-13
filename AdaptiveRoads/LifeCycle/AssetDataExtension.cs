@@ -6,6 +6,7 @@ namespace AdaptiveRoads.LifeCycle {
     using System.Collections.Generic;
     using static KianCommons.Assertion;
     using KianCommons.Serialization;
+    using AdaptiveRoads.UI;
 
     public class AssetDataExtension : AssetDataExtensionBase {
         public const string ID_NetInfo = "AdvancedRoadEditor_NetInfoExt";
@@ -21,6 +22,8 @@ namespace AdaptiveRoads.LifeCycle {
 
         public override void OnAssetLoaded(string name, object asset, Dictionary<string, byte[]> userData) {
             try {
+                if (HelpersExtensions.InAssetEditor && !ModSettings.ARMode)
+                    return;
                 Log.Debug($"AssetDataExtension.OnAssetLoaded({name}, {asset}, userData) called", false);
                 if (asset is NetInfo prefab) {
                     Log.Debug("AssetDataExtension.OnAssetLoaded():  prefab is " + prefab, false);
@@ -45,6 +48,11 @@ namespace AdaptiveRoads.LifeCycle {
         public override void OnAssetSaved(string name, object asset, out Dictionary<string, byte[]> userData) {
             Log.Info($"AssetDataExtension.OnAssetSaved({name}, {asset}, userData) called");
             userData = null;
+            if (!UI.ModSettings.ARMode) {
+                Log.Info("MetaData not saved vanilla mode is set in the settings");
+                return;
+            }
+
             if (asset is NetInfo prefab) {
                 Log.Info("AssetDataExtension.OnAssetSaved():  prefab is " + prefab);
                 var assetData = AssetData.Snapshot; //AssetData.CreateFromEditPrefab();
@@ -58,10 +66,9 @@ namespace AdaptiveRoads.LifeCycle {
 
         public static void BeforeSave() {
             try {
-                if (!roadEditor_) return;
+                if (!ModSettings.ARMode || !roadEditor_) return;
                 Log.Debug($"AssetDataExtension.BeforeSave(): reversing ...");
                 SimulationManager.instance.ForcedSimulationPaused = true;
-                AssetData.TakeSnapshot();
                 foreach (var info in NetInfoExtionsion.EditedNetInfos)
                     info.ApplyVanillaForbidden();
                 NetInfoExtionsion.UndoExtend_EditedNetInfos();
@@ -74,7 +81,7 @@ namespace AdaptiveRoads.LifeCycle {
 
         public static void AfterSave() {
             try {
-                if (!roadEditor_) return;
+                if (!ModSettings.ARMode || !roadEditor_) return;
                 Log.Debug($"SaveAssetPanel.SaveRoutine re extending ...");
                 foreach (var info in NetInfoExtionsion.EditedNetInfos) {
                     info.UndoVanillaForbidden();

@@ -73,9 +73,11 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     ReplaceLabel(__instance, "End Flags Forbidden:", "Head Flags Forbidden:");
 
                     if (field.Name == nameof(NetLaneProps.Prop.m_endFlagsForbidden)) {
-                        var metadata = prop.GetOrCreateMetaData();
-                        foreach (var field2 in metadata.GetFieldsWithAttribute<CustomizablePropertyAttribute>()) {
-                            CreateExtendedComponent(groupName, field2, metadata, __instance);
+                        if (ModSettings.ARMode) {
+                            var metadata = prop.GetOrCreateMetaData();
+                            foreach (var field2 in metadata.GetFieldsWithAttribute<CustomizablePropertyAttribute>()) {
+                                CreateExtendedComponent(groupName, field2, metadata, __instance);
+                            }
                         }
                         ButtonPanel.Add(
                             roadEditorPanel: __instance,
@@ -101,42 +103,49 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     }
                 } else if (target is NetInfo.Node node) {
                     Log.Debug($"{__instance.name}.CreateGenericField.Postfix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
-                    if (field.Name == nameof(NetInfo.Node.m_flagsForbidden)) {
-                        var fields = typeof(NetInfoExtionsion.Node).GetFields()
-                            .Where(_field => _field.HasAttribute<CustomizablePropertyAttribute>());
-                        var node2 = node.GetOrCreateMetaData();
-                        foreach (var field2 in fields) {
-                            CreateExtendedComponent(groupName, field2, node2, __instance);
+                    if (ModSettings.ARMode) {
+                        if (field.Name == nameof(NetInfo.Node.m_flagsForbidden)) {
+                            var fields = typeof(NetInfoExtionsion.Node).GetFields()
+                                .Where(_field => _field.HasAttribute<CustomizablePropertyAttribute>());
+                            var node2 = node.GetOrCreateMetaData();
+                            foreach (var field2 in fields) {
+                                CreateExtendedComponent(groupName, field2, node2, __instance);
+                            }
                         }
                     }
                 } else if (target is NetInfo.Segment segment) {
                     Log.Debug($"{__instance.name}.CreateGenericField.Postfix({groupName}, {field}, {target})\n"/* + Environment.StackTrace*/);
-                    var segment2 = segment.GetOrCreateMetaData();
+                    if (ModSettings.ARMode) {
+
+                        var segment2 = segment.GetOrCreateMetaData();
                     AssertNotNull(segment2, $"{segment}");
                     var fieldForward = typeof(NetInfoExtionsion.Segment).GetField(
                         nameof(NetInfoExtionsion.Segment.Forward));
-                    if (field.Name == nameof(NetInfo.Segment.m_forwardForbidden)) {
-                        CreateExtendedComponent(groupName, fieldForward, segment2, __instance);
-                    } else if (field.Name == nameof(NetInfo.Segment.m_backwardForbidden)) {
-                        var fields = segment2
-                            .GetFieldsWithAttribute<CustomizablePropertyAttribute>()
-                            .Where(_f => _f != fieldForward);
-                        int totalCount = typeof(NetInfoExtionsion.Segment)
-                            .GetFieldsWithAttribute<CustomizablePropertyAttribute>()
-                            .Count();
-                        foreach (var field2 in fields)
-                            CreateExtendedComponent(groupName, field2, segment2, __instance);
+                        if (field.Name == nameof(NetInfo.Segment.m_forwardForbidden)) {
+                            CreateExtendedComponent(groupName, fieldForward, segment2, __instance);
+                        } else if (field.Name == nameof(NetInfo.Segment.m_backwardForbidden)) {
+                            var fields = segment2
+                                .GetFieldsWithAttribute<CustomizablePropertyAttribute>()
+                                .Where(_f => _f != fieldForward);
+                            int totalCount = typeof(NetInfoExtionsion.Segment)
+                                .GetFieldsWithAttribute<CustomizablePropertyAttribute>()
+                                .Count();
+                            foreach (var field2 in fields)
+                                CreateExtendedComponent(groupName, field2, segment2, __instance);
+                        }
                     }
                 } else if (target is NetInfo netInfo) {
-                    // replace "Pavement Width" with Pavement Width Left
-                    ReplaceLabel(__instance, "Pavement Width", "Pavement Width Left");
-                    // inject our own field
-                    if (field.Name == nameof(NetInfo.m_pavementWidth)) {
-                        Log.Debug($"{__instance.name}.CreateGenericField.Postfix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
-                        var net = netInfo.GetOrCreateMetaData();
-                        AssertNotNull(net, $"{netInfo}");
-                        var f = net.GetType().GetField(nameof(net.PavementWidthRight));
-                        __instance.CreateGenericField(groupName, f, net);
+                    if (ModSettings.ARMode) {
+                        // replace "Pavement Width" with Pavement Width Left
+                        ReplaceLabel(__instance, "Pavement Width", "Pavement Width Left");
+                        // inject our own field
+                        if (field.Name == nameof(NetInfo.m_pavementWidth)) {
+                            Log.Debug($"{__instance.name}.CreateGenericField.Postfix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
+                            var net = netInfo.GetOrCreateMetaData();
+                            AssertNotNull(net, $"{netInfo}");
+                            var f = net.GetType().GetField(nameof(net.PavementWidthRight));
+                            __instance.CreateGenericField(groupName, f, net);
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -185,10 +194,13 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 false);
 
             var att = fieldInfo.GetAttribute<CustomizablePropertyAttribute>();
-            var optional = fieldInfo.GetAttribute<OptionalAttribute>();
-            if (optional != null && !ModSettings.GetOption(optional.Option)) {
-                Log.Debug($"Hiding {target.GetType().Name}::`{att.name}` because {optional.Option} is disabled");
-                return;
+            var optionals = fieldInfo.GetAttributes<OptionalAttribute>();
+            var optionals2 = target.GetType().GetAttributes<OptionalAttribute>();
+            foreach (var optional in optionals.Concat(optionals2)) {
+                if (optional != null && !ModSettings.GetOption(optional.Option)) {
+                    Log.Debug($"Hiding {target.GetType().Name}::`{att.name}` because {optional.Option} is disabled");
+                    return;
+                }
             }
 
             var hints = fieldInfo.GetHints();

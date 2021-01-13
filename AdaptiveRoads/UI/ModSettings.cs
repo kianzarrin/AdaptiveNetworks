@@ -1,6 +1,8 @@
+using AdaptiveRoads.Manager;
+using ColossalFramework;
 using ColossalFramework.UI;
 using ICities;
-using ColossalFramework;
+using KianCommons;
 
 namespace AdaptiveRoads.UI {
     public static class ModSettings {
@@ -9,10 +11,11 @@ namespace AdaptiveRoads.UI {
 
         public const string SEGMENT_VANILLA_NODE = "Segment.VanillaNode";
         public const string SEGMENT_SEGMENT_END = "Segment.SegmentEnd";
-        public const string NODE_SEGMENT= "Node.Segment";
-        public const string LANE_SEGMENT= "Lane.Segment";
+        public const string NODE_SEGMENT = "Node.Segment";
+        public const string LANE_SEGMENT = "Lane.Segment";
         public const string LANE_SEGMENT_END = "Lane.SegmentEnd";
         public const string LANE_NODE = "Lane.Node";
+        public const string AR_META_DATA = "ArMetaData";
 
         //public static readonly SavedBool InLineLaneInfo = SavedBool("InLineLaneInfo", true);
         //public static readonly SavedBool InLineLaneInfo = SavedBool("InLineLaneInfo", true);
@@ -27,8 +30,12 @@ namespace AdaptiveRoads.UI {
         public static readonly SavedBool Lane_SegmentEnd = SavedBool(LANE_SEGMENT_END, false);
         public static readonly SavedBool Lane_Node = SavedBool(LANE_NODE, false);
 
+        public static readonly SavedBool ARMode = SavedBool(AR_META_DATA, true);
+
+        public static UICheckBox VanillaModeToggle;
+
         public static SavedBool GetOption(string key) {
-            foreach(var field in typeof(ModSettings).GetFields()) {
+            foreach (var field in typeof(ModSettings).GetFields()) {
                 if (field.FieldType != typeof(SavedBool)) continue;
                 SavedBool ret = field.GetValue(null) as SavedBool;
                 if (ret.name == key)
@@ -39,12 +46,12 @@ namespace AdaptiveRoads.UI {
 
 
         public static UICheckBox AddSavedToggle(this UIHelperBase helper, string label, SavedBool savedBool) {
-            return helper.AddCheckbox(label, savedBool, delegate(bool value) {
+            return helper.AddCheckbox(label, savedBool, delegate (bool value) {
                 savedBool.value = value;
+                var mainPanel = UIView.GetAView().GetComponentInChildren<RoadEditorMainPanel>();
+                ReflectionHelpers.InvokeMethod(mainPanel, "Initialize");
             }) as UICheckBox;
         }
-
-
 
         static ModSettings() {
             // Creating setting file - from SamsamTS
@@ -55,6 +62,16 @@ namespace AdaptiveRoads.UI {
 
         public static void OnSettingsUI(UIHelperBase helper) {
             var general = helper.AddGroup("General");
+            VanillaModeToggle = general.AddCheckbox("Vanilla mode", !ARMode, delegate (bool vanillaMode) {
+                if (ARMode == !vanillaMode) // happens after rejecting confirmation message
+                    return; // no change is necessary
+                if (vanillaMode)
+                    OnConfimRemoveARdata(); // set to vanilla mode
+                else
+                    OnRefreshARMode(); // set to ARMode
+
+            }) as UICheckBox;
+
             general.AddSavedToggle("hide irrelevant flags", HideIrrelavant);
             general.AddSavedToggle("hide floating hint box", HideHints);
 
@@ -71,5 +88,40 @@ namespace AdaptiveRoads.UI {
             //laneProp.AddSavedToggle("Node flags", Lane_Node);
             laneProp.AddSavedToggle("Segment End flags", Lane_SegmentEnd);
         }
+
+        public static void OnConfimRemoveARdata() {
+            if (Helpers.InStartupMenu) {
+                OnRefreshARMode();
+                return;
+            }
+
+            string msg =
+                "this operation removes all AR metada. " +
+                "Are you sure you want to continue?";
+
+            UIView.library.ShowModal<ConfirmPanel>("ConfirmPanel", CallbackFunc)
+                .SetMessage("Remove AR Metadata?", msg);
+
+            void CallbackFunc(UIComponent comp, int accepted) {
+                if (accepted == 1) {
+                    OnRefreshARMode();
+                } else {
+                    VanillaModeToggle.isChecked = false;
+                }
+            }
+        }
+
+        public static void OnRefreshARMode() {
+            ARMode.value = !VanillaModeToggle.isChecked;
+            if (Helpers.InStartupMenu)
+                return;
+            if (!ARMode)
+                NetInfoExtionsion.UndoExtend_EditedNetInfos();
+            else
+                NetInfoExtionsion.EnsureExtended_EditedNetInfos();
+            var mainPanel = UIView.GetAView().GetComponentInChildren<RoadEditorMainPanel>();
+            ReflectionHelpers.InvokeMethod(mainPanel, "Initialize");
+        }
+
     }
 }
