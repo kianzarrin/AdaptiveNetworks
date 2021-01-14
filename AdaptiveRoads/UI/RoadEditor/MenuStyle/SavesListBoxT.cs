@@ -17,7 +17,7 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
         public List<T> Saves = new List<T>();
 
         public abstract string GetName(T item);
-        public abstract IEnumerable<T> GetItems();
+        public abstract IEnumerable<T> LoadItems();
 
         public override void Awake() {
             base.Awake();
@@ -25,7 +25,8 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
         }
 
         public void Populate() {
-            items = GetItems().Select(item => GetName(item)).ToArray();
+            Saves = LoadItems().ToList();
+            items = Saves.Select(item => GetName(item)).ToArray();
             selectedIndex = -1;
         }
 

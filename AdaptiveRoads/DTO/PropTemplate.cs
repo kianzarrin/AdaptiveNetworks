@@ -99,7 +99,7 @@ namespace AdaptiveRoads.DTO {
             NetLaneProps.Prop[] props,
             string description) {
             var ret = new PropTemplate {
-                Name = name.Remove(Path.GetInvalidFileNameChars()),
+                Name = name.RemoveChars(Path.GetInvalidFileNameChars()),
                 PropItems = props.Select(_prop => new PropTemplateItem(_prop)).ToArray(),
                 Description = description,
             };

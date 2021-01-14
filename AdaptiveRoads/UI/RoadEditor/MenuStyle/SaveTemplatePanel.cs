@@ -63,13 +63,14 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
 
             FitChildrenVertically(10);
             {
-                SaveButton = AddUIComponent<MenuButton>();
+                var BottomPanel = AddBottomPanel(this);
+                SaveButton = BottomPanel.AddUIComponent<MenuButton>();
                 SaveButton.text = "Save";
                 SaveButton.eventClick += (_, __) => OnSave();
                 //pos.x += -SaveButton.size.x - 20;
                 //SaveButton.relativePosition = pos;
 
-                var cancel = AddUIComponent<MenuButton>();
+                var cancel = BottomPanel.AddUIComponent<MenuButton>();
                 cancel.text = "Cancel";
                 cancel.eventClick += (_, __) => Destroy(gameObject);
                 //var pos = size - cancel.size - new Vector2(20, 10);
@@ -114,10 +115,10 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
         bool eventsOff_ = false;
         public void OnNameChanged() {
             try {
-                Log.Debug($"OnNameChanged called. " +
-                    $"eventsOff_={eventsOff_} " +
-                    $"NameField.text={NameField.text}\n"
-                    + Environment.StackTrace);
+                //Log.Debug($"OnNameChanged called. " +
+                //    $"eventsOff_={eventsOff_} " +
+                //    $"NameField.text={NameField.text}\n"
+                //    + Environment.StackTrace);
                 if (!eventsOff_ && started_) {
                     eventsOff_ = true;
                     NameField.text = RemoveInvalidChars(NameField.text);
@@ -139,7 +140,7 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
             }
         }
         public void OnSelectedSaveChanged(int newIndex) {
-            Log.Debug($"OnSelectedSaveChanged({newIndex})\n" + Environment.StackTrace);
+            //Log.Debug($"OnSelectedSaveChanged({newIndex})\n" + Environment.StackTrace);
             try {
                 if (!eventsOff_ && newIndex >= 0 && started_) {
                     DescriptionField.text = SavesListBox.SelectedTemplate.Description;

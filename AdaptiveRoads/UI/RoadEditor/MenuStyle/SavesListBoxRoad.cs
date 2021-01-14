@@ -15,7 +15,7 @@ using AdaptiveRoads.DTO;
 
 namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
     public class SavesListBoxRoad : SavesListBoxT<RoadAssetInfo> {
-        public override IEnumerable<RoadAssetInfo> GetItems() => RoadAssetInfo.LoadAllFiles();
+        public override IEnumerable<RoadAssetInfo> LoadItems() => RoadAssetInfo.LoadAllFiles();
         public override string GetName(RoadAssetInfo item) => item.Name;
     }
 }

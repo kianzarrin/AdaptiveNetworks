@@ -76,8 +76,8 @@ namespace AdaptiveRoads.UI {
             general.AddSavedToggle("hide floating hint box", HideHints);
 
             var export = helper.AddGroup("import/export:");
-            export.AddButton("export edited road", null);
-            export.AddButton("import to edited road", null);
+                //export.AddButton("export edited road", null);
+                //export.AddButton("import to edited road", null);
 
             var extensions = helper.AddGroup("UI components visible in asset editor:");
             var segment = extensions.AddGroup("Segment");

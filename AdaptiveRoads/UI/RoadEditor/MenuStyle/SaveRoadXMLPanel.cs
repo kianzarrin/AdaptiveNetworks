@@ -61,13 +61,14 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle.x {
 
             FitChildrenVertically(10);
             {
-                SaveButton = AddUIComponent<MenuButton>();
+                var BottomPanel = AddBottomPanel(this);
+                SaveButton = BottomPanel.AddUIComponent<MenuButton>();
                 SaveButton.text = "Save";
                 SaveButton.eventClick += (_, __) => OnSave();
                 //pos.x += -SaveButton.size.x - 20;
                 //SaveButton.relativePosition = pos;
 
-                var cancel = AddUIComponent<MenuButton>();
+                var cancel = BottomPanel.AddUIComponent<MenuButton>();
                 cancel.text = "Cancel";
                 cancel.eventClick += (_, __) => Destroy(gameObject);
                 //var pos = size - cancel.size - new Vector2(20, 10);

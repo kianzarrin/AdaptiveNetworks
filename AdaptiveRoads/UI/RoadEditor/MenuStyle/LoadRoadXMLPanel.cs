@@ -48,13 +48,14 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
 
             FitChildrenVertically(10);
             {
-                LoadButton = AddUIComponent<MenuButton>();
+                var BottomPanel = AddBottomPanel(this);
+                LoadButton = BottomPanel.AddUIComponent<MenuButton>();
                 LoadButton.text = "Load";
                 LoadButton.eventClick += (_, __) => OnLoad();
                 //pos.x += -LoadButton.size.x - 20;
                 //LoadButton.relativePosition = pos;
 
-                var cancel = AddUIComponent<MenuButton>();
+                var cancel = BottomPanel.AddUIComponent<MenuButton>();
                 cancel.text = "Cancel";
                 cancel.eventClick += (_, __) => Destroy(gameObject);
                 //var pos = size - cancel.size - new Vector2(20, 10);

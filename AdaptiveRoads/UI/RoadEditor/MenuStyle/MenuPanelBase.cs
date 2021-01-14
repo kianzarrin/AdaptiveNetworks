@@ -51,21 +51,24 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
         }
 
         public static UIPanel AddBottomPanel(UIPanel container) {
-            var ret = container.AddUIComponent<UIPanel>();
-            ret.autoFitChildrenHorizontally = true;
-            ret.autoFitChildrenVertically = true;
-            ret.autoLayout = true;
-            ret.autoLayoutPadding = new RectOffset(0, PAD, 0, 0);
-            ret.autoLayoutDirection = LayoutDirection.Horizontal;
+            var panel = container.AddUIComponent<UIPanel>();
+            panel.autoFitChildrenHorizontally = true;
+            panel.autoFitChildrenVertically = true;
+            panel.autoLayout = true;
+            panel.autoLayoutPadding = new RectOffset(0, PAD, 0, 0);
+            panel.autoLayoutDirection = LayoutDirection.Horizontal;
 
-            //if (!container.autoLayout)
+            if (!container.autoLayout)
             {
-                ret.pivot = UIPivotPoint.BottomRight;
-                ret.anchor = UIAnchorStyle.Bottom | UIAnchorStyle.Right;
+                void FixPos() => panel.relativePosition =
+                    container.size - panel.size - new Vector2(PAD,PAD);
+                container.eventSizeChanged += (_, __) => FixPos();
+                panel.eventSizeChanged += (_, __) => FixPos();
+                FixPos();
+                
             }
 
-            return ret;
-
+            return panel;
         }
     }
 }

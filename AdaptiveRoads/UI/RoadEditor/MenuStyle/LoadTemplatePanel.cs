@@ -1,17 +1,9 @@
+using AdaptiveRoads.Util;
 using ColossalFramework.UI;
 using KianCommons;
 using KianCommons.UI;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using AdaptiveRoads.Patches.RoadEditor;
-using System.Reflection;
-using HarmonyLib;
-using KianCommons.UI.Helpers;
-using AdaptiveRoads.Manager;
-using AdaptiveRoads.Util;
-using System.IO;
 
 namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
     public class LoadTemplatePanel : PersitancyPanelBase {
@@ -83,8 +75,8 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
 
             FitChildrenVertically(10);
 
-            var BottomPanel = AddBottomPanel(this);
             {
+                var BottomPanel = AddBottomPanel(this);
                 LoadButton = BottomPanel.AddUIComponent<MenuButton>();
                 LoadButton.text = "Load";
                 LoadButton.eventClick += (_, __) => OnLoad();
@@ -115,7 +107,7 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
         public void OnLoad() {
             var template = SavesListBox.SelectedTemplate;
             var props = template.GetProps();
-            foreach(var prop in props) {
+            foreach (var prop in props) {
                 if (ToggleDir.isChecked)
                     prop.ToggleForwardBackward();
                 if (ToggleSide.isChecked)
@@ -135,7 +127,7 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
                     LoadButton.isEnabled = newIndex >= 0;
                     SummaryBox.text = SavesListBox.SelectedTemplate?.Summary ?? "";
                 }
-            }catch(Exception ex) {
+            } catch (Exception ex) {
                 Log.Exception(ex, $"newIndex={newIndex} " +
                     $"SelectedIndex={SavesListBox.selectedIndex} " +
                     $"SelectedTemplate={SavesListBox.SelectedTemplate.ToSTR()} " +
