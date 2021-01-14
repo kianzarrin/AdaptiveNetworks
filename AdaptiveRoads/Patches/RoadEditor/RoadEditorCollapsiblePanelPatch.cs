@@ -1,7 +1,7 @@
 namespace AdaptiveRoads.Patches.RoadEditor {
     using AdaptiveRoads.Manager;
     using AdaptiveRoads.UI.RoadEditor;
-    using AdaptiveRoads.UI.RoadEditor.Templates;
+    using AdaptiveRoads.UI.RoadEditor.MenuStyle;
     using AdaptiveRoads.Util;
     using ColossalFramework.UI;
     using HarmonyLib;

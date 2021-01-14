@@ -507,7 +507,7 @@ namespace AdaptiveRoads.Manager {
                             props[i] = props[i].Extend() as NetLaneProps.Prop;
                     }
                 }
-                netInfo.GetOrCreateMetaData();
+                Net.EnsureBuffer();
 
                 Log.Debug($"EnsureExtended({netInfo}): successful");
             } catch (Exception e) {

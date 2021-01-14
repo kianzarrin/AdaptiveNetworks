@@ -13,10 +13,10 @@ using AdaptiveRoads.Manager;
 using AdaptiveRoads.Util;
 using System.IO;
 
-namespace AdaptiveRoads.UI.RoadEditor.Templates {
-    public class LoadTemplatePanel : TemplatePanelBase {
+namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
+    public class LoadTemplatePanel : PersitancyPanelBase {
         public SummaryLabel SummaryBox;
-        public SavesListBoxT SavesListBox;
+        public SavesListBoxProp SavesListBox;
         public UIButton LoadButton;
         public MenuCheckbox ToggleDir;
         public MenuCheckbox ToggleSide;
@@ -38,7 +38,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
             {
                 UIPanel panel = AddLeftPanel();
                 {
-                    SavesListBox = panel.AddUIComponent<SavesListBoxT>();
+                    SavesListBox = panel.AddUIComponent<SavesListBoxProp>();
                     SavesListBox.width = panel.width;
                     SavesListBox.height = 628;
                     SavesListBox.AddScrollBar();
@@ -82,17 +82,20 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
             }
 
             FitChildrenVertically(10);
+
+            var BottomPanel = AddBottomPanel(this);
             {
-                var cancel = AddUIComponent<MenuButton>();
-                cancel.text = "Cancel";
-                var pos = size - cancel.size - new Vector2(20, 10);
-                cancel.relativePosition = pos;
-                cancel.eventClick += (_, __) => Destroy(gameObject);
-                LoadButton = AddUIComponent<MenuButton>();
+                LoadButton = BottomPanel.AddUIComponent<MenuButton>();
                 LoadButton.text = "Load";
-                pos.x += -LoadButton.size.x - 20;
-                LoadButton.relativePosition = pos;
                 LoadButton.eventClick += (_, __) => OnLoad();
+                //pos.x += -LoadButton.size.x - 20;
+                //LoadButton.relativePosition = pos;
+
+                var cancel = BottomPanel.AddUIComponent<MenuButton>();
+                cancel.text = "Cancel";
+                cancel.eventClick += (_, __) => Destroy(gameObject);
+                //var pos = size - cancel.size - new Vector2(20, 10);
+                //cancel.relativePosition = pos;
             }
         }
 

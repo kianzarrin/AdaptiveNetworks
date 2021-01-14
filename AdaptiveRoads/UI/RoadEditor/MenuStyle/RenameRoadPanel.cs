@@ -5,7 +5,7 @@ using ColossalFramework;
 using UnityEngine;
 
 
-namespace AdaptiveRoads.UI.RoadEditor.Templates {
+namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
     public class RenameRoadPanel : MenuPanelBase {
         public static RenameRoadPanel Display(SaveAssetPanel panel) {
             var ret = panel.component.AddUIComponent<RenameRoadPanel>();
@@ -18,12 +18,8 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
             base.Awake();
             width = WIDTH + PAD*2;
 
-            var panel = AddUIComponent<UIPanel>();
+            var panel = AddSubPanel();
             panel.width = WIDTH;
-            panel.autoFitChildrenVertically = true;
-            panel.autoLayout = true;
-            panel.autoLayoutPadding = new RectOffset(0, 0, 0, 10);
-            panel.autoLayoutDirection = LayoutDirection.Vertical;
 
 
             var name = panel.AddUIComponent<MenuTextField>();
@@ -45,15 +41,9 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
             }
 
 
-            var PanelBottom = panel.AddUIComponent<UIPanel>();
-            {
-                PanelBottom.autoFitChildrenHorizontally = true;
-                PanelBottom.autoFitChildrenVertically = true;
-                PanelBottom.autoLayout = true;
-                PanelBottom.autoLayoutPadding = new RectOffset(0, 10, 0, 0);
-                PanelBottom.autoLayoutDirection = LayoutDirection.Horizontal;
-                panel.relativePosition = new Vector2(PAD, TITLE_HEIGHT);
 
+            var PanelBottom = AddBottomPanel(panel);
+            {
                 var apply = PanelBottom.AddUIComponent<MenuButton>();
                 apply.text = "Apply";
                 apply.eventClick += (_, __) => {

@@ -1,25 +1,19 @@
+using AdaptiveRoads.DTO;
+using AdaptiveRoads.Util;
 using ColossalFramework.UI;
 using KianCommons;
 using KianCommons.UI;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
-using AdaptiveRoads.Patches.RoadEditor;
-using System.Reflection;
-using HarmonyLib;
-using KianCommons.UI.Helpers;
-using AdaptiveRoads.Manager;
-using AdaptiveRoads.Util;
 using System.IO;
-using System.Drawing.Imaging;
+using System.Linq;
 
-namespace AdaptiveRoads.UI.RoadEditor.Templates {
-    public class SaveTemplatePanel : TemplatePanelBase {
+namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
+    public class SaveTemplatePanel : PersitancyPanelBase {
         public UITextField NameField;
         public UITextField DescriptionField;
         public SummaryLabel SummaryBox;
-        public SavesListBoxT SavesListBox;
+        public SavesListBoxProp SavesListBox;
         public UIButton SaveButton;
 
         public List<NetLaneProps.Prop> Props;
@@ -37,7 +31,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
             {
                 UIPanel panel = AddLeftPanel();
                 {
-                    SavesListBox = panel.AddUIComponent<SavesListBoxT>();
+                    SavesListBox = panel.AddUIComponent<SavesListBoxProp>();
                     SavesListBox.width = panel.width;
                     SavesListBox.height = 628;
                     SavesListBox.AddScrollBar();
@@ -69,16 +63,17 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
 
             FitChildrenVertically(10);
             {
-                var cancel = AddUIComponent<MenuButton>();
-                cancel.text = "Cancel";
-                var pos = size - cancel.size - new Vector2(20, 10);
-                cancel.relativePosition = pos;
-                cancel.eventClick += (_, __) => Destroy(gameObject);
                 SaveButton = AddUIComponent<MenuButton>();
                 SaveButton.text = "Save";
-                pos.x += -SaveButton.size.x - 20;
-                SaveButton.relativePosition = pos;
                 SaveButton.eventClick += (_, __) => OnSave();
+                //pos.x += -SaveButton.size.x - 20;
+                //SaveButton.relativePosition = pos;
+
+                var cancel = AddUIComponent<MenuButton>();
+                cancel.text = "Cancel";
+                cancel.eventClick += (_, __) => Destroy(gameObject);
+                //var pos = size - cancel.size - new Vector2(20, 10);
+                //cancel.relativePosition = pos;
             }
         }
 
@@ -124,21 +119,21 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
                     $"NameField.text={NameField.text}\n"
                     + Environment.StackTrace);
                 if (!eventsOff_ && started_) {
-                eventsOff_ = true;
-                NameField.text = RemoveInvalidChars(NameField.text);
-                SaveButton.isEnabled = !string.IsNullOrEmpty(NameField.text);
+                    eventsOff_ = true;
+                    NameField.text = RemoveInvalidChars(NameField.text);
+                    SaveButton.isEnabled = !string.IsNullOrEmpty(NameField.text);
 
-                SavesListBox.Select(NameField.text);
-                if (SavesListBox.selectedIndex < 0) {
-                    SummaryBox.text = Props.Summary();
-                    SaveButton.text = "Save";
-                } else {
-                    SummaryBox.text = SavesListBox.SelectedTemplate.Summary;
-                    SaveButton.text = "Overwrite";
+                    SavesListBox.Select(NameField.text);
+                    if (SavesListBox.selectedIndex < 0) {
+                        SummaryBox.text = Props.Summary();
+                        SaveButton.text = "Save";
+                    } else {
+                        SummaryBox.text = SavesListBox.SelectedTemplate.Summary;
+                        SaveButton.text = "Overwrite";
+                    }
+                    eventsOff_ = false;
+                    Invalidate();
                 }
-                eventsOff_ = false;
-                Invalidate();
-            }
             } catch (Exception ex) {
                 Log.Exception(ex);
             }
@@ -151,7 +146,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
                     NameField.text = SavesListBox.SelectedTemplate.Name;
                     Invalidate();
                 }
-            }catch(Exception ex) {
+            } catch (Exception ex) {
                 Log.Exception(ex, $"newIndex={newIndex} " +
                     $"SelectedIndex={SavesListBox.selectedIndex} " +
                     $"SelectedTemplate={SavesListBox.SelectedTemplate.ToSTR()} " +

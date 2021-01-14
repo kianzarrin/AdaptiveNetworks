@@ -8,7 +8,7 @@ using AdaptiveRoads.Manager;
 using TrafficManager.API.Traffic;
 using System;
 
-namespace AdaptiveRoads.UI.RoadEditor.Templates {
+namespace AdaptiveRoads.UI.RoadEditor {
     public class AddTemplatebutton : EditorButon {
         public override void Awake() {
             base.Awake();

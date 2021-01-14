@@ -1,5 +1,5 @@
 using AdaptiveRoads.Util;
-using ColossalFramework.IO;
+using AdaptiveRoads.Manager;
 using KianCommons;
 using KianCommons.Math;
 using KianCommons.Serialization;
@@ -11,7 +11,7 @@ using System.Linq;
 using System.Xml.Serialization;
 
 
-namespace AdaptiveRoads.Manager {
+namespace AdaptiveRoads.DTO {
     public class PropSerializable {
         public NetLane.Flags m_flagsRequired;
         public int m_probability;
@@ -44,7 +44,7 @@ namespace AdaptiveRoads.Manager {
         }
     }
 
-    public class PropTemplateItem {
+    public class PropTemplateItem  {
         [XmlIgnore] public NetLaneProps.Prop PropMain;
         public PropSerializable Prop;
         public NetInfoExtionsion.LaneProp ARMetaData;
@@ -70,7 +70,7 @@ namespace AdaptiveRoads.Manager {
         }
     }
 
-    public class PropTemplate {
+    public class PropTemplate : ISerialziableDTO {
         public PropTemplateItem[] PropItems { get; private set; }
         public string Name { get; private set; }
         public string Description;
@@ -94,10 +94,6 @@ namespace AdaptiveRoads.Manager {
                 item.LoadProp();
         }
 
-        public static string Dir => Path.Combine(DataLocation.localApplicationData, "ARTemplates");
-        public const string FILE_EXT = ".xml";
-        public static string FilePath(string name) => Path.Combine(Dir, name + FILE_EXT);
-
         public static PropTemplate Create(
             string name,
             NetLaneProps.Prop[] props,
@@ -111,45 +107,11 @@ namespace AdaptiveRoads.Manager {
             return ret;
         }
 
-        public PropTemplate() { } 
+        // public PropTemplate() { }
 
-        public void Save() {
-            if (Name.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
-                throw new Exception($"Name:{Name} contains invalid characters");
-            EnsureDir();
-            string path = FilePath(Name);
-            string data = XMLSerializerUtil.Serialize(this);
-            XMLSerializerUtil.WriteToFileWrapper(path, data);
-        }
-
-        public static PropTemplate Load(string name) {
-            if (name.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
-                throw new ArgumentException($"name:{name} contains invalid characters");
-            return Load(FilePath(name));
-
-        }
-        public static PropTemplate LoadFile(string path) {
-            EnsureDir();
-            string data = XMLSerializerUtil.ReadFromFileWrapper(path, out Version version);
-            var ret = XMLSerializerUtil.Deserialize<PropTemplate>(data);
-            ret?.LoadAllProps();
-            return ret;
-        }
-
-        public static IEnumerable<PropTemplate> LoadAllFiles() {
-            EnsureDir();
-            var dir = new DirectoryInfo(Dir);
-            var files = dir.GetFiles("*" + FILE_EXT);
-            foreach (var file in files) {
-                var ret = LoadFile(file.FullName);
-                if (ret != null)
-                    yield return ret;
-            }
-        }
-
-        public static void EnsureDir() {
-            if (!Directory.Exists(Dir))
-                Directory.CreateDirectory(Dir);
-        }
+        private static MultiSerializer<PropTemplate> Serializer = new MultiSerializer<PropTemplate>("ARTemplates");
+        public void Save() => Serializer.Save(Name, this);
+        public void OnLoaded() => LoadAllProps();
+        public static IEnumerable<PropTemplate> LoadAllFiles() => Serializer.LoadAllFiles();
     }
 }

@@ -12,9 +12,12 @@ using KianCommons.UI.Helpers;
 using AdaptiveRoads.Manager;
 using AdaptiveRoads.Util;
 
-namespace AdaptiveRoads.UI.RoadEditor.Templates {
-    public class SavesListBoxT : ListBox {
-        public List<PropTemplate> Saves = new List<PropTemplate>();
+namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
+    public abstract class SavesListBoxT<T> : ListBox where T : class {
+        public List<T> Saves = new List<T>();
+
+        public abstract string GetName(T item);
+        public abstract IEnumerable<T> GetItems();
 
         public override void Awake() {
             base.Awake();
@@ -22,8 +25,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
         }
 
         public void Populate() {
-            Saves = PropTemplate.LoadAllFiles().ToList();
-            items = Saves.Select(item => item.Name).ToArray();
+            items = GetItems().Select(item => GetName(item)).ToArray();
             selectedIndex = -1;
         }
 
@@ -32,12 +34,12 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
             base.OnDestroy();
         }
 
-        public PropTemplate SelectedTemplate =>
+        public T SelectedTemplate =>
             selectedIndex >= 0 ? Saves[selectedIndex] : null;
 
         public int IndexOf(string name) {
             for (int i = 0; i < Saves.Count; ++i) {
-                if (Saves[i].Name == name)
+                if (GetName(Saves[i]) == name)
                     return i;
             }
             return -1;

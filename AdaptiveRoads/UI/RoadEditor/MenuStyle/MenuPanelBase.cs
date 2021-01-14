@@ -14,7 +14,7 @@ using AdaptiveRoads.Util;
 using System.IO;
 using System.Drawing.Imaging;
 
-namespace AdaptiveRoads.UI.RoadEditor.Templates {
+namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
     public class MenuPanelBase : UIPanel {
         public const int PAD = 10;
         public const int TITLE_HEIGHT = 46;
@@ -43,10 +43,29 @@ namespace AdaptiveRoads.UI.RoadEditor.Templates {
             UIPanel panel = AddUIComponent<UIPanel>();
             panel.autoLayout = true;
             panel.autoLayoutDirection = LayoutDirection.Vertical;
-            
-            panel.autoLayoutPadding = new RectOffset(0, 0, 0, 5);
             panel.autoFitChildrenVertically = true;
+
+            panel.autoLayoutPadding = new RectOffset(0, 0, 0, PAD);
+            panel.relativePosition = new Vector2(PAD, TITLE_HEIGHT);
             return panel;
+        }
+
+        public static UIPanel AddBottomPanel(UIPanel container) {
+            var ret = container.AddUIComponent<UIPanel>();
+            ret.autoFitChildrenHorizontally = true;
+            ret.autoFitChildrenVertically = true;
+            ret.autoLayout = true;
+            ret.autoLayoutPadding = new RectOffset(0, PAD, 0, 0);
+            ret.autoLayoutDirection = LayoutDirection.Horizontal;
+
+            //if (!container.autoLayout)
+            {
+                ret.pivot = UIPivotPoint.BottomRight;
+                ret.anchor = UIAnchorStyle.Bottom | UIAnchorStyle.Right;
+            }
+
+            return ret;
+
         }
     }
 }

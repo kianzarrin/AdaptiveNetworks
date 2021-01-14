@@ -14,7 +14,7 @@ using AdaptiveRoads.Util;
 using System.IO;
 using System.Drawing.Imaging;
 
-namespace AdaptiveRoads.UI.RoadEditor.Templates {
+namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
     public class Drag : UIDragHandle {
         public void Init(string caption) {
             width = parent.width;

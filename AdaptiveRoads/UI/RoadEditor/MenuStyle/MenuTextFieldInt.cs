@@ -4,7 +4,7 @@ using KianCommons.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-namespace AdaptiveRoads.UI.RoadEditor.Templates {
+namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
     public class MenuTextFieldInt : MenuTextField {
         public override void Awake() {
             base.Awake();

@@ -9,7 +9,6 @@ namespace AdaptiveRoads.LifeCycle {
     using System.Diagnostics;
     using UnityEngine.SceneManagement;
 
-
     public static class LifeCycle {
         public static string HARMONY_ID = "CS.Kian.AdaptiveRoads";
         public static string HARMONY_ID_MANUAL = "CS.Kian.AdaptiveRoads.Manual";
@@ -54,7 +53,6 @@ namespace AdaptiveRoads.LifeCycle {
             Load();
         }
 
-
         public static void Disable() {
             //LoadingManager.instance.m_simulationDataReady -= SimulationDataReady;
             LoadingManager.instance.m_levelPreLoaded -= Preload;
@@ -84,12 +82,6 @@ namespace AdaptiveRoads.LifeCycle {
                 HarmonyUtil.InstallHarmony(HARMONY_ID);
                 NetInfoExtionsion.EnsureExtended_EditedNetInfos();
                 HintBox.Create();
-                ToolsModifierControl.toolController.eventEditPrefabChanged += (info) => {
-                    // reset right pavement width to match left.
-                    if( info is NetInfo netInfo)
-                        netInfo.SetMeteData(new NetInfoExtionsion.Net(netInfo));
-                };
-
                 Log.Info("LifeCycle.Load() successfull!");
 
             } catch (Exception e) {

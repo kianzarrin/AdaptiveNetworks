@@ -1,6 +1,6 @@
 using AdaptiveRoads.Manager;
 using AdaptiveRoads.UI.RoadEditor;
-using AdaptiveRoads.UI.RoadEditor.Templates;
+using AdaptiveRoads.UI.RoadEditor.MenuStyle;
 using ColossalFramework.UI;
 using HarmonyLib;
 using KianCommons;
@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using static AdaptiveRoads.Util.DPTHelpers;
+using static KianCommons.ReflectionHelpers;
 
 namespace AdaptiveRoads.Util {
     internal static class RoadEditorUtils {
@@ -212,12 +213,14 @@ namespace AdaptiveRoads.Util {
                 prop.Displace(z);
         }
 
-
+        public static void RefreshRoadEditor() {
+            var mainPanel = UnityEngine.Object.FindObjectOfType<RoadEditorMainPanel>();
+            InvokeMethod(mainPanel, "OnObjectModified");
+            InvokeMethod(mainPanel, "Clear");
+            InvokeMethod(mainPanel, "Initialize");
+            InvokeMethod(mainPanel, "OnObjectModified");
+        }
     }
-
-
-
-
 }
 
 

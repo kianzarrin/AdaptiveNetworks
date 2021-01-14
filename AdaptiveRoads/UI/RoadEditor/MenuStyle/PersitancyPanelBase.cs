@@ -1,21 +1,10 @@
-using ColossalFramework.UI;
-using KianCommons;
-using KianCommons.UI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
-using AdaptiveRoads.Patches.RoadEditor;
-using System.Reflection;
-using HarmonyLib;
-using KianCommons.UI.Helpers;
-using AdaptiveRoads.Manager;
 using AdaptiveRoads.Util;
-using System.IO;
-using System.Drawing.Imaging;
+using ColossalFramework.UI;
+using KianCommons.UI;
+using UnityEngine;
 
-namespace AdaptiveRoads.UI.RoadEditor.Templates {
-    public class TemplatePanelBase : MenuPanelBase {
+namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
+    public class PersitancyPanelBase : MenuPanelBase {
         public const int WIDTH_LEFT = 425;
         public const int WIDTH_RIGHT = 475;
 

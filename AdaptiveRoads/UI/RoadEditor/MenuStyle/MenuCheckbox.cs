@@ -11,7 +11,7 @@ using HarmonyLib;
 using KianCommons.UI.Helpers;
 using AdaptiveRoads.Manager;
 
-namespace AdaptiveRoads.UI.RoadEditor.Templates {
+namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
     public class MenuCheckbox: UICheckBox {
         public override void Awake() {
             base.Awake();

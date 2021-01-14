@@ -2,7 +2,7 @@ using ColossalFramework.UI;
 using KianCommons.UI;
 using UnityEngine;
 
-namespace AdaptiveRoads.UI.RoadEditor.Templates {
+namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
     public class ListBox : UIListBox {
         public override void Awake() {
             base.Awake();
