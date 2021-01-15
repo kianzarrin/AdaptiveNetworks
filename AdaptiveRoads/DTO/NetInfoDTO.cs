@@ -3,7 +3,7 @@ namespace AdaptiveRoads.DTO {
     using PrefabMetadata.API;
     using PrefabMetadata.Helpers;
 
-    public class NetInfoDTO : IDTO {
+    public class NetInfoDTO : IDTO<NetInfo> {
         public float m_halfWidth = 8f;
         public float m_pavementWidth = 3f;
         public float m_segmentLength = 64f;
@@ -65,7 +65,7 @@ namespace AdaptiveRoads.DTO {
         public Segment[] m_segments;
         public Node[] m_nodes;
 
-        public class Node {
+        public class Node :IDTO<NetInfo.Node> {
             public NetNode.Flags m_flagsRequired;
             public NetNode.Flags m_flagsForbidden;
             public NetInfo.ConnectGroup m_connectGroup;
@@ -73,23 +73,28 @@ namespace AdaptiveRoads.DTO {
 
             public NetInfoExtionsion.Node MetaData;
 
-            public static explicit operator NetInfo.Node(Node node) {
-                var ret =  DTOUtil.FromDTO<NetInfo.Node, Node>(node);
-                if (node.MetaData != null) {
-                    var retExt = ret.Extend();
-                    retExt.SetMetaData(node.MetaData.Clone());
-                    return retExt.Base;
-                }
-                return ret;
+            public void ReadFromGame(NetInfo.Node gameNode) {
+                DTOUtil.CopyAllMatchingFields<Node>(this, gameNode);
+                MetaData = gameNode.GetMetaData()?.Clone();
             }
-            public static explicit operator Node(NetInfo.Node node) {
-                var ret = DTOUtil.ToDTO<Node>(node);
-                ret.MetaData = node.GetMetaData().Clone();
-                return ret;
+            public static explicit operator Node(NetInfo.Node gameNode) {
+                var dto = new Node();
+                dto.ReadFromGame(gameNode);
+                return dto;
+            }
+
+            public void WriteToGame(NetInfo.Node gameNode) {
+                DTOUtil.CopyAllMatchingFields<Node>(gameNode, this);
+                (gameNode as IInfoExtended)?.SetMetaData(MetaData?.Clone());
+            }
+            public static explicit operator NetInfo.Node(Node dto) {
+                var gameNode = new NetInfo.Node();
+                dto.WriteToGame(gameNode);
+                return gameNode;
             }
         }
 
-        public class Segment {
+        public class Segment :IDTO<NetInfo.Segment> {
             public NetSegment.Flags m_forwardRequired;
             public NetSegment.Flags m_forwardForbidden;
             public NetSegment.Flags m_backwardRequired;
@@ -99,24 +104,30 @@ namespace AdaptiveRoads.DTO {
 
             public NetInfoExtionsion.Segment MetaData;
 
-            public static explicit operator NetInfo.Segment(Segment segment) {
-                var ret = DTOUtil.FromDTO<NetInfo.Segment, Segment>(segment);
-                if (segment.MetaData != null) {
-                    var retExt = ret.Extend();
-                    retExt.SetMetaData(segment.MetaData.Clone());
-                    return retExt.Base;
-                }
-                return ret;
+            public void ReadFromGame(NetInfo.Segment gameSegment) {
+                DTOUtil.CopyAllMatchingFields<Segment>(this, gameSegment);
+                MetaData = gameSegment.GetMetaData()?.Clone();
+            }
+            public static explicit operator Segment(NetInfo.Segment gameSegment) {
+                var dto = new Segment();
+                dto.ReadFromGame(gameSegment);
+                return dto;
             }
 
-            public static explicit operator Segment(NetInfo.Segment segment) {
-                var ret = DTOUtil.ToDTO<Segment>(segment);
-                ret.MetaData = segment.GetMetaData().Clone();
-                return ret;
+            public void WriteToGame(NetInfo.Segment gameSegment) {
+                DTOUtil.CopyAllMatchingFields<Segment>(gameSegment, this);
+                (gameSegment as IInfoExtended)?.SetMetaData(MetaData?.Clone());
             }
+            public static explicit operator NetInfo.Segment(Segment dto) {
+                var gameSegment = new NetInfo.Segment();
+                dto.WriteToGame(gameSegment);
+                return gameSegment;
+            }
+
+
         }
 
-        public class Lane {
+        public class Lane : IDTO<NetInfo.Lane> {
             public float m_position;
             public float m_width = 3f;
             public float m_verticalOffset;
@@ -132,25 +143,32 @@ namespace AdaptiveRoads.DTO {
             public bool m_elevated;
             public Prop[] m_props;
 
-            public static explicit operator NetInfo.Lane(Lane lane) {
-                var ret = new NetInfo.Lane();
-                DTOUtil.CopyAllMatchingFields<Lane>(ret, lane);
-
-                ret.m_laneProps = new NetLaneProps {
-                    m_props = DTOUtil.CopyArray<NetLaneProps.Prop>(lane.m_props)
-                };
-
-                return ret;
+            public void ReadFromGame(NetInfo.Lane gameLane) {
+                DTOUtil.CopyAllMatchingFields<Lane>(this, gameLane);
+                this.m_props = DTOUtil.CopyArray<Prop>(gameLane.m_laneProps.m_props);
             }
+
             public static explicit operator Lane(NetInfo.Lane lane) {
                 var dto = new Lane();
-                DTOUtil.CopyAllMatchingFields<Lane>(dto, lane);
-                dto.m_props = DTOUtil.CopyArray<Prop>(lane.m_laneProps.m_props);
+                dto.ReadFromGame(lane);
                 return dto;
+            }
+
+            public void WriteToGame(NetInfo.Lane gameLane) {
+                DTOUtil.CopyAllMatchingFields<Lane>(gameLane, this);
+                gameLane.m_laneProps = new NetLaneProps {
+                    m_props = DTOUtil.CopyArray<NetLaneProps.Prop>(m_props)
+                };
+            }
+
+            public static explicit operator NetInfo.Lane(Lane lane) {
+                var gameLane = new NetInfo.Lane();
+                lane.WriteToGame(gameLane);
+                return gameLane;
             }
         }
 
-        public class Prop {
+        public class Prop : IDTO<NetLaneProps.Prop> {
             public NetLane.Flags m_flagsRequired;
             public NetLane.Flags m_flagsForbidden;
             public NetNode.Flags m_startFlagsForbidden;
@@ -172,22 +190,26 @@ namespace AdaptiveRoads.DTO {
 
             public NetInfoExtionsion.LaneProp MetaData;
 
-            public static explicit operator NetLaneProps.Prop(Prop prop) {
-                var ret = new NetLaneProps.Prop();
-                DTOUtil.CopyAllMatchingFields<Prop>(ret, prop);
-                //ret.m_finalProp = ret.m_prop;
-                //ret.m_finalTree = ret.m_tree;
-                if (prop.MetaData != null) {
-                    var retExt = ret.Extend();
-                    retExt.SetMetaData(prop.MetaData.Clone());
-                    return retExt.Base;
-                }
-                return ret;
+            public void ReadFromGame(NetLaneProps.Prop gameProp) {
+                DTOUtil.CopyAllMatchingFields<Prop>(this, gameProp);
+                MetaData = gameProp.GetMetaData()?.Clone();
             }
-            public static explicit operator Prop(NetLaneProps.Prop prop) {
-                var ret = new Prop();
-                DTOUtil.CopyAllMatchingFields<Prop>(ret, prop);
-                ret.MetaData = prop.GetMetaData().Clone();
+            public static explicit operator Prop(NetLaneProps.Prop gameProp) {
+                var dto = new Prop();
+                dto.ReadFromGame(gameProp);
+                return dto;
+            }
+
+            public void WriteToGame(NetLaneProps.Prop gameProp) {
+                DTOUtil.CopyAllMatchingFields<Prop>(gameProp, this);
+                gameProp.m_finalProp = gameProp.m_prop;
+                gameProp.m_finalTree = gameProp.m_tree;
+                (gameProp as IInfoExtended)?.SetMetaData(MetaData?.Clone());
+            }
+
+            public static explicit operator NetLaneProps.Prop(Prop dto) {
+                var ret = new NetLaneProps.Prop();
+                dto.WriteToGame(ret);
                 return ret;
             }
         }

@@ -2,12 +2,12 @@ using ColossalFramework.UI;
 using KianCommons;
 using KianCommons.UI;
 using System;
-using UnityEngine;
+using AdaptiveRoads.DTO;
 
 namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
     public class LoadRoadXMLPanel : PersitancyPanelBase {
         public SummaryLabel SummaryBox;
-        public SavesListBoxRoad SavesListBox;
+        public SavesListBoxT<RoadAssetInfo> SavesListBox;
         public UIButton LoadButton;
 
         public delegate void OnLoadedHandler(NetInfo info);
@@ -26,7 +26,7 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
             {
                 UIPanel panel = AddLeftPanel();
                 {
-                    SavesListBox = panel.AddUIComponent<SavesListBoxRoad>();
+                    SavesListBox = panel.AddUIComponent<SavesListBoxT<RoadAssetInfo>>();
                     SavesListBox.width = panel.width;
                     SavesListBox.height = 470;
                     SavesListBox.AddScrollBar();

@@ -14,7 +14,7 @@ using System.Xml.Serialization;
 
 namespace AdaptiveRoads.DTO {
     //code from RoadImporter: https://github.com/citiesskylines-csur/RoadImporter
-    public class RoadAssetInfo : IDTO, ISerialziableDTO {
+    public class RoadAssetInfo : IDTO<NetInfo>, ISerialziableDTO {
         public NetInfoDTO basic;
         public NetInfoDTO elevated;
         public NetInfoDTO bridge;
@@ -33,8 +33,8 @@ namespace AdaptiveRoads.DTO {
         //public NetModelInfo slopeModel = new NetModelInfo();
         //public NetModelInfo tunnelModel = new NetModelInfo();
 
-        public string Name;
-        public string Description;
+        public string Name { get; set; }
+        public string Description { get; set; }
 
         public void ReadFromGame(NetInfo game_basic) {
             NetInfo game_elevated = AssetEditorRoadUtils.TryGetElevated(game_basic);

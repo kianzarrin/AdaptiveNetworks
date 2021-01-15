@@ -4,11 +4,12 @@ using KianCommons;
 using KianCommons.UI;
 using System;
 using UnityEngine;
+using AdaptiveRoads.DTO;
 
 namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
     public class LoadTemplatePanel : PersitancyPanelBase {
         public SummaryLabel SummaryBox;
-        public SavesListBoxProp SavesListBox;
+        public SavesListBoxT<PropTemplate> SavesListBox;
         public UIButton LoadButton;
         public MenuCheckbox ToggleDir;
         public MenuCheckbox ToggleSide;
@@ -30,7 +31,7 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
             {
                 UIPanel panel = AddLeftPanel();
                 {
-                    SavesListBox = panel.AddUIComponent<SavesListBoxProp>();
+                    SavesListBox = panel.AddUIComponent<SavesListBoxT<PropTemplate>>();
                     SavesListBox.width = panel.width;
                     SavesListBox.height = 628;
                     SavesListBox.AddScrollBar();

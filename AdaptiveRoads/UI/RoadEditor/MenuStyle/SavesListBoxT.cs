@@ -1,32 +1,30 @@
-using ColossalFramework.UI;
+using AdaptiveRoads.DTO;
 using KianCommons;
-using KianCommons.UI;
-using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
-using UnityEngine;
-using AdaptiveRoads.Patches.RoadEditor;
-using System.Reflection;
-using HarmonyLib;
-using KianCommons.UI.Helpers;
-using AdaptiveRoads.Manager;
-using AdaptiveRoads.Util;
+using static KianCommons.ReflectionHelpers;
 
 namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
-    public abstract class SavesListBoxT<T> : ListBox where T : class {
+    public abstract class SavesListBoxT<T> : ListBox
+    where T : class, ISerialziableDTO {
         public List<T> Saves = new List<T>();
-
-        public abstract string GetName(T item);
-        public abstract IEnumerable<T> LoadItems();
 
         public override void Awake() {
             base.Awake();
             Populate();
         }
 
+        public void LoadItems() {
+            var saves = InvokeMethod(typeof(T), "LoadAllFiles") as IEnumerable;
+            Saves.Clear();
+            foreach (T save in saves)
+                Saves.Add(save);
+        }
+
         public void Populate() {
-            Saves = LoadItems().ToList();
-            items = Saves.Select(item => GetName(item)).ToArray();
+            LoadItems();
+            items = Saves.Select(item => item.Name).ToArray();
             selectedIndex = -1;
         }
 
@@ -40,7 +38,7 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
 
         public int IndexOf(string name) {
             for (int i = 0; i < Saves.Count; ++i) {
-                if (GetName(Saves[i]) == name)
+                if (Saves[i].Name == name)
                     return i;
             }
             return -1;
@@ -49,8 +47,8 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
         public void Select(string name) {
             selectedIndex = IndexOf(name);
         }
-            
 
-        
+
+
     }
 }

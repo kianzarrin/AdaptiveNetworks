@@ -11,7 +11,7 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle.x {
         public UITextField NameField;
         public UITextField DescriptionField;
         public SummaryLabel SummaryBox;
-        public SavesListBoxRoad SavesListBox;
+        public SavesListBoxT<RoadAssetInfo> SavesListBox;
         public UIButton SaveButton;
         NetInfo Info;
 
@@ -29,7 +29,7 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle.x {
             {
                 UIPanel panel = AddLeftPanel();
                 {
-                    SavesListBox = panel.AddUIComponent<SavesListBoxRoad>();
+                    SavesListBox = panel.AddUIComponent<SavesListBoxT<RoadAssetInfo>>();
                     SavesListBox.width = panel.width;
                     SavesListBox.height = 500;
                     SavesListBox.AddScrollBar();

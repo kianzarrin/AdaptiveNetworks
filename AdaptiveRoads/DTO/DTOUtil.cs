@@ -8,20 +8,6 @@ using System.Collections.Generic;
 namespace AdaptiveRoads.DTO {
     // TODO move to Kian commons.
     internal static class DTOUtil {
-        public static TDTO ToDTO<TDTO>(object source)
-            where TDTO : class, new() {
-            var dto = new TDTO();
-            CopyAllMatchingFields<TDTO>(dto, source);
-            return dto;
-        }
-
-        public static TTarget FromDTO<TTarget, TDTO>(TDTO dto)
-            where TTarget : class, new() { 
-            var target = new TTarget();
-            CopyAllMatchingFields<TDTO>(target, dto);
-            return target;
-        }
-
         public static TargetElementT[] CopyArray<TargetElementT>(object []source) {
             return source.Select(item => (TargetElementT)item).ToArray();
         }

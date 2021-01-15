@@ -4,8 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace AdaptiveRoads.Util {
-    public class MultiSerializer<T> where T : DTO.ISerialziableDTO
+namespace AdaptiveRoads.DTO {
+    public class MultiSerializer<T> where T : ISerialziableDTO
         {
         public string SubDir;// = "ARTemplates";
         public  string FileExt = ".xml";
@@ -25,7 +25,7 @@ namespace AdaptiveRoads.Util {
             EnsureDir();
             string path = FilePath(name);
             string data = XMLSerializerUtil.Serialize(value);
-            XMLSerializerUtil.WriteToFileWrapper(path, data);
+            XMLSerializerUtil.WriteToFile(path, data);
         }
 
         public  T Load(string name) {
@@ -34,9 +34,10 @@ namespace AdaptiveRoads.Util {
             return Load(FilePath(name));
 
         }
-        public  T LoadFile(string path) {
+        public T LoadFile(string path) {
             EnsureDir();
-            string data = XMLSerializerUtil.ReadFromFileWrapper(path, out Version version);
+            string data = XMLSerializerUtil.ReadFromFile(path);
+            //Version version = XMLSerializerUtil.ExtractVersion(data);
             var ret = XMLSerializerUtil.Deserialize<T>(data);
             typeof(T).GetMethod("OnLoaded")?.Invoke(ret, null);
             return ret;
