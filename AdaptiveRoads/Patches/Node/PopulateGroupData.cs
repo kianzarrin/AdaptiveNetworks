@@ -1,10 +1,10 @@
 using HarmonyLib;
-using System;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Collections.Generic;
 using KianCommons;
 using KianCommons.Patches;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection.Emit;
 
 namespace AdaptiveRoads.Patches.Node {
     [HarmonyPatch()]
@@ -29,18 +29,17 @@ namespace AdaptiveRoads.Patches.Node {
                 CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 2, counterGetSegment: 2); //DC
 
                 // Unlike RenderInstance and CalculateGroupData, counterGetSegment for PopulateGroupData Junction is 2:
-                CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 3, counterGetSegment: 2 ); //Junction
+                CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 3, counterGetSegment: 2); //Junction
                 CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 4, counterGetSegment: 0); // End
-                CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 5, counterGetSegment: 0); // End
 
-                // segment.Checkflags does not count => Bend (does not use stored flags.)
-                CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 6, counterGetSegment: 0); //DC Bend
+                // End - BEND ->  segment.Checkflags (does not use info flags.)
+                // Bend node -> segment.Checkflags (does not use info flags.)
+                CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 5, counterGetSegment: 0); //DC Bend
 
 
                 Log.Info(logPrefix_ + "successfully patched " + Target);
                 return codes;
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 Log.Error(e.ToString());
                 throw e;
             }

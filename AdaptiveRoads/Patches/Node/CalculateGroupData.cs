@@ -30,7 +30,7 @@ namespace AdaptiveRoads.Patches.Node {
                 CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 3, counterGetSegment: 1); //Junction
                 CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 4, counterGetSegment: 0); //End
 
-                // Bend node -> segment.Checkflags (does not use stored flags.)
+                // Bend node -> segment.Checkflags (does not use info flags.)
                 CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 5, counterGetSegment: 0); //DC Bend 
 
                 Log.Info(logPrefix_ + "successfully patched " + Target);
