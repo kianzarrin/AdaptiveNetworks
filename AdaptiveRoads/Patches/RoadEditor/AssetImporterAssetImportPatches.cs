@@ -3,15 +3,14 @@ namespace AdaptiveRoads.Patches.RoadEditor.AssetImporterAssetImportpatches {
     using HarmonyLib;
     using JetBrains.Annotations;
     using KianCommons;
+    using KianCommons.Math;
+    using KianCommons.Serialization;
+    using static KianCommons.ReflectionHelpers;
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Reflection;
-    using static KianCommons.ReflectionHelpers;
     using System.Linq;
-    using UnityEngine;
-    using KianCommons.Math;
-    using System.Text;
+    using System.Reflection;
 
     // set default scale to 100
     [HarmonyPatch]
@@ -42,11 +41,11 @@ namespace AdaptiveRoads.Patches.RoadEditor.AssetImporterAssetImportpatches {
                 // panel width=1114
                 // Preview pos.x=600
                 // m_FileList : width=550
-                __instance.component.width= 1115;
+                __instance.component.width = 1115;
 
                 ___m_FileList.width = 550;
                 ___m_FileList.relativePosition =
-                    ___m_FileList.relativePosition.SetI(0,0);
+                    ___m_FileList.relativePosition.SetI(0, 0);
 
                 ___m_SmallPreview.relativePosition =
                     ___m_SmallPreview.relativePosition.SetI(600, 0);
@@ -74,48 +73,10 @@ namespace AdaptiveRoads.Patches.RoadEditor.AssetImporterAssetImportpatches {
         }
 
         internal static string MakeRelative(this FileInfo file, DirectoryInfo dir) {
-            return RelativePath(dir.FullName, file.FullName);
+            return IOHelpers.RelativePath(dir.FullName, file.FullName);
         }
 
-        public static string RelativePath(string absPath, string relTo) {
-            string[] absDirs = absPath.Split('\\');
-            string[] relDirs = relTo.Split('\\');
 
-            // Get the shortest of the two paths
-            int len = absDirs.Length < relDirs.Length ? absDirs.Length :
-            relDirs.Length;
-
-            // Use to determine where in the loop we exited
-            int lastCommonRoot = -1;
-            int index;
-
-            // Find common root
-            for (index = 0; index < len; index++) {
-                if (absDirs[index] == relDirs[index]) lastCommonRoot = index;
-                else break;
-            }
-
-            // If we didn't find a common prefix then throw
-            if (lastCommonRoot == -1) {
-                throw new ArgumentException("Paths do not have a common base");
-            }
-
-            // Build up the relative path
-            StringBuilder relativePath = new StringBuilder();
-
-            // Add on the ..
-            for (index = lastCommonRoot + 1; index < absDirs.Length; index++) {
-                if (absDirs[index].Length > 0) relativePath.Append("..\\");
-            }
-
-            // Add on the folders
-            for (index = lastCommonRoot + 1; index < relDirs.Length - 1; index++) {
-                relativePath.Append(relDirs[index] + "\\");
-            }
-            relativePath.Append(relDirs[relDirs.Length - 1]);
-
-            return relativePath.ToString();
-        }
 
         private static List<FileInfo> AddSubfoldersRecursive(DirectoryInfo dir, string[] extensions) {
             var ret = new List<FileInfo>();

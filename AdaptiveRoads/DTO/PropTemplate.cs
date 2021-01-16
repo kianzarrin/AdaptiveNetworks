@@ -12,6 +12,7 @@ namespace AdaptiveRoads.DTO {
         [XmlAttribute]
         public XMLVersion Version { get; private set; }
         public NetInfoDTO.Prop[] Props { get; private set; }
+        [XmlIgnore]
         public string Name { get; set; }
         public string Description { get; set; }
         public DateTime Date;
@@ -45,7 +46,7 @@ namespace AdaptiveRoads.DTO {
 
         private static MultiSerializer<PropTemplate> Serializer = new MultiSerializer<PropTemplate>("ARTemplates");
         public void Save() => Serializer.Save(Name, this);
-        public void OnLoaded() { }
+        public void OnLoaded(FileInfo file) => Name = file.Name.RemoveExtension();
         public static IEnumerable<PropTemplate> LoadAllFiles() => Serializer.LoadAllFiles();
     }
 }

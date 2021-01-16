@@ -18,7 +18,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         public static void Postfix(
             string name, FieldInfo field, object target,
             RoadEditorPanel __instance, object ___m_Target) {
-            target = target ?? ___m_Target;
+            target ??= ___m_Target;
             RoadEditorCollapsiblePanel groupPanel = __instance.GetGroupPanel(name);
             if (name == "Props") {
                 Log.Debug("creating `Add from template` button");

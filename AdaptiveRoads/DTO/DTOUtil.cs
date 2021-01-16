@@ -28,8 +28,10 @@ namespace AdaptiveRoads.DTO {
                     } catch {
                         try {
                             Type targetType = targetFieldInfo.FieldType;
+                            Log.Debug("CopyAllMatchingFields: special case targetType is " + targetType);
                             if (TryConvert(value, targetType, out object value2)) {
                                 targetFieldInfo.SetValue(target, value2);
+                                Log.Debug("CopyAllMatchingFields: value2 is" + value2);
                             }
                         } catch (Exception ex) {
                             Log.Exception(ex);
@@ -41,26 +43,27 @@ namespace AdaptiveRoads.DTO {
 
         public static bool TryConvert(object sourceValue, Type targetType, out object targetValue) {
             Type sourceType = sourceValue.GetType();
-            MethodBase convertor = targetType.GetConstructor(sourceType);
+            MethodBase convertor = GetConverter(sourceType, targetType);
             targetValue = convertor?.Invoke(sourceValue);
             return targetValue != null;
         }
 
         public static ConstructorInfo GetConstructor(this Type type, params Type[] ParameterTypes) =>
             type.GetConstructor(ALL, null, ParameterTypes, null);
-        public static object Invoke(this MethodBase method, params object[] parameters) =>
-            method.Invoke(parameters);
 
-        public static object GetConverter(Type sourceType, Type targetType) {
+        public static object Invoke(this MethodBase method, params object[] parameters) =>
+            method.Invoke(null, parameters);
+        
+        public static MethodBase GetConverter(Type sourceType, Type targetType) {
             MethodBase ret = null;
-            ret = ret ?? sourceType.GetConverter(sourceType, targetType);
-            ret = ret ?? targetType.GetConverter(sourceType, targetType);
-            ret = ret ?? targetType.GetConstructor(sourceType);
+            ret ??= sourceType.GetConverter(sourceType, targetType);
+            ret ??= targetType.GetConverter(sourceType, targetType);
+            ret ??= targetType.GetConstructor(sourceType);
             return ret;
         }
         public static MethodBase GetConverter(this Type type, Type sourceType, Type targetType) {
             return type.GetMethods(ALL).Where(m =>
-               (m.Name == "op_implicit" || m.Name == "op_explicit") &&
+               (m.Name == "op_Implicit" || m.Name == "op_Explicit") &&
                m.ReturnType == targetType &&
                m.GetParameters()[0].ParameterType == sourceType)
                 .FirstOrDefault();

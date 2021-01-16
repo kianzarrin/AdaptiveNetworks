@@ -3,6 +3,7 @@ using KianCommons.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using KianCommons;
 
 namespace AdaptiveRoads.DTO {
     public class MultiSerializer<T> where T : ISerialziableDTO
@@ -39,7 +40,6 @@ namespace AdaptiveRoads.DTO {
             string data = XMLSerializerUtil.ReadFromFile(path);
             //Version version = XMLSerializerUtil.ExtractVersion(data);
             var ret = XMLSerializerUtil.Deserialize<T>(data);
-            typeof(T).GetMethod("OnLoaded")?.Invoke(ret, null);
             return ret;
         }
 
@@ -50,13 +50,13 @@ namespace AdaptiveRoads.DTO {
             foreach (var file in files) {
                 var ret = LoadFile(file.FullName);
                 if (ret != null) {
-                    ret.OnLoaded();
+                    ret.OnLoaded(file);
                     yield return ret;
                 }
             }
         }
 
-        public  void EnsureDir() {
+        public void EnsureDir() {
             if (!Directory.Exists(Dir))
                 Directory.CreateDirectory(Dir);
         }

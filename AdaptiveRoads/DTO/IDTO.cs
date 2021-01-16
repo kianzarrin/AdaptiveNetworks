@@ -1,4 +1,4 @@
-using AdaptiveRoads.Util;
+using System.IO;
 
 namespace AdaptiveRoads.DTO {
     public interface IDTO<T> where T: class, new(){
@@ -8,7 +8,7 @@ namespace AdaptiveRoads.DTO {
 
     public interface ISerialziableDTO {
         void Save();
-        void OnLoaded();
+        void OnLoaded(FileInfo file);
         string Name { get; set; }
         string Description { get; set; }
 

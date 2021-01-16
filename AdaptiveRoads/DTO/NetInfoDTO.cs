@@ -2,6 +2,8 @@ namespace AdaptiveRoads.DTO {
     using AdaptiveRoads.Manager;
     using PrefabMetadata.API;
     using PrefabMetadata.Helpers;
+    using KianCommons;
+    using KianCommons.Serialization;
 
     public class NetInfoDTO : IDTO<NetInfo> {
         public float m_halfWidth = 8f;
@@ -184,7 +186,7 @@ namespace AdaptiveRoads.DTO {
             public float m_angle;
             public NetLaneProps.ColorMode m_colorMode;
 
-            public Vector3DTO m_position;
+            public Vector3Serializable m_position;
             public PrefabInfoDTO<PropInfo> m_prop;
             public PrefabInfoDTO<TreeInfo> m_tree;
 
@@ -193,6 +195,8 @@ namespace AdaptiveRoads.DTO {
             public void ReadFromGame(NetLaneProps.Prop gameProp) {
                 DTOUtil.CopyAllMatchingFields<Prop>(this, gameProp);
                 MetaData = gameProp.GetMetaData()?.Clone();
+                Log.Debug($"ReadFromGame: m_prop={this.m_prop?.name_} " +
+                    $"gameProp.m_prop={gameProp?.m_prop}");
             }
             public static explicit operator Prop(NetLaneProps.Prop gameProp) {
                 var dto = new Prop();
@@ -205,6 +209,8 @@ namespace AdaptiveRoads.DTO {
                 gameProp.m_finalProp = gameProp.m_prop;
                 gameProp.m_finalTree = gameProp.m_tree;
                 (gameProp as IInfoExtended)?.SetMetaData(MetaData?.Clone());
+                Log.Debug($"WriteToGame: m_prop={this.m_prop?.name_} " +
+                    $"gameProp.m_finalProp={gameProp.m_finalProp}");
             }
 
             public static explicit operator NetLaneProps.Prop(Prop dto) {

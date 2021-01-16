@@ -9,7 +9,7 @@ using AdaptiveRoads.DTO;
 namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
     public class LoadTemplatePanel : PersitancyPanelBase {
         public SummaryLabel SummaryBox;
-        public SavesListBoxT<PropTemplate> SavesListBox;
+        public SaveListBoxProp SavesListBox;
         public UIButton LoadButton;
         public MenuCheckbox ToggleDir;
         public MenuCheckbox ToggleSide;
@@ -31,7 +31,7 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
             {
                 UIPanel panel = AddLeftPanel();
                 {
-                    SavesListBox = panel.AddUIComponent<SavesListBoxT<PropTemplate>>();
+                    SavesListBox = panel.AddUIComponent<SaveListBoxProp>();
                     SavesListBox.width = panel.width;
                     SavesListBox.height = 628;
                     SavesListBox.AddScrollBar();
@@ -39,7 +39,6 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
                         OnSelectedSaveChanged(val);
                     SavesListBox.eventDoubleClick += (_, __) => OnLoad();
                 }
-
             }
             {
                 UIPanel panel = AddRightPanel();

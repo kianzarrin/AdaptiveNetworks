@@ -100,7 +100,7 @@ namespace AdaptiveRoads.DTO {
 
         private static MultiSerializer<RoadAssetInfo> Serializer = new MultiSerializer<RoadAssetInfo>("RoadAssetInfo");
         public void Save() => Serializer.Save(Name, this);
-        public void OnLoaded() { }
+        public void OnLoaded(FileInfo file) { }
         public static IEnumerable<RoadAssetInfo> LoadAllFiles() => Serializer.LoadAllFiles();
     }
 }
