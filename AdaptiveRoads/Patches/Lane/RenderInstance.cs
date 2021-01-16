@@ -25,6 +25,7 @@ namespace AdaptiveRoads.Patches.Lane {
                 var codes = TranspilerUtils.ToCodeList(instructions);
                 CheckPropFlagsCommons.PatchCheckFlags(codes, Target);
                 PropOverlay.Patch(codes, Target);
+                TreeOverlay.Patch(codes, Target);
                 Log.Info(logPrefix_ + "successfully patched NetLane.RenderInstance");
                 return codes;
             }

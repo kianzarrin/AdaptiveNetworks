@@ -65,9 +65,9 @@ namespace AdaptiveRoads.Patches.Node {
         /// if set to n > 0, will use the n-th previous call to GetSegment() to determine segmentID.
         /// </param>
         public static void PatchCheckFlags(
-            List<CodeInstruction> codes, MethodBase method, int occurance, int counterGetSegment) {
+            List<CodeInstruction> codes, MethodBase method, int occuranceCheckFlags, int counterGetSegment) {
             // callvirt instance bool NetInfo/Node::CheckFlags(Flags)
-            var iCheckFlags = codes.Search(c => c.Calls(mCheckFlags), count: occurance);
+            var iCheckFlags = codes.Search(c => c.Calls(mCheckFlags), count: occuranceCheckFlags);
             Assertion.Assert(iCheckFlags > 0, "index>0");
 
             int iLdNodeInfo = codes.Search(

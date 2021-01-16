@@ -28,18 +28,18 @@ namespace AdaptiveRoads.Patches.Node {
             IEnumerable<CodeInstruction> instructions, MethodBase original) {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
-                CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 1, counterGetSegment: 2); //DC
-                CheckNodeFlagsCommons.PatchCheckFlags(codes, original, occurance: 2, counterGetSegment: 1); //Junction
-                CheckNodeFlagsCommons.PatchCheckFlags(codes, original, occurance: 3, counterGetSegment: 0); //End
+                CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occuranceCheckFlags: 1, counterGetSegment: 2); //DC
+                CheckNodeFlagsCommons.PatchCheckFlags(codes, original, occuranceCheckFlags: 2, counterGetSegment: 1); //Junction
+                CheckNodeFlagsCommons.PatchCheckFlags(codes, original, occuranceCheckFlags: 3, counterGetSegment: 0); //End
 
                 // Bend node -> segment.Checkflags (does not use info flags.)
-                CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 4, counterGetSegment: 2); // DC bend
+                CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occuranceCheckFlags: 4, counterGetSegment: 2); // DC bend
 
-                NodeOverlay.Patch(codes, original, occurance: 1); // DC
-                NodeOverlay.Patch(codes, original, occurance: 2); // junction
-                NodeOverlay.Patch(codes, original, occurance: 3); // end
-                NodeOverlay.PatchBend(codes, original, 4); // end
-                NodeOverlay.Patch(codes, original, occurance: 5); // DC-bend
+                NodeOverlay.Patch(codes, original, occuranceDrawMesh: 1, counterGetSegment: 2); // DC
+                NodeOverlay.Patch(codes, original, occuranceDrawMesh: 2, counterGetSegment: 1); // junction
+                NodeOverlay.Patch(codes, original, occuranceDrawMesh: 3, counterGetSegment: 0); // end
+                NodeOverlay.PatchBend(codes, original, occuranceDrawMesh: 4); // end
+                NodeOverlay.Patch(codes, original, occuranceDrawMesh: 5, counterGetSegment: 0); // DC-bend
 
                 Log.Info(logPrefix_ + "successfully patched NetNode.RenderInstance");
                 return codes;

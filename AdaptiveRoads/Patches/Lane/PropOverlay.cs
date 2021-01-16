@@ -64,7 +64,7 @@ namespace AdaptiveRoads.Patches.Lane {
         static MethodInfo mOnAfterRenderInstance = GetMethod(typeof(PropOverlay), nameof(OnAfterRenderInstance));
         public static void OnAfterRenderInstance(
             NetLaneProps.Prop prop,
-            PropInfo propInfo,
+            PropInfo variation,
             Vector3 pos,
             float angle,
             float scale) {
@@ -73,7 +73,7 @@ namespace AdaptiveRoads.Patches.Lane {
                     Angle = angle,
                     Scale = scale,
                     Pos = pos,
-                    Prop = propInfo,
+                    Prop = variation,
                 });
             }
         }

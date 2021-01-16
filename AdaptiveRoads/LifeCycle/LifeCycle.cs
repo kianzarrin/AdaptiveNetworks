@@ -49,6 +49,7 @@ namespace AdaptiveRoads.LifeCycle {
             Preload();
             //SimulationDataReady();
             Load();
+            Util.RoadEditorUtils.RefreshRoadEditor();
         }
 
         public static void Disable() {

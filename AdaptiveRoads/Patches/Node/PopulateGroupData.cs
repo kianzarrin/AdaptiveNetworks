@@ -25,16 +25,16 @@ namespace AdaptiveRoads.Patches.Node {
         public static IEnumerable<CodeInstruction> Transpiler(ILGenerator il, IEnumerable<CodeInstruction> instructions) {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
-                CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 1, counterGetSegment: 2); //DC
-                CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 2, counterGetSegment: 2); //DC
+                CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occuranceCheckFlags: 1, counterGetSegment: 2); //DC
+                CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occuranceCheckFlags: 2, counterGetSegment: 2); //DC
 
                 // Unlike RenderInstance and CalculateGroupData, counterGetSegment for PopulateGroupData Junction is 2:
-                CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 3, counterGetSegment: 2); //Junction
-                CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 4, counterGetSegment: 0); // End
+                CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occuranceCheckFlags: 3, counterGetSegment: 2); //Junction
+                CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occuranceCheckFlags: 4, counterGetSegment: 0); // End
 
                 // End - BEND ->  segment.Checkflags (does not use info flags.)
                 // Bend node -> segment.Checkflags (does not use info flags.)
-                CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 5, counterGetSegment: 0); //DC Bend
+                CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occuranceCheckFlags: 5, counterGetSegment: 0); //DC Bend
 
 
                 Log.Info(logPrefix_ + "successfully patched " + Target);

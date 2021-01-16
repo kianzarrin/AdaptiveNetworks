@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
 using static KianCommons.Patches.TranspilerUtils;
+using ColossalFramework;
 
 namespace AdaptiveRoads.Patches.Node {
     public static class NodeOverlay {
@@ -17,95 +18,94 @@ namespace AdaptiveRoads.Patches.Node {
         static MethodInfo mCheckFlags =
             GetMethod(typeof(NetInfo.Node), nameof(NetInfo.Node.CheckFlags));
 
-        public static void Patch(List<CodeInstruction> codes, MethodBase method, int occurance) {
+        public static void Patch(List<CodeInstruction> codes, MethodBase method, int occuranceDrawMesh, int counterGetSegment) {
             CodeInstruction ldNodeID = GetLDArg(method, "nodeID");
             int argLocData = method.GetArgLoc("data");
-            CodeInstruction ldaRenderData = new CodeInstruction(OpCodes.Ldarga_S, argLocData);
+            CodeInstruction loadRenderData = new CodeInstruction(OpCodes.Ldarg_S, argLocData);
 
-            int iDrawMesh = codes.Search(_c => _c.Calls(mDrawMesh), count: occurance);
+            int iDrawMesh = codes.Search(_c => _c.Calls(mDrawMesh), count: occuranceDrawMesh);
             int iLdLocNodeInfo = codes.Search(
                 _c => _c.IsLdLoc(typeof(NetInfo.Node)),
                 startIndex: iDrawMesh, count: -1);
             CodeInstruction ldNodeInfo = codes[iLdLocNodeInfo].Clone();
 
-             CodeInstruction[] insertion = new[]{
+            CodeInstruction[] insertion = new[]{
                 ldNodeID,
-                ldaRenderData,
+                loadRenderData,
                 ldNodeInfo,
                 new CodeInstruction(OpCodes.Call, mOnAfterDrawMesh)
             };
             codes.InsertInstructions(iDrawMesh + 1, insertion, moveLabels: false);
         }
 
-        static MethodInfo mOnAfterDrawMesh =
-            GetMethod(typeof(NodeOverlay), nameof(OnAfterDrawMesh));
+        static MethodInfo mOnAfterDrawMesh = GetMethod(typeof(NodeOverlay), nameof(OnAfterDrawMesh));
+
         public static void OnAfterDrawMesh(
             ushort nodeID,
             ref RenderManager.Instance renderData,
             NetInfo.Node nodeInfo) {
-            int segmentIndex = renderData.m_dataInt0 & 7;
-            int segmentIndex2 = renderData.m_dataInt0 >> 4;
-            ushort segmentID = nodeID.ToNode().GetSegment(segmentIndex);
-            ushort segmentID2 = nodeID.ToNode().GetSegment(segmentIndex2);
-
-            if (nodeInfo == Overlay.HoveredInfo) {
-                var data = new Overlay.NodeData {
-                    NodeID = nodeID,
-                    SegmentID = segmentID,
-                    SegmentID2 = segmentID2,
-                };
-                Overlay.NodeQueue.Enqueue(data);
-            }
+            if (nodeInfo == Overlay.HoveredInfo)
+                Enqueue(nodeID, ref renderData);
+            
         }
 
-        public static void PatchBend(List<CodeInstruction> codes, MethodBase method, int occurance) {
+        static void Enqueue(
+            ushort nodeID, ref RenderManager.Instance renderData,
+            bool isBendNode = false, bool turnAround = false) {
+            int segmentIndex = renderData.m_dataInt0 & 7;
+            int segmentIndex2 = renderData.m_dataInt0 >> 4;
+            ref var node = ref nodeID.ToNode();
+            ushort segmentID = node.GetSegment(segmentIndex);
+            ushort segmentID2 = node.GetSegment(segmentIndex2);
+            bool isDC = (renderData.m_dataInt0 & 8) != 0; // normal DC
+            isDC |= node.m_flags.IsFlagSet(NetNode.Flags.Bend); // bend DC
+
+            var data = new Overlay.NodeData {
+                NodeID = nodeID,
+                SegmentID = segmentID,
+                SegmentID2 = segmentID2,
+                IsDC = isDC,
+                IsBendNode = isBendNode,
+                TurnAround = turnAround,
+            };
+            Overlay.NodeQueue.Enqueue(data);
+        }
+
+        public static void PatchBend(List<CodeInstruction> codes, MethodBase method, int occuranceDrawMesh) {
             CodeInstruction ldNodeID = GetLDArg(method, "nodeID");
             CodeInstruction loadRenderData = GetLDArg(method, "data");
             MethodInfo mCheckFlags = GetMethod(typeof(NetInfo.Segment), nameof(NetInfo.Segment.CheckFlags));
 
-            int iDrawMesh = codes.Search(_c => _c.Calls(mDrawMesh), count: occurance);
+            int iDrawMesh = codes.Search(_c => _c.Calls(mDrawMesh), count: occuranceDrawMesh);
             int iLdLocSegmentInfo = codes.Search(
                 _c => _c.IsLdLoc(typeof(NetInfo.Segment)),
                 startIndex: iDrawMesh, count: -1);
-            CodeInstruction ldNSegmentInfo = codes[iLdLocSegmentInfo].Clone();
+            CodeInstruction ldSegmentInfo = codes[iLdLocSegmentInfo].Clone();
 
             int iCheckFlags = codes.Search(_c => _c.Calls(mCheckFlags));
             int iLdaTurnAround = codes.Search(_c =>
                 _c.IsLdLocA(typeof(bool), out _),
                 startIndex: iCheckFlags, count: -1);
-            var locTurnAround = codes[iLdaTurnAround].operand;
-            CodeInstruction ldTurnAround = new CodeInstruction(OpCodes.Ldloc_S, locTurnAround);
+            CodeInstruction loadRefTurnAround = codes[iLdaTurnAround].Clone();
 
             CodeInstruction[] insertion = new[]{
                 ldNodeID,
                 loadRenderData,
-                ldNSegmentInfo,
-                new CodeInstruction(OpCodes.Call, mOnAfterDrawMesh)
+                ldSegmentInfo,
+                loadRefTurnAround,
+                new CodeInstruction(OpCodes.Call, mOnAfterDrawMeshBend)
             };
             codes.InsertInstructions(iDrawMesh + 1, insertion, moveLabels: false);
         }
 
-        static MethodInfo mOnAfterDrawMeshBend =
-            GetMethod(typeof(NodeOverlay), nameof(OnAfterDrawMeshBend));
+        static MethodInfo mOnAfterDrawMeshBend = GetMethod(typeof(NodeOverlay), nameof(OnAfterDrawMeshBend));
         public static void OnAfterDrawMeshBend(
             ushort nodeID,
             ref RenderManager.Instance renderData,
             NetInfo.Segment segmentInfo,
             ref bool turnAround) {
-            int segmentIndex = renderData.m_dataInt0 & 7;
-            int segmentIndex2 = renderData.m_dataInt0 >> 4;
-            ushort segmentID = nodeID.ToNode().GetSegment(segmentIndex);
-            ushort segmentID2 = nodeID.ToNode().GetSegment(segmentIndex2);
-
             if (segmentInfo == Overlay.HoveredInfo) {
-                var data = new Overlay.NodeData {
-                    NodeID = nodeID,
-                    SegmentID = segmentID,
-                    SegmentID2 = segmentID2,
-                    IsBendNode = true,
-                    TurnAround = turnAround,
-                };
-                Overlay.NodeQueue.Enqueue(data);
+                Enqueue(nodeID, ref renderData, isBendNode:true, turnAround: turnAround);
             }
         }
     }

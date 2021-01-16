@@ -1,8 +1,9 @@
 bug:
-    - bend node calls draw mesh two times (check in calculate/populateGroupData): Bend and DC  (fixed not tested)
-- highlight nodes/trees  ...
+- highlight
+    nodes: mostly working
+    trees
 
-bug: null exception when adding saves to a list.
+bug: null exception when adding saves to a list. (fixed untested)
 
 - templates:
     - create templates:
