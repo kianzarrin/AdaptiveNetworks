@@ -19,7 +19,6 @@ namespace AdaptiveRoads.LifeCycle {
 
         public static bool Loaded;
         public static bool bHotReload = false;
-        const bool fastTestHarmony = false;
 
         public static void Enable() {
             try {
@@ -34,13 +33,12 @@ namespace AdaptiveRoads.LifeCycle {
                 if (LoadingManager.instance.m_loadingComplete)
                     HotReload();
 
-                if (fastTestHarmony) {
-                    HarmonyHelper.DoOnHarmonyReady(() => {
+#if FAST_TEST_HARMONY
+                HarmonyHelper.DoOnHarmonyReady(() => {
                         HarmonyUtil.InstallHarmony(HARMONY_ID_MANUAL);
                         HarmonyUtil.InstallHarmony(HARMONY_ID);
                     });
-                }
-
+#endif
             } catch (Exception ex) {
                 Log.Exception(ex);
             }
@@ -58,10 +56,11 @@ namespace AdaptiveRoads.LifeCycle {
             LoadingManager.instance.m_levelPreLoaded -= Preload;
             Unload(); // in case of hot unload
             Exit();
-            if (fastTestHarmony) {
+#if FAST_TEST_HARMONY
                 HarmonyUtil.UninstallHarmony(HARMONY_ID);
                 HarmonyUtil.UninstallHarmony(HARMONY_ID_MANUAL);
-            }
+#endif
+
         }
 
         public static void Preload() {

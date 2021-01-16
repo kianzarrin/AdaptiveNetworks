@@ -6,7 +6,7 @@ using System.Linq;
 using static KianCommons.ReflectionHelpers;
 
 namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
-    public abstract class SavesListBoxT<T> : ListBox
+    public class SavesListBoxT<T> : ListBox
     where T : class, ISerialziableDTO {
         public List<T> Saves = new List<T>();
 
