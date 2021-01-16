@@ -33,6 +33,7 @@ namespace AdaptiveRoads.DTO {
         //public NetModelInfo slopeModel = new NetModelInfo();
         //public NetModelInfo tunnelModel = new NetModelInfo();
 
+        [XmlAttribute] public string Version { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
 

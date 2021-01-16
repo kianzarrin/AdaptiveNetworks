@@ -9,13 +9,20 @@ using System.Xml.Serialization;
 
 namespace AdaptiveRoads.DTO {
     public class PropTemplate : ISerialziableDTO {
+        [XmlIgnore]
+        private Version version_;
         [XmlAttribute]
-        public XMLVersion Version { get; private set; }
-        public NetInfoDTO.Prop[] Props { get; private set; }
+        public string Version {
+            get => version_.ToString();
+            set => version_ = new Version(value);
+        }
+
         [XmlIgnore]
         public string Name { get; set; }
         public string Description { get; set; }
         public DateTime Date;
+
+        public NetInfoDTO.Prop[] Props { get; private set; }
         public NetLaneProps.Prop[] GetProps() =>
             Props.Select(_item => (NetLaneProps.Prop)_item).ToArray();
 
@@ -41,6 +48,7 @@ namespace AdaptiveRoads.DTO {
                 Description = description,
             };
             ret.Date = DateTime.UtcNow;
+            ret.Version = ret.VersionOf().ToString();
             return ret;
         }
 

@@ -1,4 +1,5 @@
 using System.IO;
+using System.Xml.Serialization;
 
 namespace AdaptiveRoads.DTO {
     public interface IDTO<T> where T: class, new(){
@@ -11,6 +12,6 @@ namespace AdaptiveRoads.DTO {
         void OnLoaded(FileInfo file);
         string Name { get; set; }
         string Description { get; set; }
-
+        [XmlAttribute]string Version { get; set; }
     }
 }
