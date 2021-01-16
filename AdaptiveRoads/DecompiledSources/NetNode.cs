@@ -916,50 +916,48 @@ public partial struct NetNode2
                     for (int num8 = 0; num8 < info.m_nodes.Length; num8++)
                     {
                         NetInfo.Node node5 = info.m_nodes[num8];
-                        if ((node5.m_connectGroup == NetInfo.ConnectGroup.None || (node5.m_connectGroup & info.m_connectGroup & NetInfo.ConnectGroup.AllGroups) != NetInfo.ConnectGroup.None) && node5.m_layer == layer && node5.CheckFlags(this.m_flags) && node5.m_combinedLod != null && node5.m_directConnect)
+                        if ((node5.m_connectGroup == NetInfo.ConnectGroup.None || (node5.m_connectGroup & info.m_connectGroup & NetInfo.ConnectGroup.AllGroups) != NetInfo.ConnectGroup.None) && node5.m_layer == layer
+                            && node5.CheckFlags(this.m_flags) && node5.m_combinedLod != null && node5.m_directConnect)
                         {
                             if ((node5.m_connectGroup & NetInfo.ConnectGroup.Oneway) != NetInfo.ConnectGroup.None)
                             {
                                 NetManager instance2 = Singleton<NetManager>.instance;
-                                ushort num9 = 0;
-                                ushort num10 = 0;
-                                bool flag8 = false;
-                                int num11 = 0;
-                                for (int num12 = 0; num12 < 8; num12++)
+                                ushort segmentID1 = 0;
+                                ushort segmentID2 = 0;
+                                bool primarySegmentDetected = false;
+                                int counter = 0;
+                                for (int segmentIndex = 0; segmentIndex < 8; segmentIndex++)
                                 {
-                                    ushort segment5 = this.GetSegment(num12);
-                                    if (segment5 != 0)
+                                    ushort segmentID = this.GetSegment(segmentIndex);
+                                    if (segmentID != 0)
                                     {
-                                        NetSegment netSegment = Singleton<NetManager>.instance.m_segments.m_buffer[(int)segment5];
-                                        bool flag9 = ++num11 == 1;
-                                        bool flag10 = netSegment.m_startNode == nodeID;
-                                        if ((!flag9 && !flag8) || (flag9 && !flag10))
+                                        bool firstLoop = ++counter == 1;
+                                        bool startNode = segmentID.ToSegment().IsStartNode(nodeID);
+                                        if ((!firstLoop && !primarySegmentDetected) || (firstLoop && !startNode))
                                         {
-                                            flag8 = true;
-                                            num9 = segment5;
+                                            primarySegmentDetected = true;
+                                            segmentID1 = segmentID;
                                         }
                                         else
                                         {
-                                            num10 = segment5;
+                                            segmentID2 = segmentID;
                                         }
                                     }
                                 }
-                                bool flag11 = instance2.m_segments.m_buffer[(int)num9].m_startNode == nodeID == ((instance2.m_segments.m_buffer[(int)num9].m_flags & NetSegment.Flags.Invert) == NetSegment.Flags.None);
-                                bool flag12 = instance2.m_segments.m_buffer[(int)num10].m_startNode == nodeID == ((instance2.m_segments.m_buffer[(int)num10].m_flags & NetSegment.Flags.Invert) == NetSegment.Flags.None);
-                                if (flag11 == flag12)
-                                {
-                                    goto IL_B19;
-                                }
-                                if (flag11)
+                                bool reverse1 = instance2.m_segments.m_buffer[(int)segmentID1].m_startNode == nodeID == ((instance2.m_segments.m_buffer[(int)segmentID1].m_flags & NetSegment.Flags.Invert) == NetSegment.Flags.None);
+                                bool reverse2 = instance2.m_segments.m_buffer[(int)segmentID2].m_startNode == nodeID == ((instance2.m_segments.m_buffer[(int)segmentID2].m_flags & NetSegment.Flags.Invert) == NetSegment.Flags.None);
+                                if (reverse1 == reverse2)
+                                    goto continue;
+                                if (reverse1)
                                 {
                                     if ((node5.m_connectGroup & NetInfo.ConnectGroup.OnewayStart) == NetInfo.ConnectGroup.None)
                                     {
-                                        goto IL_B19;
+                                        goto continue;
                                     }
                                 }
                                 else if ((node5.m_connectGroup & NetInfo.ConnectGroup.OnewayEnd) == NetInfo.ConnectGroup.None)
                                 {
-                                    goto IL_B19;
+                                    goto continue;
                                 }
                             }
                             NetNode.CalculateGroupData(node5, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);

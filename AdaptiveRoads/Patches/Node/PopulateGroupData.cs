@@ -7,8 +7,6 @@ using KianCommons;
 using KianCommons.Patches;
 
 namespace AdaptiveRoads.Patches.Node {
-
-
     [HarmonyPatch()]
     public static class PopulateGroupData {
         static string logPrefix_ = "NetNode.PopulateGroupData Transpiler: ";
@@ -34,6 +32,9 @@ namespace AdaptiveRoads.Patches.Node {
                 CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 3, counterGetSegment: 2 ); //Junction
                 CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 4, counterGetSegment: 0); // End
                 CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 5, counterGetSegment: 0); // End
+
+                // segment.Checkflags does not count => Bend (does not use stored flags.)
+                CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 6, counterGetSegment: 0); //DC Bend
 
 
                 Log.Info(logPrefix_ + "successfully patched " + Target);

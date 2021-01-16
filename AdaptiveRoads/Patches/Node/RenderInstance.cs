@@ -31,7 +31,15 @@ namespace AdaptiveRoads.Patches.Node {
                 CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 1, counterGetSegment: 2); //DC
                 CheckNodeFlagsCommons.PatchCheckFlags(codes, original, occurance: 2, counterGetSegment: 1); //Junction
                 CheckNodeFlagsCommons.PatchCheckFlags(codes, original, occurance: 3, counterGetSegment: 0); //End
-                // use NetSegment transpiler? //Bend
+
+                // Bend node -> segment.Checkflags (does not use stored flags.)
+                CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occurance: 4, counterGetSegment: 2); // DC bend
+
+                NodeOverlay.Patch(codes, original, occurance: 1); // DC
+                NodeOverlay.Patch(codes, original, occurance: 2); // junction
+                NodeOverlay.Patch(codes, original, occurance: 3); // end
+                NodeOverlay.PatchBend(codes, original, 4); // end
+                NodeOverlay.Patch(codes, original, occurance: 5); // DC-bend
 
                 Log.Info(logPrefix_ + "successfully patched NetNode.RenderInstance");
                 return codes;

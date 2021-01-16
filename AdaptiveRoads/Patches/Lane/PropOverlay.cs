@@ -68,7 +68,7 @@ namespace AdaptiveRoads.Patches.Lane {
             Vector3 pos,
             float angle,
             float scale) {
-            if (prop == Overlay.Prop) {
+            if (prop == Overlay.HoveredInfo) {
                 Overlay.PropQueue.Enqueue(new Overlay.PropData {
                     Angle = angle,
                     Scale = scale,

@@ -1,6 +1,8 @@
-- vanilla option.
+bug:
+    - bend node calls draw mesh two times (check in calculate/populateGroupData): Bend and DC  (fixed not tested)
+- highlight nodes/trees  ...
 
-- export/import road xml.
+bug: null exception when adding saves to a list.
 
 - templates:
     - create templates:
@@ -14,7 +16,6 @@
         no left/right turn
         speed limits KPH/MPH
 
-- highlight nodes/trees
         
 - hint for vanilla flags/drop-downs
 
@@ -26,7 +27,8 @@
     {
 	yield return 0;
     }
-     
+
+ - m_clipSegmentEnds for segmentInfos.
         
 ----------------------------
 create road:
@@ -39,13 +41,11 @@ create road:
     no crossing texture
     DC node
 
-
 ----------------------------
-
 version 2:
     mixed enum type bitmask
     custom flags
         data manager to manage them.
         UI to control them.
         all the network persistancy features.
-    do not change name postfix. 0<->1
+    - export/import road xml.

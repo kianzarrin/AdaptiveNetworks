@@ -31,7 +31,7 @@ namespace AdaptiveRoads.Patches.Segment {
             int iLdaTurnAround = codes.Search(_c =>
                 _c.IsLdLocA(typeof(bool), out _),
                 startIndex: iCheckFlags, count: -1);
-            int locTurnAround = (codes[iLdaTurnAround].operand as LocalBuilder).LocalIndex;
+            var locTurnAround = codes[iLdaTurnAround].operand;
             CodeInstruction ldTurnAround = new CodeInstruction(OpCodes.Ldloc_S, locTurnAround);
 
             var insertion = new[]{
@@ -49,7 +49,7 @@ namespace AdaptiveRoads.Patches.Segment {
             ushort segmentID,
             NetInfo.Segment segmentInfo,
             bool turnAround) { 
-            if(segmentInfo == Overlay.SegmentInfo) {
+            if(segmentInfo == Overlay.HoveredInfo) {
                 var data = new Overlay.SegmentData {
                     SegmentID = segmentID,
                     TurnAround = turnAround,

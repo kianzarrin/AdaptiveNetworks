@@ -38,42 +38,16 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
         static void OnMouseEnter(UIComponent component, UIMouseEventParameter eventParam) {
             UICustomControl instance = component.parent.GetComponent(DPTType) as UICustomControl;
-            object target = GetDPTTargetObject(instance);
             object element = GetDPTTargetElement(instance);
-            //Log.Debug("RoadEditorDynamicPropertyToggle_OnEnable.GetLaneIndex():" +
-            //    $" m_TargetObject(instance)={m_TargetObject(instance)}" +
-            //    $" m_TargetElement(instance)={m_TargetElement(instance)}");
-            if (target is NetInfo netInfo && element is NetInfo.Lane laneInfo) {
-                Overlay.LaneIndex = netInfo.m_lanes.IndexOf(laneInfo);
-                Overlay.Info = netInfo;
-                Overlay.Prop = null;
-                Overlay.SegmentInfo = null;
-            } else if (element is NetLaneProps.Prop prop) {
-                Overlay.Prop = prop;
-                Overlay.LaneIndex = -1;
-                Overlay.SegmentInfo = null;
-            } else if(element is NetInfo.Segment segmentInfo) {
-                Overlay.SegmentInfo = segmentInfo;
-                Overlay.Prop = null;
-                Overlay.LaneIndex = -1;
-            }
+            Overlay.HoveredInfo = element;
         }
 
         static void OnMouseLeave(UIComponent component, UIMouseEventParameter eventParam) {
             UICustomControl instance = component.parent.GetComponent(DPTType) as UICustomControl;
-            object target = GetDPTTargetObject(instance);
             object element = GetDPTTargetElement(instance);
-            if (target is NetInfo netInfo && element is NetInfo.Lane laneInfo) {
-                int laneIndex = netInfo.m_lanes.IndexOf(laneInfo);
-                if (Overlay.LaneIndex == laneIndex)
-                    Overlay.LaneIndex = -1;
-            } else if (element is NetLaneProps.Prop prop) {
-                if(prop== Overlay.Prop)
-                    Overlay.Prop = null;
-            }else if (element is NetInfo.Segment segmentInfo) {
-                if (segmentInfo == Overlay.SegmentInfo)
-                    Overlay.SegmentInfo = null;
-            }
+            if(Overlay.HoveredInfo == element)
+                Overlay.HoveredInfo = null;
+
         }
 
         static void OnMouseDown(UIComponent component, UIMouseEventParameter eventParam) {
