@@ -244,12 +244,6 @@ namespace AdaptiveRoads.UI.RoadEditor {
             uibutton.text = text;
         }
 
-        static T[] GetEnumMemberAttributes<T>(Type enumType, object value)
-            where T:Attribute {
-            return enumType.GetEnumMember(value).GetAttributes<T>();
-        }
-
-
         public bool IsHovered() {
             if (containsMouse)
                 return true;
@@ -261,10 +255,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
         public string GetHint() {
             int i = DropDown.GetHoverIndex();
             if (DropDown.GetItemUserData(i) is int flag) {
-                var atts = GetEnumMemberAttributes<HintAttribute>(EnumType, flag);
-                if (!atts.IsNullorEmpty()) {
-                    return atts.Select(item => item.Text).Join(delimiter: "\n");
-                }
+                return EnumType.GetEnumMember(flag).GetHints().JoinLines();
             }
             if (DropDown.containsMouse || Label.containsMouse) {
                 return Hint;

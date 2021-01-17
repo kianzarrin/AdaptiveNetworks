@@ -35,9 +35,11 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 var att = field.GetAttribute<CustomizablePropertyAttribute>();
 
                 var enumType = field.FieldType;
-                enumType = HintExtension.GetEnumWithHints(enumType);
+                enumType = HintExtension.GetMappedEnumWithHints(enumType);
 
                 var hints = field.GetHints();
+                if (field.Name == "m_stopType")
+                    hints.Add("set this for the pedestrian lane that contains the bus/tram stop.");
                 hints.AddRange(enumType.GetHints());
                 string hint = hints.JoinLines();
                 Log.Debug($"{field} -> hint is: " + hint);
@@ -226,7 +228,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 }
 
                 Type enumType = fieldInfo.FieldType.GetField("Required").FieldType;
-                enumType = HintExtension.GetEnumWithHints(enumType);
+                enumType = HintExtension.GetMappedEnumWithHints(enumType);
 
                 var panel0 = BitMaskPanel.Add(
                     roadEditorPanel: instance,

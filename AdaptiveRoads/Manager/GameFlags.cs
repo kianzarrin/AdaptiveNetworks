@@ -51,7 +51,7 @@ namespace AdaptiveRoads.Manager {
             "  * Left Hand traffic only swaps head/tail nodes on uni-directional lanes\n" +
             "    that excludes pavements/medians";
 
-        public static Type GetEnumWithHints(Type enumType) {
+        public static Type GetMappedEnumWithHints(Type enumType) {
             Assertion.Assert(enumType.IsEnum, "enumType.IsEnum");
             if (enumType == typeof(NetSegment.Flags))
                 return typeof(NetSegmentFlags);
@@ -59,8 +59,18 @@ namespace AdaptiveRoads.Manager {
                 return typeof(NetLaneFlags);
             else if (enumType == typeof(NetNode.Flags))
                 return typeof(NetNodeFlags);
-            else 
+            else if (enumType == typeof(NetInfo.Direction))
+                return typeof(Direction);
+            else if (enumType == typeof(VehicleInfo.VehicleType))
+                return typeof(VehicleType);
+            else
                 return enumType;
+        }
+
+        public static string GetEnumMappedHint(Type enumType, string key) {
+            int value = (int)Enum.Parse(enumType, key);
+            var enumType2 = GetMappedEnumWithHints(enumType);
+            return enumType2.GetEnumMember(value).GetHints().JoinLines();
         }
     }
 
@@ -69,18 +79,18 @@ namespace AdaptiveRoads.Manager {
     public enum NetSegmentFlags {
         None = 0,
         //[Hide]
-        Created = 1,
+        Created = 1, // 1 >> 0
         [Hide]
-        Deleted = 2,
+        Deleted = 2, // 1 >> 1
         [Hide]
         [Hint("This segment has not been touched yet since the map was loeded.\n" +
               "Therefore there is no maintanace cost.")]
-        Original = 4,
+        Original = 4, // 1 >> 2
         [Hint("Segment has been destroyed due to a disaster")]
-        Collapsed = 8,
+        Collapsed = 8, // 1 >> 3
         [Hint("Active for every other segment of a continuously drawn network\n" +
               "Can be used to prevent the segment mesh from flipping every other segment")]
-        Invert = 16,
+        Invert = 16, // 1 >> 4
         [Hint("Active for nodes of networks which are placed within buildings,\n" +
                 "and therefore can't be deleted or upgraded under normal circumstances.")]
         Untouchable = 32,
@@ -89,73 +99,34 @@ namespace AdaptiveRoads.Manager {
         [Hint("Active for nodes for sharp corners where a road changes direction suddenly\n" +
               " and nodes where an asymmetric network changes direction")]
         Bend = 128,
-        [Hide]
-        WaitingPath = 256,
+
+        [Hint( "Cars with a combustion engine are not allowed to drive here\n" +
+               "Related to \"City Planning, Combustion Engine Ban\" Policy"
+        )]
+        CombustionEngineBan = 256, // 1 >> 
+        //[Hide] WaitingPath = 256,  // two flags have same value. hide the useless one.
         [Hide]
         PathFailed = 512,
         [Hide]
-        PathLength = 1024,
+        PathLength = 1024, // 1>>10
         [Hide]
-        AccessFailed = 2048,
+        AccessFailed = 2048,// 1>>11
         [Hide]
-        TrafficStart = 4096,
+        TrafficStart = 4096,// 1>>12
         [Hide]
-        TrafficEnd = 8192,
+        TrafficEnd = 8192, // 1 >> 13
         [Hide]
-        CrossingStart = 16384,
+        CrossingStart = 16384, // 1 >> 14
         [Hide]
-        CrossingEnd = 32768,
+        CrossingEnd = 32768, // 1 >> 15
         [Hint("Has Bus stop on right side")]
-        BusStopRight = 65536,
+        BusStopRight = 65536, // 1 >> 16
         [Hint("Has Bus stop on left side")]
-        BusStopLeft = 131072,
+        BusStopLeft = 131072, // 1 >> 17
         [Hint("Has Tram stop on right side")]
-        TramStopRight = 262144,
+        TramStopRight = 262144, // 1 >> 18
         [Hint("Has Tram stop on left side")]
-        TramStopLeft = 524288,
-        [Hint(
-                "Heavy traffic is not allowed here\n" +
-                "Related to \"City Planning, Heavy Traffic Ban\" Policy"
-        )]
-        HeavyBan = 1048576,
-        [Hint("There are too many vehicles on this segment")]
-        Blocked = 2097152,
-        [Hint("Segment has been flooded with water")]
-        Flooded = 4194304,
-        [Hint(
-                "Cyclists are not allowed on the pavement here\n" +
-                "Related to \"City Planning, Bike Ban On Sidewalks\" Policy"
-        )]
-        BikeBanOnSidewalk = 8388608,
-        [Hint(
-                "Only cars from local residents are allowed to drive here\n" +
-                "Related to \"City Planning, Old Town\" Policy"
-        )]
-        CarBan = 16777216,
-        [Hint("Active for nodes where an asymmetric network changes direction from backward to forward\n" +
-              "Relative to the direction in which the player draws the road")]
-        AsymForward = 33554432,
-        [Hint("Active for nodes where an asymmetric network changes direction from forward to backward\n" +
-              "Relative to the direction in which the player draws the road")]
-        AsymBackward = 67108864,
-        [Hint("Street has a custom name")]
-        CustomStreetName = 134217728,
-        [Hide]
-        NameVisible1 = 268435456,
-        [Hide]
-        NameVisible2 = 536870912,
-        [Hint(
-                "Active for segments which have a stop sign assigned by the player at the start of the segment\n" +
-                "Relative to the direction in which the player draws the road"
-        )]
-        [Hide]
-        YieldStart = 1073741824,
-        [Hint(
-                "Active for segments which have a stop sign assigned by the player at the end of the segment\n" +
-                "Relative to the direction in which the player draws the road"
-        )]
-        [Hide]
-        YieldEnd = -2147483648,
+        TramStopLeft = 524288, // 1 >> 19
         [Hint("Has (Sightseeing) Bus stops on both sides")]
         BusStopBoth = BusStopLeft | BusStopRight,
         [Hint("Has Tram stops on both sides")]
@@ -163,10 +134,49 @@ namespace AdaptiveRoads.Manager {
         [Hint("Has (Sightseeing) Bus stops on both sides as well as Tram stops on both sides")]
         StopAll = BusStopBoth | TramStopBoth,
         [Hint(
-                "Cars with a combustion engine are not allowed to drive here\n" +
-                "Related to \"City Planning, Combustion Engine Ban\" Policy"
+                "Heavy traffic is not allowed here\n" +
+                "Related to \"City Planning, Heavy Traffic Ban\" Policy"
         )]
-        CombustionEngineBan = 256,
+        HeavyBan = 1048576, // 1 >> 20
+        [Hint("There are too many vehicles on this segment")]
+        Blocked = 2097152, // 1 >> 21
+        [Hint("Segment has been flooded with water")]
+        Flooded = 4194304, // 1 >> 22
+        [Hint(
+                "Cyclists are not allowed on the pavement here\n" +
+                "Related to \"City Planning, Bike Ban On Sidewalks\" Policy"
+        )]
+        BikeBanOnSidewalk = 8388608, // 1 >> 23
+        [Hint(
+                "Only cars from local residents are allowed to drive here\n" +
+                "Related to \"City Planning, Old Town\" Policy"
+        )]
+        CarBan = 16777216, // 1 >> 24
+        [Hint("Active for nodes where an asymmetric network changes direction from backward to forward\n" +
+              "Relative to the direction in which the player draws the road")]
+        AsymForward = 33554432, // 1 >> 25
+        [Hint("Active for nodes where an asymmetric network changes direction from forward to backward\n" +
+              "Relative to the direction in which the player draws the road")]
+        AsymBackward = 67108864, // 1 >> 26
+        [Hint("Street has a custom name")]
+        CustomStreetName = 134217728, // 1 >> 27
+        [Hide]
+        NameVisible1 = 268435456, // 1 >> 28
+        [Hide]
+        NameVisible2 = 536870912, // 1 >> 29
+        [Hint(
+                "Active for segments which have a stop sign assigned by the player at the start of the segment\n" +
+                "Relative to the direction in which the player draws the road"
+        )]
+        [Hide]
+        YieldStart = 1073741824, // 1 >> 30
+        [Hint(
+                "Active for segments which have a stop sign assigned by the player at the end of the segment\n" +
+                "Relative to the direction in which the player draws the road"
+        )]
+        [Hide]
+        YieldEnd = -2147483648, // 1 >> 31
+
         All = -1
     }
 
@@ -367,5 +377,48 @@ namespace AdaptiveRoads.Manager {
         EndOneWayRightInverted = 32772
     }
 
+    [Flags]
+    [Hint("determines vehicle direction\n" +
+          "on stations determines stop driection and bypass direction")]
+    public enum Direction : byte {
+        None = 0,
+        Forward = 0b01,
+        Backward = 0b10,
+        [Hint("bi-directional")]
+        Both = 0b11,
+        [Hint("do not bypass")]
+        Avoid = 0b1100,
+        [Hint("avoid backward bypass + stop both directions")]
+        AvoidBackward = 0b111,
+        [Hint("avoid forward bypass + stop both directions")]
+        AvoidForward = 0b1011,
+        [Hint("do not bypass + stop both directions")]
+        AvoidBoth = 0b1111
+    }
 
+    [Flags]
+    public enum VehicleType {
+        None = 0,
+        [Hint("Road vehicle (eg: private car, bus, taxi, SOS, Services)")]
+        Car = 1,
+        Metro = 2,
+        Train = 4,
+        Ship = 8,
+        Plane = 16,
+        Bicycle = 32,
+        Tram = 64,
+        Helicopter = 128,
+        Meteor = 256,
+        Vortex = 512,
+        Ferry = 1024,
+        Monorail = 2048,
+        CableCar = 4096,
+        Blimp = 8192,
+        Balloon = 16384,
+        Rocket = 32768,
+        Trolleybus = 65536,
+        TrolleybusLeftPole = 131072,
+        TrolleybusRightPole = 262144,
+        All = 1048575
+    }
 }

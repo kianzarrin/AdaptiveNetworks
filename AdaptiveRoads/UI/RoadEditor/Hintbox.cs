@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using static AdaptiveRoads.Util.DPTHelpers;
+using KianCommons.UI.Helpers;
+using AdaptiveRoads.Util;
 
 namespace AdaptiveRoads.UI.RoadEditor {
     public class HintBox : UILabel {
@@ -153,10 +155,11 @@ namespace AdaptiveRoads.UI.RoadEditor {
                         Hint1 = dataUI.GetHint();
                         break;
                     } else if (panel.containsMouse) {
+                        var customControl = panel.GetComponent<UICustomControl>();
                         string h1 = "Click => toggle" +
                             "\nRight-Click => show more options";
-                        var groupPanel = panel.GetComponent<RoadEditorCollapsiblePanel>();
-                        if (groupPanel && groupPanel.LabelButton.containsMouse) {
+                        if (customControl is RoadEditorCollapsiblePanel groupPanel
+                            && groupPanel.LabelButton.containsMouse) {
                             string h2 = h1 + "\nControl + Click => multi-select";
                             var target = groupPanel.GetTarget();
                             string label = groupPanel.LabelButton.text;
@@ -166,11 +169,11 @@ namespace AdaptiveRoads.UI.RoadEditor {
                                 groupPanel.GetArray() is NetInfo.Lane[] m_lanes
                                 && m_lanes.Any(_lane => _lane.HasProps())
                                 && target == NetInfoExtionsion.EditedNetInfo) {
-                                Hint2 = h2;
+                                Hint2 = h2; 
                             }
-                        }
-                        UICustomControl toggle = panel.GetComponent(DPTType) as UICustomControl;
-                        if (toggle && GetDPTSelectButton(toggle).containsMouse) {
+                        } else if(
+                            panel.GetComponent(DPTType) is UICustomControl toggle &&
+                            GetDPTSelectButton(toggle).containsMouse) {
                             object element = GetDPTTargetElement(toggle);
                             var target = GetDPTTargetObject(toggle);
                             if (element is NetLaneProps.Prop prop) {
@@ -180,11 +183,21 @@ namespace AdaptiveRoads.UI.RoadEditor {
                                 && target == NetInfoExtionsion.EditedNetInfo) {
                                 Hint2 = h1;
                             }
-                        }
-                        var proprefset = panel.GetComponent<RERefSet>();
-                        if(proprefset && proprefset.m_SelectButton.containsMouse) {
-                            Hint2 = "Click => display load prop panel" +
-                                "\nAlt + Click => fast type in prop/tree name";
+                        } else if(customControl is REEnumSet enumSet) {
+                            var dd = enumSet.m_DropDown;
+                            Type enumType = enumSet.GetTargetField().FieldType;
+                            int i = dd.GetHoverIndex();
+                            if (i >= 0) {
+                                string itemName = dd.items[i];
+                                Hint2 = HintExtension.GetEnumMappedHint(enumType, itemName);
+                            } else if(dd.containsMouse) {
+                                Type enumType2 = HintExtension.GetMappedEnumWithHints(enumType);
+                                Hint2 = enumType2.GetHints().JoinLines();
+                            }
+                        } else if(customControl is REPropertySet propertySet) {
+                            var field = propertySet.GetTargetField();
+                            if (field.Name == "m_speedLimit")
+                                Hint2 = "1 game unit is 50 kph (31.06856mph)";
                         }
                     }
                 }

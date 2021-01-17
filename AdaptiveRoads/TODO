@@ -1,10 +1,4 @@
-- NS2 compatibility
-- bugs:
-    - load textures from subfolders.(can't reproduce)
-    - crash: can't reproduce
-
-- hint for direction enum
-- hint for some fields like stop type.
+- mass displacement option.
 
 flags for:
     merging/splitting lanes

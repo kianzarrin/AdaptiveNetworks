@@ -6,13 +6,20 @@ namespace AdaptiveRoads.Util {
     using System.Reflection;
     using UnityEngine;
 
-    public static class REPropertySetExtensions {
+    internal static class REPropertySetExtensions {
+        public static object GetTarget(this REPropertySet instance) =>
+            ReflectionHelpers.GetFieldValue("m_Target", instance);
+
+        public static FieldInfo GetTargetField(this REPropertySet instance) =>
+            ReflectionHelpers.GetFieldValue("m_TargetField", instance) as FieldInfo;
+    }
+
+    internal static class REEnumBitmaskSetExtensions {
         public static MethodInfo GetMethod(string methodName) =>
             ReflectionHelpers.GetMethod(typeof(REEnumBitmaskSet), methodName);
 
-        //private int REEnumBitmaskSet.GetFlags()
         public static int GetFlags(this REEnumBitmaskSet instance) =>
-            (int)GetMethod("GetFlags").Invoke(instance, null);
+        (int)GetMethod("GetFlags").Invoke(instance, null);
 
         public static void Initialize(this REEnumBitmaskSet instance, object target, FieldInfo targetField, string labelText) =>
             GetMethod("Initialize")
@@ -139,7 +146,7 @@ namespace AdaptiveRoads.Util {
 
         internal static FieldInfo GetDPTField(UICustomControl dpt) =>
             GetFieldValue<object>("m_Field", dpt) as FieldInfo;
-        
+
         internal static void ToggleDPTColor(UICustomControl dpt, bool selected) =>
             GetMethod("ToggleColor").Invoke(dpt, new object[] { selected });
     }
@@ -148,7 +155,7 @@ namespace AdaptiveRoads.Util {
         static MethodInfo GetMethod(string methodName) =>
             ReflectionHelpers.GetMethod(typeof(RERefSet), methodName);
 
-        internal static void OnReferenceSelected(this RERefSet instance,  PrefabInfo info) =>
+        internal static void OnReferenceSelected(this RERefSet instance, PrefabInfo info) =>
             GetMethod("OnReferenceSelected")
             .Invoke(instance, new object[] { info });
     }
