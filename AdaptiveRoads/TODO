@@ -1,3 +1,17 @@
+- NS2 compatibility
+- bugs:
+    - load textures from subfolders.(can't reproduce)
+    - crash: can't reproduce
+
+- hint for direction enum
+- hint for some fields like stop type.
+
+flags for:
+    merging/splitting lanes
+    slight left/right
+    sharp left/right
+
+
 - create templates:
     yield/stop
     uturn props/sign
@@ -10,12 +24,6 @@
     man holes
     lane arrows
 
-        
-- hint for vanilla flags/drop-downs
-
- - m_clipSegmentEnds for segmentInfos.
-        
-----------------------------
 create road:
     uturn sign (moddded)
     yeild/sign (vanilla + modded)
@@ -25,6 +33,7 @@ create road:
 
     no crossing texture
     DC node
+
 
 ----------------------------
 version 2:
@@ -37,3 +46,4 @@ version 2:
 
     - patch AssetImporterAssetTemplate.RefreshCoroutine() to speed up prop model loading time
         micro-benchmark UIComponent.Find<T>(string) to see how much time they take up
+    - m_clipSegmentEnds for segmentInfos. (this influences corners so its hard to do it per mesh)

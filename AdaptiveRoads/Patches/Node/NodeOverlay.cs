@@ -20,8 +20,7 @@ namespace AdaptiveRoads.Patches.Node {
 
         public static void Patch(List<CodeInstruction> codes, MethodBase method, int occuranceDrawMesh, int counterGetSegment) {
             CodeInstruction ldNodeID = GetLDArg(method, "nodeID");
-            int argLocData = method.GetArgLoc("data");
-            CodeInstruction loadRenderData = new CodeInstruction(OpCodes.Ldarg_S, argLocData);
+            CodeInstruction loadRenderData = GetLDArg(method, "data");
 
             int iDrawMesh = codes.Search(_c => _c.Calls(mDrawMesh), count: occuranceDrawMesh);
             int iLdLocNodeInfo = codes.Search(
