@@ -1,33 +1,17 @@
-bug:
-- highlight
-    nodes: mostly working
-    trees
+- create templates:
+    yield/stop
+    uturn props/sign
+    parking/no paking
+    pedestrian crossing sign
+    no left/right turn
+    speed limits KPH/MPH
 
-bug: null exception when adding saves to a list. (fixed untested)
-
-- templates:
-    - create templates:
-        traffic lights
-        man holes
-        lane arrows
-        yield/stop
-        uturn props/sign
-        parking/no paking
-        pedestrian crossing sign
-        no left/right turn
-        speed limits KPH/MPH
+    traffic lights
+    man holes
+    lane arrows
 
         
 - hint for vanilla flags/drop-downs
-
-- patch AssetImporterAssetTemplate.RefreshCoroutine() to speed up prop model loading time
-    thumb2.atlas = atlas2; // set to null
-    thumb2.spriteName = thumbnail2; // set to null
-    int steps2 = (!containerPanel2.isVisible) ? 10 : 1; // set to 10
-    if (l % steps2 == 0)
-    {
-	yield return 0;
-    }
 
  - m_clipSegmentEnds for segmentInfos.
         
@@ -50,3 +34,6 @@ version 2:
         UI to control them.
         all the network persistancy features.
     - export/import road xml.
+
+    - patch AssetImporterAssetTemplate.RefreshCoroutine() to speed up prop model loading time
+        micro-benchmark UIComponent.Find<T>(string) to see how much time they take up

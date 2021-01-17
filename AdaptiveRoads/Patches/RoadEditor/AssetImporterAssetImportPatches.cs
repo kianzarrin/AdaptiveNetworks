@@ -1,4 +1,4 @@
-namespace AdaptiveRoads.Patches.RoadEditor.AssetImporterAssetImportpatches {
+namespace AdaptiveRoads.Patches.RoadEditor.AssetImporterAssetImportPatches {
     using ColossalFramework.UI;
     using HarmonyLib;
     using JetBrains.Annotations;
