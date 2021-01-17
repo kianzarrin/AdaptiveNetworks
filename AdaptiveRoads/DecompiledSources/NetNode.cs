@@ -1482,14 +1482,15 @@ public partial struct NetNode2
                 {
                     CanModify = false;
                 }
-                int backwardVehicleLaneCount;
-                int forwardVehicleLaneCount;
-                if (bStartNode == ((netMan.m_segments.m_buffer[segmentID].m_flags & NetSegment.Flags.Invert) != NetSegment.Flags.None))
+                int backwardVehicleLaneCount; // lane count from head to tail 
+                int forwardVehicleLaneCount; // lane count from tail to head 
+                bool segmentInvert = segmentID.ToSegment.m_flags.IsFlagSet(NetSegment.Flags.Invert);
+                if (bStartNode == segmentInvert)) // head node
                 {
                     backwardVehicleLaneCount = infoSegment.m_backwardVehicleLaneCount;
                     forwardVehicleLaneCount = infoSegment.m_forwardVehicleLaneCount;
                 }
-                else
+                else // tail node
                 {
                     backwardVehicleLaneCount = infoSegment.m_forwardVehicleLaneCount;
                     forwardVehicleLaneCount = infoSegment.m_backwardVehicleLaneCount;
@@ -1556,8 +1557,9 @@ public partial struct NetNode2
                     float dot = DirFirst.x * currentDir.x + DirFirst.z * currentDir.z;
                     if (backwardVehicleLaneCount != prev_m_forwardVehicleLaneCount || forwardVehicleLaneCount != prev_backwardVehicleLaneCount)
                     {
-                        if (backwardVehicleLaneCount > forwardVehicleLaneCount)
+                        if (backwardVehicleLaneCount > forwardVehicleLaneCount) // second segment is backward
                         {
+                            // if second segment is backward then first segment must be forward
                             isAsymForward = true;
                         }
                         else

@@ -35,10 +35,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 var att = field.GetAttribute<CustomizablePropertyAttribute>();
 
                 var enumType = field.FieldType;
-                Assert(enumType.IsEnum, "enumType.IsEnum");
-                if (enumType == typeof(NetSegment.Flags)) {
-                    enumType = typeof(NetSegmentFlags);
-                }
+                enumType = HintExtension.GetEnumWithHints(enumType);
 
                 var hints = field.GetHints();
                 hints.AddRange(enumType.GetHints());
@@ -229,12 +226,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 }
 
                 Type enumType = fieldInfo.FieldType.GetField("Required").FieldType;
-                if (enumType == typeof(NetSegment.Flags))
-                    enumType = typeof(NetSegmentFlags);
-                else if (enumType == typeof(NetLane.Flags))
-                    enumType = typeof(NetLaneFlags);
-                else if (enumType == typeof(NetNode.Flags))
-                    enumType = typeof(NetNodeFlags);
+                enumType = HintExtension.GetEnumWithHints(enumType);
 
                 var panel0 = BitMaskPanel.Add(
                     roadEditorPanel: instance,
