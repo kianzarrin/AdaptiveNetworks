@@ -149,7 +149,8 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 //    .Select(re => Str(re)).ToSTR();
                 Hint1 = Hint2 = Hint3 = null;
                 foreach (var panel in FindObjectsOfType<UIPanel>()) {
-                    if (panel is IDataUI dataUI && dataUI.IsHovered()) {
+                    IHint dataUI = panel as IHint ?? panel.objectUserData as IHint;
+                    if (dataUI != null && dataUI.IsHovered()) {
                         // note that it is possible for the panel
                         // not to contain mouse but for the dropdown to contain mouse.
                         Hint1 = dataUI.GetHint();
@@ -169,9 +170,9 @@ namespace AdaptiveRoads.UI.RoadEditor {
                                 groupPanel.GetArray() is NetInfo.Lane[] m_lanes
                                 && m_lanes.Any(_lane => _lane.HasProps())
                                 && target == NetInfoExtionsion.EditedNetInfo) {
-                                Hint2 = h2; 
+                                Hint2 = h2;
                             }
-                        } else if(
+                        } else if (
                             panel.GetComponent(DPTType) is UICustomControl toggle &&
                             GetDPTSelectButton(toggle).containsMouse) {
                             object element = GetDPTTargetElement(toggle);
@@ -183,18 +184,9 @@ namespace AdaptiveRoads.UI.RoadEditor {
                                 && target == NetInfoExtionsion.EditedNetInfo) {
                                 Hint2 = h1;
                             }
-                        } else if(customControl is REEnumSet enumSet) {
-                            var dd = enumSet.m_DropDown;
-                            Type enumType = enumSet.GetTargetField().FieldType;
-                            int i = dd.GetHoverIndex();
-                            if (i >= 0) {
-                                string itemName = dd.items[i];
-                                Hint2 = HintExtension.GetEnumMappedHint(enumType, itemName);
-                            } else if(dd.containsMouse) {
-                                Type enumType2 = HintExtension.GetMappedEnumWithHints(enumType);
-                                Hint2 = enumType2.GetHints().JoinLines();
-                            }
-                        } else if(customControl is REPropertySet propertySet) {
+                        } else if (customControl is REEnumSet enumSet) {
+
+                        } else if (customControl is REPropertySet propertySet) {
                             var field = propertySet.GetTargetField();
                             if (field.Name == "m_speedLimit")
                                 Hint2 = "1 game unit is 50 kph (31.06856mph)";

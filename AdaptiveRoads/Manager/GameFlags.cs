@@ -68,7 +68,7 @@ namespace AdaptiveRoads.Manager {
         }
 
         public static string GetEnumMappedHint(Type enumType, string key) {
-            int value = (int)Enum.Parse(enumType, key);
+            object value = Enum.Parse(enumType, key);
             var enumType2 = GetMappedEnumWithHints(enumType);
             return enumType2.GetEnumMember(value).GetHints().JoinLines();
         }

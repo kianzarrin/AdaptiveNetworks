@@ -89,17 +89,6 @@ namespace AdaptiveRoads.Util {
 
             if (target is NetLaneProps netLaneProps
                 && element is NetLaneProps.Prop) {
-                //int propIndex = netLaneProps.m_props.IndexOf(prop);
-                //NetInfo netInfo = null; ;
-                //int laneIndex = 0; ;
-                //foreach (var netInfo2 in NetInfoExtionsion.EditedNetInfos) {
-                //    for (int laneIndex2 = 0; laneIndex2 < netInfo2.m_lanes.Length; ++laneIndex2) {
-                //        if(netInfo2.m_lanes[laneIndex2].m_laneProps == netLaneProps) {
-                //            netInfo = netInfo2;
-                //            laneIndex = laneIndex2;
-                //        }
-                //    }
-                //}
                 var panel = MiniPanel.Display();
                 var f_props = typeof(NetLaneProps).GetField(nameof(NetLaneProps.m_props));
                 var props = elements.Select(_p => (_p as NetLaneProps.Prop).Clone());
@@ -130,7 +119,11 @@ namespace AdaptiveRoads.Util {
                 panel.AddButton("Add" + strAll + " to Template", null, delegate () {
                     SaveTemplatePanel.Display(props);
                 });
-
+                if (props.Count() >= 2) {
+                    panel.AddButton("Displace all", null, delegate () {
+                        DisplaceAll(props);
+                    });
+                }
             } else if (element is NetInfo.Lane lane && lane.HasProps()
                 && target == NetInfoExtionsion.EditedNetInfo) {
                 var panel = MiniPanel.Display();

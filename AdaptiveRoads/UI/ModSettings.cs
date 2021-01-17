@@ -75,7 +75,7 @@ namespace AdaptiveRoads.UI {
             general.AddSavedToggle("hide irrelevant flags", HideIrrelavant);
             general.AddSavedToggle("hide floating hint box", HideHints);
 
-            var export = helper.AddGroup("import/export:");
+            //var export = helper.AddGroup("import/export:");
                 //export.AddButton("export edited road", null);
                 //export.AddButton("import to edited road", null);
 
