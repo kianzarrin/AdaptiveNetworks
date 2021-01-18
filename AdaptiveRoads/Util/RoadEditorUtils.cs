@@ -207,11 +207,17 @@ namespace AdaptiveRoads.Util {
         }
 
         public static void RefreshRoadEditor() {
-            var mainPanel = UnityEngine.Object.FindObjectOfType<RoadEditorMainPanel>();
-            InvokeMethod(mainPanel, "OnObjectModified");
-            InvokeMethod(mainPanel, "Clear");
-            InvokeMethod(mainPanel, "Initialize");
-            InvokeMethod(mainPanel, "OnObjectModified");
+            try {
+                var mainPanel = UnityEngine.Object.FindObjectOfType<RoadEditorMainPanel>();
+                if (mainPanel) {
+                    InvokeMethod(mainPanel, "OnObjectModified");
+                    InvokeMethod(mainPanel, "Clear");
+                    InvokeMethod(mainPanel, "Initialize");
+                    InvokeMethod(mainPanel, "OnObjectModified");
+                }
+            }catch(Exception ex) {
+                Log.Exception(ex);
+            }
         }
     }
 }
