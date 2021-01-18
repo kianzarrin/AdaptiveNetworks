@@ -3,7 +3,6 @@ flags for:
     slight left/right
     sharp left/right
 
-
 - create templates:
     yield/stop
     uturn props/sign
@@ -27,6 +26,7 @@ create road:
     DC node
 
 
+- dump .fbx 
 ----------------------------
 version 2:
     mixed enum type bitmask

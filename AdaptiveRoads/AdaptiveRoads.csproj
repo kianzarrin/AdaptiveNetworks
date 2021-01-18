@@ -37,12 +37,15 @@
     <RootNamespace>AdaptiveRoads</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="UnityFBXExporter\**" />
     <Compile Remove="KianCommons\**" />
     <Compile Remove="Resources\**" />
     <Compile Remove="UI\MainPanel\**" />
+    <EmbeddedResource Remove="UnityFBXExporter\**" />
     <EmbeddedResource Remove="KianCommons\**" />
     <EmbeddedResource Remove="Resources\**" />
     <EmbeddedResource Remove="UI\MainPanel\**" />
+    <None Remove="UnityFBXExporter\**" />
     <None Remove="KianCommons\**" />
     <None Remove="Resources\**" />
     <None Remove="UI\MainPanel\**" />
@@ -73,6 +76,7 @@
     <Compile Remove="UI\RoadEditor\CursorInfoLabel.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="UnityFBXExporter\FbxConverter.cs" />
     <Compile Include="KianCommons\KianCommons\Math\BezierUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Math\ControlPoint2.cs" />
     <Compile Include="KianCommons\KianCommons\Math\ControlPoint3.cs" />
@@ -82,6 +86,18 @@
     <Compile Include="KianCommons\KianCommons\Math\VecetorUtils.cs" />
     <Compile Include="KianCommons\KianCommons\Math\Vector2D.cs" />
     <Compile Include="KianCommons\KianCommons\Math\Vector3D.cs" />
+    <Compile Include="KianCommons\KianCommons\ObjUnity3D\Extensions\MeshExt.cs" />
+    <Compile Include="KianCommons\KianCommons\ObjUnity3D\Extensions\StringExt.cs" />
+    <Compile Include="KianCommons\KianCommons\ObjUnity3D\Extensions\Utils.cs" />
+    <Compile Include="KianCommons\KianCommons\ObjUnity3D\Extensions\Vector3Ext.cs" />
+    <Compile Include="KianCommons\KianCommons\ObjUnity3D\Extensions\Vector4Ext.cs" />
+    <Compile Include="KianCommons\KianCommons\ObjUnity3D\Int32Converter.cs" />
+    <Compile Include="KianCommons\KianCommons\ObjUnity3D\OBJData.cs" />
+    <Compile Include="KianCommons\KianCommons\ObjUnity3D\OBJFace.cs" />
+    <Compile Include="KianCommons\KianCommons\ObjUnity3D\OBJFaceVertex.cs" />
+    <Compile Include="KianCommons\KianCommons\ObjUnity3D\OBJGroup.cs" />
+    <Compile Include="KianCommons\KianCommons\ObjUnity3D\OBJLoader.cs" />
+    <Compile Include="KianCommons\KianCommons\ObjUnity3D\OBJMaterial.cs" />
     <Compile Include="KianCommons\KianCommons\Serialization\IOHelpers.cs" />
     <Compile Include="KianCommons\KianCommons\Serialization\Vector3Serializable.cs" />
     <Compile Include="KianCommons\KianCommons\Patches\HarmonyUtil.cs" />
@@ -109,6 +125,9 @@
     <Compile Include="KianCommons\KianCommons\Serialization\SerializationUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Util\StringExtensions.cs" />
     <Compile Include="KianCommons\KianCommons\Serialization\XMLUtil.cs" />
+    <Compile Include="UnityFBXExporter\FBXExporter.cs" />
+    <Compile Include="UnityFBXExporter\FBXUnityMaterialGetter.cs" />
+    <Compile Include="UnityFBXExporter\FBXUnityMeshGetter.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CitiesHarmony.API" Version="1.0.5" />

@@ -2,16 +2,16 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using AdaptiveRoads.Manager;
     using AdaptiveRoads.UI;
     using AdaptiveRoads.UI.RoadEditor;
+    using AdaptiveRoads.Util;
     using ColossalFramework.UI;
     using HarmonyLib;
     using KianCommons;
     using System;
     using System.Linq;
     using System.Reflection;
+    using UnityEngine;
     using static KianCommons.Assertion;
     using static KianCommons.ReflectionHelpers;
-    using AdaptiveRoads.Util;
-    using UnityEngine;
 
     /// <summary>
     /// most of the fields are managed here:
@@ -83,7 +83,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             container: __instance.m_Container,
                             label: "Toggle Forward/Backward",
                             null,
-                            action: ()=> {
+                            action: () => {
                                 prop.ToggleForwardBackward();
                                 __instance.OnObjectModified();
                                 __instance.Reset();
@@ -115,11 +115,10 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 } else if (target is NetInfo.Segment segment) {
                     Log.Debug($"{__instance.name}.CreateGenericField.Postfix({groupName}, {field}, {target})\n"/* + Environment.StackTrace*/);
                     if (ModSettings.ARMode) {
-
                         var segment2 = segment.GetOrCreateMetaData();
-                    AssertNotNull(segment2, $"{segment}");
-                    var fieldForward = typeof(NetInfoExtionsion.Segment).GetField(
-                        nameof(NetInfoExtionsion.Segment.Forward));
+                        AssertNotNull(segment2, $"{segment}");
+                        var fieldForward = typeof(NetInfoExtionsion.Segment).GetField(
+                            nameof(NetInfoExtionsion.Segment.Forward));
                         if (field.Name == nameof(NetInfo.Segment.m_forwardForbidden)) {
                             CreateExtendedComponent(groupName, fieldForward, segment2, __instance);
                         } else if (field.Name == nameof(NetInfo.Segment.m_backwardForbidden)) {
@@ -132,7 +131,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             foreach (var field2 in fields)
                                 CreateExtendedComponent(groupName, field2, segment2, __instance);
                         }
-                    }
+                   }
                 } else if (target is NetInfo netInfo) {
                     if (ModSettings.ARMode) {
                         // replace "Pavement Width" with Pavement Width Left
@@ -157,7 +156,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         /// replaces a label with text oldLabel with new Label
         /// </summary>
         /// <param name="component">this component and all its children are searched</param>
-        public static void ReplaceLabel(Component component,string oldLabel, string newLabel){
+        public static void ReplaceLabel(Component component, string oldLabel, string newLabel) {
             var labels = component.GetComponentsInChildren<UILabel>()
                 .Where(_lbl => _lbl.text == oldLabel);
             if (labels == null) return;
