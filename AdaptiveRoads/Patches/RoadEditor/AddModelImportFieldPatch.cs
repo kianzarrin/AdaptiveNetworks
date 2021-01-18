@@ -7,7 +7,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using UnityEngine;
     using ObjUnity3D;
     using HarmonyLib;
-    using UnityFBXExporter;
+    using FbxUtil;
 
     /// <summary>
     /// add hints
@@ -24,11 +24,15 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         }
 
         static void Dump2(object target) {
-            if (target is NetInfo.Node node) {
-                node.m_nodeMesh.DumpFpx("node");
-            }
-            if (target is NetInfo.Segment segment) {
-                segment.m_segmentMesh.DumpFpx("segment");
+            try {
+                if (target is NetInfo.Node node) {
+                    node.m_nodeMesh.DumpFpx("node");
+                }
+                if (target is NetInfo.Segment segment) {
+                    segment.m_segmentMesh.DumpFpx("segment");
+                }
+            } catch(Exception ex) {
+                Log.Exception(ex);
             }
         }
 
@@ -40,8 +44,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
         public static void DumpFpx(this Mesh mesh, string name) {
             string path = GetFilePath(name + "_" + mesh.name, ".fbx");
-            using (var sw = new StreamWriter(path, false))
-                mesh.ExportFbx(sw);
+            mesh.ExportBinaryFbx(path);
         }
 
         //    static void Dump(object target) {
