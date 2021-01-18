@@ -37,15 +37,15 @@
     <RootNamespace>AdaptiveRoads</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="UnityFBXExporter\**" />
+    <Compile Remove="FbxUtil\**" />
     <Compile Remove="KianCommons\**" />
     <Compile Remove="Resources\**" />
     <Compile Remove="UI\MainPanel\**" />
-    <EmbeddedResource Remove="UnityFBXExporter\**" />
+    <EmbeddedResource Remove="FbxUtil\**" />
     <EmbeddedResource Remove="KianCommons\**" />
     <EmbeddedResource Remove="Resources\**" />
     <EmbeddedResource Remove="UI\MainPanel\**" />
-    <None Remove="UnityFBXExporter\**" />
+    <None Remove="FbxUtil\**" />
     <None Remove="KianCommons\**" />
     <None Remove="Resources\**" />
     <None Remove="UI\MainPanel\**" />
@@ -76,7 +76,7 @@
     <Compile Remove="UI\RoadEditor\CursorInfoLabel.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UnityFBXExporter\FbxConverter.cs" />
+    <Compile Include="FbxUtil\FbxConverter.cs" />
     <Compile Include="KianCommons\KianCommons\Math\BezierUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Math\ControlPoint2.cs" />
     <Compile Include="KianCommons\KianCommons\Math\ControlPoint3.cs" />
@@ -125,9 +125,9 @@
     <Compile Include="KianCommons\KianCommons\Serialization\SerializationUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Util\StringExtensions.cs" />
     <Compile Include="KianCommons\KianCommons\Serialization\XMLUtil.cs" />
-    <Compile Include="UnityFBXExporter\FBXExporter.cs" />
-    <Compile Include="UnityFBXExporter\FBXUnityMaterialGetter.cs" />
-    <Compile Include="UnityFBXExporter\FBXUnityMeshGetter.cs" />
+    <Compile Include="FbxUtil\UnityFBXExporter\FBXExporter.cs" />
+    <Compile Include="FbxUtil\UnityFBXExporter\FBXUnityMaterialGetter.cs" />
+    <Compile Include="FbxUtil\UnityFBXExporter\FBXUnityMeshGetter.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CitiesHarmony.API" Version="1.0.5" />
@@ -188,6 +188,9 @@
   <ItemGroup>
     <ProjectReference Include="..\prefab-metadata\Prefab Metadata.csproj" />
     <ProjectReference Include="..\PrefabMetaDataAPI\Prefab Metadata API.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="FbxUtil\FbxConvertor\" />
   </ItemGroup>
   <Target Name="DeployToModDirectory" AfterTargets="Build">
     <GetAssemblyIdentity AssemblyFiles="$(TargetPath)">
