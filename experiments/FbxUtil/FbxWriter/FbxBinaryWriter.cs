@@ -25,7 +25,8 @@ namespace Fbx {
         /// Creates a new writer
         /// </summary>
         /// <param name="stream"></param>
-        public FbxBinaryWriter(Stream stream) {
+        public FbxBinaryWriter(Stream stream)
+        {
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream));
             output = stream;
@@ -40,7 +41,8 @@ namespace Fbx {
             public readonly char id;
             public readonly PropertyWriter writer;
 
-            public WriterInfo(char id, PropertyWriter writer) {
+            public WriterInfo(char id, PropertyWriter writer)
+            {
                 this.id = id;
                 this.writer = writer;
             }
@@ -48,7 +50,7 @@ namespace Fbx {
 
         private static readonly Dictionary<Type, WriterInfo> writePropertyActions
             = new Dictionary<Type, WriterInfo> {
-                { typeof(byte),   new WriterInfo('B', (sw, obj) => sw.Write((byte)obj)) }, // KAIN MODIFICATION
+                { typeof(byte),   new WriterInfo('I', (sw, obj) => sw.Write((int)(byte)obj)) }, // KAIN MODIFICATION
                 { typeof(int),  new WriterInfo('I', (sw, obj) => sw.Write((int)obj)) },
                 { typeof(short),  new WriterInfo('Y', (sw, obj) => sw.Write((short)obj)) },
                 { typeof(long),   new WriterInfo('L', (sw, obj) => sw.Write((long)obj)) },
@@ -58,21 +60,23 @@ namespace Fbx {
                 { typeof(byte[]), new WriterInfo('R', WriteRaw) },
                 { typeof(string), new WriterInfo('S', WriteString) },
 
-		// null elements indicate arrays - they are checked again with their element type
-		{ typeof(int[]),        new WriterInfo('i', null) },
+		        // null elements indicate arrays - they are checked again with their element type
+                { typeof(int[]),    new WriterInfo('i', null) },
                 { typeof(long[]),   new WriterInfo('l', null) },
                 { typeof(float[]),  new WriterInfo('f', null) },
                 { typeof(double[]), new WriterInfo('d', null) },
                 { typeof(bool[]),   new WriterInfo('b', null) },
             };
 
-        static void WriteRaw(BinaryWriter stream, object obj) {
+        static void WriteRaw(BinaryWriter stream, object obj)
+        {
             var bytes = (byte[])obj;
             stream.Write(bytes.Length);
             stream.Write(bytes);
         }
 
-        static void WriteString(BinaryWriter stream, object obj) {
+        static void WriteString(BinaryWriter stream, object obj)
+        {
             var str = obj.ToString();
             // Replace "::" with \0\1 and reverse the tokens
             if (str.Contains(asciiSeparator)) {
@@ -92,7 +96,8 @@ namespace Fbx {
             stream.Write(bytes);
         }
 
-        void WriteArray(Array array, Type elementType, PropertyWriter writer) {
+        void WriteArray(Array array, Type elementType, PropertyWriter writer)
+        {
             stream.Write(array.Length);
 
             var size = array.Length * Marshal.SizeOf(elementType);
@@ -134,7 +139,8 @@ namespace Fbx {
             }
         }
 
-        void WriteProperty(object obj, int id) {
+        void WriteProperty(object obj, int id)
+        {
             if (obj == null)
                 return;
             WriterInfo writerInfo;
@@ -156,7 +162,8 @@ namespace Fbx {
         static readonly byte[] nullData7500 = new byte[25];
 
         // Writes a single document to the buffer
-        void WriteNode(FbxDocument document, FbxNode node) {
+        void WriteNode(FbxDocument document, FbxNode node)
+        {
             if (node == null) {
                 var data = document.Version >= FbxVersion.v7_5 ? nullData7500 : nullData;
                 stream.BaseStream.Write(data, 0, data.Length);
@@ -226,7 +233,8 @@ namespace Fbx {
         /// Writes an FBX file to the output
         /// </summary>
         /// <param name="document"></param>
-        public void Write(FbxDocument document) {
+        public void Write(FbxDocument document)
+        {
             stream.BaseStream.Position = 0;
             WriteHeader(stream.BaseStream);
             stream.Write((int)document.Version);

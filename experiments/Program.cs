@@ -1,58 +1,91 @@
 ﻿using System;
-using HarmonyLib;
-using ColossalFramework.UI;
-using System.Collections.Generic;
+using System.Text;
+using System.IO;
+using System.Diagnostics;
 
+using Fbx;
 namespace experiments {
     class Program {
         static void Main(string[] args)
         {
-            Harmony harmony = new Harmony("Kian.Test");
-            harmony.PatchAll();
-        }
-    }
-
-
-    [HarmonyPatch(typeof(RoadEditorCollapsiblePanel))]
-    internal static class RoadEditorCollapsiblePanelPatch {
-        [HarmonyPrefix]
-        [HarmonyPatch("OnButtonClick")]
-        static bool OnButtonClickPrefix(UIComponent component)
-        {
-            Console.WriteLine("OnButtonClickPrefix() is called");
-            return false;
+            Test4();
         }
 
-        static void OnButtonControlClick(UIComponent component)
-        {
-            Console.WriteLine("OnButtonControlClick() is called");
+        static void Test4() {
+            Test3();
+            string dir = @"C:\Users\dell\AppData\Local\Colossal Order\Cities_Skylines\Addons\Import\ARDumps\";
+            string file1 = "RoadMediumNode._ascii.fbx"; // can open this
+            string file2 = "TEST3_RoadMediumNode.binary.fbx"; // can open this
+            string file3 = "TEST3_RoadMediumNode.ascii.fbx";
+            string fileB = "TEST3B_RoadMediumNode.binary.fbx";
+
+            Console.WriteLine("reading binary ...");
+            var doc1 = FbxIO.ReadBinary(dir + file2);
+
+            FbxIO.WriteAscii(doc1, dir + file3);
+            var doc2 = FbxIO.ReadAscii(dir + file3);
+            doc1.Diff(doc2);
+
+            FbxIO.WriteBinary(doc2, dir + fileB);
         }
 
-        public static void DisplaceAllProps(NetInfo.Lane[] lanes)
+
+
+        static Process Execute(string dir, string exeFile, string args)
         {
-            Console.WriteLine("DisplaceAllProps() is called");
+            ProcessStartInfo startInfo = new ProcessStartInfo {
+                WorkingDirectory = dir,
+                FileName = exeFile,
+                Arguments = args,
+                WindowStyle = ProcessWindowStyle.Hidden,
+            };
+            Process process = new Process { StartInfo = startInfo};
+            process.Start();
+            return process;
         }
 
-        public static void DisplaceAll(IEnumerable<NetLaneProps.Prop> props)
+        static void Test3()
         {
-            Console.WriteLine("DisplaceAllProps() is called");
+            string dir = @"C:\Users\dell\AppData\Local\Colossal Order\Cities_Skylines\Addons\Import\ARDumps";
+            string fileIn = "RoadMediumNode._ascii.fbx";
+            string fileOut = "TEST3_RoadMediumNode.binary.fbx";
+            string converter = "FbxFormatConverter.exe";
 
+            Execute(dir, converter, $"-c {fileIn} -o {fileOut} -binary").WaitForExit();
         }
 
-        public static void DisplaceAll(IEnumerable<NetLaneProps.Prop> props, int z)
+        static void Test2()
         {
-            Console.WriteLine("DisplaceAll() is called");
+            string dir = @"C:\Users\dell\AppData\Local\Colossal Order\Cities_Skylines\Addons\Import\ARDumps\";
+            string file1 = "RoadMediumNode.binary.fbx"; // can open this
+
+            var doc = FbxIO.ReadBinary(dir + file1); 
+            string fileA = "testA_" + file1;
+            FbxIO.WriteBinary(doc, dir + fileA); // can open this
+            
+            doc = FbxIO.ReadBinary(dir + file1);
+            string fileB = "testB_" + file1;
+            FbxIO.WriteAscii(doc, dir + fileB); // can open this
+
+            doc = FbxIO.ReadAscii(dir + fileB);
+            FbxIO.WriteBinary(doc, dir + "testC_" + file1);  // can' open this
         }
 
-        static void ClearAll(RoadEditorCollapsiblePanel instance)
+        static void Test1()
         {
-            Console.WriteLine("ClearAll() is called");
+            string dir = @"C:\Users\dell\AppData\Local\Colossal Order\Cities_Skylines\Addons\Import\ARDumps\";
+            string file1 = "RoadMediumNode._ascii.fbx";
 
-        }
+            var doc = FbxIO.ReadAscii(dir + file1);
+            string fileA = "testA_" + file1;
+            FbxIO.WriteAscii(doc, dir + fileA);
 
-        static void PasteAll(RoadEditorCollapsiblePanel groupPanel)
-        {
-            Console.WriteLine("PasteAll() is called");
+            doc = FbxIO.ReadAscii(dir + fileA);
+            string fileB = "testB_" + file1;
+            FbxIO.WriteBinary(doc, dir + fileB); // i can't open this
+
+            doc = FbxIO.ReadBinary(dir + fileB);
+            FbxIO.WriteAscii(doc, dir + "testC_" + file1); // i can open this
         }
     }
 }

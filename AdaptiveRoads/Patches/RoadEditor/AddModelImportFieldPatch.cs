@@ -37,13 +37,16 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         }
 
         public static void DumpObj(this Mesh mesh, string name) {
-            string path = GetFilePath(name + "_" + mesh.name, ".obj");
+            string path = GetFilePath(mesh.name, ".obj");
             using (var fs = new FileStream(path, FileMode.Create))
                 OBJLoader.ExportOBJ(mesh.EncodeOBJ(), fs);
         }
 
         public static void DumpFpx(this Mesh mesh, string name) {
-            string path = GetFilePath(name + "_" + mesh.name, ".fbx");
+            string path = GetFilePath("", mesh.name, "_ascii.fbx");
+            mesh.ExportAsciiFbx(path);
+
+            path = GetFilePath("", mesh.name, "_binary.fbx");
             mesh.ExportBinaryFbx(path);
         }
 
@@ -117,6 +120,21 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             }
             Log.Info("Dumping to " + path);
             File.WriteAllBytes(path, bytes);
+        }
+
+        static string GetFilePath(string subdir, string name, string ext) {
+            if (ext[0] == '.') ext = ext.Substring(1);
+            string filename = name + "." + ext;
+            filename = filename.RemoveChars(Path.GetInvalidFileNameChars());
+            string dir = subdir.RemoveChars(Path.GetInvalidPathChars());
+
+            string path = Path.Combine(AssetImporterAssetImport.assetImportPath, "ARDumps");
+            if(dir != "")
+                path = Path.Combine(path, dir);
+            Directory.CreateDirectory(path);
+            path = Path.Combine(path, filename);
+            return path;
+
         }
 
         static string GetFilePath(string name, string ext) {

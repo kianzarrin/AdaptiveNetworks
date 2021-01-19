@@ -35,6 +35,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
             padding = new RectOffset(5, 5, 5, 5);
             atlas = TextureUtil.Ingame;
             relativePosition = default;
+            isVisible = false; // prevent initial black box on screen.
         }
 
         public new float width {
@@ -188,7 +189,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
                         } else if (customControl is REPropertySet propertySet) {
                             var field = propertySet.GetTargetField();
-                            if (field.Name == "m_speedLimit")
+                            if (field?.Name == "m_speedLimit")
                                 Hint2 = "1 game unit is 50 kph (31.06856mph)";
                         }
                     }
