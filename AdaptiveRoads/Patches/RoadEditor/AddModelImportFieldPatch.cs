@@ -43,11 +43,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         }
 
         public static void DumpFpx(this Mesh mesh, string name) {
-            string path = GetFilePath("", mesh.name, "_ascii.fbx");
-            mesh.ExportAsciiFbx(path);
-
-            path = GetFilePath("", mesh.name, "_binary.fbx");
-            mesh.ExportBinaryFbx(path);
+            string path = GetFilePath("", mesh.name, ".fbx");
+            mesh.ExportBinaryFbx2(path);
         }
 
         //    static void Dump(object target) {

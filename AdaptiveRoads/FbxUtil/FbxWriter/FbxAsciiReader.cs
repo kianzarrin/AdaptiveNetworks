@@ -7,6 +7,7 @@ namespace Fbx {
     /// <summary>
     /// Reads FBX nodes from a text stream
     /// </summary>
+    [Obsolete("does not read properly", error:true)]
     public class FbxAsciiReader {
         private readonly Stream stream;
         private readonly ErrorLevel errorLevel;

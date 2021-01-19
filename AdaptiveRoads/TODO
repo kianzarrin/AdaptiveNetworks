@@ -1,3 +1,5 @@
+bugs: find and fix compatibility issues.
+
 flags for:
     merging/splitting lanes
     slight left/right
@@ -25,8 +27,6 @@ create road:
     no crossing texture
     DC node
 
-
-- dump .fbx 
 ----------------------------
 version 2:
     mixed enum type bitmask

@@ -4,6 +4,9 @@ namespace FbxUtil {
     using Fbx;
     using KianCommons;
     using System.Text;
+    using System;
+    using System.Diagnostics;
+    using System.Reflection;
 
     public static class FbxConverter {
         #region stream IO
@@ -11,6 +14,8 @@ namespace FbxUtil {
             using(var sw = new StreamWriter(stream) )
                 sw.Write(mesh.ToAsciiFBX());
         }
+
+        [Obsolete("does not read properly", error: true)]
         public static void ExportBinaryFbx(this Mesh mesh, Stream stream) {
             var writer = new FbxBinaryWriter(stream);
             writer.Write(mesh.ToFBXDocument());
@@ -21,13 +26,21 @@ namespace FbxUtil {
         public static void ExportAsciiFbx(this Mesh mesh, string path) =>
             File.WriteAllText(path, mesh.ToAsciiFBX());
 
+        public static void ExportBinaryFbx2(this Mesh mesh, string path) {
+            string tempPath = path.Replace(".fbx", ".ascii.fbx");
+            mesh.ExportAsciiFbx(tempPath);
+            ConvertBinary(tempPath, path);
+        }
+
+        [Obsolete("does not read properly", error: true)]
         public static void ExportBinaryFbx(this Mesh mesh, string path) =>
             FbxIO.WriteBinary(mesh.ToFBXDocument(), path);
-        
+
         #endregion
 
         #region conversion
-        public static FbxDocument AsciiToBinary(string data) {
+        [Obsolete("does not read properly", error: true)]
+        public static FbxDocument AsciiToDoc(string data) {
             using(var s = data.ToStream()) { 
                 var reader = new FbxAsciiReader(s);
                 return reader.Read();
@@ -44,13 +57,35 @@ namespace FbxUtil {
             return data;
         }
 
+        [Obsolete("does not read properly", error: true)]
         public static FbxDocument ToFBXDocument(this Mesh mesh) {
             string data = mesh.ToAsciiFBX();
-            return AsciiToBinary(data);
+            return AsciiToDoc(data);
         }
+
+        public static void ConvertBinary(string source, string target) {
+            string modPath = PluginUtil.GetPlugin(Assembly.GetExecutingAssembly()).modPath;
+            string converter = "FbxFormatConverter.exe";
+            source = '"' + source + '"';
+            target = '"' + target + '"';
+            Execute(modPath, converter, $"-c {source} -o {target} -binary");//.WaitForExit();
+        }
+
         #endregion
 
+        static Process Execute(string dir, string exeFile, string args) {
+            ProcessStartInfo startInfo = new ProcessStartInfo {
+                WorkingDirectory = dir,
+                FileName = exeFile,
+                Arguments = args,
+                WindowStyle = ProcessWindowStyle.Hidden,
+            };
+            Process process = new Process { StartInfo = startInfo };
+            process.Start();
+            return process;
+        }
         #region Stream Util
+
 
         static string ReadAllText(this Stream stream) {
             stream.Flush();
@@ -64,23 +99,6 @@ namespace FbxUtil {
             new MemoryStream(encoding.GetBytes(value ?? string.Empty));
 
         #endregion
-
-        static void Test(Mesh mesh) {
-            // Read a file
-            var documentNode = FbxIO.ReadBinary("MyModel.fbx");
-
-            // Update a property
-            documentNode["Creator"].Value = "My Application";
-
-            using (var s = new MemoryStream()) {
-                var w = new FbxAsciiWriter(s);
-                w.Write(documentNode);
-                Log.Debug(s.ReadAllText());
-            }
-
-            // Write the updated binary
-            FbxIO.WriteBinary(documentNode, "MyModel_patched.fbx");
-        }
     }
 }
 

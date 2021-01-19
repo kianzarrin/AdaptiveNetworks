@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 
 namespace Fbx
@@ -26,12 +26,13 @@ namespace Fbx
 			}
 		}
 
-		/// <summary>
-		/// Reads an ASCII FBX file
-		/// </summary>
-		/// <param name="path"></param>
-		/// <returns>The top level document node</returns>
-		public static FbxDocument ReadAscii(string path)
+                /// <summary>
+                /// Reads an ASCII FBX file
+                /// </summary>
+                /// <param name="path"></param>
+                /// <returns>The top level document node</returns>
+                [Obsolete("does not read properly", error: true)]
+                public static FbxDocument ReadAscii(string path)
 		{
 			if (path == null)
 				throw new ArgumentNullException(nameof(path));
