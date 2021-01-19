@@ -77,19 +77,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FbxUtil\FbxConverter.cs" />
-    <Compile Include="FbxUtil\FbxWriter\DeflateWithChecksum.cs" />
-    <Compile Include="FbxUtil\FbxWriter\ErrorLevel.cs" />
-    <Compile Include="FbxUtil\FbxWriter\FbxAsciiReader.cs" />
-    <Compile Include="FbxUtil\FbxWriter\FbxAsciiWriter.cs" />
-    <Compile Include="FbxUtil\FbxWriter\FbxBinary.cs" />
-    <Compile Include="FbxUtil\FbxWriter\FbxBinaryReader.cs" />
-    <Compile Include="FbxUtil\FbxWriter\FbxBinaryWriter.cs" />
-    <Compile Include="FbxUtil\FbxWriter\FbxDocument.cs" />
-    <Compile Include="FbxUtil\FbxWriter\FbxException.cs" />
-    <Compile Include="FbxUtil\FbxWriter\FbxIO.cs" />
-    <Compile Include="FbxUtil\FbxWriter\FbxNode.cs" />
-    <Compile Include="FbxUtil\FbxWriter\FbxNodeList.cs" />
-    <Compile Include="FbxUtil\FbxWriter\FbxVersion.cs" />
     <Compile Include="KianCommons\KianCommons\Math\BezierUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Math\ControlPoint2.cs" />
     <Compile Include="KianCommons\KianCommons\Math\ControlPoint3.cs" />
@@ -197,9 +184,6 @@
     <None Include="DecompiledSources\NetLane.cs" />
     <None Include="DecompiledSources\NetNode.cs" />
     <None Include="DecompiledSources\NetSegment.cs" />
-    <None Include="FbxUtil\FbxWriter\GPL.LICENSE" />
-    <None Include="FbxUtil\FbxWriter\LGPL.LICENSE" />
-    <None Include="FbxUtil\FbxWriter\README.md" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\prefab-metadata\Prefab Metadata.csproj" />

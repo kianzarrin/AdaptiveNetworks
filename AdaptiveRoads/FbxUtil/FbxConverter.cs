@@ -1,7 +1,6 @@
 namespace FbxUtil {
     using System.IO;
     using UnityEngine;
-    using Fbx;
     using KianCommons;
     using System.Text;
     using System;
@@ -15,11 +14,11 @@ namespace FbxUtil {
                 sw.Write(mesh.ToAsciiFBX());
         }
 
-        [Obsolete("does not read properly", error: true)]
-        public static void ExportBinaryFbx(this Mesh mesh, Stream stream) {
-            var writer = new FbxBinaryWriter(stream);
-            writer.Write(mesh.ToFBXDocument());
-        }
+        //[Obsolete("does not read properly", error: true)]
+        //public static void ExportBinaryFbx(this Mesh mesh, Stream stream) {
+        //    var writer = new FbxBinaryWriter(stream);
+        //    writer.Write(mesh.ToFBXDocument());
+        //}
         #endregion
 
         #region File IO
@@ -32,20 +31,20 @@ namespace FbxUtil {
             ConvertBinary(tempPath, path);
         }
 
-        [Obsolete("does not read properly", error: true)]
-        public static void ExportBinaryFbx(this Mesh mesh, string path) =>
-            FbxIO.WriteBinary(mesh.ToFBXDocument(), path);
+        //[Obsolete("does not read properly", error: true)]
+        //public static void ExportBinaryFbx(this Mesh mesh, string path) =>
+        //    FbxIO.WriteBinary(mesh.ToFBXDocument(), path);
 
         #endregion
 
         #region conversion
-        [Obsolete("does not read properly", error: true)]
-        public static FbxDocument AsciiToDoc(string data) {
-            using(var s = data.ToStream()) { 
-                var reader = new FbxAsciiReader(s);
-                return reader.Read();
-            }
-        }
+        //[Obsolete("does not read properly", error: true)]
+        //public static FbxDocument AsciiToDoc(string data) {
+        //    using(var s = data.ToStream()) { 
+        //        var reader = new FbxAsciiReader(s);
+        //        return reader.Read();
+        //    }
+        //}
 
         public static string ToAsciiFBX(this Mesh mesh) {
             GameObject go = new GameObject();
@@ -57,11 +56,11 @@ namespace FbxUtil {
             return data;
         }
 
-        [Obsolete("does not read properly", error: true)]
-        public static FbxDocument ToFBXDocument(this Mesh mesh) {
-            string data = mesh.ToAsciiFBX();
-            return AsciiToDoc(data);
-        }
+        //[Obsolete("does not read properly", error: true)]
+        //public static FbxDocument ToFBXDocument(this Mesh mesh) {
+        //    string data = mesh.ToAsciiFBX();
+        //    return AsciiToDoc(data);
+        //}
 
         public static void ConvertBinary(string source, string target) {
             string modPath = PluginUtil.GetPlugin(Assembly.GetExecutingAssembly()).modPath;
