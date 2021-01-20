@@ -48,6 +48,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
         }
 
         public override void Update() {
+            isVisible = isVisible; // trick fbsbooster to ignore this update.
             base.Update();
             if (Input.GetMouseButtonDown(1)) {
                 Log.Debug("MiniPanel.Update: rigt click => close this");
@@ -63,7 +64,6 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 }
                 Close();
             }
-
         }
 
         private void SetPosition() {

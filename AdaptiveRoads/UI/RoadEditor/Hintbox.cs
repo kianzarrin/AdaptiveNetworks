@@ -110,7 +110,10 @@ namespace AdaptiveRoads.UI.RoadEditor {
         static string Str(REPropertySet re) =>
             $"{re.GetType().Name}(target:{FieldValue("m_Target", re)}, field:{FieldValue("m_Target", re)}";
 
+
         public override void Update() {
+            isVisible = isVisible; // trick fbsbooster to ignore this update.
+
             try {
                 base.Update();
                 if (ModSettings.HideHints)
