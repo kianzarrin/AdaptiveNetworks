@@ -9,8 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using static AdaptiveRoads.Util.DPTHelpers;
-using KianCommons.UI.Helpers;
-using AdaptiveRoads.Util;
 
 namespace AdaptiveRoads.UI.RoadEditor {
     public class HintBox : UILabel {
@@ -123,7 +121,6 @@ namespace AdaptiveRoads.UI.RoadEditor {
             } catch (Exception ex) {
                 Log.Exception(ex);
             }
-
         }
 
         private void ShowInfo() {
@@ -151,8 +148,10 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
                 //var t = FindObjectsOfType<REPropertySet>()
                 //    .Select(re => Str(re)).ToSTR();
+
                 Hint1 = Hint2 = Hint3 = null;
                 foreach (var panel in FindObjectsOfType<UIPanel>()) {
+                    if (!panel.isVisible) continue;
                     IHint dataUI = panel as IHint ?? panel.objectUserData as IHint;
                     if (dataUI != null && dataUI.IsHovered()) {
                         // note that it is possible for the panel

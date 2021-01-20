@@ -32,6 +32,7 @@ namespace AdaptiveRoads.UI {
         public static readonly SavedBool Lane_Node = SavedBool(LANE_NODE, false);
 
         public static readonly SavedBool ARMode = SavedBool(AR_META_DATA, true);
+        public static readonly SavedBool DefaultScale100 = SavedBool(AR_META_DATA, false);
 
         public static UICheckBox VanillaModeToggle;
 
@@ -44,7 +45,6 @@ namespace AdaptiveRoads.UI {
             }
             throw new System.ArgumentException($"option key:`{key}` does not exist.");
         }
-
 
         public static UICheckBox AddSavedToggle(this UIHelperBase helper, string label, SavedBool savedBool) {
             return helper.AddCheckbox(label, savedBool, delegate (bool value) {
@@ -74,10 +74,11 @@ namespace AdaptiveRoads.UI {
 
             general.AddSavedToggle("hide irrelevant flags", HideIrrelavant);
             general.AddSavedToggle("hide floating hint box", HideHints);
+            general.AddSavedToggle("Set default scale to 100", DefaultScale100);
 
             //var export = helper.AddGroup("import/export:");
-                //export.AddButton("export edited road", null);
-                //export.AddButton("import to edited road", null);
+            //export.AddButton("export edited road", null);
+            //export.AddButton("import to edited road", null);
 
             var extensions = helper.AddGroup("UI components visible in asset editor:");
             var segment = extensions.AddGroup("Segment");

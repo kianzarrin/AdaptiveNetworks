@@ -4,7 +4,7 @@ namespace AdaptiveRoads.Patches.metadata {
     using System;
 
     /// <summary>
-    /// changeing types confuses AddCustomFields.
+    /// changeing types confuses OnImportFinished.
     /// this patch resolves that confusion by using the replaced types.
     /// TODO move this pacth to prefab indeces mod.
     /// </summary>

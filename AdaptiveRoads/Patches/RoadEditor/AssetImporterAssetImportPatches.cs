@@ -22,8 +22,10 @@ namespace AdaptiveRoads.Patches.RoadEditor.AssetImporterAssetImportPatches {
         }
         [UsedImplicitly]
         static void Postfix(UITextField ___m_Scale) {
-            if (___m_Scale.text == "1") // if CalculateDefaultScale() returned 1
-                ___m_Scale.text = "100";
+            if (AdaptiveRoads.UI.ModSettings.DefaultScale100) {
+                if (___m_Scale.text == "1") // if CalculateDefaultScale() returned 1
+                    ___m_Scale.text = "100";
+            }
         }
     }
 
