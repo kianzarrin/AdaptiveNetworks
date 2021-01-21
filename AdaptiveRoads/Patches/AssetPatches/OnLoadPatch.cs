@@ -3,14 +3,21 @@ namespace AdaptiveRoads.Patches.AssetPatches {
     using HarmonyLib;
     using LifeCycle;
     using KianCommons;
+    using AdaptiveRoads.Manager;
 
     [HarmonyPatch(typeof(LoadAssetPanel), "OnLoad")]
     public static class OnLoadPatch {
-        /// <summary>
-        /// when loading asset from a file, IAssetData.OnAssetLoaded() is called for all assets but the one that is loaded from the file.
-        /// this postfix calls IAssetData.OnAssetLoaded() for asset loaded from file.
-        /// </summary>
-        public static void Postfix(LoadAssetPanel __instance, UIListBox ___m_SaveList) {
+#if DEBUG
+        public static void Prefix() =>
+                Log.Debug("LoadAssetPanel.OnLoad().Prefix(): Loading Road asset ...");
+#endif
+
+
+    /// <summary>
+    /// when loading asset from a file, IAssetData.OnAssetLoaded() is called for all assets but the one that is loaded from the file.
+    /// this postfix calls IAssetData.OnAssetLoaded() for asset loaded from file.
+    /// </summary>
+    public static void Postfix(LoadAssetPanel __instance, UIListBox ___m_SaveList) {
             // Taken from LoadAssetPanel.OnLoad
             var selectedIndex = ___m_SaveList.selectedIndex;
             var getListingMetaDataMethod = typeof(LoadSavePanelBase<CustomAssetMetaData>).GetMethod(
@@ -26,6 +33,7 @@ namespace AdaptiveRoads.Patches.AssetPatches {
                 Log.Debug($"LoadAssetPanel.OnLoad().Postfix(): Loading asset from load asset panel");
                 AssetDataExtension.Instance.OnAssetLoaded(listingMetaData.name, ToolsModifierControl.toolController.m_editPrefabInfo, userAssetData.Data);
             }
+            NetInfoExtionsion.EnsureExtended_EditedNetInfos();
         }
     }
 }
