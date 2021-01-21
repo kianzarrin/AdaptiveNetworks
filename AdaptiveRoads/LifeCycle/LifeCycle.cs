@@ -66,6 +66,7 @@ namespace AdaptiveRoads.LifeCycle {
 
         public static void Preload() {
             Log.Info("LifeCycle.Preload() called");
+            PluginUtil.LogPlugins();
             if (!HideCrosswalksPatch.patched && PluginUtil.GetHideCrossings().IsActive()) {
                 HarmonyUtil.ManualPatch(typeof(HideCrosswalksPatch), HARMONY_ID_MANUAL);
                 HideCrosswalksPatch.patched = true;

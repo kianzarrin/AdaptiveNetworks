@@ -3,12 +3,11 @@ using System;
 using System.Linq;
 using System.Reflection;
 using static KianCommons.ReflectionHelpers;
-using System.Collections.Generic;
 
 namespace AdaptiveRoads.DTO {
     // TODO move to Kian commons.
     internal static class DTOUtil {
-        public static TargetElementT[] CopyArray<TargetElementT>(object []source) {
+        public static TargetElementT[] CopyArray<TargetElementT>(object[] source) {
             return source.Select(item => (TargetElementT)item).ToArray();
         }
 
@@ -28,13 +27,11 @@ namespace AdaptiveRoads.DTO {
                     } catch {
                         try {
                             Type targetType = targetFieldInfo.FieldType;
-                            Log.Debug("CopyAllMatchingFields: special case targetType is " + targetType);
                             if (TryConvert(value, targetType, out object value2)) {
                                 targetFieldInfo.SetValue(target, value2);
-                                Log.Debug("CopyAllMatchingFields: value2 is" + value2);
-                            }
+                           }
                         } catch (Exception ex) {
-                            Log.Exception(ex);
+                            Log.Exception(ex, $"failed copying from {originFieldInfo} to {targetFieldInfo}");
                         }
                     }
                 }
@@ -53,7 +50,7 @@ namespace AdaptiveRoads.DTO {
 
         public static object Invoke(this MethodBase method, params object[] parameters) =>
             method.Invoke(null, parameters);
-        
+
         public static MethodBase GetConverter(Type sourceType, Type targetType) {
             MethodBase ret = null;
             ret ??= sourceType.GetConverter(sourceType, targetType);

@@ -16,6 +16,12 @@ using System.Drawing.Imaging;
 
 namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
     public class MenuPanelBase : UIPanel {
+        public static void CloseAll() {
+            foreach (var panel in FindObjectsOfType<MenuPanelBase>())
+                Destroy(panel?.gameObject);
+        }
+
+
         public const int PAD = 10;
         public const int TITLE_HEIGHT = 46;
 
@@ -70,5 +76,12 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
 
             return panel;
         }
+
+#if DEBUG
+        public override void OnDestroy() {
+            Log.Debug($"{this}.OnDestroy() was called");
+            base.OnDestroy();
+        }
+#endif
     }
 }

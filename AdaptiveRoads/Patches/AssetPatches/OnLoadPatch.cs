@@ -2,6 +2,7 @@ namespace AdaptiveRoads.Patches.AssetPatches {
     using ColossalFramework.UI;
     using HarmonyLib;
     using LifeCycle;
+    using KianCommons;
 
     [HarmonyPatch(typeof(LoadAssetPanel), "OnLoad")]
     public static class OnLoadPatch {
@@ -22,6 +23,7 @@ namespace AdaptiveRoads.Patches.AssetPatches {
                 if (userAssetData == null) {
                     userAssetData = new AssetDataWrapper.UserAssetData();
                 }
+                Log.Debug($"LoadAssetPanel.OnLoad().Postfix(): Loading asset from load asset panel");
                 AssetDataExtension.Instance.OnAssetLoaded(listingMetaData.name, ToolsModifierControl.toolController.m_editPrefabInfo, userAssetData.Data);
             }
         }

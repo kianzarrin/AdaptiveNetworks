@@ -5,8 +5,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using System;
     using System.Reflection;
     using static KianCommons.ReflectionHelpers;
-    using AdaptiveRoads.Util;
-    using static AdaptiveRoads.Util.DPTHelpers;
 
     /// <summary>
     /// if control is pressed, show more options instead of toggling the side panel.
@@ -20,8 +18,13 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         static MethodBase TargetMethod() =>
             GetMethod(tRoadEditorDynamicPropertyToggle, "OnSelectButtonClick");
 
-        static bool Prefix(UIComponent c) =>
-            !HelpersExtensions.ControlIsPressed; // skip if control is pressed (multi select mode)
+        static bool Prefix(UIComponent c) {
+#if DEBUG
+            if (!HelpersExtensions.ControlIsPressed)
+                Log.Debug("DPT clicked.");
+#endif
+            return !HelpersExtensions.ControlIsPressed; // skip if control is pressed (multi select mode)
+        }
     }
 }
 

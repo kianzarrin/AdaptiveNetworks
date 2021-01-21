@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using static AdaptiveRoads.Util.DPTHelpers;
+using System.Diagnostics;
+
 
 namespace AdaptiveRoads.UI.RoadEditor {
     public class HintBox : UILabel {
@@ -150,7 +152,9 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 //    .Select(re => Str(re)).ToSTR();
 
                 Hint1 = Hint2 = Hint3 = null;
-                foreach (var panel in FindObjectsOfType<UIPanel>()) {
+
+                var panels = UIView.GetAView().GetComponentsInChildren<UIPanel>();
+                foreach (var panel in panels) {
                     if (!panel.isVisible) continue;
                     IHint dataUI = panel as IHint ?? panel.objectUserData as IHint;
                     if (dataUI != null && dataUI.IsHovered()) {

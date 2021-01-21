@@ -102,7 +102,6 @@
     <Compile Include="KianCommons\KianCommons\Serialization\Vector3Serializable.cs" />
     <Compile Include="KianCommons\KianCommons\Patches\HarmonyUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Patches\TranspilerUtils.cs" />
-    <Compile Include="KianCommons\KianCommons\Serialization\JsonUtil.cs" />
     <Compile Include="KianCommons\KianCommons\UI\Helpers\UIAutoSizePanel.cs" />
     <Compile Include="KianCommons\KianCommons\UI\Helpers\UIButtonExt.cs" />
     <Compile Include="KianCommons\KianCommons\UI\Helpers\UICheckboxDropDownExt.cs" />
@@ -151,10 +150,6 @@
       <HintPath>$(ManagedDLLPath)\ICities.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\libs\Newtonsoft.Json.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
     <Reference Include="TMPE.API">
       <HintPath>..\libs\TMPE.API.dll</HintPath>
       <Private>false</Private>
@@ -201,7 +196,10 @@
       <Now>$([System.DateTime]::Now.ToString("h:mmtt"))</Now>
     </PropertyGroup>
     <ItemGroup>
-      <AuxilaryFiles Include="$(TargetDir)PrefabMetaData*.dll;$(TargetDir)CitiesHarmony.API.dll;$(TargetDir)Newtonsoft.Json.dll;$(SolutionDir)\libs\FbxFormatConverter.exe" Exclude="$(TargetPath);$(TargetDir)*.pdb" />
+      <AuxilaryFiles
+        Include="$(TargetDir)PrefabMetaData*.dll;$(TargetDir)CitiesHarmony.API.dll;$(SolutionDir)\libs\FbxFormatConverter.exe"
+        Exclude="$(TargetPath);$(TargetDir)*.pdb" />
+      <!--$(TargetDir)Newtonsoft.Json.dll;-->
       <VersionNumber Include="@(Targets->'%(Version)')" />
     </ItemGroup>
     

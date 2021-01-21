@@ -1,4 +1,10 @@
-bugs: find and fix compatibility issues.
+bugs:
+    why stop sign did not show in game
+    why user gets Assertion failures with WS road.
+
+performance:
+    hint box is slow.
+
 
 flags for:
     merging/splitting lanes

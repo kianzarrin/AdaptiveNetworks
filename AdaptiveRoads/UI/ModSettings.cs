@@ -49,8 +49,10 @@ namespace AdaptiveRoads.UI {
         public static UICheckBox AddSavedToggle(this UIHelperBase helper, string label, SavedBool savedBool) {
             return helper.AddCheckbox(label, savedBool, delegate (bool value) {
                 savedBool.value = value;
+                Log.Debug($"option {label} is set to " + value);
                 RoadEditorUtils.RefreshRoadEditor();
             }) as UICheckBox;
+            Log.Debug($"option {label} is set to " + savedBool.value);
         }
 
         static ModSettings() {
@@ -118,6 +120,8 @@ namespace AdaptiveRoads.UI {
 
         public static void OnRefreshARMode() {
             ARMode.value = !VanillaModeToggle.isChecked;
+            Log.Debug($"Vanilla Mode toggle =  {VanillaModeToggle.isChecked}. ARMode = {ARMode.value}");
+
             if (Helpers.InStartupMenu)
                 return;
             if (!ARMode)

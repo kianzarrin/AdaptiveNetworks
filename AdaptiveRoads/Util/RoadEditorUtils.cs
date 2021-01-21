@@ -11,6 +11,7 @@ using System.Linq;
 using System.Reflection;
 using static AdaptiveRoads.Util.DPTHelpers;
 using static KianCommons.ReflectionHelpers;
+using Object = UnityEngine.Object;
 
 namespace AdaptiveRoads.Util {
     internal static class RoadEditorUtils {
@@ -208,14 +209,16 @@ namespace AdaptiveRoads.Util {
 
         public static void RefreshRoadEditor() {
             try {
-                var mainPanel = UnityEngine.Object.FindObjectOfType<RoadEditorMainPanel>();
+                var mainPanel = Object.FindObjectOfType<RoadEditorMainPanel>();
                 if (mainPanel) {
                     InvokeMethod(mainPanel, "OnObjectModified");
                     InvokeMethod(mainPanel, "Clear");
                     InvokeMethod(mainPanel, "Initialize");
                     InvokeMethod(mainPanel, "OnObjectModified");
                 }
-            }catch(Exception ex) {
+                MenuPanelBase.CloseAll();
+                MiniPanel.CloseAll();
+            } catch (Exception ex) {
                 Log.Exception(ex);
             }
         }

@@ -14,7 +14,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
             .Where(c => c != this);
         public static void CloseAll() {
             var panels = UIView.GetAView().GetComponentsInChildren<MiniPanel>();
-            Log.Debug("CloseALL: open mini panel count: " + panels.Count() + Environment.StackTrace);
+            Log.Debug("CloseALL: open mini panel count: " + panels.Count() /*+ Environment.StackTrace*/);
             foreach (var panel in panels)
                 panel.Close();
         }

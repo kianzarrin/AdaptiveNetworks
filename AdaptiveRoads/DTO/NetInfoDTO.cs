@@ -195,8 +195,8 @@ namespace AdaptiveRoads.DTO {
             public void ReadFromGame(NetLaneProps.Prop gameProp) {
                 DTOUtil.CopyAllMatchingFields<Prop>(this, gameProp);
                 MetaData = gameProp.GetMetaData()?.Clone();
-                Log.Debug($"ReadFromGame: m_prop={this.m_prop?.name_} " +
-                    $"gameProp.m_prop={gameProp?.m_prop}");
+                //Log.Debug($"ReadFromGame: m_prop={this.m_prop?.name_} " +
+                //    $"gameProp.m_prop={gameProp?.m_prop}");
             }
             public static explicit operator Prop(NetLaneProps.Prop gameProp) {
                 var dto = new Prop();
@@ -209,8 +209,8 @@ namespace AdaptiveRoads.DTO {
                 gameProp.m_finalProp = gameProp.m_prop;
                 gameProp.m_finalTree = gameProp.m_tree;
                 (gameProp as IInfoExtended)?.SetMetaData(MetaData?.Clone());
-                Log.Debug($"WriteToGame: m_prop={this.m_prop?.name_} " +
-                    $"gameProp.m_finalProp={gameProp.m_finalProp}");
+                //Log.Debug($"WriteToGame: m_prop={this.m_prop?.name_} " +
+                //    $"gameProp.m_finalProp={gameProp.m_finalProp}");
             }
 
             public static explicit operator NetLaneProps.Prop(Prop dto) {

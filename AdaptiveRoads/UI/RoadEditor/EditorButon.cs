@@ -1,4 +1,5 @@
 using ColossalFramework.UI;
+using KianCommons;
 using KianCommons.UI;
 using UnityEngine;
 
@@ -18,5 +19,11 @@ namespace AdaptiveRoads.UI.RoadEditor {
             pressedBgSprite = "SubBarButtonBasePressed";
             disabledBgSprite = "SubBarButtonBaseDisabled";
         }
+#if DEBUG
+        protected override void OnClick(UIMouseEventParameter p) {
+            base.OnClick(p);
+            Log.Debug($"{this} was clicked: text:{text} parent:{parent.ToSTR()}");
+        }
+#endif
     }
 }
