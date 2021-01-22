@@ -209,20 +209,20 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             if (fieldInfo.FieldType.HasAttribute<FlagPairAttribute>()) {
                 int GetRequired() {
                     object subTarget = fieldInfo.GetValue(target);
-                    return (int)GetFieldValue("Required", subTarget);
+                    return (int)GetFieldValue(subTarget, "Required");
                 }
                 void SetRequired(int flags) {
                     var subTarget = fieldInfo.GetValue(target);
-                    SetFieldValue("Required", subTarget, flags);
+                    SetFieldValue(subTarget, "Required",  flags);
                     fieldInfo.SetValue(target, subTarget);
                 }
                 int GetForbidden() {
                     object subTarget = fieldInfo.GetValue(target);
-                    return (int)GetFieldValue("Forbidden", subTarget);
+                    return (int)GetFieldValue(subTarget, "Forbidden");
                 }
                 void SetForbidden(int flags) {
                     var subTarget = fieldInfo.GetValue(target);
-                    SetFieldValue("Forbidden", subTarget, flags);
+                    SetFieldValue(subTarget, "Forbidden", flags);
                     fieldInfo.SetValue(target, subTarget);
                 }
 

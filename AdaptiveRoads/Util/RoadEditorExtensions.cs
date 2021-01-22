@@ -8,10 +8,10 @@ namespace AdaptiveRoads.Util {
 
     internal static class REPropertySetExtensions {
         public static object GetTarget(this REPropertySet instance) =>
-            ReflectionHelpers.GetFieldValue("m_Target", instance);
+            ReflectionHelpers.GetFieldValue(instance, "m_Target");
 
         public static FieldInfo GetTargetField(this REPropertySet instance) =>
-            ReflectionHelpers.GetFieldValue("m_TargetField", instance) as FieldInfo;
+            ReflectionHelpers.GetFieldValue(instance, "m_TargetField") as FieldInfo;
     }
 
     internal static class REEnumBitmaskSetExtensions {
@@ -86,10 +86,10 @@ namespace AdaptiveRoads.Util {
             GetMethod("DestroySidePanel").Invoke(instance, null);
 
         public static RoadEditorPanel GetSidePanel(this RoadEditorPanel instance) =>
-            ReflectionHelpers.GetFieldValue("m_SidePanel", instance) as RoadEditorPanel;
+            ReflectionHelpers.GetFieldValue(instance, "m_SidePanel") as RoadEditorPanel;
 
         public static object GetTarget(this RoadEditorPanel instance) =>
-            ReflectionHelpers.GetFieldValue("m_Target", instance);
+            ReflectionHelpers.GetFieldValue(instance, "m_Target");
         public static void Reset(this RoadEditorPanel instance) =>
             instance.Initialize(instance.GetTarget());
 
@@ -117,9 +117,9 @@ namespace AdaptiveRoads.Util {
     internal static class DPTHelpers {
         internal static Type DPTType =
             Type.GetType("RoadEditorDynamicPropertyToggle, Assembly-CSharp", throwOnError: true);
-        static T GetFieldValue<T>(string name, UICustomControl dpt) {
+        static T GetFieldValue<T>(this UICustomControl dpt, string name) {
             Assertion.Assert(dpt.GetType() == DPTType);
-            return (T)ReflectionHelpers.GetFieldValue(name, dpt);
+            return (T)ReflectionHelpers.GetFieldValue(dpt, name);
         }
         static MethodInfo GetMethod(string methodName) =>
             ReflectionHelpers.GetMethod(DPTType, methodName);
@@ -132,20 +132,20 @@ namespace AdaptiveRoads.Util {
 
 
         internal static UIButton GetDPTSelectButton(UICustomControl dpt) =>
-            GetFieldValue<UIButton>("m_SelectButton", dpt);
+            dpt.GetFieldValue<UIButton>("m_SelectButton");
 
         // gets the element in array the DPT represents.
         internal static object GetDPTTargetElement(UICustomControl dpt) =>
-            GetFieldValue<object>("m_TargetElement", dpt);
+            dpt.GetFieldValue<object>("m_TargetElement");
 
         /// <summary>
         /// gets the object that contains the array (m_field)
         /// </summary>
         internal static object GetDPTTargetObject(UICustomControl dpt) =>
-            GetFieldValue<object>("m_TargetObject", dpt);
+            dpt.GetFieldValue<object>("m_TargetObject");
 
         internal static FieldInfo GetDPTField(UICustomControl dpt) =>
-            GetFieldValue<object>("m_Field", dpt) as FieldInfo;
+            dpt.GetFieldValue<object>("m_Field") as FieldInfo;
 
         internal static void ToggleDPTColor(UICustomControl dpt, bool selected) =>
             GetMethod("ToggleColor").Invoke(dpt, new object[] { selected });
