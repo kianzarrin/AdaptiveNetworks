@@ -7,7 +7,7 @@
     <Product>AdaptiveRoads</Product>
     <Copyright>Copyright ©  2020</Copyright>
     <Deterministic>false</Deterministic>
-    <AssemblyVersion>1.7.5.*</AssemblyVersion>
+    <AssemblyVersion>1.7.6.*</AssemblyVersion>
     <FileAlignment>512</FileAlignment>
     <LangVersion>latest</LangVersion>
     <Configurations>Debug;Release;FAST_TEST_PATCHES</Configurations>
@@ -56,6 +56,7 @@
     <Compile Remove="DecompiledSources\NetNode.cs" />
     <Compile Remove="DecompiledSources\NetSegment.cs" />
     <Compile Remove="LifeCycle\SerializableDataExtension.cs" />
+    <Compile Remove="Patches\AssetPatches\InitializePrefabImpl.cs" />
     <Compile Remove="Patches\HarmonyExtension.cs" />
     <Compile Remove="Patches\Lane\CalculateLane.cs" />
     <Compile Remove="Patches\Lane\NetAI_UpdateLanes.cs" />
@@ -196,9 +197,7 @@
       <Now>$([System.DateTime]::Now.ToString("h:mmtt"))</Now>
     </PropertyGroup>
     <ItemGroup>
-      <AuxilaryFiles
-        Include="$(TargetDir)PrefabMetaData*.dll;$(TargetDir)CitiesHarmony.API.dll;$(SolutionDir)\libs\FbxFormatConverter.exe"
-        Exclude="$(TargetPath);$(TargetDir)*.pdb" />
+      <AuxilaryFiles Include="$(TargetDir)PrefabMetaData*.dll;$(TargetDir)CitiesHarmony.API.dll;$(SolutionDir)\libs\FbxFormatConverter.exe" Exclude="$(TargetPath);$(TargetDir)*.pdb" />
       <!--$(TargetDir)Newtonsoft.Json.dll;-->
       <VersionNumber Include="@(Targets->'%(Version)')" />
     </ItemGroup>

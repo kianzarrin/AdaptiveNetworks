@@ -62,11 +62,11 @@ namespace AdaptiveRoads.LifeCycle {
             }
         }
 
-        static bool roadEditor_ => ToolsModifierControl.toolController.m_editPrefabInfo is NetInfo;
+        public static bool InRoadEditor => ToolsModifierControl.toolController.m_editPrefabInfo is NetInfo;
 
         public static void BeforeSave() {
             try {
-                if (ModSettings.VanillaMode || !roadEditor_) return;
+                if (ModSettings.VanillaMode || !InRoadEditor) return;
                 Log.Debug($"AssetDataExtension.BeforeSave(): reversing ...");
                 SimulationManager.instance.ForcedSimulationPaused = true;
                 foreach (var info in NetInfoExtionsion.EditedNetInfos)
@@ -81,7 +81,7 @@ namespace AdaptiveRoads.LifeCycle {
 
         public static void AfterSave() {
             try {
-                if (ModSettings.VanillaMode || !roadEditor_) return;
+                if (ModSettings.VanillaMode || !InRoadEditor) return;
                 Log.Debug($"SaveAssetPanel.SaveRoutine re extending ...");
                 foreach (var info in NetInfoExtionsion.EditedNetInfos) {
                     info.UndoVanillaForbidden();

@@ -8,6 +8,7 @@ namespace AdaptiveRoads.LifeCycle {
     using System;
     using System.Diagnostics;
     using UnityEngine.SceneManagement;
+    using static KianCommons.ReflectionHelpers;
 
     public static class LifeCycle {
         public static string HARMONY_ID = "CS.Kian.AdaptiveRoads";
@@ -45,6 +46,7 @@ namespace AdaptiveRoads.LifeCycle {
         }
 
         public static void HotReload() {
+            LogCalled();
             bHotReload = true;
             Preload();
             //SimulationDataReady();
@@ -81,7 +83,7 @@ namespace AdaptiveRoads.LifeCycle {
 
                 NetworkExtensionManager.Instance.OnLoad();
                 HarmonyUtil.InstallHarmony(HARMONY_ID);
-                NetInfoExtionsion.EnsureExtended_EditedNetInfos();
+                NetInfoExtionsion.Ensure_EditedNetInfos();
                 HintBox.Create();
                 Log.Info("LifeCycle.Load() successfull!");
 

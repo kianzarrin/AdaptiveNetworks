@@ -53,6 +53,33 @@ namespace AdaptiveRoads.Manager {
                     Log.Exception(ex);
                 }
             }
+
+            public static void CopyMetadata(NetInfo source, NetInfo target) {
+                NetInfoExtionsion.EnsureExtended(target);
+
+                for (int i = 0; i < source.m_nodes.Length; ++i) {
+                    var metadata = source.m_nodes[i].GetMetaData()?.Clone();
+                    (target.m_nodes[i] as IInfoExtended).SetMetaData(metadata);
+                }
+                for (int i = 0; i < source.m_segments.Length; ++i) {
+                    var metadata = source.m_segments[i].GetMetaData()?.Clone();
+                    (target.m_segments[i] as IInfoExtended).SetMetaData(metadata);
+                }
+
+                for (int laneIndex = 0; laneIndex < source.m_lanes.Length; ++laneIndex) {
+                    var m_propsTarget = target.m_lanes[laneIndex]?.m_laneProps?.m_props;
+                    var m_propsTemplate = source.m_lanes[laneIndex]?.m_laneProps?.m_props;
+                    if (m_propsTemplate == null) continue;
+                    for (int i = 0; i < m_propsTemplate.Length; ++i) {
+                        var metadata = m_propsTemplate[i].GetMetaData()?.Clone();
+                        (m_propsTarget[i] as IInfoExtended).SetMetaData(metadata);
+                    }
+                }
+
+                source.SetMeteData(target.GetMetaData()?.Clone());
+
+            }
+
             void ApplyProps(NetInfo info) {
                 // this.Props stores props for all lanes in order.
                 // so we need to extract them in order.
@@ -69,10 +96,11 @@ namespace AdaptiveRoads.Manager {
 
         public NetInfoMetaData Ground, Elevated, Bridge, Slope, Tunnel;
 
-        public static AssetData CreateFromEditPrefab() {
-            NetInfo ground = NetInfoExtionsion.EditedNetInfo;
-            if (ground == null)
-                return null;
+        public static AssetData CreateFromEditPrefab() =>
+            Create(NetInfoExtionsion.EditedNetInfo);
+        
+        public static AssetData Create(NetInfo ground) {
+            if (ground == null) return null;
             NetInfo elevated = AssetEditorRoadUtils.TryGetElevated(ground);
             NetInfo bridge = AssetEditorRoadUtils.TryGetBridge(ground);
             NetInfo slope = AssetEditorRoadUtils.TryGetSlope(ground);

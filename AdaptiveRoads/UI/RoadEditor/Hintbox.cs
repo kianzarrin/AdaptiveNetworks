@@ -9,8 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using static AdaptiveRoads.Util.DPTHelpers;
-using System.Diagnostics;
-
+using AdaptiveRoads.Manager;
 
 namespace AdaptiveRoads.UI.RoadEditor {
     public class HintBox : UILabel {
@@ -158,20 +157,20 @@ namespace AdaptiveRoads.UI.RoadEditor {
                         break;
                     } else if (panel.containsMouse) {
                         var customControl = panel.GetComponent<UICustomControl>();
-                        string h1 = "Click => toggle" +
+                        string hotkeys1 = "Click => toggle" +
                             "\nRight-Click => show more options";
                         if (customControl is RoadEditorCollapsiblePanel groupPanel
                             && groupPanel.LabelButton.containsMouse) {
-                            string h2 = h1 + "\nControl + Click => multi-select";
+                            string hotkeys2 = hotkeys1 + "\nControl + Click => multi-select";
                             var target = groupPanel.GetTarget();
                             string label = groupPanel.LabelButton.text;
                             if (label == "Props") {
-                                Hint2 = h2;
+                                Hint2 = hotkeys2;
                             } else if (
                                 groupPanel.GetArray() is NetInfo.Lane[] m_lanes
                                 && m_lanes.Any(_lane => _lane.HasProps())
                                 && target == NetInfoExtionsion.EditedNetInfo) {
-                                Hint2 = h2;
+                                Hint2 = hotkeys2;
                             }
                         } else if (
                             panel.GetComponent(DPTType) is UICustomControl toggle &&
@@ -180,17 +179,21 @@ namespace AdaptiveRoads.UI.RoadEditor {
                             var target = GetDPTTargetObject(toggle);
                             if (element is NetLaneProps.Prop prop) {
                                 Hint1 = prop.Summary();
-                                Hint2 = h1;
+                                Hint2 = hotkeys1;
                             } else if (element is NetInfo.Lane lane && lane.HasProps()
                                 && target == NetInfoExtionsion.EditedNetInfo) {
-                                Hint2 = h1;
+                                Hint2 = hotkeys1;
                             }
-                        } else if (customControl is REEnumSet enumSet) {
-
                         } else if (customControl is REPropertySet propertySet) {
                             var field = propertySet.GetTargetField();
                             if (field?.Name == "m_speedLimit")
-                                Hint2 = "1 game unit is 50 kph (31.06856mph)";
+                                Hint1 = "1 game unit is 50 kph (31.06856mph)";
+                            else {
+                                var hints = field.GetHints()
+                                    .Concat(field.DeclaringType.GetHints())
+                                    .Concat(field.FieldType.GetHints());
+                                Hint1 = hints.JoinLines();
+                            }
                         }
                     }
                 }

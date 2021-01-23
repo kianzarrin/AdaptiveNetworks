@@ -9,6 +9,7 @@ using System.Linq;
 using static AdaptiveRoads.Manager.NetInfoExtionsion;
 using static AdaptiveRoads.UI.ModSettings;
 using ColossalFramework.Threading;
+using static KianCommons.ReflectionHelpers;
 
 namespace AdaptiveRoads.Manager {
     using static HintExtension;
@@ -174,6 +175,7 @@ namespace AdaptiveRoads.Manager {
             }
 
             [CustomizableProperty("Pavement Width Right", "Properties")]
+            [Hint("must be greater than left pavement width")]
             public float PavementWidthRight;
 
             /****************************************/
@@ -540,9 +542,18 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
+        public static void Ensure_EditedNetInfos() {
+            LogCalled();
+            if (VanillaMode) {
+                UndoExtend_EditedNetInfos();
+            } else {
+                EnsureExtended_EditedNetInfos();
+            }
+        }
+
         public static void EnsureExtended_EditedNetInfos() {
             if (VanillaMode) {
-                Log.Debug($"Skipped EnsureExtended_EditedNetInfos() because we are in vanilla mode");
+                Log.Debug($"EnsureExtended_EditedNetInfos() because we are in vanilla mode");
                 return;
             }
             Log.Debug($"EnsureExtended_EditedNetInfos() was called");

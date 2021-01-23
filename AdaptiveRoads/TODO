@@ -1,10 +1,5 @@
-bugs:
-    null exception
-    why asset editor does not show AR props properly for roads other than the edited prefab.
-
 performance:
     hint box is slow.
-
 
 flags for:
     merging/splitting lanes
