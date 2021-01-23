@@ -32,6 +32,7 @@ namespace AdaptiveRoads.UI {
         public static readonly SavedBool Lane_Node = SavedBool(LANE_NODE, false);
 
         public static readonly SavedBool ARMode = SavedBool(AR_META_DATA, true);
+        public static bool VanillaMode => !ARMode;
         public static readonly SavedBool DefaultScale100 = SavedBool(AR_META_DATA, false);
 
         public static UICheckBox VanillaModeToggle;

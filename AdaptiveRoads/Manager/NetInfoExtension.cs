@@ -541,7 +541,7 @@ namespace AdaptiveRoads.Manager {
         }
 
         public static void EnsureExtended_EditedNetInfos() {
-            if (!ARMode) {
+            if (VanillaMode) {
                 Log.Debug($"Skipped EnsureExtended_EditedNetInfos() because we are in vanilla mode");
                 return;
             }

@@ -22,7 +22,7 @@ namespace AdaptiveRoads.LifeCycle {
 
         public override void OnAssetLoaded(string name, object asset, Dictionary<string, byte[]> userData) {
             try {
-                if (HelpersExtensions.InAssetEditor && !ModSettings.ARMode)
+                if (HelpersExtensions.InAssetEditor && ModSettings.VanillaMode)
                     return;
                 Log.Debug($"AssetDataExtension.OnAssetLoaded({name}, {asset}, userData) called", false);
                 if (asset is NetInfo prefab) {
@@ -48,7 +48,7 @@ namespace AdaptiveRoads.LifeCycle {
         public override void OnAssetSaved(string name, object asset, out Dictionary<string, byte[]> userData) {
             Log.Info($"AssetDataExtension.OnAssetSaved({name}, {asset}, userData) called");
             userData = null;
-            if (!UI.ModSettings.ARMode) {
+            if (ModSettings.VanillaMode) {
                 Log.Info("MetaData not saved vanilla mode is set in the settings");
                 return;
             }
@@ -66,7 +66,7 @@ namespace AdaptiveRoads.LifeCycle {
 
         public static void BeforeSave() {
             try {
-                if (!ModSettings.ARMode || !roadEditor_) return;
+                if (ModSettings.VanillaMode || !roadEditor_) return;
                 Log.Debug($"AssetDataExtension.BeforeSave(): reversing ...");
                 SimulationManager.instance.ForcedSimulationPaused = true;
                 foreach (var info in NetInfoExtionsion.EditedNetInfos)
@@ -81,7 +81,7 @@ namespace AdaptiveRoads.LifeCycle {
 
         public static void AfterSave() {
             try {
-                if (!ModSettings.ARMode || !roadEditor_) return;
+                if (ModSettings.VanillaMode || !roadEditor_) return;
                 Log.Debug($"SaveAssetPanel.SaveRoutine re extending ...");
                 foreach (var info in NetInfoExtionsion.EditedNetInfos) {
                     info.UndoVanillaForbidden();

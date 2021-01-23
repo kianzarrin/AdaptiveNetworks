@@ -9,15 +9,17 @@ namespace AdaptiveRoads.Patches.AssetPatches {
     public static class OnLoadPatch {
 #if DEBUG
         public static void Prefix() =>
-                Log.Debug("LoadAssetPanel.OnLoad().Prefix(): Loading Road asset ...");
+            Log.Debug("LoadAssetPanel.OnLoad().Prefix(): Loading Road asset " +
+                     $"(ARMode={UI.ModSettings.ARMode}) ...");
+
 #endif
 
 
-    /// <summary>
-    /// when loading asset from a file, IAssetData.OnAssetLoaded() is called for all assets but the one that is loaded from the file.
-    /// this postfix calls IAssetData.OnAssetLoaded() for asset loaded from file.
-    /// </summary>
-    public static void Postfix(LoadAssetPanel __instance, UIListBox ___m_SaveList) {
+        /// <summary>
+        /// when loading asset from a file, IAssetData.OnAssetLoaded() is called for all assets but the one that is loaded from the file.
+        /// this postfix calls IAssetData.OnAssetLoaded() for asset loaded from file.
+        /// </summary>
+        public static void Postfix(LoadAssetPanel __instance, UIListBox ___m_SaveList) {
             // Taken from LoadAssetPanel.OnLoad
             var selectedIndex = ___m_SaveList.selectedIndex;
             var getListingMetaDataMethod = typeof(LoadSavePanelBase<CustomAssetMetaData>).GetMethod(
