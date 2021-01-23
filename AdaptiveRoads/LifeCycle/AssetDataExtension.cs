@@ -55,6 +55,7 @@ namespace AdaptiveRoads.LifeCycle {
 
             if (asset is NetInfo prefab) {
                 Log.Info("AssetDataExtension.OnAssetSaved():  prefab is " + prefab);
+                AssertNotNull(AssetData.Snapshot,"snapshot");
                 var assetData = AssetData.Snapshot; //AssetData.CreateFromEditPrefab();
                 Log.Debug("AssetDataExtension.OnAssetSaved(): assetData=" + assetData);
                 userData = new Dictionary<string, byte[]>();
@@ -67,6 +68,7 @@ namespace AdaptiveRoads.LifeCycle {
         public static void BeforeSave() {
             try {
                 if (ModSettings.VanillaMode || !InRoadEditor) return;
+                AssetData.TakeSnapshot();
                 Log.Debug($"AssetDataExtension.BeforeSave(): reversing ...");
                 SimulationManager.instance.ForcedSimulationPaused = true;
                 foreach (var info in NetInfoExtionsion.EditedNetInfos)

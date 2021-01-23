@@ -7,13 +7,14 @@ using UnityEngine;
 
 namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
     public class RenameRoadPanel : MenuPanelBase {
+        const float WIDTH = 350;
+
         public static RenameRoadPanel Display(SaveAssetPanel panel) {
             var ret = panel.component.AddUIComponent<RenameRoadPanel>();
             ret.BringToFront();
             return ret;
         }
 
-        const float WIDTH = 350;
         public override void Awake() {
             base.Awake();
             width = WIDTH + PAD*2;
@@ -50,10 +51,7 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
                     RoadUtils.RenameEditNet(name.text, false);
                     Destroy(this.gameObject);
                 };
-                void RefreshAppy() {
-                    apply.isEnabled = !name.text.IsNullOrWhiteSpace();
-                }
-
+                void RefreshAppy() => apply.isEnabled = !name.text.IsNullOrWhiteSpace();
                 name.eventTextChanged += (_, __) => RefreshAppy();
                 RefreshAppy();
 
@@ -62,10 +60,9 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
                 close.eventClick += (_, __) => Destroy(this.gameObject);
             }
 
-            FitChildrenVertically(PAD);
             AddDrag("Rename Road");
-
             verticalSpacing = PAD;
+            FitChildrenVertically(PAD);
         }
 
         protected override void OnVisibilityChanged() {

@@ -28,5 +28,11 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
             Log.Debug($"{this} was clicked: text:{text} parent:{parent.ToSTR()}");
         }
 #endif
+
+        public override void Start() {
+            base.Start();
+            absolutePosition = absolutePosition; // work-around for the position of the apply button.
+        }        
+
     }
 }

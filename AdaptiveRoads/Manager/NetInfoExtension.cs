@@ -264,9 +264,6 @@ namespace AdaptiveRoads.Manager {
                         headFlags: headFlags,
                         tailNodeFlags: tailNodeFlags,
                         headNodeFlags: headNodeFlags);
-                    if(ret) {
-                        Log.DebugWait($"Segment.CheckFlags: segment is reverse");
-                    }
                     return ret;
                 }
             }
