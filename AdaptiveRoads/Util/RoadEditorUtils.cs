@@ -105,9 +105,14 @@ namespace AdaptiveRoads.Util {
                         "swaps: required.Inverted<->foribdden.inverted start<->end left<->right\n" +
                         "negates: position.z offset angle",
                         delegate () {
-                            foreach (var item in props)
-                                item.ToggleRHT_LHT();
-                            AddProps(groupPanel, props.ToArray());
+                            try {
+                                var arProsp = props.ToArray();
+                                AddProps(groupPanel, arProsp);
+                                foreach(var item in arProsp)
+                                    item.ToggleRHT_LHT();
+                            } catch(Exception ex) {
+                                Log.Exception(ex);
+                            }
                         });
                 }
                 panel.AddButton("Copy" + strAll, null, delegate () {
