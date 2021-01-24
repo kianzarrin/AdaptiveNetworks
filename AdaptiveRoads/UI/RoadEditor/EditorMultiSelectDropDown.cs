@@ -7,40 +7,27 @@ using System;
 
 namespace AdaptiveRoads.UI.RoadEditor {
     class EditorMultiSelectDropDown : UICheckboxDropDown {
-        public UIScrollablePanel Popup => GetFieldValue(this, "m_Popup") as UIScrollablePanel;
+        //public UIScrollablePanel Popup => GetFieldValue(this, "m_Popup") as UIScrollablePanel;
 
         public override void Awake() {
             try {
                 base.Awake();
                 LogCalled();
-                Init(this);
-                Show();
 
-                //dd.eventDropdownOpen += OnDropDownOpen;
-                //triggerBtn.buttonsMask |= UIMouseButton.Right;
+                // This cannot be called before AddUICompnent is completed.
+                // TODO move relavent code to start.
+                Init(this); 
+
                 LogSucceeded();
             } catch(Exception ex) {
                 Log.Exception(ex);
             }
         }
 
-        //public override void Start() {
-        //    try {
-
-        //        this.relativePosition = new Vector2(parent.width - this.width, 28);
-        //        base.Start();
-        //    } catch(Exception ex) {
-        //        Log.Exception(ex);
-        //    }
-        //}
-
         internal static void Init(UICheckboxDropDown dd) {
             try {
                 LogCalled();
                 dd.size = new Vector2(370, 22);
-                dd.relativePosition = new Vector2(0, 28);
-                dd.pivot = UIPivotPoint.TopCenter;
-                dd.anchor = UIAnchorStyle.CenterHorizontal;
                 dd.verticalAlignment = UIVerticalAlignment.Middle;
                 dd.horizontalAlignment = UIHorizontalAlignment.Center;
                 dd.builtinKeyNavigation = true;
@@ -64,19 +51,19 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 dd.popupTextColor = Color.white;
 
                 dd.triggerButton = dd.AddUIComponent<UIButton>();
-                UIButton button = dd.triggerButton as UIButton;
-                button.size = dd.size;
-                button.textVerticalAlignment = UIVerticalAlignment.Middle;
-                button.textHorizontalAlignment = UIHorizontalAlignment.Left;
-                button.atlas = TextureUtil.Ingame;
-                button.normalFgSprite = "IconDownArrow";
-                button.hoveredFgSprite = "IconDownArrowHovered";
-                button.pressedFgSprite = "IconDownArrowPressed";
-                button.normalBgSprite = "TextFieldPanel";
-                button.foregroundSpriteMode = UIForegroundSpriteMode.Scale;
-                button.horizontalAlignment = UIHorizontalAlignment.Right;
-                button.verticalAlignment = UIVerticalAlignment.Middle;
-                button.relativePosition = new Vector3(0, 0);
+                UIButton triggerBtn = dd.triggerButton as UIButton;
+                triggerBtn.size = dd.size;
+                triggerBtn.textVerticalAlignment = UIVerticalAlignment.Middle;
+                triggerBtn.textHorizontalAlignment = UIHorizontalAlignment.Left;
+                triggerBtn.atlas = TextureUtil.Ingame;
+                triggerBtn.normalFgSprite = "IconDownArrow";
+                triggerBtn.hoveredFgSprite = "IconDownArrowHovered";
+                triggerBtn.pressedFgSprite = "IconDownArrowPressed";
+                triggerBtn.normalBgSprite = "TextFieldPanel";
+                triggerBtn.foregroundSpriteMode = UIForegroundSpriteMode.Scale;
+                triggerBtn.horizontalAlignment = UIHorizontalAlignment.Right;
+                triggerBtn.verticalAlignment = UIVerticalAlignment.Middle;
+                triggerBtn.relativePosition = new Vector3(0, 0);
 
                 // Scrollbar
                 dd.listScrollbar = dd.AddUIComponent<UIScrollbar>();
@@ -109,26 +96,25 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 thumbSprite.spriteName = "ScrollbarThumb";
                 dd.listScrollbar.thumbObject = thumbSprite;
 
-                //dd.eventDropdownOpen += OnDropDownOpen;
-                //triggerBtn.buttonsMask |= UIMouseButton.Right;
+                dd.eventDropdownOpen += OnDropDownOpen;
+                triggerBtn.buttonsMask |= UIMouseButton.Right;
+                dd.eventMouseDown += (_, p) => HandleMouseDown(dd, p);
+
                 LogSucceeded();
             } catch(Exception ex) {
                 Log.Exception(ex);
             }
         }
 
-        //protected override void OnMouseDown(UIMouseEventParameter p) {
-        //    base.OnMouseDown(p);
-        //    HandleMouseDown(p);
-        //}
+        static  void OnDropDownOpen(
+            UICheckboxDropDown checkboxdropdown, UIScrollablePanel popup, ref bool overridden)
+            => popup.eventMouseDown += (_, p) => HandleMouseDown(checkboxdropdown, p);
 
-        //public virtual void OnDropDownOpen(
-        //    UICheckboxDropDown checkboxdropdown, UIScrollablePanel popup, ref bool overridden)
-        //    => popup.eventMouseDown += (_, p) => HandleMouseDown(p);
-
-        //void HandleMouseDown(UIMouseEventParameter p) {
-        //    if(p.buttons == UIMouseButton.Right)
-        //        ClosePopup();
-        //}
+        static void HandleMouseDown(UICheckboxDropDown c, UIMouseEventParameter p) {
+            if(p.buttons == UIMouseButton.Right) {
+                c.ClosePopup();
+                p.Use();
+            }
+        }
     }
 }

@@ -68,6 +68,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
             DropDown = AddUIComponent<UICheckboxDropDown>();
             EditorMultiSelectDropDown.Init(DropDown);
+            DropDown.relativePosition = new Vector2(width - DropDown.width, 28);
             DropDown.eventAfterDropdownClose += DropdownClose;
         }
 
