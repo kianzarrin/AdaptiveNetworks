@@ -1,18 +1,18 @@
 namespace AdaptiveRoads.UI.RoadEditor {
+    using AdaptiveRoads.Manager;
+    using AdaptiveRoads.Util;
     using ColossalFramework.UI;
+    using HarmonyLib;
     using KianCommons;
     using KianCommons.UI;
-    using System;
-    using UnityEngine;
-    using AdaptiveRoads.Util;
-    using System.Reflection;
-    using HarmonyLib;
-    using System.Linq;
     using KianCommons.UI.Helpers;
-    using AdaptiveRoads.Manager;
+    using System;
+    using System.Linq;
+    using System.Reflection;
+    using UnityEngine;
+    using static KianCommons.ReflectionHelpers;
 
-
-    public class BitMaskPanel: UIPanel, IDataUI  {
+    public class BitMaskPanel : UIPanel, IDataUI {
         public UILabel Label;
         public UICheckboxDropDown DropDown;
 
@@ -25,7 +25,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
         public event REPropertySet.PropertyChangedHandler EventPropertyChanged;
 
         public override void OnDestroy() {
-            ReflectionHelpers.SetAllDeclaredFieldsToNull(this);
+            SetAllDeclaredFieldsToNull(this);
             base.OnDestroy();
         }
 
@@ -37,51 +37,67 @@ namespace AdaptiveRoads.UI.RoadEditor {
             SetHandlerD setHandler,
             GetHandlerD getHandler,
             string hint) {
-            Log.Debug($"BitMaskPanel.Add(container:{container}, label:{label}, enumType:{enumType})");
-            var subPanel = UIView.GetAView().AddUIComponent(typeof(BitMaskPanel)) as BitMaskPanel;
-            subPanel.EnumType = enumType;
-            subPanel.SetHandler = setHandler;
-            subPanel.GetHandler = getHandler;
-            subPanel.Initialize();
-            subPanel.Label.text = label + ":";
-            subPanel.Hint = hint;
-            //if (dark)
-            //    subPanel.opacity = 0.1f;
-            //else
-            //    subPanel.opacity = 0.3f;
+            try {
+                Log.Debug($"BitMaskPanel.Add(container:{container}, label:{label}, enumType:{enumType})");
+                var subPanel = UIView.GetAView().AddUIComponent(typeof(BitMaskPanel)) as BitMaskPanel;
+                subPanel.EnumType = enumType;
+                subPanel.SetHandler = setHandler;
+                subPanel.GetHandler = getHandler;
+                subPanel.Initialize();
+                subPanel.Label.text = label + ":";
+                subPanel.Hint = hint;
+                //if (dark)
+                //    subPanel.opacity = 0.1f;
+                //else
+                //    subPanel.opacity = 0.3f;
 
-            container.AttachUIComponent(subPanel.gameObject);
-            roadEditorPanel.FitToContainer(subPanel);
-
-            return subPanel;
+                container.AttachUIComponent(subPanel.gameObject);
+                roadEditorPanel.FitToContainer(subPanel);
+                LogSucceeded();
+                return subPanel;
+            } catch(Exception ex) {
+                Log.Exception(ex);
+                return null;
+            }
         }
 
         public override void Awake() {
-            base.Awake();
-            size = new Vector2(370, 54);
-            atlas = TextureUtil.Ingame;
-            //backgroundSprite = "GenericPanelWhite";
-            //color = Color.white;
+            try {
+                base.Awake();
+                size = new Vector2(370, 54);
+                atlas = TextureUtil.Ingame;
+                //backgroundSprite = "GenericPanelWhite";
+                //color = Color.white;
 
-            Label = AddUIComponent<UILabel>();
-            Label.relativePosition = new Vector2(0,6);
+                Label = AddUIComponent<UILabel>();
+                Label.relativePosition = new Vector2(0, 6);
 
-            DropDown = AddUIComponent<EditorMultiSelectDropDown>();
-            DropDown.eventAfterDropdownClose += DropdownClose;
+                DropDown = AddUIComponent<EditorMultiSelectDropDown>();
+                DropDown.eventAfterDropdownClose += DropdownClose;
+                LogSucceeded();
+            } catch(Exception ex) {
+                Log.Exception(ex);
+            }
         }
 
         private void Initialize() {
-            //Disable();
-            Populate(DropDown, GetHandler(), EnumType);
-            UpdateText();
-            Enable();
+            try {
+                LogCalled();
+                Disable();
+                Populate(DropDown, GetHandler(), EnumType);
+                UpdateText();
+                Enable();
+                LogSucceeded();
+            } catch(Exception ex) {
+                Log.Exception(ex);
+            }
         }
 
         public void Refresh() => Initialize();
 
         public static void Populate(UICheckboxDropDown dropdown, int flags, Type enumType) {
             var values = EnumBitMaskExtensions.GetPow2ValuesI32(enumType);
-            foreach (int flag in values) {
+            foreach(int flag in values) {
                 bool hasFlag = (flags & flag) != 0;
 
                 // TODO hide lane flags based on set/get.
@@ -89,7 +105,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 bool hide = itemInfo.HasAttribute<HideAttribute>();
                 hide &= ModSettings.HideIrrelavant;
                 hide &= !hasFlag;
-                if (hide)
+                if(hide)
                     continue; // hide
 
                 dropdown.AddItem(
@@ -97,18 +113,29 @@ namespace AdaptiveRoads.UI.RoadEditor {
                     isChecked: hasFlag,
                     userData: flag);
             }
+            LogSucceeded();
         }
 
 
         public override void Start() {
-            base.Start();
-            UIButton button = DropDown.triggerButton as UIButton;
+            try {
+                LogCalled();
+                base.Start();
+                UIButton button = DropDown.triggerButton as UIButton;
+                LogSucceeded();
+            } catch(Exception ex) {
+                Log.Exception(ex);
+            }
         }
 
         private void DropdownClose(UICheckboxDropDown checkboxdropdown) {
-            SetValue(GetCheckedFlags());
-            UpdateText();
-            UIButton button = DropDown.triggerButton as UIButton;
+            try {
+                SetValue(GetCheckedFlags());
+                UpdateText();
+                UIButton button = DropDown.triggerButton as UIButton;
+            } catch(Exception ex) {
+                Log.Exception(ex);
+            }
         }
 
         // apply checked flags from UI to prefab
@@ -122,8 +149,8 @@ namespace AdaptiveRoads.UI.RoadEditor {
         // get checked flags in UI
         private int GetCheckedFlags() {
             int ret = 0;
-            for (int i = 0; i < DropDown.items.Length; i++) {
-                if (DropDown.GetChecked(i)) {
+            for(int i = 0; i < DropDown.items.Length; i++) {
+                if(DropDown.GetChecked(i)) {
                     ret |= (int)DropDown.GetItemUserData(i);
                 }
             }
@@ -143,51 +170,57 @@ namespace AdaptiveRoads.UI.RoadEditor {
             mObtainTextRenderer.Invoke(button, null) as UIFontRenderer;
 
         public static void ApplyText(UICheckboxDropDown dd, string text) {
-            UIButton uibutton = (UIButton)dd.triggerButton;
-            var padding = uibutton.textPadding;
-            padding.left = 5;
-            padding.right = 21;
+            try {
+                LogCalled();
+                UIButton uibutton = (UIButton)dd.triggerButton;
+                var padding = uibutton.textPadding;
+                padding.left = 5;
+                padding.right = 21;
 
-            uibutton.text = text; // must set text to mearure text once and only once.
+                uibutton.text = text; // must set text to mearure text once and only once.
 
-            using (UIFontRenderer uifontRenderer = ObtainTextRenderer(uibutton)) {
-                float p2uRatio = uibutton.GetUIView().PixelsToUnits();
-                var widths = uifontRenderer.GetCharacterWidths(text);
-                float x = widths.Sum() / p2uRatio;
-                //Log.Debug($"{uifontRenderer}.GetCharacterWidths(\"{text}\")->{widths.ToSTR()}");
-                //if (x > uibutton.width - 42) 
-                //    uibutton.textHorizontalAlignment = UIHorizontalAlignment.Left;
-                //else
-                //    uibutton.textHorizontalAlignment = UIHorizontalAlignment.Center;
+                using(UIFontRenderer uifontRenderer = ObtainTextRenderer(uibutton)) {
+                    float p2uRatio = uibutton.GetUIView().PixelsToUnits();
+                    var widths = uifontRenderer.GetCharacterWidths(text);
+                    float x = widths.Sum() / p2uRatio;
+                    //Log.Debug($"{uifontRenderer}.GetCharacterWidths(\"{text}\")->{widths.ToSTR()}");
+                    //if (x > uibutton.width - 42) 
+                    //    uibutton.textHorizontalAlignment = UIHorizontalAlignment.Left;
+                    //else
+                    //    uibutton.textHorizontalAlignment = UIHorizontalAlignment.Center;
 
-                if (x > uibutton.width -uibutton.textPadding.horizontal) {
-                    for (int n = 4; n < text.Length; ++n) {
-                        float x2 = widths.Take(n).Sum() / p2uRatio + 15; // 15 = width of ...
-                        if (x2 > uibutton.width - 21) {
-                            text = text.Substring(0, n - 1) + "...";
-                            break;
+                    if(x > uibutton.width - uibutton.textPadding.horizontal) {
+                        for(int n = 4; n < text.Length; ++n) {
+                            float x2 = widths.Take(n).Sum() / p2uRatio + 15; // 15 = width of ...
+                            if(x2 > uibutton.width - 21) {
+                                text = text.Substring(0, n - 1) + "...";
+                                break;
+                            }
                         }
-                    }
 
+                    }
                 }
+                uibutton.text = text;
+                LogSucceeded();
+            } catch(Exception ex) {
+                Log.Exception(ex);
             }
-            uibutton.text = text;
         }
 
         public bool IsHovered() {
-            if (containsMouse)
+            if(containsMouse)
                 return true;
-            if (DropDown.GetHoverIndex() >= 0)
+            if(DropDown.GetHoverIndex() >= 0)
                 return true;
             return false;
         }
 
         public string GetHint() {
             int i = DropDown.GetHoverIndex();
-            if (DropDown.GetItemUserData(i) is int flag) {
+            if(DropDown.GetItemUserData(i) is int flag) {
                 return EnumType.GetEnumMember(flag).GetHints().JoinLines();
             }
-            if (DropDown.containsMouse || Label.containsMouse) {
+            if(DropDown.containsMouse || Label.containsMouse) {
                 return Hint;
             }
 

@@ -12,33 +12,61 @@ namespace AdaptiveRoads.UI.RoadEditor {
         public override void Awake() {
             try {
                 base.Awake();
-                this.size = new Vector2(370, 22);
-                this.relativePosition = new Vector2(width - this.width, 28);
-                this.verticalAlignment = UIVerticalAlignment.Middle;
-                this.horizontalAlignment = UIHorizontalAlignment.Center;
-                this.builtinKeyNavigation = true;
+                LogCalled();
+                Init(this);
+                Show();
 
-                this.atlas = TextureUtil.InMapEditor;
-                this.normalBgSprite = "TextFieldPanel";
-                this.uncheckedSprite = "check-unchecked";
-                this.checkedSprite = "check-checked";
+                //dd.eventDropdownOpen += OnDropDownOpen;
+                //triggerBtn.buttonsMask |= UIMouseButton.Right;
+                LogSucceeded();
+            } catch(Exception ex) {
+                Log.Exception(ex);
+            }
+        }
 
-                this.listBackground = "GenericPanelWhite";
-                this.listWidth = 188;
-                this.listHeight = 300;
-                this.clampListToScreen = true;
-                this.listPosition = UICheckboxDropDown.PopupListPosition.Automatic;
+        //public override void Start() {
+        //    try {
 
-                this.itemHeight = 25;
-                this.itemHover = "ListItemHover";
-                this.itemHighlight = "ListItemHighlight";
+        //        this.relativePosition = new Vector2(parent.width - this.width, 28);
+        //        base.Start();
+        //    } catch(Exception ex) {
+        //        Log.Exception(ex);
+        //    }
+        //}
 
-                this.popupColor = Color.black;
-                this.popupTextColor = Color.white;
+        internal static void Init(UICheckboxDropDown dd) {
+            try {
+                LogCalled();
+                dd.size = new Vector2(370, 22);
+                dd.relativePosition = new Vector2(0, 28);
+                dd.pivot = UIPivotPoint.MiddleCenter;
+                dd.anchor = UIAnchorStyle.CenterHorizontal;
 
-                UIButton triggerBtn = this.AddUIComponent<UIButton>();
-                this.triggerButton = triggerBtn;
-                triggerBtn.size = this.size;
+                dd.verticalAlignment = UIVerticalAlignment.Middle;
+                dd.horizontalAlignment = UIHorizontalAlignment.Center;
+                dd.builtinKeyNavigation = true;
+
+                dd.atlas = TextureUtil.InMapEditor;
+                dd.normalBgSprite = "TextFieldPanel";
+                dd.uncheckedSprite = "check-unchecked";
+                dd.checkedSprite = "check-checked";
+
+                dd.listBackground = "GenericPanelWhite";
+                dd.listWidth = 188;
+                dd.listHeight = 300;
+                dd.clampListToScreen = true;
+                dd.listPosition = UICheckboxDropDown.PopupListPosition.Automatic;
+
+                dd.itemHeight = 25;
+                dd.itemHover = "ListItemHover";
+                dd.itemHighlight = "ListItemHighlight";
+
+                dd.popupColor = Color.black;
+                dd.popupTextColor = Color.white;
+
+                UIButton triggerBtn = dd.AddUIComponent<UIButton>();
+                dd.triggerButton = triggerBtn;
+                triggerBtn.size = dd.size;
                 triggerBtn.textVerticalAlignment = UIVerticalAlignment.Middle;
                 triggerBtn.textHorizontalAlignment = UIHorizontalAlignment.Left;
                 triggerBtn.atlas = TextureUtil.Ingame;
@@ -52,27 +80,27 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 triggerBtn.relativePosition = new Vector3(0, 0);
 
                 // Scrollbar
-                this.listScrollbar = this.AddUIComponent<UIScrollbar>();
-                this.listScrollbar.width = 12f;
-                this.listScrollbar.height = this.listHeight;
-                this.listScrollbar.orientation = UIOrientation.Vertical;
-                this.listScrollbar.pivot = UIPivotPoint.TopRight;
-                this.listScrollbar.thumbPadding = new RectOffset(0, 0, 5, 5);
-                this.listScrollbar.minValue = 0;
-                this.listScrollbar.value = 0;
-                this.listScrollbar.incrementAmount = 60;
-                this.listScrollbar.AlignTo(this, UIAlignAnchor.TopRight);
-                this.listScrollbar.autoHide = true; // false ?
-                this.listScrollbar.isVisible = false;
+                dd.listScrollbar = dd.AddUIComponent<UIScrollbar>();
+                dd.listScrollbar.width = 12f;
+                dd.listScrollbar.height = dd.listHeight;
+                dd.listScrollbar.orientation = UIOrientation.Vertical;
+                dd.listScrollbar.pivot = UIPivotPoint.TopRight;
+                dd.listScrollbar.thumbPadding = new RectOffset(0, 0, 5, 5);
+                dd.listScrollbar.minValue = 0;
+                dd.listScrollbar.value = 0;
+                dd.listScrollbar.incrementAmount = 60;
+                dd.listScrollbar.AlignTo(dd, UIAlignAnchor.TopRight);
+                dd.listScrollbar.autoHide = true; // false ?
+                dd.listScrollbar.isVisible = false;
 
-                UISlicedSprite tracSprite = this.listScrollbar.AddUIComponent<UISlicedSprite>();
+                UISlicedSprite tracSprite = dd.listScrollbar.AddUIComponent<UISlicedSprite>();
                 tracSprite.relativePosition = Vector2.zero;
                 tracSprite.autoSize = true;
                 tracSprite.size = tracSprite.parent.size;
                 tracSprite.fillDirection = UIFillDirection.Vertical;
                 tracSprite.spriteName = "ScrollbarTrack";
 
-                this.listScrollbar.trackObject = tracSprite;
+                dd.listScrollbar.trackObject = tracSprite;
 
                 UISlicedSprite thumbSprite = tracSprite.AddUIComponent<UISlicedSprite>();
                 thumbSprite.relativePosition = Vector2.zero;
@@ -80,27 +108,28 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 thumbSprite.autoSize = true;
                 thumbSprite.width = thumbSprite.parent.width - 8;
                 thumbSprite.spriteName = "ScrollbarThumb";
-                this.listScrollbar.thumbObject = thumbSprite;
+                dd.listScrollbar.thumbObject = thumbSprite;
 
-                this.eventDropdownOpen += OnDropDownOpen;
-                triggerBtn.buttonsMask |= UIMouseButton.Right;
+                //dd.eventDropdownOpen += OnDropDownOpen;
+                //triggerBtn.buttonsMask |= UIMouseButton.Right;
+                LogSucceeded();
             } catch(Exception ex) {
                 Log.Exception(ex);
             }
         }
 
-        protected override void OnMouseDown(UIMouseEventParameter p) {
-            base.OnMouseDown(p);
-            HandleMouseDown(p);
-        }
+        //protected override void OnMouseDown(UIMouseEventParameter p) {
+        //    base.OnMouseDown(p);
+        //    HandleMouseDown(p);
+        //}
 
-        public virtual void OnDropDownOpen(
-            UICheckboxDropDown checkboxdropdown, UIScrollablePanel popup, ref bool overridden)
-            => popup.eventMouseDown += (_, p) => HandleMouseDown(p);
+        //public virtual void OnDropDownOpen(
+        //    UICheckboxDropDown checkboxdropdown, UIScrollablePanel popup, ref bool overridden)
+        //    => popup.eventMouseDown += (_, p) => HandleMouseDown(p);
 
-        void HandleMouseDown(UIMouseEventParameter p) {
-            if(p.buttons == UIMouseButton.Right)
-                ClosePopup();
-        }
+        //void HandleMouseDown(UIMouseEventParameter p) {
+        //    if(p.buttons == UIMouseButton.Right)
+        //        ClosePopup();
+        //}
     }
 }

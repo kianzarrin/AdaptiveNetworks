@@ -1,3 +1,8 @@
+- bugs:
+    - the drop down is problematic when clicking on another DPT without closign the first one.
+    - test inverted duplicate works
+    - Toggle LHT needs to toggle left/right for extension flags too.
+
 flags for:
     merging/splitting lanes
     slight left/right

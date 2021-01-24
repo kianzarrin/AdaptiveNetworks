@@ -188,7 +188,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
                             var field = propertySet.GetTargetField();
                             if (field?.Name == "m_speedLimit")
                                 Hint1 = "1 game unit is 50 kph (31.06856mph)";
-                            else {
+                            else if( field != null) {
                                 var hints = field.GetHints()
                                     .Concat(field.DeclaringType.GetHints())
                                     .Concat(field.FieldType.GetHints());
