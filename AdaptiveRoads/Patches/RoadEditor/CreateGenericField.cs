@@ -213,7 +213,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 }
                 void SetRequired(int flags) {
                     var subTarget = fieldInfo.GetValue(target);
-                    SetFieldValue(subTarget, "Required",  flags);
+                    SetFieldValue(target:subTarget, fieldName:"Required",  value:flags);
                     fieldInfo.SetValue(target, subTarget);
                 }
                 int GetForbidden() {
@@ -222,7 +222,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 }
                 void SetForbidden(int flags) {
                     var subTarget = fieldInfo.GetValue(target);
-                    SetFieldValue(subTarget, "Forbidden", flags);
+                    SetFieldValue(target:subTarget, fieldName:"Forbidden", value:flags);
                     fieldInfo.SetValue(target, subTarget);
                 }
 

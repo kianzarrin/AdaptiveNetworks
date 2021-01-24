@@ -1,6 +1,3 @@
-performance:
-    hint box is slow.
-
 flags for:
     merging/splitting lanes
     slight left/right
@@ -18,7 +15,7 @@ flags for:
     man holes
     lane arrows
 
-create road:
+create road with following props:
     uturn sign (moddded)
     yeild/sign (vanilla + modded)
     stop/yeild lines.
@@ -28,8 +25,11 @@ create road:
     no crossing texture
     DC node
 
+- move DPT array elements up and down.
+
 ----------------------------
 version 2:
+    remove unecessary patches outside of asset editor.
     mixed enum type bitmask
     custom flags
         data manager to manage them.
