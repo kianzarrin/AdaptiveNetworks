@@ -1,6 +1,6 @@
 - bugs:
-    - Toggle LHT needs to toggle left/right for extension flags too.
-
+    - templates do not load saved extensions flags
+    
 flags for:
     merging/splitting lanes
     slight left/right

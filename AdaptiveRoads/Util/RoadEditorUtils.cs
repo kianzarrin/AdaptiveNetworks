@@ -107,9 +107,9 @@ namespace AdaptiveRoads.Util {
                         delegate () {
                             try {
                                 var arProsp = props.ToArray();
-                                AddProps(groupPanel, arProsp);
                                 foreach(var item in arProsp)
                                     item.ToggleRHT_LHT();
+                                AddProps(groupPanel, arProsp);
                             } catch(Exception ex) {
                                 Log.Exception(ex);
                             }

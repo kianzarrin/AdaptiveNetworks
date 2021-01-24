@@ -10,41 +10,44 @@ namespace AdaptiveRoads.Util {
 
     internal static class PropHelpers {
         public static void InvertStartEnd(ref this NetLane.Flags flags) {
-            var copy = flags;
-            flags = flags.SetFlags(
-                NetLane.Flags.YieldStart,
-                copy.IsFlagSet(NetLane.Flags.YieldEnd));
-            flags = flags.SetFlags(
-                NetLane.Flags.YieldEnd,
-                copy.IsFlagSet(NetLane.Flags.YieldStart));
-            flags = flags.SetFlags(
-                NetLane.Flags.StartOneWayRight,
-                copy.IsFlagSet(NetLane.Flags.StartOneWayLeft));
-            flags = flags.SetFlags(
-                NetLane.Flags.StartOneWayLeft,
-                copy.IsFlagSet(NetLane.Flags.StartOneWayRight));
-            flags = flags.SetFlags(
-                NetLane.Flags.EndOneWayRight,
-                copy.IsFlagSet(NetLane.Flags.EndOneWayLeft));
-            flags = flags.SetFlags(
-                NetLane.Flags.EndOneWayLeft,
-                copy.IsFlagSet(NetLane.Flags.EndOneWayRight));
+            flags.SwitchFlags(NetLane.Flags.YieldStart, NetLane.Flags.YieldEnd);
+            flags.SwitchFlags(NetLane.Flags.StartOneWayRight, NetLane.Flags.EndOneWayRight);
+            flags.SwitchFlags(NetLane.Flags.StartOneWayLeft, NetLane.Flags.EndOneWayLeft);
         }
+
         public static void InvertLeftRight(ref this NetLane.Flags flags) {
-            var copy = flags;
-            flags = flags.SetFlags(
-                NetLane.Flags.StartOneWayRight,
-                copy.IsFlagSet(NetLane.Flags.EndOneWayRight));
-            flags = flags.SetFlags(
-                NetLane.Flags.EndOneWayRight,
-                copy.IsFlagSet(NetLane.Flags.StartOneWayRight));
-            flags = flags.SetFlags(
-                NetLane.Flags.StartOneWayLeft,
-                copy.IsFlagSet(NetLane.Flags.EndOneWayLeft));
-            flags = flags.SetFlags(
-                NetLane.Flags.EndOneWayLeft,
-                copy.IsFlagSet(NetLane.Flags.StartOneWayLeft));
+            flags.SwitchFlags(NetLane.Flags.StartOneWayRight, NetLane.Flags.StartOneWayLeft);
+            flags.SwitchFlags(NetLane.Flags.EndOneWayRight, NetLane.Flags.EndOneWayLeft);
         }
+        public static void InvertLeftRight(ref this NetSegmentEnd.Flags flags) {
+            flags.SwitchFlags(NetSegmentEnd.Flags.HasRightSegment, NetSegmentEnd.Flags.HasLeftSegment);
+            flags.SwitchFlags(NetSegmentEnd.Flags.CanTurnRight, NetSegmentEnd.Flags.CanTurnLeft);
+        }
+        public static void SwitchFlags<T>(ref this T flags, T flag1, T flag2) where T : struct, IConvertible{
+            bool hasFlag1 = flags.IsFlagSet(flag1);
+            bool hasFlag2 = flags.IsFlagSet(flag2);
+            flags = flags.SetFlags(flag1, hasFlag2);
+            flags = flags.SetFlags(flag2, hasFlag1);
+        }
+        public static bool TryInvertLeftRight(PropInfo prop, out PropInfo prop2) {
+            string name2 = prop.name.Replace("left", "right").Replace("Left", "Right").Replace("LEFT", "RIGHT")
+                .Replace("LHT", "RHT").Replace("lht", "rht");
+            string name3 = prop.name.Replace("right", "left").Replace("Right", "Left").Replace("RIGHT", "LEFT")
+                .Replace("RHT", "LHT").Replace("rht", "lht");
+            if(name2 == prop.name && name3 == prop.name) {
+                prop2 = prop; // right and left is the same.
+                return false;
+            }
+            if(name2 != prop.name && name3 != prop.name) {
+                prop2 = null; //confusing.
+                return false;
+            }
+            if(name3 != prop.name) name2 = name3;
+            prop2 = PrefabCollection<PropInfo>.FindLoaded(name2);
+            return prop2 != null;
+        }
+
+
         public static void ChangeInvertedFlag(this NetLaneProps.Prop prop) {
             bool InvertRequired = prop.m_flagsRequired.IsFlagSet(NetLane.Flags.Inverted);
             bool InvertForbidden = prop.m_flagsForbidden.IsFlagSet(NetLane.Flags.Inverted);
@@ -75,8 +78,16 @@ namespace AdaptiveRoads.Util {
             if (propExt != null) {
                 Helpers.Swap(ref propExt.StartNodeFlags, ref propExt.EndNodeFlags);
                 Helpers.Swap(ref propExt.SegmentStartFlags, ref propExt.SegmentEndFlags);
+                propExt.SegmentStartFlags.Required.InvertLeftRight();
+                propExt.SegmentStartFlags.Forbidden.InvertLeftRight();
+                propExt.SegmentEndFlags.Required.InvertLeftRight();
+                propExt.SegmentEndFlags.Forbidden.InvertLeftRight();
             }
+            if(TryInvertLeftRight(prop.m_prop, out var propInfoInverted))
+                prop.m_prop = prop.m_finalProp = propInfoInverted;
         }
+
+
 
         public static void ToggleForwardBackward(this NetLaneProps.Prop prop) {
             Log.Debug("ToggleForwardBackward() called for " + prop.m_prop.name);
