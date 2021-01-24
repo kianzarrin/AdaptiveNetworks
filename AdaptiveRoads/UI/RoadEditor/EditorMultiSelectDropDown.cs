@@ -91,18 +91,16 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
         protected override void OnMouseDown(UIMouseEventParameter p) {
             base.OnMouseDown(p);
-            if(p.buttons == UIMouseButton.Right) {
-                ClosePopup();
-            }
+            HandleMouseDown(p);
         }
 
         public virtual void OnDropDownOpen(
-            UICheckboxDropDown checkboxdropdown, UIScrollablePanel popup, ref bool overridden) {
-            popup.eventMouseDown += OnDropDownMouseDown;
-        }
+            UICheckboxDropDown checkboxdropdown, UIScrollablePanel popup, ref bool overridden)
+            => popup.eventMouseDown += (_, p) => HandleMouseDown(p);
 
-        public virtual void OnDropDownMouseDown(UIComponent component, UIMouseEventParameter eventParam) {
-            OnMouseDown(eventParam);
+        void HandleMouseDown(UIMouseEventParameter p) {
+            if(p.buttons == UIMouseButton.Right)
+                ClosePopup();
         }
     }
 }
