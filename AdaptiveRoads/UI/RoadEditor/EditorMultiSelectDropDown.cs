@@ -39,9 +39,8 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 LogCalled();
                 dd.size = new Vector2(370, 22);
                 dd.relativePosition = new Vector2(0, 28);
-                dd.pivot = UIPivotPoint.MiddleCenter;
+                dd.pivot = UIPivotPoint.TopCenter;
                 dd.anchor = UIAnchorStyle.CenterHorizontal;
-
                 dd.verticalAlignment = UIVerticalAlignment.Middle;
                 dd.horizontalAlignment = UIHorizontalAlignment.Center;
                 dd.builtinKeyNavigation = true;
@@ -64,20 +63,20 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 dd.popupColor = Color.black;
                 dd.popupTextColor = Color.white;
 
-                UIButton triggerBtn = dd.AddUIComponent<UIButton>();
-                dd.triggerButton = triggerBtn;
-                triggerBtn.size = dd.size;
-                triggerBtn.textVerticalAlignment = UIVerticalAlignment.Middle;
-                triggerBtn.textHorizontalAlignment = UIHorizontalAlignment.Left;
-                triggerBtn.atlas = TextureUtil.Ingame;
-                triggerBtn.normalFgSprite = "IconDownArrow";
-                triggerBtn.hoveredFgSprite = "IconDownArrowHovered";
-                triggerBtn.pressedFgSprite = "IconDownArrowPressed";
-                triggerBtn.normalBgSprite = "TextFieldPanel";
-                triggerBtn.foregroundSpriteMode = UIForegroundSpriteMode.Scale;
-                triggerBtn.horizontalAlignment = UIHorizontalAlignment.Right;
-                triggerBtn.verticalAlignment = UIVerticalAlignment.Middle;
-                triggerBtn.relativePosition = new Vector3(0, 0);
+                dd.triggerButton = dd.AddUIComponent<UIButton>();
+                UIButton button = dd.triggerButton as UIButton;
+                button.size = dd.size;
+                button.textVerticalAlignment = UIVerticalAlignment.Middle;
+                button.textHorizontalAlignment = UIHorizontalAlignment.Left;
+                button.atlas = TextureUtil.Ingame;
+                button.normalFgSprite = "IconDownArrow";
+                button.hoveredFgSprite = "IconDownArrowHovered";
+                button.pressedFgSprite = "IconDownArrowPressed";
+                button.normalBgSprite = "TextFieldPanel";
+                button.foregroundSpriteMode = UIForegroundSpriteMode.Scale;
+                button.horizontalAlignment = UIHorizontalAlignment.Right;
+                button.verticalAlignment = UIVerticalAlignment.Middle;
+                button.relativePosition = new Vector3(0, 0);
 
                 // Scrollbar
                 dd.listScrollbar = dd.AddUIComponent<UIScrollbar>();
