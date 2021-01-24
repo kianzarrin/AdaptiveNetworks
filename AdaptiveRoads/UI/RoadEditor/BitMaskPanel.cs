@@ -66,77 +66,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
             Label = AddUIComponent<UILabel>();
             Label.relativePosition = new Vector2(0,6);
 
-            DropDown = AddUIComponent<UICheckboxDropDown>();
-            DropDown.size = new Vector2(370, 22);
-            DropDown.relativePosition = new Vector2(width- DropDown.width, 28);
-            DropDown.verticalAlignment = UIVerticalAlignment.Middle;
-            DropDown.horizontalAlignment = UIHorizontalAlignment.Center;
-            DropDown.builtinKeyNavigation = true;
-
-            DropDown.atlas = TextureUtil.InMapEditor;
-            DropDown.normalBgSprite = "TextFieldPanel";
-            DropDown.uncheckedSprite = "check-unchecked";
-            DropDown.checkedSprite = "check-checked";
-
-            DropDown.listBackground = "GenericPanelWhite";
-            DropDown.listWidth = 188;
-            DropDown.listHeight = 300;
-            DropDown.clampListToScreen = true;
-            DropDown.listPosition = UICheckboxDropDown.PopupListPosition.Automatic;
-
-            DropDown.itemHeight = 25;
-            DropDown.itemHover = "ListItemHover";
-            DropDown.itemHighlight = "ListItemHighlight";
-
-            DropDown.popupColor = Color.black;
-            DropDown.popupTextColor = Color.white;
-
-            DropDown.triggerButton = DropDown.AddUIComponent<UIButton>();
-            UIButton button = DropDown.triggerButton as UIButton;
-            button.size = DropDown.size;
-            button.textVerticalAlignment = UIVerticalAlignment.Middle;
-            button.textHorizontalAlignment = UIHorizontalAlignment.Left;
-            button.atlas = TextureUtil.Ingame;
-            button.normalFgSprite = "IconDownArrow";
-            button.hoveredFgSprite = "IconDownArrowHovered";
-            button.pressedFgSprite = "IconDownArrowPressed";
-            button.normalBgSprite = "TextFieldPanel";
-            button.foregroundSpriteMode = UIForegroundSpriteMode.Scale;
-            button.horizontalAlignment = UIHorizontalAlignment.Right;
-            button.verticalAlignment = UIVerticalAlignment.Middle;
-            button.relativePosition = new Vector3(0, 0);
-
-            // Scrollbar
-            DropDown.listScrollbar = DropDown.AddUIComponent<UIScrollbar>();
-            DropDown.listScrollbar.width = 12f;
-            DropDown.listScrollbar.height = DropDown.listHeight;
-            DropDown.listScrollbar.orientation = UIOrientation.Vertical;
-            DropDown.listScrollbar.pivot = UIPivotPoint.TopRight;
-            DropDown.listScrollbar.thumbPadding = new RectOffset(0, 0, 5, 5);
-            DropDown.listScrollbar.minValue = 0;
-            DropDown.listScrollbar.value = 0;
-            DropDown.listScrollbar.incrementAmount = 60;
-            DropDown.listScrollbar.AlignTo(DropDown, UIAlignAnchor.TopRight);
-            DropDown.listScrollbar.autoHide = true; // false ?
-            DropDown.listScrollbar.isVisible = false;
-
-            UISlicedSprite tracSprite = DropDown.listScrollbar.AddUIComponent<UISlicedSprite>();
-            tracSprite.relativePosition = Vector2.zero;
-            tracSprite.autoSize = true;
-            tracSprite.size = tracSprite.parent.size;
-            tracSprite.fillDirection = UIFillDirection.Vertical;
-            tracSprite.spriteName = "ScrollbarTrack";
-
-            DropDown.listScrollbar.trackObject = tracSprite;
-
-            UISlicedSprite thumbSprite = tracSprite.AddUIComponent<UISlicedSprite>();
-            thumbSprite.relativePosition = Vector2.zero;
-            thumbSprite.fillDirection = UIFillDirection.Vertical;
-            thumbSprite.autoSize = true;
-            thumbSprite.width = thumbSprite.parent.width - 8;
-            thumbSprite.spriteName = "ScrollbarThumb";
-            DropDown.listScrollbar.thumbObject = thumbSprite;
-
+            DropDown = AddUIComponent<EditorMultiSelectDropDown>();
             DropDown.eventAfterDropdownClose += DropdownClose;
         }
 
