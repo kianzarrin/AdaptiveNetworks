@@ -84,7 +84,12 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
         public MiniPanelNumberField AddNumberField() {
             var field = AddUIComponent<MiniPanelNumberField>();
-            if (started) Refresh();
+            if(started) Refresh();
+            return field;
+        }
+        public MiniPanelFloatField AddFloatField() {
+            var field = AddUIComponent<MiniPanelFloatField>();
+            if(started) Refresh();
             return field;
         }
         public MiniPanelTextField AddTextField() {
@@ -158,6 +163,22 @@ namespace AdaptiveRoads.UI.RoadEditor {
             }
 
         }
+
+        public class MiniPanelFloatField : MiniPanelNumberField {
+            public override void Awake() {
+                base.Awake();
+                allowFloats = true;
+            }
+
+            new public float Number {
+                get {
+                    if(float.TryParse(text, out float ret))
+                        return ret;
+                    return 0;
+                }
+            }
+        }
+
         public class MiniPanelTextField : UITextField {
             public string Hint;
             public override void OnDestroy() {

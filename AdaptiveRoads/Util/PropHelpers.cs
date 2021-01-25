@@ -114,7 +114,7 @@ namespace AdaptiveRoads.Util {
             (prop.m_flagsRequired ^ prop.m_flagsForbidden)
             .IsFlagSet(NetLane.Flags.Inverted);
 
-        public static void Displace(this NetLaneProps.Prop prop, int x) {
+        public static void Displace(this NetLaneProps.Prop prop, float x) {
             var pos = prop.m_position;
             if(pos.x == 0)
                 return;

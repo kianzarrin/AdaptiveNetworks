@@ -13,7 +13,7 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
         public UIButton LoadButton;
         public MenuCheckbox ToggleDir;
         public MenuCheckbox ToggleSide;
-        public MenuTextFieldInt Displacement;
+        public MenuTextFieldFloat Displacement;
 
         public delegate void OnPropsLoadedHandler(NetLaneProps.Prop[] props);
         public event OnPropsLoadedHandler OnPropsLoaded;
@@ -63,7 +63,7 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
                     panel2.autoLayoutPadding = new RectOffset(0, 5, 0, 0);
                     var lbl = panel2.AddUIComponent<UILabel>();
                     lbl.text = "Displacement:";
-                    Displacement = panel2.AddUIComponent<MenuTextFieldInt>();
+                    Displacement = panel2.AddUIComponent<MenuTextFieldFloat>();
                     Displacement.width = panel.width - Displacement.relativePosition.x;
                     Displacement.tooltip = "put a posetive number to move props sideways.";
                     lbl.height = Displacement.height;

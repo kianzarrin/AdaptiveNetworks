@@ -92,21 +92,22 @@ namespace AdaptiveRoads.Util {
                 && element is NetLaneProps.Prop) {
                 var panel = MiniPanel.Display();
                 var f_props = typeof(NetLaneProps).GetField(nameof(NetLaneProps.m_props));
-                var props = elements.Select(_p => (_p as NetLaneProps.Prop).Clone());
-                string strAll = props.Count() > 1 ? " all" : "";
+                var original_props = elements.Select(_p => _p as NetLaneProps.Prop);
+                var cloned_props = original_props.Select(_p => _p.Clone());
+                string strAll = cloned_props.Count() > 1 ? " all" : "";
 
                 panel.AddButton("Duplicate" + strAll, null, delegate () {
-                    AddProps(groupPanel, props.ToArray());
+                    AddProps(groupPanel, cloned_props.ToArray());
                 });
 
-                if (props.Any(_p => _p.CanInvert())) {
+                if (cloned_props.Any(_p => _p.CanInvert())) {
                     panel.AddButton(
                         "Inverted duplicate" + strAll,
                         "swaps: required.Inverted<->foribdden.inverted start<->end left<->right\n" +
                         "negates: position.z offset angle",
                         delegate () {
                             try {
-                                var arProsp = props.ToArray();
+                                var arProsp = cloned_props.ToArray();
                                 foreach(var item in arProsp)
                                     item.ToggleRHT_LHT();
                                 AddProps(groupPanel, arProsp);
@@ -116,18 +117,18 @@ namespace AdaptiveRoads.Util {
                         });
                 }
                 panel.AddButton("Copy" + strAll, null, delegate () {
-                    ClipBoard.SetData(props);
+                    ClipBoard.SetData(cloned_props);
                 });
                 panel.AddButton("Copy" + strAll + " to other elevations", null, delegate () {
-                    foreach (var item in props)
+                    foreach (var item in cloned_props)
                         PropHelpers.CopyPropsToOtherElevations(item);
                 });
                 panel.AddButton("Add" + strAll + " to Template", null, delegate () {
-                    SaveTemplatePanel.Display(props);
+                    SaveTemplatePanel.Display(cloned_props);
                 });
-                if (props.Count() >= 2) {
+                if (cloned_props.Count() >= 2) {
                     panel.AddButton("Displace all", null, delegate () {
-                        DisplaceAll(props);
+                        DisplaceAll(original_props);
                     });
                 }
             } else if (element is NetInfo.Lane lane && lane.HasProps()
@@ -202,14 +203,16 @@ namespace AdaptiveRoads.Util {
 
         public static void DisplaceAll(IEnumerable<NetLaneProps.Prop> props) {
             var panel = MiniPanel.Display();
-            var numberField = panel.AddNumberField();
+            var floatField = panel.AddFloatField();
             panel.AddButton("Displace", null, () =>
-                DisplaceAll(props, numberField.Number));
+                DisplaceAll(props, floatField.Number));
         }
 
-        public static void DisplaceAll(IEnumerable<NetLaneProps.Prop> props, int z) {
+        public static void DisplaceAll(IEnumerable<NetLaneProps.Prop> props, float z) {
+            Log.Debug(ThisMethod + $" props={props.ToSTR()} z={z}");
             foreach (var prop in props)
                 prop.Displace(z);
+            LogSucceeded();
         }
 
         public static void RefreshRoadEditor() {
