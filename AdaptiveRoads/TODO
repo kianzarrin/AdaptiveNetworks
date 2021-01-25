@@ -1,5 +1,5 @@
 - bugs:
-    - templates do not load saved extensions flags
+    - fix copy props to other lanes (does not work for +14 to +11)
     
 flags for:
     merging/splitting lanes

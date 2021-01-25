@@ -4,6 +4,7 @@ namespace AdaptiveRoads.DTO {
     using PrefabMetadata.Helpers;
     using KianCommons;
     using KianCommons.Serialization;
+    using AdaptiveRoads.UI;
 
     public class NetInfoDTO : IDTO<NetInfo> {
         public float m_halfWidth = 8f;
@@ -91,6 +92,8 @@ namespace AdaptiveRoads.DTO {
             }
             public static explicit operator NetInfo.Node(Node dto) {
                 var gameNode = new NetInfo.Node();
+                if(ModSettings.ARMode)
+                    gameNode = gameNode.Extend().Base;
                 dto.WriteToGame(gameNode);
                 return gameNode;
             }
@@ -122,6 +125,8 @@ namespace AdaptiveRoads.DTO {
             }
             public static explicit operator NetInfo.Segment(Segment dto) {
                 var gameSegment = new NetInfo.Segment();
+                if(ModSettings.ARMode)
+                    gameSegment = gameSegment.Extend().Base;
                 dto.WriteToGame(gameSegment);
                 return gameSegment;
             }
@@ -215,6 +220,8 @@ namespace AdaptiveRoads.DTO {
 
             public static explicit operator NetLaneProps.Prop(Prop dto) {
                 var ret = new NetLaneProps.Prop();
+                if(ModSettings.ARMode)
+                    ret = ret.Extend().Base;
                 dto.WriteToGame(ret);
                 return ret;
             }

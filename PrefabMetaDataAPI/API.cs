@@ -11,8 +11,13 @@ namespace PrefabMetadata.API {
         : IInfoExtended
         where T : class
     {
+        /// <summary>deep clone.</summary>
         IInfoExtended<T> Clone();
+
+        /// <summary>returns a clone with base type T, removing metadata.</summary>
         T UndoExtend();
+
+        /// <summary>returns self as base type T.</summary>
         T Base { get; }
     }
 }
