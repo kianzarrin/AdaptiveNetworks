@@ -133,11 +133,14 @@ namespace AdaptiveRoads.Util {
                 Swap(ref info.m_forwardVehicleLaneCount, ref info.m_backwardVehicleLaneCount);
             }
 
+            SimulationManager.instance.m_ThreadingWrapper.QueueMainThread(RoadEditorUtils.RefreshRoadEditor);
+
             for(ushort segmentID = 1; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
                 if(NetUtil.IsSegmentValid(segmentID)) {
                     NetManager.instance.UpdateSegment(segmentID);
                 }
             }
+
         }
     }
 }

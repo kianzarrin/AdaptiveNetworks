@@ -1,5 +1,7 @@
 - bugs:
-    
+    - changing LHT causes errors: null info
+    - parking left/right is confused in inverted mode.
+
 flags for:
     merging/splitting lanes
     slight left/right

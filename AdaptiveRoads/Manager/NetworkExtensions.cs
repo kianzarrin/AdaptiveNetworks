@@ -96,7 +96,7 @@ namespace AdaptiveRoads.Manager {
 
             bool parkingAllowed = LaneData.LaneInfo.m_laneType == NetInfo.LaneType.Parking;
             if (PMan != null)
-                parkingAllowed = PMan.IsParkingAllowed(LaneData.SegmentID, LaneData.LaneInfo.m_finalDirection);
+                parkingAllowed &= PMan.IsParkingAllowed(LaneData.SegmentID, LaneData.LaneInfo.m_finalDirection);
             m_flags = m_flags.SetFlags(Flags.ParkingAllowed, parkingAllowed);
 
             if (VRMan != null) {
@@ -223,7 +223,11 @@ namespace AdaptiveRoads.Manager {
         }
 
         public void UpdateAllFlags() {
-            Log.Debug($"NetSegmentExt.UpdateAllFlags() called" /*Environment.StackTrace*/, false);
+            Log.Debug($"NetSegmentExt.UpdateAllFlags() called. SegmentID={SegmentID}" /*Environment.StackTrace*/, false);
+            if(!NetUtil.IsSegmentValid(SegmentID)) {
+                int index = NetworkExtensionManager.Instance.SegmentBuffer.IndexOf(this);
+                Log.Info($"WARNING: NetSegmentExt.UpdateAllFlags(): segment:{SegmentID} at SegmentBuffer[{index}] is not valid. skipping update");
+            }
 
             Start.UpdateFlags();
             Start.UpdateDirections();
@@ -242,7 +246,7 @@ namespace AdaptiveRoads.Manager {
                 ref NetLaneExt laneExt = ref NetworkExtensionManager.Instance.LaneBuffer[lane.LaneID];
                 laneExt.UpdateLane(lane);
                 if (laneExt.m_flags.IsFlagSet(NetLaneExt.Flags.ParkingAllowed)) {
-                    if (lane.LeftSide)
+                    if (lane.LeftSide)  
                         parkingLeft = true;
                     else
                         parkingRight = true;
@@ -444,7 +448,7 @@ namespace AdaptiveRoads.Manager {
         private static LaneArrows AllArrows(ushort segmentId, bool startNode) {
             LaneArrows ret = LaneArrows.None;
             foreach (var lane in NetUtil.IterateLanes(
-                segmentId:segmentId,startNode: startNode,
+                segmentId:segmentId, startNode: startNode,
                 laneType:  LaneArrowManager.LANE_TYPES, vehicleType: LaneArrowManager.VEHICLE_TYPES)) {
                 LaneArrows arrows = LaneArrowManager.Instance.GetFinalLaneArrows(lane.LaneID);
                 ret |= arrows;

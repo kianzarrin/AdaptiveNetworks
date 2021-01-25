@@ -131,6 +131,13 @@ namespace AdaptiveRoads.Util {
             if (propExt != null) {
                 Helpers.Swap(ref propExt.StartNodeFlags, ref propExt.EndNodeFlags);
                 Helpers.Swap(ref propExt.SegmentStartFlags, ref propExt.SegmentEndFlags);
+
+                // change parking/bus/tram left/right flags.
+                propExt.SegmentFlags.Required.InvertLeftRight();
+                propExt.SegmentFlags.Forbidden.InvertLeftRight();
+                propExt.VanillaSegmentFlags.Required.InvertLeftRight();
+                propExt.VanillaSegmentFlags.Forbidden.InvertLeftRight();
+
             }
         }
 
