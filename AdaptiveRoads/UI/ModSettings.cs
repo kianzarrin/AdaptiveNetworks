@@ -75,6 +75,9 @@ namespace AdaptiveRoads.UI {
 
             }) as UICheckBox;
 
+            var btn = general.AddCheckbox("Left Hand Traffic", NetUtil.LHT, RoadUtils.SetDirection) as UICheckBox;
+            btn.eventVisibilityChanged += (_,__) => btn.isChecked = NetUtil.LHT;
+
             general.AddSavedToggle("hide irrelevant flags", HideIrrelavant);
             general.AddSavedToggle("hide floating hint box", HideHints);
             general.AddSavedToggle("Set default scale to 100", DefaultScale100);

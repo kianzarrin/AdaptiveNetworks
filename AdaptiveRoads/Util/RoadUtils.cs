@@ -5,6 +5,7 @@ namespace AdaptiveRoads.Util {
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using static KianCommons.Helpers;
 
     internal static class RoadUtils {
         public static List<string> GatherEditNames() {
@@ -107,6 +108,36 @@ namespace AdaptiveRoads.Util {
                 }
             }
             return ret;
+        }
+
+        public static void SetDirection(bool lht = true) {
+            SimulationManager.instance.AddAction(() => SetDirectionImpl(lht));
+        }
+        public static void SetDirectionImpl(bool lht = true) {
+                if(lht == NetUtil.LHT) return; // no need for change.
+            SimulationManager.instance.m_metaData.m_invertTraffic =
+                lht ? SimulationMetaData.MetaBool.True: SimulationMetaData.MetaBool.False;
+            
+            for(ushort i=0; i < PrefabCollection<NetInfo>.LoadedCount(); ++i) {
+                var info = PrefabCollection<NetInfo>.GetLoaded(i);
+                if(!info) continue;
+                foreach(var lane in info.m_lanes) {
+                    const NetInfo.LaneType flags = NetInfo.LaneType.Vehicle | NetInfo.LaneType.Parking | NetInfo.LaneType.CargoVehicle | NetInfo.LaneType.TransportVehicle;
+                    if(lht && lane.m_laneType.IsFlagSet(flags)) {
+                        lane.m_finalDirection = NetInfo.InvertDirection(lane.m_direction);
+                    } else {
+                        lane.m_finalDirection = lane.m_direction;
+                    }
+                }
+                Swap(ref info.m_hasForwardVehicleLanes, ref info.m_hasBackwardVehicleLanes);
+                Swap(ref info.m_forwardVehicleLaneCount, ref info.m_backwardVehicleLaneCount);
+            }
+
+            for(ushort segmentID = 1; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
+                if(NetUtil.IsSegmentValid(segmentID)) {
+                    NetManager.instance.UpdateSegment(segmentID);
+                }
+            }
         }
     }
 }

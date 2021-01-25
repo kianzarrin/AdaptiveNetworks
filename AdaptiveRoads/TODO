@@ -7,10 +7,17 @@ flags for:
 
 - create templates:
     yield/stop
-    uturn props/sign
-    parking/no paking
-    pedestrian crossing sign
-    no left/right turn
+        signs : done
+        markings:
+    uturn sign
+        signs: done
+        lane arrows:
+    parking/no paking:
+    pedestrian crossing sign: done
+    no left/right turn:
+        step1: no left/right: done
+        step2: straight only:
+        step3: german:
     speed limits KPH/MPH
 
     traffic lights
@@ -18,8 +25,8 @@ flags for:
     lane arrows
 
 create road with following props:
-    uturn sign (moddded)
-    yeild/sign (vanilla + modded)
+    uturn sign (moddded) 
+    yeild/sign (vanilla + modded) 
     stop/yeild lines.
     no left/right turn sign (vanilla + modded)
     parking signs (vanilla + modded)
