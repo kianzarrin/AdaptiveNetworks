@@ -23,6 +23,13 @@ namespace AdaptiveRoads.Util {
             flags.SwitchFlags(NetSegmentEnd.Flags.HasRightSegment, NetSegmentEnd.Flags.HasLeftSegment);
             flags.SwitchFlags(NetSegmentEnd.Flags.CanTurnRight, NetSegmentEnd.Flags.CanTurnLeft);
         }
+        public static void InvertLeftRight(ref this NetSegmentExt.Flags flags) {
+            flags.SwitchFlags(NetSegmentExt.Flags.ParkingAllowedLeft, NetSegmentExt.Flags.ParkingAllowedRight);
+        }
+        public static void InvertLeftRight(ref this NetSegment.Flags flags) {
+            flags.SwitchFlags(NetSegment.Flags.StopLeft, NetSegment.Flags.StopRight);
+            flags.SwitchFlags(NetSegment.Flags.StopLeft2, NetSegment.Flags.StopRight2);
+        }
         public static void SwitchFlags<T>(ref this T flags, T flag1, T flag2) where T : struct, IConvertible{
             bool hasFlag1 = flags.IsFlagSet(flag1);
             bool hasFlag2 = flags.IsFlagSet(flag2);
@@ -49,14 +56,27 @@ namespace AdaptiveRoads.Util {
 
 
         public static void ChangeInvertedFlag(this NetLaneProps.Prop prop) {
-            bool InvertRequired = prop.m_flagsRequired.IsFlagSet(NetLane.Flags.Inverted);
-            bool InvertForbidden = prop.m_flagsForbidden.IsFlagSet(NetLane.Flags.Inverted);
-            prop.m_flagsRequired = prop.m_flagsRequired.SetFlags(
-                NetLane.Flags.Inverted,
-                InvertForbidden);
-            prop.m_flagsForbidden = prop.m_flagsForbidden.SetFlags(
-                NetLane.Flags.Inverted,
-                InvertRequired);
+            {
+                bool InvertRequired = prop.m_flagsRequired.IsFlagSet(NetLane.Flags.Inverted);
+                bool InvertForbidden = prop.m_flagsForbidden.IsFlagSet(NetLane.Flags.Inverted);
+                prop.m_flagsRequired = prop.m_flagsRequired.SetFlags(
+                    NetLane.Flags.Inverted,
+                    InvertForbidden);
+                prop.m_flagsForbidden = prop.m_flagsForbidden.SetFlags(
+                    NetLane.Flags.Inverted,
+                    InvertRequired);
+            }
+            if(prop.GetMetaData() is NetInfoExtionsion.LaneProp metaData)
+            {
+                bool InvertRequired = metaData.SegmentFlags.Required.IsFlagSet(NetSegmentExt.Flags.LeftHandTraffic);
+                bool InvertForbidden = metaData.SegmentFlags.Forbidden.IsFlagSet(NetSegmentExt.Flags.LeftHandTraffic);
+                metaData.SegmentFlags.Required = metaData.SegmentFlags.Required.SetFlags(
+                    NetSegmentExt.Flags.LeftHandTraffic,
+                    InvertForbidden);
+                metaData.SegmentFlags.Forbidden = metaData.SegmentFlags.Forbidden.SetFlags(
+                    NetSegmentExt.Flags.LeftHandTraffic,
+                    InvertRequired);
+            }
         }
 
         public static void ToggleRHT_LHT(this NetLaneProps.Prop prop) {
@@ -82,6 +102,10 @@ namespace AdaptiveRoads.Util {
                 propExt.SegmentStartFlags.Forbidden.InvertLeftRight();
                 propExt.SegmentEndFlags.Required.InvertLeftRight();
                 propExt.SegmentEndFlags.Forbidden.InvertLeftRight();
+                propExt.SegmentFlags.Required.InvertLeftRight();
+                propExt.SegmentFlags.Forbidden.InvertLeftRight();
+                propExt.VanillaSegmentFlags.Required.InvertLeftRight();
+                propExt.VanillaSegmentFlags.Forbidden.InvertLeftRight();
             }
             if(TryInvertLeftRight(prop.m_prop, out var propInfoInverted))
                 prop.m_prop = prop.m_finalProp = propInfoInverted;
