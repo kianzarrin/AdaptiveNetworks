@@ -144,18 +144,21 @@ namespace AdaptiveRoads.Util {
         /// </summary>
         /// <param name="laneIndex">copy only this lane index (-1 for all lanes)</param>
         /// <param name="clear">clears target lane[s] before copying</param>
-        /// <param name="prop">copy only this props. set null to copy all props</param>
+        /// <param name="prop">copy only this prop. set null to copy all props</param>
         static void CopyPropsToOtherElevationsMain(
         bool clear = true,
         int laneIndex = -1,
         NetLaneProps.Prop prop = null) {
             var srcInfo = NetInfoExtionsion.EditedNetInfo;
-            var srcLanes = srcInfo.SortedLanes().ToList();
+            var srcLanes = srcInfo.m_lanes;
             foreach (var targetInfo in NetInfoExtionsion.EditedNetInfos.Skip(1)) {
-                var targetLanes = targetInfo.SortedLanes().ToList();
-                for (int i = 0, j = 0; i < srcLanes.Count && j < targetLanes.Count;) {
-                    var srcLane = srcLanes[i];
-                    var targetLane = targetLanes[j];
+                var targetLanes = targetInfo.m_lanes;
+                for (int i = 0, j = 0; i < srcLanes.Length && j < targetLanes.Length;) {
+                    int ii = srcInfo.m_sortedLanes[i];
+                    int jj = targetInfo.m_sortedLanes[j];
+                    var srcLane = srcLanes[ii];
+                    var targetLane = targetLanes[jj];
+
                     if (srcLane.m_laneType == targetLane.m_laneType) {
                         if (prop != null) {
                             if (laneIndex < 0) {
@@ -163,9 +166,9 @@ namespace AdaptiveRoads.Util {
                                     AddProp(prop, targetLane);
                                 }
                             } else {
-                                if (i == laneIndex) AddProp(prop, targetLane);
+                                if (ii == laneIndex) AddProp(prop, targetLane);
                             }
-                        } else if (i == laneIndex || laneIndex < 0) {
+                        } else if (ii == laneIndex || laneIndex < 0) {
                             CopyProps(srcLane, targetLane, clear);
                         }
                         i++; j++;
