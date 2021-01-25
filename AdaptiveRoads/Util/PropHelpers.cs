@@ -114,6 +114,17 @@ namespace AdaptiveRoads.Util {
             (prop.m_flagsRequired ^ prop.m_flagsForbidden)
             .IsFlagSet(NetLane.Flags.Inverted);
 
+        public static void Displace(this NetLaneProps.Prop prop, int x) {
+            var pos = prop.m_position;
+            if(pos.x == 0)
+                return;
+            else if(pos.x < 0)
+                pos.x -= x;
+            else
+                pos.x += x;
+            prop.m_position = pos;
+        }
+
         public static void CopyPropsToOtherElevations(bool clear = true) =>
             CopyPropsToOtherElevationsMain(clear);
 
@@ -123,17 +134,6 @@ namespace AdaptiveRoads.Util {
 
         public static void CopyPropsToOtherElevations(NetLaneProps.Prop prop) =>
             CopyPropsToOtherElevationsMain(clear: false, prop: prop);
-
-        public static void Displace(this NetLaneProps.Prop prop, int x) {
-            var pos = prop.m_position;
-            if (pos.x == 0)
-                return;
-            else if (pos.x < 0)
-                pos.x -= x;
-            else
-                pos.x += x;
-            prop.m_position = pos;
-        }
 
         /// <summary>
         /// copy props from ground to other elevations.
