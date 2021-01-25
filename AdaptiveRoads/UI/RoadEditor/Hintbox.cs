@@ -9,11 +9,11 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using static AdaptiveRoads.Util.DPTHelpers;
-using AdaptiveRoads.Manager;
 
 namespace AdaptiveRoads.UI.RoadEditor {
     public class HintBox : UILabel {
         static HintBox _instance;
+        const int SPACE = 25;
         public static HintBox Create() =>
             _instance = UIView.GetAView().AddUIComponent(typeof(HintBox)) as HintBox;
         public static void Release() =>
@@ -106,19 +106,19 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
         public override void Update() {
             isVisible = isVisible; // trick fbsbooster to ignore this update.
-
             try {
                 base.Update();
                 if (ModSettings.HideHints)
                     return;
-                GetHint();
-                ShowInfo();
+                if(!containsMouse) // avoid flickering
+                    GetHint();
+                ShowHint();
             } catch (Exception ex) {
                 Log.Exception(ex);
             }
         }
 
-        private void ShowInfo() {
+        private void ShowHint() {
             text = BuildText();
             isVisible = !text.IsNullorEmpty();
             if (!isVisible)
@@ -127,9 +127,9 @@ namespace AdaptiveRoads.UI.RoadEditor {
             var screenSize = ToolBase.fullscreenContainer?.size
                 ?? GetUIView().GetScreenResolution();
 
-            var pos = MouseGUIPosition() + new Vector3(25, 25);
-            pos.x = ClampToScreen(pos.x, width, screenSize.x);
-            pos.y = ClampToScreen(pos.y, height, screenSize.y);
+            var pos = MouseGUIPosition() + new Vector3(SPACE, SPACE);
+            pos.x = SwitchPivotAtScreenEdge(pos.x, width, screenSize.x);
+            pos.y = SwitchPivotAtScreenEdge(pos.y, height, screenSize.y);
 
             relativePosition = pos;
         }
@@ -209,10 +209,14 @@ namespace AdaptiveRoads.UI.RoadEditor {
             var uiView = GetUIView();
             return uiView.ScreenPointToGUI(Input.mousePosition / uiView.inputScale);
         }
-        static float ClampToScreen(float pos, float size, float screen) {
+        static float SwitchPivotAtScreenEdge(float pos, float size, float screen) {
             float max = screen - size;
             if (max <= 0) return 0;
-            return Mathf.Clamp(pos, 0, max);
+            if(pos > max)
+                pos = pos - size - SPACE*2;
+            if(pos < 0)
+                pos = 0;
+            return pos;
         }
     }
 
