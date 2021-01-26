@@ -6,6 +6,7 @@ namespace FbxUtil {
     using System;
     using System.Diagnostics;
     using System.Reflection;
+    using ColossalFramework.UI;
 
     public static class FbxConverter {
         #region stream IO
@@ -29,6 +30,12 @@ namespace FbxUtil {
             string tempPath = path.Replace(".fbx", ".ascii.fbx");
             mesh.ExportAsciiFbx(tempPath);
             ConvertBinary(tempPath, path);
+            ExceptionPanel panel = UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel");
+            panel.SetMessage(
+                "Dump FBX successful",
+                $"Dumped mesh as {path}\n" +
+                $"Dumped mesh as {tempPath}\n",
+                false);
         }
 
         //[Obsolete("does not read properly", error: true)]
