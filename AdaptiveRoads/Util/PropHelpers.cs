@@ -309,13 +309,13 @@ namespace AdaptiveRoads.Util {
                     propExt?.StartNodeFlags.Forbidden,
                     propExt?.SegmentStartFlags.Forbidden);
                 if (!string.IsNullOrEmpty(tStart))
-                    tStart = " Start:" + tStart;
+                    tStart = " Tail:" + tStart;
                 var tEnd = MergeFlagText(
                     prop.m_endFlagsForbidden,
                     propExt?.EndNodeFlags.Forbidden,
                     propExt?.SegmentEndFlags.Forbidden);
                 if (!string.IsNullOrEmpty(tEnd))
-                    tEnd = " End:" + tEnd;
+                    tEnd = " Head:" + tEnd;
                 text2 = t + tStart + tEnd;
             }
 
