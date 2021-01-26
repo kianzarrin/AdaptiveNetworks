@@ -1,11 +1,11 @@
 - bugs:
-    - changing LHT causes errors: null info
-    - parking left/right is confused in inverted mode.
+    
 
 flags for:
-    merging/splitting lanes
-    slight left/right
-    sharp left/right
+    arrrows:
+        merging/splitting lanes
+        slight left/right/uturn
+        sharp left/right
 
 - create templates:
     yield/stop
@@ -13,9 +13,9 @@ flags for:
         markings:
     uturn sign
         signs: done
-        lane arrows:
-    parking/no paking:
+    parking/no paking: done
     pedestrian crossing sign: done
+        texture
     no left/right turn:
         step1: no left/right: done
         step2: straight only:

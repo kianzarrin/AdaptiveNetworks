@@ -206,8 +206,6 @@ namespace AdaptiveRoads.Manager {
             //All = -1,
         }
 
-
-
         public ref NetSegmentEnd Start => ref NetworkExtensionManager.Instance.GetSegmentEnd(SegmentID, true);
         public ref NetSegmentEnd End => ref NetworkExtensionManager.Instance.GetSegmentEnd(SegmentID, false);
 
@@ -226,7 +224,9 @@ namespace AdaptiveRoads.Manager {
             Log.Debug($"NetSegmentExt.UpdateAllFlags() called. SegmentID={SegmentID}" /*Environment.StackTrace*/, false);
             if(!NetUtil.IsSegmentValid(SegmentID)) {
                 int index = NetworkExtensionManager.Instance.SegmentBuffer.IndexOf(this);
-                Log.Info($"WARNING: NetSegmentExt.UpdateAllFlags(): segment:{SegmentID} at SegmentBuffer[{index}] is not valid. skipping update");
+                Log.Error($"segment:{SegmentID} at SegmentBuffer[{index}] is not valid. " +
+                    $"skipping update." + Environment.StackTrace);
+                return;
             }
 
             Start.UpdateFlags();
