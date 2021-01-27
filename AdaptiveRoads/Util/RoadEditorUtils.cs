@@ -107,14 +107,7 @@ namespace AdaptiveRoads.Util {
                 });
 
                 if (cloned_props.Any(_p => _p.CanInvert())) {
-                    string hint;
-                    if(unidirectional) {
-                        hint = "swaps: required.Inverted<->foribdden.inverted left<->right\n" +
-                        "negates: position.x";
-                    } else {
-                        hint = "swaps: required.Inverted<->foribdden.inverted start<->end left<->right\n" +
-                        "negates: position.z offset angle";
-                    }
+                    string hint =  HintExtension.GetHintSwichLHT_RHT(unidirectional);
                     panel.AddButton(
                         "LHT duplicate" + strAll,
                         hint,

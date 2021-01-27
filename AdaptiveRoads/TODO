@@ -1,17 +1,7 @@
 TODO:
-    load models from sub-folderes
+    Fix loading model textures from sub-folderes 
     Fix pavement in-game
     Test Road with DC mod
-    bring hint to front
-
-    hint for clicking on prop model (done)
-    do not allow switch Forward/Backward on uni-directional lanes (done)
-    switch LHT should only negate pos.x (if any) on uni-directional lanes. (done)
-    rename toggle dir/side to switch dir/side (done)
-    speed limit hint (0-> max=?  , to is exclusive) (done)
-    Speed limits in MPH (done)
-    
-    
 
 flags for:
     arrrows:
@@ -19,18 +9,7 @@ flags for:
         slight left/right/uturn
         sharp left/right
 
-- create templates:
-    yield/stop
-        signs : done
-        markings: done
-    uturn sign
-        signs: done
-    parking/no paking: done
-    pedestrian crossing sign: done
-        texture: done
-    no left/right turn: done
-    speed limits KPH/MPH
-
+     
 create road with following props:
     features: done
         uturn sign  

@@ -21,12 +21,14 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
         public event OnPropsLoadedHandler OnPropsLoaded;
 
         public static LoadTemplatePanel Display(
-            OnPropsLoadedHandler handler, bool unidirectional, bool switchBackward) {
+            OnPropsLoadedHandler handler, bool unidirectional, bool suggestBackward) {
+            if(unidirectional && suggestBackward)
+                throw new ArgumentException("switch backward cannot be applied to unidirectional lanes.");
             Log.Debug($"LoadTemplatePanel.Display() called");
             var ret = UIView.GetAView().AddUIComponent<LoadTemplatePanel>();
             ret.OnPropsLoaded = handler;
             ret.UniDirectional = unidirectional;
-            ret.SwitchBackward = switchBackward;
+            ret.SwitchBackward = suggestBackward;
             return ret;
         }
 

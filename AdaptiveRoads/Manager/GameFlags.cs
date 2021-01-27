@@ -72,6 +72,16 @@ namespace AdaptiveRoads.Manager {
             var enumType2 = GetMappedEnumWithHints(enumType);
             return enumType2.GetEnumMember(value).GetHints().JoinLines();
         }
+
+        public static string GetHintSwichLHT_RHT(bool unidirectional) {
+            if(unidirectional) {
+                return "swaps: required.Inverted<->foribdden.inverted left<->right\n" +
+                "negates: position.x";
+            } else {
+                return "swaps: required.Inverted<->foribdden.inverted start<->end left<->right\n" +
+                "negates: position.z offset angle";
+            }
+        }
     }
 
     [Flags]

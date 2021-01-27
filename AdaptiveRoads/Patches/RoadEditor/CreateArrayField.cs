@@ -37,12 +37,12 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 var roadEditor = component.GetComponentInParent<RoadEditorPanel>();
                 var lane = roadEditor.GetTarget() as NetInfo.Lane;
                 Assertion.AssertNotNull(lane,"target is lane");
-                bool forward = lane.IsGoingForward();
-                bool backward = lane.IsGoingBackward();
+                bool unidirectional = lane.IsGoingForward() || lane.IsGoingBackward();
+                bool suggestBackward = lane.m_laneType == NetInfo.LaneType.Pedestrian && lane.m_position < 0;
                 LoadTemplatePanel.Display(
                     loadedProps => RoadEditorUtils.AddProps(groupPanel, loadedProps),
-                    unidirectional: forward || backward,
-                    switchBackward: backward);
+                    unidirectional:unidirectional,
+                    suggestBackward: suggestBackward);
             } catch (Exception ex) {
                 Log.Exception(ex);
             }

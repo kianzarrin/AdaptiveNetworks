@@ -96,11 +96,12 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
                                 });
                         }
+
                         ButtonPanel.Add(
                             roadEditorPanel: __instance,
                             container: __instance.m_Container,
                             label: "Switch RHT/LHT",
-                            null,
+                            HintExtension.GetHintSwichLHT_RHT(unidirectional),
                             action: () => {
                                 prop.ToggleRHT_LHT(unidirectional);
                                 __instance.OnObjectModified();
