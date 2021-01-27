@@ -88,7 +88,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             ButtonPanel.Add(
                                 roadEditorPanel: __instance,
                                 container: __instance.m_Container,
-                                label: "Toggle Forward/Backward",
+                                label: "Switch Forward/Backward",
                                 null,
                                 action: () => {
                                     prop.ToggleForwardBackward();
@@ -100,7 +100,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         ButtonPanel.Add(
                             roadEditorPanel: __instance,
                             container: __instance.m_Container,
-                            label: "Toggle RHT/LHT",
+                            label: "Switch RHT/LHT",
                             null,
                             action: () => {
                                 prop.ToggleRHT_LHT(unidirectional);

@@ -54,9 +54,9 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
                 }
                 {
                     SwitchDir = panel.AddUIComponent<MenuCheckbox>();
-                    SwitchDir.Label = "Toggle Forward/Backward";
+                    SwitchDir.Label = "Switch Forward/Backward";
                     SwitchSide = panel.AddUIComponent<MenuCheckbox>();
-                    SwitchSide.Label = "Toggle RHT/LHT";
+                    SwitchSide.Label = "Switch RHT/LHT";
                 }
                 {
                     //Displacement = panel.AddUIComponent<TextFieldInt>();

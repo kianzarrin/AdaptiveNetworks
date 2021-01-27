@@ -1,14 +1,17 @@
 TODO:
-    add Speed Limits to my DEMO road: done
-    do not allow switch Forward/Backward on uni-directional lanes
-    switch LHT should only negate pos.x (if any) on uni-directional lanes.
-    Fix pavement in-game
-    load models from sub-folderes
-    hint for clicking on prop model
-    speed limit hint (0-> max=?  , to is exclusive)
-    Test Road with DC mod
     rename toggle dir/side to switch dir/side
-    Speed limits in MPH
+    load models from sub-folderes
+    Fix pavement in-game
+    Test Road with DC mod
+
+    add Speed Limits to my DEMO road: done
+    do not allow switch Forward/Backward on uni-directional lanes (done)
+    switch LHT should only negate pos.x (if any) on uni-directional lanes. (done)
+    hint for clicking on prop model (done)
+    speed limit hint (0-> max=?  , to is exclusive) (done)
+    Speed limits in MPH (done)
+    
+    
 
 flags for:
     arrrows:

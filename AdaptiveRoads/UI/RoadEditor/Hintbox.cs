@@ -183,6 +183,9 @@ namespace AdaptiveRoads.UI.RoadEditor {
                             } else if (element is NetInfo.Lane lane && lane.HasProps()
                                 && target == NetInfoExtionsion.EditedNetInfo) {
                                 Hint2 = hotkeys1;
+                            } else if (target is NetLaneProps.Prop) {
+                                Hint2 = "Click => open prop import panel\n" +
+                                    "Alt + Click => enter prop name manually";
                             }
                         } else if (customControl is REPropertySet propertySet) {
                             var field = propertySet.GetTargetField();
