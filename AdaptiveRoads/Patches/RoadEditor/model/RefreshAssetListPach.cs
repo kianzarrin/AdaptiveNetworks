@@ -1,33 +1,13 @@
 namespace AdaptiveRoads.Patches.RoadEditor.AssetImporterAssetImportPatches {
     using ColossalFramework.UI;
     using HarmonyLib;
-    using JetBrains.Annotations;
     using KianCommons;
     using KianCommons.Math;
     using KianCommons.Serialization;
-    using static KianCommons.ReflectionHelpers;
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Reflection;
-
-    // set default scale to 100
-    [HarmonyPatch]
-    public static class ScalePatch {
-        static IEnumerable<MethodBase> TargetMethods() {
-            yield return GetMethod(typeof(AssetImporterAssetImport), "Awake");
-            yield return GetMethod(typeof(AssetImporterAssetImport), "ResetTransformFields");
-            yield return GetMethod(typeof(AssetImporterAssetImport), "SetDefaultScale");
-        }
-        [UsedImplicitly]
-        static void Postfix(UITextField ___m_Scale) {
-            if (AdaptiveRoads.UI.ModSettings.DefaultScale100) {
-                if (___m_Scale.text == "1") // if CalculateDefaultScale() returned 1
-                    ___m_Scale.text = "100";
-            }
-        }
-    }
 
     // adds subfolders to node/segment models
     [HarmonyPatch(typeof(AssetImporterAssetImport), "RefreshAssetList")]
@@ -40,31 +20,27 @@ namespace AdaptiveRoads.Patches.RoadEditor.AssetImporterAssetImportPatches {
 
             ) {
             try {
-                // panel width=1114
-                // Preview pos.x=600
-                // m_FileList : width=550
+                // increase panel size:
                 __instance.component.width = 1115;
-
                 ___m_FileList.width = 550;
                 ___m_FileList.relativePosition =
                     ___m_FileList.relativePosition.SetI(0, 0);
-
                 ___m_SmallPreview.relativePosition =
                     ___m_SmallPreview.relativePosition.SetI(600, 0);
 
                 AddSubfolders(___m_FileList, extensions);
-            } catch (Exception ex) {
+            } catch(Exception ex) {
                 Log.Exception(ex);
             }
         }
 
         private static void AddSubfolders(UIListBox m_FileList, string[] extensions) {
             DirectoryInfo dir = new DirectoryInfo(AssetImporterAssetImport.assetImportPath);
-            if (!dir.Exists) return;
+            if(!dir.Exists) return;
 
             var fileInfos = new List<FileInfo>();
-            foreach (var subdir in dir.GetDirectories()) {
-                if (!subdir.Name.StartsWith("_"))
+            foreach(var subdir in dir.GetDirectories()) {
+                if(!subdir.Name.StartsWith("_"))
                     fileInfos.AddRange(AddSubfoldersRecursive(subdir, extensions));
             }
 
@@ -83,11 +59,14 @@ namespace AdaptiveRoads.Patches.RoadEditor.AssetImporterAssetImportPatches {
         private static List<FileInfo> AddSubfoldersRecursive(DirectoryInfo dir, string[] extensions) {
             var ret = new List<FileInfo>();
             FileInfo[] files = dir.GetFiles();
-            if (files != null) {
-                foreach (FileInfo fileInfo in files) {
-                    if (!Path.GetFileNameWithoutExtension(fileInfo.Name).EndsWith(sLODModelSignature, StringComparison.OrdinalIgnoreCase)) {
-                        for (int j = 0; j < extensions.Length; j++) {
-                            if (string.Compare(Path.GetExtension(fileInfo.Name), extensions[j]) == 0) {
+            if(files != null) {
+                foreach(FileInfo fileInfo in files) {
+                    string baseName = Path.GetFileNameWithoutExtension(fileInfo.Name);
+                    string ext = Path.GetExtension(fileInfo.Name);
+                    bool isLod = baseName.EndsWith(sLODModelSignature, StringComparison.OrdinalIgnoreCase);
+                    if(!isLod) {
+                        for(int j = 0; j < extensions.Length; j++) {
+                            if(string.Compare(ext, extensions[j], ignoreCase: false) == 0) {
                                 ret.Add(fileInfo);
                             }
                         }
@@ -95,8 +74,8 @@ namespace AdaptiveRoads.Patches.RoadEditor.AssetImporterAssetImportPatches {
                 }
             }
 
-            foreach (var subdir in dir.GetDirectories()) {
-                if (!subdir.Name.StartsWith("_"))
+            foreach(var subdir in dir.GetDirectories()) {
+                if(!subdir.Name.StartsWith("_"))
                     ret.AddRange(AddSubfoldersRecursive(subdir, extensions));
             }
 
