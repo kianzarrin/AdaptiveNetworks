@@ -4,11 +4,19 @@ using ColossalFramework;
 using ColossalFramework.UI;
 using ICities;
 using KianCommons;
+using System;
+using System.Linq;
+using System.Collections;
+using System.Collections.Generic;
+using static KianCommons.EnumBitMaskExtensions;
 
 namespace AdaptiveRoads.UI {
     public static class ModSettings {
         public const string FILE_NAME = nameof(AdaptiveRoads);
         public static SavedBool SavedBool(string key, bool def) => new SavedBool(key, FILE_NAME, def, true);
+        public static SavedInt SavedInt(string key, int def) => new SavedInt(key, FILE_NAME, def, true);
+
+        public enum SpeedUnitType { KPH, MPH }
 
         public const string SEGMENT_VANILLA_NODE = "Segment.VanillaNode";
         public const string SEGMENT_SEGMENT_END = "Segment.SegmentEnd";
@@ -31,9 +39,11 @@ namespace AdaptiveRoads.UI {
         public static readonly SavedBool Lane_SegmentEnd = SavedBool(LANE_SEGMENT_END, false);
         public static readonly SavedBool Lane_Node = SavedBool(LANE_NODE, false);
 
-        public static readonly SavedBool ARMode = SavedBool(AR_META_DATA, true);
+        public static readonly SavedBool ARMode = SavedBool("ARMode", true);
         public static bool VanillaMode => !ARMode;
-        public static readonly SavedBool DefaultScale100 = SavedBool(AR_META_DATA, false);
+        public static readonly SavedBool DefaultScale100 = SavedBool("DefaultScale100", false);
+
+        public static readonly SavedInt SpeedUnit = SavedInt("SpeedUnit", (int)SpeedUnitType.KPH);
 
         public static UICheckBox VanillaModeToggle;
 
@@ -77,6 +87,18 @@ namespace AdaptiveRoads.UI {
 
             var btn = general.AddCheckbox("Left Hand Traffic", NetUtil.LHT, RoadUtils.SetDirection) as UICheckBox;
             btn.eventVisibilityChanged += (_,__) => btn.isChecked = NetUtil.LHT;
+
+
+            var dd = general.AddDropdown(
+                "prefered speed unit",
+                Enum.GetNames(typeof(SpeedUnitType)),
+                0, // kph
+                sel => {
+                    var value = GetEnumValues<SpeedUnitType>()[sel];
+                    SpeedUnit.value = (int)value;
+                    Log.Debug("option 'prefered speed unit' is set to " + value);
+                    RoadEditorUtils.RefreshRoadEditor();
+                });
 
             general.AddSavedToggle("hide irrelevant flags", HideIrrelavant);
             general.AddSavedToggle("hide floating hint box", HideHints);

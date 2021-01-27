@@ -11,17 +11,22 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
         public SummaryLabel SummaryBox;
         public SaveListBoxProp SavesListBox;
         public UIButton LoadButton;
-        public MenuCheckbox ToggleDir;
-        public MenuCheckbox ToggleSide;
+        public MenuCheckbox SwitchDir;
+        public MenuCheckbox SwitchSide;
         public MenuTextFieldFloat Displacement;
+        public bool UniDirectional;
+        public bool SwitchBackward;
 
         public delegate void OnPropsLoadedHandler(NetLaneProps.Prop[] props);
         public event OnPropsLoadedHandler OnPropsLoaded;
 
-        public static LoadTemplatePanel Display(OnPropsLoadedHandler handler) {
+        public static LoadTemplatePanel Display(
+            OnPropsLoadedHandler handler, bool unidirectional, bool switchBackward) {
             Log.Debug($"LoadTemplatePanel.Display() called");
             var ret = UIView.GetAView().AddUIComponent<LoadTemplatePanel>();
             ret.OnPropsLoaded = handler;
+            ret.UniDirectional = unidirectional;
+            ret.SwitchBackward = switchBackward;
             return ret;
         }
 
@@ -48,10 +53,10 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
                     SummaryBox.height = 400;
                 }
                 {
-                    ToggleDir = panel.AddUIComponent<MenuCheckbox>();
-                    ToggleDir.Label = "Toggle Forward/Backward";
-                    ToggleSide = panel.AddUIComponent<MenuCheckbox>();
-                    ToggleSide.Label = "Toggle RHT/LHT";
+                    SwitchDir = panel.AddUIComponent<MenuCheckbox>();
+                    SwitchDir.Label = "Toggle Forward/Backward";
+                    SwitchSide = panel.AddUIComponent<MenuCheckbox>();
+                    SwitchSide.Label = "Toggle RHT/LHT";
                 }
                 {
                     //Displacement = panel.AddUIComponent<TextFieldInt>();
@@ -95,6 +100,11 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
         bool started_ = false;
         public override void Start() {
             Log.Debug("LoadTemplatePanel.Start() called");
+            if(UniDirectional)
+                SwitchDir.Hide();
+            else if(SwitchBackward) 
+                SwitchDir.isChecked = transform;
+
             base.Start();
             started_ = true;
         }
@@ -108,10 +118,10 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
             var template = SavesListBox.SelectedTemplate;
             var props = template.GetProps();
             foreach (var prop in props) {
-                if (ToggleDir.isChecked)
+                if (SwitchDir.isChecked)
                     prop.ToggleForwardBackward();
-                if (ToggleSide.isChecked)
-                    prop.ToggleRHT_LHT();
+                if (SwitchSide.isChecked)
+                    prop.ToggleRHT_LHT(UniDirectional);
                 if (Displacement.Number != 0) {
                     prop.Displace(Displacement.Number);
                 }

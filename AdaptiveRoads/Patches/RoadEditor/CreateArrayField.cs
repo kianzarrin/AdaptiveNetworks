@@ -34,7 +34,15 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             UIComponent component, UIMouseEventParameter eventParam) {
             try {
                 var groupPanel = component.GetComponentInParent<RoadEditorCollapsiblePanel>();
-                LoadTemplatePanel.Display(loadedProps => RoadEditorUtils.AddProps(groupPanel, loadedProps));
+                var roadEditor = component.GetComponentInParent<RoadEditorPanel>();
+                var lane = roadEditor.GetTarget() as NetInfo.Lane;
+                Assertion.AssertNotNull(lane,"target is lane");
+                bool forward = lane.IsGoingForward();
+                bool backward = lane.IsGoingBackward();
+                LoadTemplatePanel.Display(
+                    loadedProps => RoadEditorUtils.AddProps(groupPanel, loadedProps),
+                    unidirectional: forward || backward,
+                    switchBackward: backward);
             } catch (Exception ex) {
                 Log.Exception(ex);
             }

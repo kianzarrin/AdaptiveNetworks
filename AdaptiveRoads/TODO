@@ -1,5 +1,14 @@
-- bugs:
-    
+TODO:
+    add Speed Limits to my DEMO road: done
+    do not allow switch Forward/Backward on uni-directional lanes
+    switch LHT should only negate pos.x (if any) on uni-directional lanes.
+    Fix pavement in-game
+    load models from sub-folderes
+    hint for clicking on prop model
+    speed limit hint (0-> max=?  , to is exclusive)
+    Test Road with DC mod
+    rename toggle dir/side to switch dir/side
+    Speed limits in MPH
 
 flags for:
     arrrows:
@@ -10,31 +19,33 @@ flags for:
 - create templates:
     yield/stop
         signs : done
-        markings:
+        markings: done
     uturn sign
         signs: done
     parking/no paking: done
     pedestrian crossing sign: done
-        texture
-    no left/right turn:
-        step1: no left/right: done
-        step2: straight only:
-        step3: german:
+        texture: done
+    no left/right turn: done
     speed limits KPH/MPH
 
-    traffic lights
-    man holes
-    lane arrows
-
 create road with following props:
-    uturn sign (moddded) 
-    yeild/sign (vanilla + modded) 
-    stop/yeild lines.
-    no left/right turn sign (vanilla + modded)
-    parking signs (vanilla + modded)
+    features: done
+        uturn sign  
+        yeild/sign (vanilla + AR) 
+        stop/yeild lines. : test with LHT
+        no left/right turn sign (vanilla + AR)
+        parking signs (vanilla + AR)
+        no crossing texture (AR)
+        DC node : test with no DC
+    test:
+        with no DC mod 
+        with LHT (markings)
+    publish:
+        mention all dependancies.
 
-    no crossing texture
-    DC node
+
+
+
 
 - move DPT array elements up and down.
 

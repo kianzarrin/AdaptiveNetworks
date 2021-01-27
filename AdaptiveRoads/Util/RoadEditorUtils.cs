@@ -90,6 +90,12 @@ namespace AdaptiveRoads.Util {
 
             if (target is NetLaneProps netLaneProps
                 && element is NetLaneProps.Prop) {
+                var lane = sidePanel.GetTarget() as NetInfo.Lane;
+                Assertion.AssertNotNull(lane, "sidePanel.target is lane");
+                bool forward = lane.IsGoingForward();
+                bool backward = lane.IsGoingBackward();
+                bool unidirectional = forward || backward;
+
                 var panel = MiniPanel.Display();
                 var f_props = typeof(NetLaneProps).GetField(nameof(NetLaneProps.m_props));
                 var original_props = elements.Select(_p => _p as NetLaneProps.Prop);
@@ -109,7 +115,7 @@ namespace AdaptiveRoads.Util {
                             try {
                                 var arProsp = cloned_props.ToArray();
                                 foreach(var item in arProsp)
-                                    item.ToggleRHT_LHT();
+                                    item.ToggleRHT_LHT(unidirectional);
                                 AddProps(groupPanel, arProsp);
                             } catch(Exception ex) {
                                 Log.Exception(ex);

@@ -71,31 +71,39 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     ReplaceLabel(__instance, "End Flags Required:", "Head Flags Required:");
                     ReplaceLabel(__instance, "End Flags Forbidden:", "Head Flags Forbidden:");
 
+
                     if (field.Name == nameof(NetLaneProps.Prop.m_endFlagsForbidden)) {
-                        if (ModSettings.ARMode) {
+                        var lane = __instance.GetTarget() as NetInfo.Lane;
+                        AssertNotNull(lane, "target is lane");
+                        bool forward = lane.IsGoingForward();
+                        bool backward = lane.IsGoingBackward();
+                        bool unidirectional = forward || backward;
+                        if(ModSettings.ARMode) {
                             var metadata = prop.GetOrCreateMetaData();
                             foreach (var field2 in metadata.GetFieldsWithAttribute<CustomizablePropertyAttribute>()) {
                                 CreateExtendedComponent(groupName, field2, metadata, __instance);
                             }
                         }
-                        ButtonPanel.Add(
-                            roadEditorPanel: __instance,
-                            container: __instance.m_Container,
-                            label: "Toggle Forward/Backward",
-                            null,
-                            action: () => {
-                                prop.ToggleForwardBackward();
-                                __instance.OnObjectModified();
-                                __instance.Reset();
+                        if(!unidirectional) {
+                            ButtonPanel.Add(
+                                roadEditorPanel: __instance,
+                                container: __instance.m_Container,
+                                label: "Toggle Forward/Backward",
+                                null,
+                                action: () => {
+                                    prop.ToggleForwardBackward();
+                                    __instance.OnObjectModified();
+                                    __instance.Reset();
 
-                            });
+                                });
+                        }
                         ButtonPanel.Add(
                             roadEditorPanel: __instance,
                             container: __instance.m_Container,
                             label: "Toggle RHT/LHT",
                             null,
                             action: () => {
-                                prop.ToggleRHT_LHT();
+                                prop.ToggleRHT_LHT(unidirectional);
                                 __instance.OnObjectModified();
                                 __instance.Reset();
                             });

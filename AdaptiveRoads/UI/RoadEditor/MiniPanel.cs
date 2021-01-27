@@ -7,7 +7,7 @@ using System.Linq;
 using UnityEngine;
 
 namespace AdaptiveRoads.UI.RoadEditor {
-    public class MiniPanel : UIPanel {
+    public class MiniPanel : UIPanel, IHint {
         public IEnumerable<UIButton> Buttons => GetComponentsInChildren<UIButton>();
         public IEnumerable<UIComponent> Components =>
             GetComponentsInChildren<UIComponent>()
@@ -110,9 +110,23 @@ namespace AdaptiveRoads.UI.RoadEditor {
             GetComponentInChildren<UITextField>()?.Focus();
         }
 
-        public class MiniPanelButton : UIButtonExt {
+        public bool IsHovered() => containsMouse;
+
+
+        public string GetHint() {
+            foreach(var c in Components) {
+                if(c is IHint h && h.IsHovered()) {
+                    return h.GetHint();
+                }
+            }
+            return null;
+        }
+
+        public class MiniPanelButton : UIButtonExt, IHint {
             public Action Action;
             public string Hint;
+            public string GetHint() => Hint;
+            public bool IsHovered() => containsMouse;
 
             public override void Awake() {
                 base.Awake();
@@ -139,11 +153,6 @@ namespace AdaptiveRoads.UI.RoadEditor {
         }
 
         public class MiniPanelNumberField : MiniPanelTextField {
-            public string Hint;
-            public override void OnDestroy() {
-                Hint = null;
-                base.OnDestroy();
-            }
             public override void Awake() {
                 base.Awake();
                 text = "0";
@@ -161,7 +170,6 @@ namespace AdaptiveRoads.UI.RoadEditor {
                     return 0;
                 }
             }
-
         }
 
         public class MiniPanelFloatField : MiniPanelNumberField {
@@ -179,12 +187,16 @@ namespace AdaptiveRoads.UI.RoadEditor {
             }
         }
 
-        public class MiniPanelTextField : UITextField {
+        public class MiniPanelTextField : UITextField, IHint {
             public string Hint;
+            public string GetHint() => Hint;
+            public bool IsHovered() => containsMouse;
+
             public override void OnDestroy() {
                 Hint = null;
                 base.OnDestroy();
             }
+
             public override void Awake() {
                 base.Awake();
                 atlas = TextureUtil.Ingame;

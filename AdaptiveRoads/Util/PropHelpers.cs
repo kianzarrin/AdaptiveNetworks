@@ -37,10 +37,17 @@ namespace AdaptiveRoads.Util {
             flags = flags.SetFlags(flag2, hasFlag1);
         }
         public static bool TryInvertLeftRight(PropInfo prop, out PropInfo prop2) {
-            string name2 = prop.name.Replace("left", "right").Replace("Left", "Right").Replace("LEFT", "RIGHT")
-                .Replace("LHT", "RHT").Replace("lht", "rht");
-            string name3 = prop.name.Replace("right", "left").Replace("Right", "Left").Replace("RIGHT", "LEFT")
-                .Replace("RHT", "LHT").Replace("rht", "lht");
+            string name2 = prop.name.Replace("left", "right").Replace("Left", "Right")
+                .Replace("LEFT", "RIGHT").Replace("LHT", "RHT").Replace("lht", "rht");
+            string name3 = prop.name.Replace("right", "left").Replace("Right", "Left")
+                .Replace("RIGHT", "LEFT").Replace("RHT", "LHT").Replace("rht", "lht");
+            string name4 = prop.name.Remove("Mirror").Remove("mirror")
+                .Remove("Mirrored").Remove("mirrored");
+            if(name4.EndsWith("-") || name4.EndsWith(" "))
+                name4 = name4.Substring(0, name4.Length - 1);
+            if(name4.StartsWith("-") || name4.StartsWith(" "))
+                name4 = name4.Substring(1, name4.Length - 1);
+
             if(name2 == prop.name && name3 == prop.name) {
                 prop2 = prop; // right and left is the same.
                 return false;
@@ -49,7 +56,11 @@ namespace AdaptiveRoads.Util {
                 prop2 = null; //confusing.
                 return false;
             }
-            if(name3 != prop.name) name2 = name3;
+            if(name3 != prop.name)
+                name2 = name3;
+            else if(name4 != prop.name)
+                name2 = name4;
+
             prop2 = PrefabCollection<PropInfo>.FindLoaded(name2);
             return prop2 != null;
         }
@@ -79,25 +90,33 @@ namespace AdaptiveRoads.Util {
             }
         }
 
-        public static void ToggleRHT_LHT(this NetLaneProps.Prop prop) {
+        public static void ToggleRHT_LHT(this NetLaneProps.Prop prop, bool unidirectional) {
             Log.Debug("ToggleRHT_LHT() called for " + prop.m_prop.name);
-            prop.m_segmentOffset = -prop.m_segmentOffset;
-            prop.m_angle = (prop.m_angle + 180) % 360;
-            prop.m_position.z = -prop.m_position.z;
+            if(unidirectional) {
+                prop.m_position.x = -prop.m_position.x;
+            } else {
+                prop.m_segmentOffset = -prop.m_segmentOffset;
+                prop.m_angle = (prop.m_angle + 180) % 360;
+                prop.m_position.z = -prop.m_position.z;
+            }
 
             prop.ChangeInvertedFlag();
-            prop.m_flagsRequired.InvertStartEnd();
-            prop.m_flagsForbidden.InvertStartEnd();
+            if(!unidirectional) {
+                prop.m_flagsRequired.InvertStartEnd();
+                prop.m_flagsForbidden.InvertStartEnd();
+                Helpers.Swap(ref prop.m_startFlagsRequired, ref prop.m_endFlagsRequired);
+                Helpers.Swap(ref prop.m_startFlagsForbidden, ref prop.m_endFlagsForbidden);
+            }
             prop.m_flagsRequired.InvertLeftRight();
             prop.m_flagsForbidden.InvertLeftRight();
 
-            Helpers.Swap(ref prop.m_startFlagsRequired, ref prop.m_endFlagsRequired);
-            Helpers.Swap(ref prop.m_startFlagsForbidden, ref prop.m_endFlagsForbidden);
 
             var propExt = prop.GetMetaData();
             if (propExt != null) {
-                Helpers.Swap(ref propExt.StartNodeFlags, ref propExt.EndNodeFlags);
-                Helpers.Swap(ref propExt.SegmentStartFlags, ref propExt.SegmentEndFlags);
+                if(!unidirectional) {
+                    Helpers.Swap(ref propExt.StartNodeFlags, ref propExt.EndNodeFlags);
+                    Helpers.Swap(ref propExt.SegmentStartFlags, ref propExt.SegmentEndFlags);
+                }
                 propExt.SegmentStartFlags.Required.InvertLeftRight();
                 propExt.SegmentStartFlags.Forbidden.InvertLeftRight();
                 propExt.SegmentEndFlags.Required.InvertLeftRight();
