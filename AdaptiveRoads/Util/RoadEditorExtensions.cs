@@ -158,5 +158,11 @@ namespace AdaptiveRoads.Util {
         internal static void OnReferenceSelected(this RERefSet instance, PrefabInfo info) =>
             GetMethod("OnReferenceSelected")
             .Invoke(instance, new object[] { info });
+
+        public static object GetTarget(this RERefSet instance) =>
+            ReflectionHelpers.GetFieldValue(instance, "m_Target");
+
+        public static FieldInfo GetField(this RERefSet instance) =>
+            ReflectionHelpers.GetFieldValue(instance, "m_Field") as FieldInfo;
     }
 }

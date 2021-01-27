@@ -73,8 +73,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
 
                     if (field.Name == nameof(NetLaneProps.Prop.m_endFlagsForbidden)) {
-                        var lane = __instance.GetTarget() as NetInfo.Lane;
-                        AssertNotNull(lane, "target is lane");
+                        Assert(prop.LocateEditProp(out _, out var lane), "could not locate prop");
                         bool forward = lane.IsGoingForward();
                         bool backward = lane.IsGoingBackward();
                         bool unidirectional = forward || backward;

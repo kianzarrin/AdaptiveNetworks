@@ -164,7 +164,7 @@ namespace AdaptiveRoads.Manager {
         #region sub prefab extensions
 
         [Serializable]
-        [Optional(AR_META_DATA)]
+        [Optional(AR_MODE)]
         public class Net : ICloneable {
             [Obsolete("only useful for the purpose of shallow clone", error: true)]
             public Net() { }
@@ -206,7 +206,7 @@ namespace AdaptiveRoads.Manager {
         }
 
         [Serializable]
-        [Optional(AR_META_DATA)]
+        [Optional(AR_MODE)]
         public class Segment : ICloneable {
             object ICloneable.Clone() => Clone();
 
@@ -275,7 +275,7 @@ namespace AdaptiveRoads.Manager {
         }
 
         [Serializable]
-        [Optional(AR_META_DATA)]
+        [Optional(AR_MODE)]
         public class Node : ICloneable {
             public NodeInfoFlags NodeFlags;
 
@@ -304,7 +304,7 @@ namespace AdaptiveRoads.Manager {
         }
 
         [Serializable]
-        [Optional(AR_META_DATA)]
+        [Optional(AR_MODE)]
         public class LaneProp : ICloneable {
             [CustomizableProperty("Lane")]
             [Hint("lane extension flags")]

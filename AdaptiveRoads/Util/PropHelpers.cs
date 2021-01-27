@@ -367,5 +367,22 @@ namespace AdaptiveRoads.Util {
             return props.Select(p => p.Summary()).JoinLines();
         }
 
+        public static bool LocateEditProp(this NetLaneProps.Prop  prop, out NetInfo info, out NetInfo.Lane lane) {
+            foreach(var info2 in NetInfoExtionsion.EditedNetInfos) {
+                foreach(var lane2 in info2.m_lanes) {
+                    var props = lane2?.m_laneProps?.m_props;
+                    if(props == null)
+                        continue;
+                    if(props.Any(prop2 => prop2 == prop)) {
+                        lane = lane2;
+                        info = info2;
+                        return true;
+                    }
+                }
+            }
+            lane = null;
+            info = null;
+            return false;
+        }
     }
 }

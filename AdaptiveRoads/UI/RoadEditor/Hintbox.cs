@@ -158,45 +158,49 @@ namespace AdaptiveRoads.UI.RoadEditor {
                         var customControl = panel.GetComponent<UICustomControl>();
                         string hotkeys1 = "Click => toggle" +
                             "\nRight-Click => show more options";
-                        if (customControl is RoadEditorCollapsiblePanel groupPanel
+                        if(customControl is RoadEditorCollapsiblePanel groupPanel
                             && groupPanel.LabelButton.containsMouse) {
                             string hotkeys2 = hotkeys1 + "\nControl + Click => multi-select";
                             var target = groupPanel.GetTarget();
                             string label = groupPanel.LabelButton.text;
-                            if (label == "Props") {
+                            if(label == "Props") {
                                 Hint2 = hotkeys2;
-                            } else if (
+                            } else if(
                                 groupPanel.GetArray() is NetInfo.Lane[] m_lanes
                                 && m_lanes.Any(_lane => _lane.HasProps())
                                 && target == NetInfoExtionsion.EditedNetInfo) {
                                 Hint2 = hotkeys2;
                             }
-                        } else if (
+                        } else if(
                             panel.GetComponent(DPTType) is UICustomControl toggle &&
                             GetDPTSelectButton(toggle).containsMouse) {
                             object element = GetDPTTargetElement(toggle);
                             var target = GetDPTTargetObject(toggle);
-                            if (element is NetLaneProps.Prop prop) {
+                            if(element is NetLaneProps.Prop prop) {
                                 Hint1 = prop.Summary();
                                 Hint2 = hotkeys1;
-                            } else if (element is NetInfo.Lane lane && lane.HasProps()
+                            } else if(element is NetInfo.Lane lane && lane.HasProps()
                                 && target == NetInfoExtionsion.EditedNetInfo) {
                                 Hint2 = hotkeys1;
-                            } else if (target is NetLaneProps.Prop) {
-                                Hint2 = "Click => open prop import panel\n" +
-                                    "Alt + Click => enter prop name manually";
                             }
-                        } else if (customControl is REPropertySet propertySet) {
+                        } else if(customControl is REPropertySet propertySet) {
                             var field = propertySet.GetTargetField();
-                            if (field?.Name == "m_speedLimit")
+                            if(field?.Name == "m_speedLimit")
                                 Hint1 = "1 game unit is 50 kph (31.06856mph)";
-                            else if( field != null) {
+                            else if(field != null) {
                                 var hints = field.GetHints()
                                     .Concat(field.DeclaringType.GetHints())
                                     .Concat(field.FieldType.GetHints());
                                 Hint1 = hints.JoinLines();
                             }
+                        } else if(customControl is RERefSet refset &&
+                            refset.m_SelectButton.containsMouse) {
+                            if(refset.GetTarget() is NetLaneProps.Prop) {
+                                Hint2 = "Click => open prop import panel\n" +
+                                    "Alt + Click => enter prop name manually";
+                            }
                         }
+                        
                     }
                 }
             } catch (Exception e) {

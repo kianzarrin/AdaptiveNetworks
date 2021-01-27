@@ -24,7 +24,7 @@ namespace AdaptiveRoads.UI {
         public const string LANE_SEGMENT = "Lane.Segment";
         public const string LANE_SEGMENT_END = "Lane.SegmentEnd";
         public const string LANE_NODE = "Lane.Node";
-        public const string AR_META_DATA = "ArMetaData";
+        public const string AR_MODE = "AR_MODE";
 
         //public static readonly SavedBool InLineLaneInfo = SavedBool("InLineLaneInfo", true);
         //public static readonly SavedBool InLineLaneInfo = SavedBool("InLineLaneInfo", true);
@@ -39,7 +39,7 @@ namespace AdaptiveRoads.UI {
         public static readonly SavedBool Lane_SegmentEnd = SavedBool(LANE_SEGMENT_END, false);
         public static readonly SavedBool Lane_Node = SavedBool(LANE_NODE, false);
 
-        public static readonly SavedBool ARMode = SavedBool("ARMode", true);
+        public static readonly SavedBool ARMode = SavedBool(AR_MODE, true);
         public static bool VanillaMode => !ARMode;
         public static readonly SavedBool DefaultScale100 = SavedBool("DefaultScale100", false);
 
