@@ -1,7 +1,10 @@
 TODO:
-    Fix loading model textures from sub-folderes 
     Fix pavement in-game
     Test Road with DC mod
+    check drop down opacity based on panel opacity.
+    check drop down
+    API
+
 
 flags for:
     arrrows:
@@ -24,10 +27,6 @@ create road with following props:
         with LHT (markings)
     publish:
         mention all dependancies.
-
-
-
-
 
 - move DPT array elements up and down.
 
