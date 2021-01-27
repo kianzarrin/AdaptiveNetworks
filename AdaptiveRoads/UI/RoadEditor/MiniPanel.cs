@@ -9,9 +9,11 @@ using UnityEngine;
 namespace AdaptiveRoads.UI.RoadEditor {
     public class MiniPanel : UIPanel, IHint {
         public IEnumerable<UIButton> Buttons => GetComponentsInChildren<UIButton>();
+#pragma warning disable
         public IEnumerable<UIComponent> Components =>
             GetComponentsInChildren<UIComponent>()
             .Where(c => c != this);
+#pragma warning restore
         public static void CloseAll() {
             var panels = UIView.GetAView().GetComponentsInChildren<MiniPanel>();
             Log.Debug("CloseALL: open mini panel count: " + panels.Count() /*+ Environment.StackTrace*/);
@@ -66,11 +68,25 @@ namespace AdaptiveRoads.UI.RoadEditor {
             }
         }
 
-        private void SetPosition() {
+        private Vector3 MouseGUIPosition() {
             var uiView = GetUIView();
-            var mouse = Input.mousePosition;
-            var mouse2 = uiView.ScreenPointToGUI(mouse / uiView.inputScale);
-            relativePosition = mouse2;
+            return uiView.ScreenPointToGUI(Input.mousePosition / uiView.inputScale);
+        }
+        private Vector2 GetScreenSize() =>
+            ToolBase.fullscreenContainer?.size ?? GetUIView().GetScreenResolution();
+        static float FitToScreen(float pos, float size, float screen) {
+            float max = screen - size;
+            if (max <= 0) return 0;
+            if(pos > max) pos = max;
+            if(pos < 0) pos = 0;
+            return pos;
+        }
+        private void SetPosition() {
+            var pos = MouseGUIPosition();
+            var screenSize = GetScreenSize();
+            pos.x = FitToScreen(pos.x, width, screenSize.x);
+            pos.y = FitToScreen(pos.y, height, screenSize.y);
+            relativePosition = pos;
         }
 
         public UIButton AddButton(string label, string hint, Action action) {
@@ -100,7 +116,6 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
         public void Refresh() {
             Log.Debug("MiniPanel.Refresh() called");
-            SetPosition();
             FitChildren();
             foreach (var item in Components) {
                 item.autoSize = false;
@@ -108,9 +123,17 @@ namespace AdaptiveRoads.UI.RoadEditor {
             }
             Invalidate();
             GetComponentInChildren<UITextField>()?.Focus();
+            SetPosition();
         }
 
-        public bool IsHovered() => containsMouse;
+        public bool IsHovered() {
+            // hint box will only cover mini panel if it is hovering it.
+            bool ret = containsMouse;
+            if(ret) HintBox.Instance.BringToFront();
+            else BringToFront();
+
+            return ret;
+        }
 
 
         public string GetHint() {

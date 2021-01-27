@@ -1,13 +1,13 @@
 TODO:
-    rename toggle dir/side to switch dir/side
     load models from sub-folderes
     Fix pavement in-game
     Test Road with DC mod
+    bring hint to front
 
-    add Speed Limits to my DEMO road: done
+    hint for clicking on prop model (done)
     do not allow switch Forward/Backward on uni-directional lanes (done)
     switch LHT should only negate pos.x (if any) on uni-directional lanes. (done)
-    hint for clicking on prop model (done)
+    rename toggle dir/side to switch dir/side (done)
     speed limit hint (0-> max=?  , to is exclusive) (done)
     Speed limits in MPH (done)
     

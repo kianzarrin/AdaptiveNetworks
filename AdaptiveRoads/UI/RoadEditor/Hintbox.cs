@@ -12,14 +12,14 @@ using static AdaptiveRoads.Util.DPTHelpers;
 
 namespace AdaptiveRoads.UI.RoadEditor {
     public class HintBox : UILabel {
-        static HintBox _instance;
+        public static HintBox Instance { get; private set; }
         const int SPACE = 25;
         public static HintBox Create() =>
-            _instance = UIView.GetAView().AddUIComponent(typeof(HintBox)) as HintBox;
+            Instance = UIView.GetAView().AddUIComponent(typeof(HintBox)) as HintBox;
         public static void Release() =>
-            DestroyImmediate(_instance);
+            DestroyImmediate(Instance);
         public override void OnDestroy() {
-            _instance = null;
+            Instance = null;
             ReflectionHelpers.SetAllDeclaredFieldsToNull(this);
             base.OnDestroy();
         }
@@ -123,7 +123,6 @@ namespace AdaptiveRoads.UI.RoadEditor {
             isVisible = !text.IsNullorEmpty();
             if (!isVisible)
                 return;
-
             var screenSize = ToolBase.fullscreenContainer?.size
                 ?? GetUIView().GetScreenResolution();
 
