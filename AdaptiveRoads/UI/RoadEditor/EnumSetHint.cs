@@ -6,7 +6,6 @@ namespace AdaptiveRoads.UI.RoadEditor {
     using UnityEngine;
     using AdaptiveRoads.Util;
     using System.Reflection;
-    using HarmonyLib;
     using System.Linq;
     using KianCommons.UI.Helpers;
     using AdaptiveRoads.Manager;

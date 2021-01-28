@@ -6,10 +6,10 @@ namespace AdaptiveRoads.UI.RoadEditor {
     using UnityEngine;
     using AdaptiveRoads.Util;
     using System.Reflection;
-    using HarmonyLib;
     using System.Linq;
     using KianCommons.UI.Helpers;
     using AdaptiveRoads.Manager;
+    using static KianCommons.ReflectionHelpers;
 
 
     public class BitMaskPanel : UIPanel, IDataUI {
@@ -139,8 +139,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
         }
 
         // private UIFontRenderer ObtainTextRenderer()
-        static MethodInfo mObtainTextRenderer = AccessTools.DeclaredMethod(typeof(UIButton), "ObtainTextRenderer")
-            ?? throw new Exception("mObtainTextRenderer is null");
+        static MethodInfo mObtainTextRenderer = GetMethod(typeof(UIButton), "ObtainTextRenderer");
         static UIFontRenderer ObtainTextRenderer(UIButton button) =>
             mObtainTextRenderer.Invoke(button, null) as UIFontRenderer;
 

@@ -1,6 +1,5 @@
 namespace AdaptiveRoads.Util {
     using ColossalFramework.UI;
-    using HarmonyLib;
     using KianCommons;
     using System;
     using System.Reflection;
@@ -76,10 +75,11 @@ namespace AdaptiveRoads.Util {
             return type == typeof(Building.Flags) || type == typeof(Vehicle.Flags);
         }
 
-        static FastInvokeHandler mGetGroupPanel_ =
-            MethodInvoker.GetHandler(GetMethod("GetGroupPanel"));
         public static RoadEditorCollapsiblePanel GetGroupPanel(this RoadEditorPanel instance, string name) {
-            return (RoadEditorCollapsiblePanel)mGetGroupPanel_.Invoke(instance, new[] { name });
+            return
+                (RoadEditorCollapsiblePanel)
+                GetMethod("GetGroupPanel")
+                .Invoke(instance, new[] { name });
         }
 
         public static void DestroySidePanel(this RoadEditorPanel instance) =>

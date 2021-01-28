@@ -122,7 +122,7 @@ namespace AdaptiveRoads.Patches.Lane {
             ?? throw new Exception("mCheckFlags is null");
 
         // returns the position of First DrawMesh after index.
-        public static void PatchCheckFlags(List<CodeInstruction> codes, MethodInfo method) {
+        public static void PatchCheckFlags(List<CodeInstruction> codes, MethodBase method) {
             var index = SearchInstruction(codes, new CodeInstruction(OpCodes.Callvirt, mCheckFlags), 0, counter: 1);
             Assertion.Assert(index != 0, "index!=0");
 

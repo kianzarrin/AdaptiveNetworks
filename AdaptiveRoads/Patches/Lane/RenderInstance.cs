@@ -15,9 +15,8 @@ namespace AdaptiveRoads.Patches.Lane {
         static string logPrefix_ = "NetLane.RenderInstance Transpiler: ";
 
         // public void RenderInstance(RenderManager.CameraInfo cameraInfo, ushort segmentID, uint laneID, NetInfo.Lane laneInfo, NetNode.Flags startFlags, NetNode.Flags endFlags, Color startColor, Color endColor, float startAngle, float endAngle, bool invert, int layerMask, Vector4 objectIndex1, Vector4 objectIndex2, ref RenderManager.Instance data, ref int propIndex)
-        static MethodInfo Target => AccessTools.DeclaredMethod(
-            typeof(NetLane),
-            nameof(NetLane.RenderInstance));
+        static MethodInfo Target => ReflectionHelpers.GetMethod(
+            typeof(NetLane), nameof(NetLane.RenderInstance));
         public static MethodBase TargetMethod() => Target;
 
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {

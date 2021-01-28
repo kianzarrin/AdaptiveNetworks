@@ -16,15 +16,15 @@ namespace AdaptiveRoads.Patches.Lane {
 
         // public void RenderDestroyedInstance(RenderManager.CameraInfo cameraInfo, ushort segmentID, uint laneID,
         // NetInfo netInfo, NetInfo.Lane laneInfo, NetNode.Flags startFlags, 
-        static MethodInfo Target =>AccessTools.DeclaredMethod(
+        public static MethodBase TargetMethod() => AccessTools.DeclaredMethod(
             typeof(NetLane),
-            nameof(NetLane.RenderDestroyedInstance)) ;
-        public static MethodBase TargetMethod() => Target;
+            nameof(NetLane.RenderDestroyedInstance));
 
-        public static IEnumerable<CodeInstruction> Transpiler(ILGenerator il, IEnumerable<CodeInstruction> instructions) {
+        public static IEnumerable<CodeInstruction> Transpiler(
+            MethodBase original, IEnumerable<CodeInstruction> instructions) {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
-                CheckPropFlagsCommons.PatchCheckFlags(codes, Target); 
+                CheckPropFlagsCommons.PatchCheckFlags(codes, original); 
 
                 Log.Info(logPrefix_ + "successfully patched NetLane.RenderDestroyedInstance");
                 return codes;

@@ -1,9 +1,8 @@
 TODO:
     Fix pavement in-game
-    Test Road with DC mod
-    check drop down opacity based on panel opacity.
-    check drop down
-    API
+    debug missing in game props.
+    why pedestrian crossing appears only after update in game?
+    fix Harmony
 
 
 flags for:
