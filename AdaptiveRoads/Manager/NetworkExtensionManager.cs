@@ -4,6 +4,7 @@ namespace AdaptiveRoads.Manager {
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
 
     [Serializable]
     public class NetworkExtensionManager {
@@ -152,9 +153,10 @@ namespace AdaptiveRoads.Manager {
             }
 
             if(nodesUpdated) {
-                for(int maskIndex = 0; maskIndex < m_updatedNodes.Length; maskIndex++) {
+                for (int maskIndex = 0; maskIndex < m_updatedNodes.Length; maskIndex++) {
                     ulong bitmask = m_updatedNodes[maskIndex];
                     if(bitmask != 0) {
+                        
                         m_updatedNodes[maskIndex] = 0;
                         for(int bitIndex = 0; bitIndex < 64; bitIndex++) {
                             if((bitmask & 1UL << bitIndex) != 0) {
@@ -162,6 +164,7 @@ namespace AdaptiveRoads.Manager {
                                 NetManager.instance.UpdateNodeRenderer(nodeID, true);
                             }
                         }
+                        
                     }
                 }
             }
@@ -234,7 +237,7 @@ namespace AdaptiveRoads.Manager {
         }
 
         public void UpdateSegment(ushort segmentID, ushort fromNodeID = 0, int level = 0) {
-            Log.Debug($"mark {segmentID} for update level={level}");
+            Log.Debug($"mark segment:{segmentID} for update level={level}" /*+ Environment.StackTrace*/);
             m_updatedSegments[segmentID >> 6] |= 1UL << (int)segmentID;
             m_segmentsUpdated = true;
             if(level <= 0) {

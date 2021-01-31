@@ -1,15 +1,17 @@
 using ColossalFramework;
 using HarmonyLib;
+using KianCommons;
+using AdaptiveRoads.Manager;
 
 namespace AdaptiveRoads.Patches.Segment {
     
-    //[HarmonyPatch(typeof(NetNode), nameof(NetNode.CalculateNode))]
+    [HarmonyPatch(typeof(NetSegment), nameof(NetSegment.CalculateSegment))]
     class CalculateSegment {
-        static void Postfix(ref NetNode __instance) {
-            //Log.Debug("CalculateNode.PostFix() was called");
-            //ushort nodeID = NetUtil.GetID(__instance);
-            //if (!NetUtil.IsNodeValid(nodeID)) return;
-            //NetworkExtensionManager.Instance.OnBeforeCalculateNode(nodeID);
+        static void Postfix(ref NetSegment __instance) {
+            if (!__instance.IsValid())return;
+            //Log.Debug("CalculateSegment.PostFix() was called");
+            ushort segmentID = NetUtil.GetID(__instance);
+            NetworkExtensionManager.Instance.UpdateSegment(segmentID);
         } // end postfix
     }
 }

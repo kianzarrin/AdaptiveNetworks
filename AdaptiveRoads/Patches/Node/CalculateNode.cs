@@ -1,17 +1,14 @@
-using ColossalFramework;
-using HarmonyLib;
-using KianCommons;
+namespace AdaptiveRoads.Patches.Node {
+    using AdaptiveRoads.Manager;
+    using HarmonyLib;
+    using KianCommons;
 
-namespace AdaptiveRoads.Patches {
-    
-    //[HarmonyPatch(typeof(NetNode), nameof(NetNode.CalculateNode))]
+    [HarmonyPatch(typeof(NetNode), nameof(NetNode.CalculateNode))]
     class CalculateNode {
         static void Postfix(ref NetNode __instance) {
-            //Log.Debug("CalculateNode.PostFix() was called");
+            if (!__instance.IsValid()) return;
             ushort nodeID = NetUtil.GetID(__instance);
-            if (!NetUtil.IsNodeValid(nodeID)) return;
-            //NetworkExtensionManager.Instance.OnBeforeCalculateNode(nodeID);
-
+            NetworkExtensionManager.Instance.UpdateNode(nodeID);
         } // end postfix
     }
 }

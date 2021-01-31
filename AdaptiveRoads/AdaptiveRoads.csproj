@@ -62,6 +62,7 @@
     <Compile Remove="Patches\Lane\NetAI_UpdateLanes.cs" />
     <Compile Remove="Patches\Node\CalculateNode.cs" />
     <Compile Remove="Patches\Node\NetAI_UpdateNodeFlags.cs" />
+    <Compile Remove="Patches\Node\NetNode_UpdateNode.cs" />
     <Compile Remove="Patches\RoadEditor\InstantiateTemplatePatch.cs" />
     <Compile Remove="Patches\RoadEditor\Refresh.cs" />
     <Compile Remove="Patches\RoadEditor\RoadEditorDynamicPropertyToggle_Refresh.cs" />
@@ -130,7 +131,7 @@
     <Compile Include="FbxUtil\UnityFBXExporter\FBXUnityMeshGetter.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CitiesHarmony.API" Version="1.0.5" />
+    <PackageReference Include="CitiesHarmony.API" Version="1.0.6" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">

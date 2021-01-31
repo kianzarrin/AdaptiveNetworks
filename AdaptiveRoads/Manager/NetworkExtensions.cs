@@ -210,7 +210,9 @@ namespace AdaptiveRoads.Manager {
         public ref NetSegmentEnd End => ref NetworkExtensionManager.Instance.GetSegmentEnd(SegmentID, false);
 
         public override string ToString() =>
-            $"NetSegmentExt(SegmentID:{SegmentID} flags:{m_flags} AverageSpeedLimit={AverageSpeedLimit})";
+            $"NetSegmentExt(SegmentID:{SegmentID} flags:{m_flags}"
+            //+ $"AverageSpeedLimit:{AverageSpeedLimit} " +
+            + $"\n\tStart:{Start})" + $"\n\tEnd  :{End}";
 
         public ref NetSegmentEnd GetEnd(ushort nodeID) {
             bool startNode = NetUtil.IsStartNode(segmentId: SegmentID, nodeId: nodeID);
@@ -223,9 +225,7 @@ namespace AdaptiveRoads.Manager {
         public void UpdateAllFlags() {
             Log.Debug($"NetSegmentExt.UpdateAllFlags() called. SegmentID={SegmentID}" /*Environment.StackTrace*/, false);
             if(!NetUtil.IsSegmentValid(SegmentID)) {
-                int index = NetworkExtensionManager.Instance.SegmentBuffer.IndexOf(this);
-                Log.Error($"segment:{SegmentID} at SegmentBuffer[{index}] is not valid. " +
-                    $"skipping update." + Environment.StackTrace);
+                Log.Debug("Skip updating invalid segment:" + SegmentID);
                 return;
             }
 
@@ -423,8 +423,6 @@ namespace AdaptiveRoads.Manager {
             flags = flags.SetFlags(Flags.TwoSegments, NodeID.ToNode().CountSegments() == 2);
 
             m_flags = flags;
-            
-            //Log.Debug("NetSegmentEnd.UpdateFlags() result: " + this);
         }
 
         public override string ToString() {

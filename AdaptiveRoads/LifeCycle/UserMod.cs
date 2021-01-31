@@ -1,13 +1,9 @@
-namespace AdaptiveRoads.LifeCycle
-{
-    using System;
-    using JetBrains.Annotations;
+namespace AdaptiveRoads.LifeCycle {
     using ICities;
-    using CitiesHarmony.API;
-    using KianCommons;
+    using JetBrains.Annotations;
+    using System;
 
-    public class UserMod : IUserMod
-    {
+    public class UserMod : IUserMod {
         public static Version ModVersion => typeof(UserMod).Assembly.GetName().Version;
         public static string VersionString => ModVersion.ToString(2);
         public string Name => "Adaptive Roads" + VersionString;
