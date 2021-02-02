@@ -447,6 +447,8 @@ namespace AdaptiveRoads.Manager {
             foreach (var node in info.m_nodes) {
                 if (node.GetMetaData() is Node metadata) {
                     bool vanillaForbidden = metadata.SegmentFlags.Forbidden.IsFlagSet(NetSegmentExt.Flags.Vanilla);
+                    vanillaForbidden |= metadata.NodeFlags.Forbidden.IsFlagSet(NetNodeExt.Flags.Vanilla);
+                    vanillaForbidden |= metadata.SegmentEndFlags.Forbidden.IsFlagSet(NetSegmentEnd.Flags.Vanilla);
                     if (vanillaForbidden)
                         node.m_flagsRequired |= vanillaNode;
                 }
@@ -455,6 +457,11 @@ namespace AdaptiveRoads.Manager {
                 if (segment.GetMetaData() is Segment metadata) {
                     bool forwardVanillaForbidden = metadata.Forward.Forbidden.IsFlagSet(NetSegmentExt.Flags.Vanilla);
                     bool backwardVanillaForbidden = metadata.Backward.Forbidden.IsFlagSet(NetSegmentExt.Flags.Vanilla);
+                    bool vanillaForbidden = metadata.Head.Forbidden.IsFlagSet(NetSegmentEnd.Flags.Vanilla);
+                    vanillaForbidden |= metadata.Tail.Forbidden.IsFlagSet(NetSegmentEnd.Flags.Vanilla);
+                    forwardVanillaForbidden |= vanillaForbidden;
+                    backwardVanillaForbidden |= vanillaForbidden;
+
                     if (forwardVanillaForbidden)
                         segment.m_forwardRequired |= vanillaSegment;
                     if (backwardVanillaForbidden)
@@ -464,6 +471,12 @@ namespace AdaptiveRoads.Manager {
             foreach (var prop in IterateProps(info)) {
                 if (prop.GetMetaData() is LaneProp metadata) {
                     bool vanillaForbidden = metadata.SegmentFlags.Forbidden.IsFlagSet(NetSegmentExt.Flags.Vanilla);
+                    vanillaForbidden |= metadata.LaneFlags.Forbidden.IsFlagSet(NetLaneExt.Flags.Vanilla);
+                    vanillaForbidden |= metadata.StartNodeFlags.Forbidden.IsFlagSet(NetNodeExt.Flags.Vanilla);
+                    vanillaForbidden |= metadata.EndNodeFlags.Forbidden.IsFlagSet(NetNodeExt.Flags.Vanilla);
+                    vanillaForbidden |= metadata.SegmentStartFlags.Forbidden.IsFlagSet(NetSegmentEnd.Flags.Vanilla);
+                    vanillaForbidden |= metadata.SegmentEndFlags.Forbidden.IsFlagSet(NetSegmentEnd.Flags.Vanilla);
+
                     if (vanillaForbidden)
                         prop.m_flagsRequired |= vanillaLane;
                 }

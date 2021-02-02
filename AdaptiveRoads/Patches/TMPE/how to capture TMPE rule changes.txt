@@ -6,5 +6,8 @@ NotifyStartEndNode : VRM
 OnSegmentChange: JRM
 OnLaneChange: LAM and LCM
 
+Geomety observer: GeometryManager.SimulationStep
+
+
 TODO later:
 TimedRafficLights.Start/Stop

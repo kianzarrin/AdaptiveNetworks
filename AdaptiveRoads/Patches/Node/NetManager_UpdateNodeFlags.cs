@@ -6,7 +6,7 @@ namespace AdaptiveRoads.Patches.Node {
     [HarmonyPatch(nameof(NetManager.UpdateNodeFlags))]
     class NetManager_UpdateNodeFlags {
         static void Postfix(ushort node) {
-            NetworkExtensionManager.Instance.UpdateNode(node);
+            NetworkExtensionManager.Instance.NodeBuffer[node].UpdateFlags();
         }
     }
 }

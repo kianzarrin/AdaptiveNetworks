@@ -1,9 +1,8 @@
 TODO:
-    why pedestrian crossing appears only after update in game?
     Fix pavement in-game
-    debug missing in-game props.
-    some props are missing the vanilla forbidden.(fix my road and the tempaltes)
     move pedestrian sign to the side a bit
+    fix vanilla flags
+
 
 flags for:
     arrrows:

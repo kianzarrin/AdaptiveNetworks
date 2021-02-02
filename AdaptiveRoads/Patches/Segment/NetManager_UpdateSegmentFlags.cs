@@ -6,7 +6,7 @@ namespace AdaptiveRoads.Patches.Segment {
     [HarmonyPatch(nameof(NetManager.UpdateSegmentFlags))]
     class NetManager_UpdateSegmentFlags {
         static void Postfix(ushort segment) {
-            NetworkExtensionManager.Instance.UpdateSegment(segment, 1);
+            NetworkExtensionManager.Instance.SegmentBuffer[segment].UpdateAllFlags();
         }
     }
 }

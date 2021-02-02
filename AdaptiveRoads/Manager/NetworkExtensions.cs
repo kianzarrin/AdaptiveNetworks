@@ -223,11 +223,11 @@ namespace AdaptiveRoads.Manager {
         }
 
         public void UpdateAllFlags() {
-            Log.Debug($"NetSegmentExt.UpdateAllFlags() called. SegmentID={SegmentID}" /*Environment.StackTrace*/, false);
             if(!NetUtil.IsSegmentValid(SegmentID)) {
-                Log.Debug("Skip updating invalid segment:" + SegmentID);
+                //Log.Debug("Skip updating invalid segment:" + SegmentID);
                 return;
             }
+            Log.Debug($"NetSegmentExt.UpdateAllFlags() called. SegmentID={SegmentID}" /*Environment.StackTrace*/, false);
 
             Start.UpdateFlags();
             Start.UpdateDirections();
