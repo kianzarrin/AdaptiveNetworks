@@ -4,7 +4,7 @@ namespace AdaptiveRoads.Manager {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Threading;
+    using AdaptiveRoads.Util;
 
     [Serializable]
     public class NetworkExtensionManager {
@@ -14,6 +14,8 @@ namespace AdaptiveRoads.Manager {
         }
         // this initalizesation maybe useful in case of a hot reload.
         public static NetworkExtensionManager Instance { get; private set; } = new NetworkExtensionManager();
+
+        //internal ARTMPEObsever Obsever;
 
         public void Serialize(DataSerializer s) {
             for(ushort i = 0; i < SegmentBuffer.Length; ++i) {
@@ -251,9 +253,5 @@ namespace AdaptiveRoads.Manager {
                 }
             }
         }
-
-
-
-
     }
 }
