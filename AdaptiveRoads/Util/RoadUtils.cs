@@ -60,7 +60,7 @@ namespace AdaptiveRoads.Util {
                     ret.AddRange(_info.NameAIBuildings(ret.Last(), reportOnly));
                 }
 
-                Rename(ground, " G_Data");
+                Rename(ground, "_Data");
                 Rename(elevated, " E");
                 Rename(bridge, " B");
                 Rename(slope, " S");

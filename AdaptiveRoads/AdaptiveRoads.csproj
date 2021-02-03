@@ -7,7 +7,7 @@
     <Product>AdaptiveRoads</Product>
     <Copyright>Copyright ©  2020</Copyright>
     <Deterministic>false</Deterministic>
-    <AssemblyVersion>1.7.10.*</AssemblyVersion>
+    <AssemblyVersion>1.7.11.*</AssemblyVersion>
     <FileAlignment>512</FileAlignment>
     <LangVersion>latest</LangVersion>
     <Configurations>Debug;Release;FAST_TEST_PATCHES</Configurations>
