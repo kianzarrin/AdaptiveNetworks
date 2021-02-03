@@ -47,7 +47,7 @@ namespace AdaptiveRoads.Manager {
                     for (int i = 0; i < Segments.Count; ++i)
                         (info.m_segments[i] as IInfoExtended).SetMetaData(Segments[i]);
                     ApplyProps(info);
-                    info.SetMeteData(NetData?.Clone());
+                    info.SetMetedata(NetData?.Clone());
                     Log.Debug("Net Metadata restored.");
                 }catch(Exception ex) {
                     Log.Exception(ex);
@@ -76,8 +76,7 @@ namespace AdaptiveRoads.Manager {
                     }
                 }
 
-                source.SetMeteData(target.GetMetaData()?.Clone());
-
+                source.SetMetedata(target.GetMetaData()?.Clone());
             }
 
             void ApplyProps(NetInfo info) {

@@ -1,4 +1,5 @@
 using ColossalFramework;
+using ColossalFramework.Threading;
 using KianCommons;
 using KianCommons.Math;
 using PrefabMetadata.API;
@@ -6,9 +7,10 @@ using PrefabMetadata.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
+using UnityEngine;
 using static AdaptiveRoads.Manager.NetInfoExtionsion;
 using static AdaptiveRoads.UI.ModSettings;
-using ColossalFramework.Threading;
 using static KianCommons.ReflectionHelpers;
 
 namespace AdaptiveRoads.Manager {
@@ -43,20 +45,16 @@ namespace AdaptiveRoads.Manager {
             (prop as IInfoExtended)?.GetMetaData<LaneProp>();
 
         public static Net GetMetaData(this NetInfo netInfo) =>
-            Net.GetAt(netInfo.GetIndex());
+            NetMetadataContainer.GetMetadata(netInfo);
 
-        public static Net GetOrCreateMetaData(this NetInfo netInfo) {
-            Assertion.Assert(netInfo);
-            var index = netInfo.GetIndex();
-            return Net.GetAt(index) ?? Net.SetAt(index, new Net(netInfo))
-                ?? throw new Exception("failed to create meta data for NetInfo " + netInfo);
-        }
+        public static Net GetOrCreateMetaData(this NetInfo netInfo) =>
+            NetMetadataContainer.GetOrCreateMetadata(netInfo);
 
-        public static void SetMeteData(this NetInfo netInfo, Net value) {
-            Assertion.Assert(netInfo);
-            var index = netInfo.GetIndex();
-            Net.SetAt(index, value);
-        }
+        public static void SetMetedata(this NetInfo netInfo, Net value) =>
+            NetMetadataContainer.SetMetadata(netInfo, value);
+
+        public static void RemoveMetadataContainer(this NetInfo netInfo) =>
+            NetMetadataContainer.RemoveContainer(netInfo);
 
         public static Segment GetOrCreateMetaData(this NetInfo.Segment segment) {
             Assertion.Assert(segment is IInfoExtended);
@@ -101,6 +99,35 @@ namespace AdaptiveRoads.Manager {
         }
     }
 
+    public class NetMetadataContainer : MonoBehaviour {
+        public Net Metadata;
+        void OnDestroy() => Metadata = null;
+
+        public static NetMetadataContainer GetContainer(NetInfo info) =>
+            info?.gameObject.GetComponent<NetMetadataContainer>();
+        public static Net GetMetadata(NetInfo info) =>
+            GetContainer(info)?.Metadata;
+
+        public static NetMetadataContainer GetOrCreateContainer(NetInfo info) {
+            Assertion.Assert(info, "info");
+            return GetContainer(info) ??
+                info.gameObject.AddComponent<NetMetadataContainer>();
+        }
+        public static Net GetOrCreateMetadata(NetInfo info) {
+            var container = GetOrCreateContainer(info);
+            return container.Metadata ??= new Net(info);
+        }
+
+        public static void SetMetadata(NetInfo info, Net value) {
+            Assertion.Assert(info, "info");
+            GetOrCreateContainer(info).Metadata = value;
+        }
+
+        public static void RemoveContainer(NetInfo info) {
+            Assertion.Assert(info, "info");
+            DestroyImmediate(GetContainer(info));
+        }
+    }
 
     [Serializable]
     public static class NetInfoExtionsion {
@@ -163,6 +190,7 @@ namespace AdaptiveRoads.Manager {
 
         #region sub prefab extensions
 
+
         [Serializable]
         [Optional(AR_MODE)]
         public class Net : ICloneable {
@@ -177,32 +205,6 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Pavement Width Right", "Properties")]
             [Hint("must be greater than left pavement width")]
             public float PavementWidthRight;
-
-            /****************************************/
-            public static Net[] Buffer;
-            public static void EnsureBuffer() {
-                int count = PrefabCollection<NetInfo>.PrefabCount();
-                if (Buffer == null) {
-                    Buffer = new Net[count];
-                    Log.Debug($"Net.Buffer[{Buffer.Length}] created");
-                } else if (Buffer.Length < count) {
-                    var old = Buffer;
-                    Buffer = new Net[count];
-                    for (int i = 0; i < old.Length; ++i)
-                        Buffer[i] = old[i];
-                    Log.Debug($"Net.Buffer expanded from {old.Length} to {Buffer.Length}");
-                }
-
-            }
-            public static Net SetAt(int index, Net net) {
-                EnsureBuffer();
-                return Buffer[index] = net;
-            }
-            public static Net GetAt(int index) {
-                if (Buffer == null || index >= Buffer.Length)
-                    return null;
-                return Buffer[index];
-            }
         }
 
         [Serializable]
@@ -259,7 +261,7 @@ namespace AdaptiveRoads.Manager {
                 } else {
                     Helpers.Swap(ref tailFlags, ref headFlags);
                     Helpers.Swap(ref tailNodeFlags, ref headNodeFlags);
-                    var ret =  Backward.CheckFlags(flags) && CheckEndFlags(
+                    var ret = Backward.CheckFlags(flags) && CheckEndFlags(
                         tailFlags: tailFlags,
                         headFlags: headFlags,
                         tailNodeFlags: tailNodeFlags,
@@ -439,7 +441,7 @@ namespace AdaptiveRoads.Manager {
         }
 
 
-        const NetNode.Flags vanillaNode = NetNode.Flags.Sewage  | NetNode.Flags.Deleted;
+        const NetNode.Flags vanillaNode = NetNode.Flags.Sewage | NetNode.Flags.Deleted;
         const NetSegment.Flags vanillaSegment = NetSegment.Flags.AccessFailed | NetSegment.Flags.Deleted;
         const NetLane.Flags vanillaLane = NetLane.Flags.Created | NetLane.Flags.Deleted;
 
@@ -489,7 +491,7 @@ namespace AdaptiveRoads.Manager {
                     node.m_flagsRequired &= ~vanillaNode;
             }
             foreach (var segment in info.m_segments) {
-                if(segment.m_forwardRequired.CheckFlags(vanillaSegment))
+                if (segment.m_forwardRequired.CheckFlags(vanillaSegment))
                     segment.m_forwardRequired &= ~vanillaSegment;
                 if (segment.m_backwardRequired.CheckFlags(vanillaSegment))
                     segment.m_backwardRequired &= ~vanillaSegment;
@@ -519,7 +521,7 @@ namespace AdaptiveRoads.Manager {
                             props[i] = props[i].Extend() as NetLaneProps.Prop;
                     }
                 }
-                Net.EnsureBuffer();
+                netInfo.GetOrCreateMetaData();
 
                 Log.Debug($"EnsureExtended({netInfo}): successful");
             } catch (Exception e) {
@@ -546,7 +548,8 @@ namespace AdaptiveRoads.Manager {
                             props[i] = ext.UndoExtend();
                     }
                 }
-                netInfo.SetMeteData(null);
+                netInfo.RemoveMetadataContainer();
+
             } catch (Exception e) {
                 Log.Exception(e);
             }

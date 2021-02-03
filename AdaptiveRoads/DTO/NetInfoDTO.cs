@@ -53,7 +53,7 @@ namespace AdaptiveRoads.DTO {
             info.m_lanes = DTOUtil.CopyArray<NetInfo.Lane>(m_lanes);
             info.m_segments = DTOUtil.CopyArray<NetInfo.Segment>(m_segments);
             info.m_nodes = DTOUtil.CopyArray<NetInfo.Node>(m_nodes);
-            info.SetMeteData(MetaData);
+            info.SetMetedata(MetaData?.Clone());
         }
 
         public void ReadFromGame(NetInfo info) {

@@ -12,6 +12,9 @@ namespace AdaptiveRoads.Patches.AssetPatches {
         static void Prefix(string saveName, ref string assetName) {
             AssetDataExtension.BeforeSave();
             if (ToolsModifierControl.toolController.m_editPrefabInfo is NetInfo netInfo) {
+                Assertion.Assert(netInfo is not null);
+                Assertion.Assert(netInfo.name is not null);
+                Log.Debug("SaveAssetPatch.Prefix: netInfo.name= " + netInfo.name.ToSTR());
                 assetName = PackageHelper.StripName(netInfo.name);
                 assetName = assetName.Remove("_Data");
             }
