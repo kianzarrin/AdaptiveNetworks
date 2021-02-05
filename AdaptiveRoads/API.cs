@@ -23,8 +23,8 @@ namespace AdaptiveRoads {
         public static object GetARNodeFlags(ushort id) => man.NodeBuffer[id].m_flags;
         public static object GetARSegmentEndFlags(ushort segmentID, ushort nodeID)
             => man.GetSegmentEnd(segmentID, nodeID).m_flags;
-        public static object GetARSegmentEndFlags(ushort segmentID, bool startNode)
-            => man.GetSegmentEnd(segmentID, startNode).m_flags;
+        public static object GetARLaneFlags(uint id) => man.LaneBuffer[id].m_flags;
+
 #pragma warning restore HAA0601 
     }
 }

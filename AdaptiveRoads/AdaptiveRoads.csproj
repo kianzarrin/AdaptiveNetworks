@@ -7,7 +7,7 @@
     <Product>AdaptiveRoads</Product>
     <Copyright>Copyright ©  2020</Copyright>
     <Deterministic>false</Deterministic>
-    <AssemblyVersion>1.7.11.*</AssemblyVersion>
+    <AssemblyVersion>1.7.12.*</AssemblyVersion>
     <FileAlignment>512</FileAlignment>
     <LangVersion>latest</LangVersion>
     <Configurations>Debug;Release;FAST_TEST_PATCHES</Configurations>
@@ -39,14 +39,17 @@
   <ItemGroup>
     <Compile Remove="FbxUtil\**" />
     <Compile Remove="KianCommons\**" />
+    <Compile Remove="Patches\NetworkDetective\**" />
     <Compile Remove="Resources\**" />
     <Compile Remove="UI\MainPanel\**" />
     <EmbeddedResource Remove="FbxUtil\**" />
     <EmbeddedResource Remove="KianCommons\**" />
+    <EmbeddedResource Remove="Patches\NetworkDetective\**" />
     <EmbeddedResource Remove="Resources\**" />
     <EmbeddedResource Remove="UI\MainPanel\**" />
     <None Remove="FbxUtil\**" />
     <None Remove="KianCommons\**" />
+    <None Remove="Patches\NetworkDetective\**" />
     <None Remove="Resources\**" />
     <None Remove="UI\MainPanel\**" />
   </ItemGroup>
