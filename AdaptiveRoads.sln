@@ -5,9 +5,9 @@ VisualStudioVersion = 16.0.29926.136
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaptiveRoads", "AdaptiveRoads\AdaptiveRoads.csproj", "{4E0BB9B3-EFB1-4D63-99D8-A3B82D33E4FE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Prefab Metadata", "prefab-metadata\Prefab Metadata.csproj", "{BE4949C4-F02D-4B7B-B6FC-7B81BACD644E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrefabMetadata", "prefab-metadata\PrefabMetadata.csproj", "{BE4949C4-F02D-4B7B-B6FC-7B81BACD644E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Prefab Metadata API", "PrefabMetaDataAPI\Prefab Metadata API.csproj", "{17436E80-D35A-4C6C-A990-6AEB921A18B9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrefabMetadataAPI", "PrefabMetaDataAPI\PrefabMetadataAPI.csproj", "{17436E80-D35A-4C6C-A990-6AEB921A18B9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5D1FE33C-0E71-42F5-B57C-583018CC8BE4}"
 	ProjectSection(SolutionItems) = preProject
@@ -19,6 +19,7 @@ Global
 		Debug|Any CPU = Debug|Any CPU
 		FAST_TEST_PATCHES|Any CPU = FAST_TEST_PATCHES|Any CPU
 		Release|Any CPU = Release|Any CPU
+		Workshop|Any CPU = Workshop|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{4E0BB9B3-EFB1-4D63-99D8-A3B82D33E4FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -27,18 +28,24 @@ Global
 		{4E0BB9B3-EFB1-4D63-99D8-A3B82D33E4FE}.FAST_TEST_PATCHES|Any CPU.Build.0 = FAST_TEST_PATCHES|Any CPU
 		{4E0BB9B3-EFB1-4D63-99D8-A3B82D33E4FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E0BB9B3-EFB1-4D63-99D8-A3B82D33E4FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E0BB9B3-EFB1-4D63-99D8-A3B82D33E4FE}.Workshop|Any CPU.ActiveCfg = Workshop|Any CPU
+		{4E0BB9B3-EFB1-4D63-99D8-A3B82D33E4FE}.Workshop|Any CPU.Build.0 = Workshop|Any CPU
 		{BE4949C4-F02D-4B7B-B6FC-7B81BACD644E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BE4949C4-F02D-4B7B-B6FC-7B81BACD644E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE4949C4-F02D-4B7B-B6FC-7B81BACD644E}.FAST_TEST_PATCHES|Any CPU.ActiveCfg = Debug|Any CPU
 		{BE4949C4-F02D-4B7B-B6FC-7B81BACD644E}.FAST_TEST_PATCHES|Any CPU.Build.0 = Debug|Any CPU
 		{BE4949C4-F02D-4B7B-B6FC-7B81BACD644E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE4949C4-F02D-4B7B-B6FC-7B81BACD644E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE4949C4-F02D-4B7B-B6FC-7B81BACD644E}.Workshop|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE4949C4-F02D-4B7B-B6FC-7B81BACD644E}.Workshop|Any CPU.Build.0 = Debug|Any CPU
 		{17436E80-D35A-4C6C-A990-6AEB921A18B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{17436E80-D35A-4C6C-A990-6AEB921A18B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{17436E80-D35A-4C6C-A990-6AEB921A18B9}.FAST_TEST_PATCHES|Any CPU.ActiveCfg = Debug|Any CPU
 		{17436E80-D35A-4C6C-A990-6AEB921A18B9}.FAST_TEST_PATCHES|Any CPU.Build.0 = Debug|Any CPU
 		{17436E80-D35A-4C6C-A990-6AEB921A18B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{17436E80-D35A-4C6C-A990-6AEB921A18B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17436E80-D35A-4C6C-A990-6AEB921A18B9}.Workshop|Any CPU.ActiveCfg = Debug|Any CPU
+		{17436E80-D35A-4C6C-A990-6AEB921A18B9}.Workshop|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

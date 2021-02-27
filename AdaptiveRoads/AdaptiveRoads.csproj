@@ -21,10 +21,10 @@
     <PathMap>$(MSBuildProjectDirectory)\=$(ProjectName)\</PathMap>
     <Configurations>Debug;Release;FAST_TEST_PATCHES;Workshop</Configurations>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='FAST_TEST_PATCHES|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)'=='FAST_TEST_PATCHES'">
     <DefineConstants>DEBUG;TRACE;FAST_TEST_HARMONY</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Workshop|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)' == 'Workshop' ">
     <ContentID>0</ContentID>
     <DefineConstants>DEBUG;TRACE;</DefineConstants>
   </PropertyGroup>
@@ -42,6 +42,9 @@
       $(CitiesSkylinesBinaries);
       ../libs/
     </AssemblySearchPaths>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp" />
@@ -156,8 +159,8 @@
     <None Include="DecompiledSources\NetSegment.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\prefab-metadata\Prefab Metadata.csproj" />
-    <ProjectReference Include="..\PrefabMetaDataAPI\Prefab Metadata API.csproj" />
+    <ProjectReference Include="..\prefab-metadata\PrefabMetadata.csproj" />
+    <ProjectReference Include="..\PrefabMetaDataAPI\PrefabMetadataAPI.csproj" />
   </ItemGroup>
 
 

@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <ProjectGuid>{17436E80-D35A-4C6C-A990-6AEB921A18B9}</ProjectGuid>
+    <TargetFramework>net35</TargetFramework>
+    <AssemblyVersion>0.1.0</AssemblyVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+</Project>
