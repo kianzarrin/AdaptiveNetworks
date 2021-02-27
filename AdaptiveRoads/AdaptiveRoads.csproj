@@ -7,32 +7,49 @@
     <AssemblyVersion>1.8.0.*</AssemblyVersion>
     <FileAlignment>512</FileAlignment>
     <LangVersion>latest</LangVersion>
-    <Configurations>Debug;Release;FAST_TEST_PATCHES</Configurations>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <PathMap>$(MSBuildProjectDirectory)\=$(ProjectName)\</PathMap>
+    <Configurations>Debug;Release;FAST_TEST_PATCHES;Workshop</Configurations>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='FAST_TEST_PATCHES|AnyCPU'">
     <DefineConstants>DEBUG;TRACE;FAST_TEST_HARMONY</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DefineConstants />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Workshop|AnyCPU' ">
+    <ContentID>0</ContentID>
+    <DefineConstants>DEBUG;TRACE;</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
-    <PathMap>$(MSBuildProjectDirectory)\=$(ProjectName)\</PathMap>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ManagedDLLPath>..\dependencies</ManagedDLLPath>
+    <ManagedDLLPath>../dependencies</ManagedDLLPath>
     <SteamPath>~/Library/Application Support/Steam/</SteamPath>
-    <SteamPath Condition="! Exists ('$(SteamPath)')">$(ProgramFiles)\Steam</SteamPath>
-    <SteamPath Condition="! Exists ('$(SteamPath)')">$(Registry:HKEY_CURRENT_USER\Software\Valve\Steam@SteamPath)</SteamPath>
-    <CSPath>$(SteamPath)\steamapps\common\Cities_Skylines</CSPath>
-    <ManagedDLLPath Condition="!  Exists ('$(ManagedDLLPath)')">$(CSPath)\Cities_Data\Managed</ManagedDLLPath>
-    <AssemblyName>AdaptiveRoads</AssemblyName>
-    <RootNamespace>AdaptiveRoads</RootNamespace>
+    <SteamPath Condition="! Exists ('$(SteamPath)')">$(ProgramFiles)/Steam</SteamPath>
+    <SteamPath Condition="! Exists ('$(SteamPath)')">$(Registry:HKEY_CURRENT_USER/Software/Valve/Steam@SteamPath)</SteamPath>
+    <CSPath>$(SteamPath)/steamapps/common/Cities_Skylines</CSPath>
+    <ContentPath>$(SteamPath)/steamapps/workshop/content/255710/$(ContentID)</ContentPath>
+    <ManagedDLLPath Condition="!  Exists ('$(ManagedDLLPath)')">$(CSPath)/Cities_Data/Managed</ManagedDLLPath>
+    <AssemblySearchPaths>
+      $(AssemblySearchPaths);
+      $(ManagedDLLPath);
+      $(CitiesSkylinesBinaries);
+      ../libs/
+    </AssemblySearchPaths>
   </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp" />
+    <Reference Include="ColossalManaged" />
+    <Reference Include="CSUtil.Commons" />
+    <Reference Include="ICities" />
+    <Reference Include="UnityEngine" />
+    <Reference Include="UnityEngine.UI" />
+    <Reference Include="TrafficManager" />
+    <Reference Include="TMPE.API" />
+    <Reference Include="TMPE.CitiesGameBridge" />
+    <Reference Include="CSUtil.Commons" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\prefab-metadata\Prefab Metadata.csproj" />
+    <ProjectReference Include="..\PrefabMetaDataAPI\Prefab Metadata API.csproj" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CitiesHarmony.API" Version="2.0.0" />
     <PackageReference Include="Mono.Unofficial.pdb2mdb" Version="4.2.3.4" />
@@ -41,6 +58,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+
   <ItemGroup>
     <Compile Remove="FbxUtil\**" />
     <Compile Remove="KianCommons\**" />
@@ -59,10 +77,7 @@
     <None Remove="UI\MainPanel\**" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="DecompiledSources\NetAI.cs" />
-    <Compile Remove="DecompiledSources\NetLane.cs" />
-    <Compile Remove="DecompiledSources\NetNode.cs" />
-    <Compile Remove="DecompiledSources\NetSegment.cs" />
+    <Compile Remove="DecompiledSources\**" />
     <Compile Remove="LifeCycle\SerializableDataExtension.cs" />
     <Compile Remove="Patches\AssetPatches\InitializePrefabImpl.cs" />
     <Compile Remove="Patches\HarmonyExtension.cs" />
@@ -83,7 +98,6 @@
     <Compile Remove="Patches\TMPE\PublishSegmentChanges.cs" />
     <Compile Remove="Patches\TMPE\SetParkingAllowed.cs" />
     <Compile Remove="Patches\TMPE\UpdateSegmentEnd.cs" />
-    <Compile Remove="UI\RoadEditor\CursorInfoLabel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FbxUtil\FbxConverter.cs" />
@@ -139,81 +153,41 @@
     <Compile Include="FbxUtil\UnityFBXExporter\FBXUnityMeshGetter.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>$(ManagedDLLPath)\Assembly-CSharp.dll</HintPath>
-      <Private>false</Private>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>      
-    </Reference>
-    <Reference Include="ColossalManaged">
-      <HintPath>$(ManagedDLLPath)\ColossalManaged.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="CSUtil.Commons">
-      <HintPath>..\libs\CSUtil.Commons.dll</HintPath>
-      <Private>false</Private>
-      <SpecificVersion>false</SpecificVersion>
-    </Reference>
-    <Reference Include="ICities">
-      <HintPath>$(ManagedDLLPath)\ICities.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="TMPE.API">
-      <HintPath>..\libs\TMPE.API.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="TMPE.CitiesGameBridge">
-      <HintPath>..\libs\TMPE.CitiesGameBridge.dll</HintPath>
-    </Reference>
-    <Reference Include="TrafficManager">
-      <HintPath>..\libs\TrafficManager.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>$(ManagedDLLPath)\UnityEngine.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.Networking">
-      <HintPath>$(ManagedDLLPath)\UnityEngine.Networking.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>$(ManagedDLLPath)\UnityEngine.UI.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="DecompiledSources\NetAI.cs" />
     <None Include="DecompiledSources\NetLane.cs" />
     <None Include="DecompiledSources\NetNode.cs" />
     <None Include="DecompiledSources\NetSegment.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\prefab-metadata\Prefab Metadata.csproj" />
-    <ProjectReference Include="..\PrefabMetaDataAPI\Prefab Metadata API.csproj" />
-  </ItemGroup>
+
+
   <Target Name="DeployToModDirectory" AfterTargets="Build">
+    <Message Importance="high" Text="DeployToModDirectory ..." />
     <GetAssemblyIdentity AssemblyFiles="$(TargetPath)">
       <Output TaskParameter="Assemblies" ItemName="Targets" />
     </GetAssemblyIdentity>
-    <PropertyGroup>
-      <DeployDir>$(LOCALAPPDATA)\Colossal Order\Cities_Skylines\Addons\Mods\$(ProjectName)\</DeployDir>
-      <UnityPath>$(MSBuildExtensionsPath64)\..\Unity\</UnityPath>
-      <UnityPath Condition="! Exists ('$(UnityPath)')">..\Unity\</UnityPath>
-      <MonoDir>$(UnityPath)Editor\Data\MonoBleedingEdge\</MonoDir>
-      <Now>$([System.DateTime]::Now.ToString("h:mmtt"))</Now>
-    </PropertyGroup>
     <ItemGroup>
       <AuxilaryFiles Include="$(TargetDir)PrefabMetaData*.dll;$(TargetDir)CitiesHarmony.API.dll;$(SolutionDir)\libs\FbxFormatConverter.exe" Exclude="$(TargetPath);$(TargetDir)*.pdb" />
-      <!--$(TargetDir)Newtonsoft.Json.dll;-->
       <VersionNumber Include="@(Targets->'%(Version)')" />
     </ItemGroup>
+    <PropertyGroup>
+      <DeployDir Condition="'$(DeployDir)'==''">$(LOCALAPPDATA)/Colossal Order/Cities_Skylines/Addons/Mods/$(ProjectName)/</DeployDir>
+      <Now>$([System.DateTime]::Now.ToString("HH:mm:ss"))</Now>
+      <pdb2mdb>$(PkgMono_Unofficial_pdb2mdb)/tools/pdb2mdb.exe</pdb2mdb>
+      <ZipFileName>$(ProjectName)-V@(VersionNumber)-$(GitCommit)-$(Configuration).zip</ZipFileName>
+      <ZipFile>$(DeployDir)/../$(ZipFileName)</ZipFile>
+    </PropertyGroup>
+    <ItemGroup>
+      <OldZipFiles Include="$(DeployDir)/../$(ProjectName)-*-$(Configuration).zip" />
+    </ItemGroup>
     
-    <Copy SourceFiles="@(AuxilaryFiles)" DestinationFolder="$(DeployDir)" />
     <Delete Files="$(TargetDir)*.mdb" />
-    <Exec Command="&quot;$(MonoDir)bin\mono.exe&quot; &quot;$(MonoDir)lib\mono\4.5\pdb2mdb.exe&quot; &quot;$(TargetPath)&quot;" />
-    <Exec Command="&quot;$(MonoDir)bin\mono.exe&quot; &quot;$(MonoDir)lib\mono\4.5\pdb2mdb.exe&quot; &quot;$(TargetDir)PrefabMetaData.dll&quot;" />
+    <Exec Command='"$(pdb2mdb)" "$(TargetPath)"' />
+    <Exec Command='"$(pdb2mdb)" "$(TargetDir)PrefabMetaData.dll"' />
+
     <Copy SourceFiles="$(TargetPath).mdb" DestinationFolder="$(DeployDir)" />
     <Copy SourceFiles="$(TargetDir)PrefabMetaData.dll.mdb" DestinationFolder="$(DeployDir)" />
+    <Copy SourceFiles="@(AuxilaryFiles)" DestinationFolder="$(DeployDir)" />
+
     <Delete Files="$(DeployDir)$(TargetFileName)" />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(DeployDir)" />
     <Message Importance="high" Text="AssemblyVersion= @(VersionNumber) time=$(Now)" />

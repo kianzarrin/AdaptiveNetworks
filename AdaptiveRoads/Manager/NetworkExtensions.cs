@@ -1,19 +1,5 @@
 namespace AdaptiveRoads.Manager {
-    using ColossalFramework;
-    using CSUtil.Commons;
-    using System;
-    using TrafficManager;
-    using TrafficManager.API.Manager;
-    using TrafficManager.API;
-    using TrafficManager.API.Traffic.Data;
-    using TrafficManager.API.Traffic.Enums;
-    using TrafficManager.Manager.Impl;
     using KianCommons;
-    using Log = KianCommons.Log;
-    using UnityEngine;
-    using ColossalFramework.Math;
-    using System.Collections.Generic;
-    using ColossalFramework.IO;
 
     public static class AdvanedFlagsExtensions {
         public static bool CheckFlags(this NetLaneExt.Flags value, NetLaneExt.Flags required, NetLaneExt.Flags forbidden) =>
@@ -95,11 +81,11 @@ namespace AdaptiveRoads.Manager {
             LaneData = lane;
 
             bool parkingAllowed = LaneData.LaneInfo.m_laneType == NetInfo.LaneType.Parking;
-            if (PMan != null)
+            if(PMan != null)
                 parkingAllowed &= PMan.IsParkingAllowed(LaneData.SegmentID, LaneData.LaneInfo.m_finalDirection);
             m_flags = m_flags.SetFlags(Flags.ParkingAllowed, parkingAllowed);
 
-            if (VRMan != null) {
+            if(VRMan != null) {
                 var mask = VRMan.GetAllowedVehicleTypes(
                     segmentId: LaneData.SegmentID,
                     segmentInfo: LaneData.Segment.Info,
@@ -116,7 +102,7 @@ namespace AdaptiveRoads.Manager {
                 m_flags = m_flags.SetFlags(Flags.CargoTrain, VRMan.IsCargoTrainAllowed(mask));
                 m_flags = m_flags.SetFlags(Flags.PassengerTrain, VRMan.IsPassengerTrainAllowed(mask));
             }
-            if (SLMan != null)
+            if(SLMan != null)
                 SpeedLimit = (SLMan as SpeedLimitManager).GetGameSpeedLimit(LaneData.LaneID);
             else
                 SpeedLimit = lane.LaneInfo.m_speedLimit;
@@ -158,9 +144,9 @@ namespace AdaptiveRoads.Manager {
             TrafficManager.Constants.ManagerFactory.JunctionRestrictionsManager;
 
         public void UpdateFlags() {
-            if (JRMan != null) {
+            if(JRMan != null) {
                 bool keepClearAll = true;
-                foreach (var segmentID in NetUtil.IterateNodeSegments(NodeID)) {
+                foreach(var segmentID in NetUtil.IterateNodeSegments(NodeID)) {
                     bool startNode = NetUtil.IsStartNode(segmentId: segmentID, nodeId: NodeID);
                     bool keppClear = JRMan.IsEnteringBlockedJunctionAllowed(segmentID, startNode);
                     keepClearAll &= keppClear;
@@ -212,7 +198,7 @@ namespace AdaptiveRoads.Manager {
 
         public ref NetSegmentEnd GetEnd(ushort nodeID) {
             bool startNode = NetUtil.IsStartNode(segmentId: SegmentID, nodeId: nodeID);
-            if (startNode)
+            if(startNode)
                 return ref Start;
             else
                 return ref End;
@@ -225,32 +211,26 @@ namespace AdaptiveRoads.Manager {
             }
             Log.Debug($"NetSegmentExt.UpdateAllFlags() called. SegmentID={SegmentID}" /*Environment.StackTrace*/, false);
 
-            Start.UpdateFlags();
-            Start.UpdateDirections();
-
-            End.UpdateFlags();
-            End.UpdateDirections();
-
             bool parkingLeft = false;
             bool parkingRight = false;
             float speed0 = -1;
             float maxSpeedLimit = 0;
             float speedLimitAcc = 0;
-            int speedLaneCount = 0; 
+            int speedLaneCount = 0;
 
             bool uniformSpeed = true;
-            foreach (LaneData lane in NetUtil.IterateSegmentLanes(SegmentID)) {
+            foreach(LaneData lane in NetUtil.IterateSegmentLanes(SegmentID)) {
                 ref NetLaneExt laneExt = ref NetworkExtensionManager.Instance.LaneBuffer[lane.LaneID];
                 laneExt.UpdateLane(lane);
-                if (laneExt.m_flags.IsFlagSet(NetLaneExt.Flags.ParkingAllowed)) {
-                    if (lane.LeftSide)  
+                if(laneExt.m_flags.IsFlagSet(NetLaneExt.Flags.ParkingAllowed)) {
+                    if(lane.LeftSide)
                         parkingLeft = true;
                     else
                         parkingRight = true;
                 }
-                if (lane.LaneInfo.m_laneType.IsFlagSet(SpeedLimitManager.LANE_TYPES) &&
+                if(lane.LaneInfo.m_laneType.IsFlagSet(SpeedLimitManager.LANE_TYPES) &&
                     lane.LaneInfo.m_vehicleType.IsFlagSet(SpeedLimitManager.VEHICLE_TYPES)) {
-                    if (speed0 == -1)
+                    if(speed0 == -1)
                         speed0 = laneExt.SpeedLimit;
                     else
                         uniformSpeed &= laneExt.SpeedLimit == speed0;
@@ -270,7 +250,14 @@ namespace AdaptiveRoads.Manager {
 
             Curve = CalculateCurve();
 
-            Log.Debug($"NetSegmentExt.UpdateAllFlags() succeeded for {this}" /*Environment.StackTrace*/,false);
+            Start.UpdateFlags();
+            Start.UpdateDirections();
+
+            End.UpdateFlags();
+            End.UpdateDirections();
+
+
+            Log.Debug($"NetSegmentExt.UpdateAllFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
 
         }
 
@@ -299,13 +286,13 @@ namespace AdaptiveRoads.Manager {
             float m1 = d1.magnitude;
             float m2 = d2.magnitude;
             float m3 = d3.magnitude;
-            if (m1 > 0.1f) d1 /= m1;
-            if (m3 > 0.1f) d3 /= m3;
-            
+            if(m1 > 0.1f) d1 /= m1;
+            if(m3 > 0.1f) d3 /= m3;
+
             var length = m1 + m2 + m3;
             var curve = (Mathf.PI * 0.5f) * (1f - Vector3.Dot(d1, d3));
-            if (length > 0.1f) curve /= length;
-            
+            if(length > 0.1f) curve /= length;
+
             return curve;
         }
 
@@ -377,6 +364,9 @@ namespace AdaptiveRoads.Manager {
             [Hint("the junction only has two segments.\n")]
             TwoSegments = 1 << 21,
 
+            [Hint("the junction has segments with different speed limits.\n")]
+            SpeeedChange = 1 << 22,
+
             ALL = -1,
         }
 
@@ -400,14 +390,14 @@ namespace AdaptiveRoads.Manager {
         public void UpdateFlags() {
             var flags = m_flags;
 
-            if (PMan != null) {
+            if(PMan != null) {
                 PriorityType p = PMan.GetPrioritySign(SegmentID, StartNode);
                 flags = flags.SetFlags(Flags.Yield, p == PriorityType.Yield);
                 flags = flags.SetFlags(Flags.Stop, p == PriorityType.Stop);
                 flags = flags.SetFlags(Flags.PriorityMain, p == PriorityType.Main);
             }
 
-            if (JRMan != null) {
+            if(JRMan != null) {
                 flags = flags.SetFlags(Flags.KeepClear, !JRMan.IsEnteringBlockedJunctionAllowed(SegmentID, StartNode));
                 flags = flags.SetFlags(Flags.ZebraCrossing, JRMan.IsPedestrianCrossingAllowed(SegmentID, StartNode));
                 flags = flags.SetFlags(Flags.NearTurnAtRed, JRMan.IsNearTurnOnRedAllowed(SegmentID, StartNode));
@@ -419,7 +409,12 @@ namespace AdaptiveRoads.Manager {
             flags = flags.SetFlags(Flags.IsStartNode, StartNode);
             flags = flags.SetFlags(Flags.IsTailNode, NetUtil.GetTailNode(SegmentID) == NodeID);
 
+
+
             flags = flags.SetFlags(Flags.TwoSegments, NodeID.ToNode().CountSegments() == 2);
+            //flags = flags.SetFlags(Flags.SpeeedChange,  );
+
+            NodeID.ToNode().
 
             m_flags = flags;
         }
@@ -428,7 +423,7 @@ namespace AdaptiveRoads.Manager {
             return $"NetSegmentEnd(segment:{SegmentID} node:{NodeID} StartNode:{StartNode} flags={m_flags})";
         }
 
-        public void UpdateDirections() { 
+        public void UpdateDirections() {
             CheckSegmentsInEachDirection(
                 segmentId: SegmentID, nodeId: NodeID,
                 right: out bool right, forward: out bool forward, left: out bool left);
@@ -444,9 +439,9 @@ namespace AdaptiveRoads.Manager {
 
         private static LaneArrows AllArrows(ushort segmentId, bool startNode) {
             LaneArrows ret = LaneArrows.None;
-            foreach (var lane in NetUtil.IterateLanes(
-                segmentId:segmentId, startNode: startNode,
-                laneType:  LaneArrowManager.LANE_TYPES, vehicleType: LaneArrowManager.VEHICLE_TYPES)) {
+            foreach(var lane in NetUtil.IterateLanes(
+                segmentId: segmentId, startNode: startNode,
+                laneType: LaneArrowManager.LANE_TYPES, vehicleType: LaneArrowManager.VEHICLE_TYPES)) {
                 LaneArrows arrows = LaneArrowManager.Instance.GetFinalLaneArrows(lane.LaneID);
                 ret |= arrows;
             }
@@ -462,13 +457,13 @@ namespace AdaptiveRoads.Manager {
 
             forward = left = right = false;
 
-            for (int i = 0; i < 8; ++i) {
+            for(int i = 0; i < 8; ++i) {
                 ushort otherSegmentId = nodeId.ToNode().GetSegment(i);
-                if (otherSegmentId == 0) continue;
+                if(otherSegmentId == 0) continue;
                 bool isRoad = otherSegmentId.ToSegment().Info.m_netAI is RoadBaseAI;
-                if (!isRoad) continue;
+                if(!isRoad) continue;
                 ArrowDirection dir = segEndMan.GetDirection(ref segEnd, otherSegmentId);
-                switch (dir) {
+                switch(dir) {
                     case ArrowDirection.Forward:
                         forward = true;
                         break;
