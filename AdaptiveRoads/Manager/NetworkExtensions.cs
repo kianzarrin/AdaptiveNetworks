@@ -424,7 +424,6 @@ namespace AdaptiveRoads.Manager {
             flags = flags.SetFlags(Flags.IsStartNode, StartNode);
             flags = flags.SetFlags(Flags.IsTailNode, NetUtil.GetTailNode(SegmentID) == NodeID);
 
-
             var segments = Segments;
             var speedChange = segments.Any(_segment2 => _segment2.SpeedLimit != segments[0].SpeedLimit);
             flags = flags.SetFlags(Flags.SpeedChange, speedChange);
