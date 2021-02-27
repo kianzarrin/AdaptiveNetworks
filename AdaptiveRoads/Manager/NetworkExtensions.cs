@@ -12,6 +12,7 @@ namespace AdaptiveRoads.Manager {
     using TrafficManager.Manager.Impl;
     using UnityEngine;
     using Log = KianCommons.Log;
+    using System.Linq;
 
     public static class AdvanedFlagsExtensions {
         public static bool CheckFlags(this NetLaneExt.Flags value, NetLaneExt.Flags required, NetLaneExt.Flags forbidden) =>
@@ -377,7 +378,7 @@ namespace AdaptiveRoads.Manager {
             TwoSegments = 1 << 21,
 
             [Hint("the junction has segments with different speed limits.\n")]
-            SpeeedChange = 1 << 22,
+            SpeedChange = 1 << 22,
 
             ALL = -1,
         }
@@ -387,6 +388,8 @@ namespace AdaptiveRoads.Manager {
         public bool StartNode;
 
         public ushort NodeID => SegmentID.ToSegment().GetNode(StartNode);
+        public NetSegmentExt[] Segments => NodeID.ToNode().IterateSegments()
+            .Select(_segmentId => NetworkExtensionManager.Instance.SegmentBuffer[_segmentId]).ToArray();
 
         public void Serialize(DataSerializer s) => s.WriteInt32((int)m_flags);
         public void Deserialize(DataSerializer s) => m_flags = (Flags)s.ReadInt32();
@@ -422,11 +425,10 @@ namespace AdaptiveRoads.Manager {
             flags = flags.SetFlags(Flags.IsTailNode, NetUtil.GetTailNode(SegmentID) == NodeID);
 
 
-
+            var segments = Segments;
+            var speedChange = segments.Any(_segment2 => _segment2.SpeedLimit != segments[0].SpeedLimit);
+            flags = flags.SetFlags(Flags.SpeedChange, speedChange);
             flags = flags.SetFlags(Flags.TwoSegments, NodeID.ToNode().CountSegments() == 2);
-            //flags = flags.SetFlags(Flags.SpeeedChange,  );
-
-            //NodeID.ToNode().
 
             m_flags = flags;
         }
