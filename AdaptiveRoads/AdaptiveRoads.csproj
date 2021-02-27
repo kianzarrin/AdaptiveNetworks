@@ -1,4 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="CitiesHarmony.API" Version="2.0.0" />
+    <PackageReference Include="GitInfo" Version="2.1.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Mono.Unofficial.pdb2mdb" Version="4.2.3.4" />
+  </ItemGroup>
+
   <PropertyGroup>
     <ProjectGuid>{4E0BB9B3-EFB1-4D63-99D8-A3B82D33E4FE}</ProjectGuid>
     <TargetFramework>net35</TargetFramework>
@@ -45,20 +54,8 @@
     <Reference Include="TMPE.API" />
     <Reference Include="TMPE.CitiesGameBridge" />
     <Reference Include="CSUtil.Commons" />
+    <Reference Include="System" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\prefab-metadata\Prefab Metadata.csproj" />
-    <ProjectReference Include="..\PrefabMetaDataAPI\Prefab Metadata API.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="CitiesHarmony.API" Version="2.0.0" />
-    <PackageReference Include="Mono.Unofficial.pdb2mdb" Version="4.2.3.4" />
-    <PackageReference Include="GitInfo" Version="2.1.2">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
-
   <ItemGroup>
     <Compile Remove="FbxUtil\**" />
     <Compile Remove="KianCommons\**" />
@@ -181,8 +178,8 @@
     </ItemGroup>
     
     <Delete Files="$(TargetDir)*.mdb" />
-    <Exec Command='"$(pdb2mdb)" "$(TargetPath)"' />
-    <Exec Command='"$(pdb2mdb)" "$(TargetDir)PrefabMetaData.dll"' />
+    <Exec Command="&quot;$(pdb2mdb)&quot; &quot;$(TargetPath)&quot;" />
+    <Exec Command="&quot;$(pdb2mdb)&quot; &quot;$(TargetDir)PrefabMetaData.dll&quot;" />
 
     <Copy SourceFiles="$(TargetPath).mdb" DestinationFolder="$(DeployDir)" />
     <Copy SourceFiles="$(TargetDir)PrefabMetaData.dll.mdb" DestinationFolder="$(DeployDir)" />

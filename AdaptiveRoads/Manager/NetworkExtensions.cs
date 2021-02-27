@@ -1,5 +1,17 @@
 namespace AdaptiveRoads.Manager {
+    using ColossalFramework;
+    using ColossalFramework.IO;
+    using ColossalFramework.Math;
+    using CSUtil.Commons;
     using KianCommons;
+    using System;
+    using TrafficManager;
+    using TrafficManager.API.Manager;
+    using TrafficManager.API.Traffic.Data;
+    using TrafficManager.API.Traffic.Enums;
+    using TrafficManager.Manager.Impl;
+    using UnityEngine;
+    using Log = KianCommons.Log;
 
     public static class AdvanedFlagsExtensions {
         public static bool CheckFlags(this NetLaneExt.Flags value, NetLaneExt.Flags required, NetLaneExt.Flags forbidden) =>
@@ -414,7 +426,7 @@ namespace AdaptiveRoads.Manager {
             flags = flags.SetFlags(Flags.TwoSegments, NodeID.ToNode().CountSegments() == 2);
             //flags = flags.SetFlags(Flags.SpeeedChange,  );
 
-            NodeID.ToNode().
+            //NodeID.ToNode().
 
             m_flags = flags;
         }
