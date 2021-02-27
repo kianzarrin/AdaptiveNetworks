@@ -35,7 +35,7 @@ namespace AdaptiveRoads.LifeCycle {
                         var assetData = assetData0 as AssetData;
                         AssertNotNull(assetData, $"assetData: {assetData0.GetType()} is not ${typeof(AssetData)}");
                         AssetData.Load(assetData, prefab);
-                        Log.Debug("AssetDataExtension.OnAssetLoaded(): Asset Data=" + assetData);
+                        Log.Debug($"AssetDataExtension.OnAssetLoaded(): Asset Data={assetData} version={assetData.VersionString}");
                     }
                 } else if (asset is BuildingInfo buildingInfo) {
                     // TODO: load stored custom road flags for intersections or buildings.

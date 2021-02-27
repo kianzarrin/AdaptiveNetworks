@@ -1,7 +1,7 @@
 namespace FbxUtil {
     using System.IO;
     using UnityEngine;
-    using KianCommons;
+    using KianCommons.Plugins;
     using System.Text;
     using System;
     using System.Diagnostics;

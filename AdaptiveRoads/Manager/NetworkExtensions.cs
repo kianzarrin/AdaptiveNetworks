@@ -151,9 +151,6 @@ namespace AdaptiveRoads.Manager {
                 "useful for drawing pattern on the junction.")]
             KeepClearAll = 1 << 1,
 
-
-
-
             //All = -1,
         }
 
@@ -172,12 +169,11 @@ namespace AdaptiveRoads.Manager {
                 m_flags = m_flags.SetFlags(Flags.KeepClearAll, keepClearAll);
             }
         }
-
     }
 
     public struct NetSegmentExt {
         public ushort SegmentID;
-        public float AverageSpeedLimit;
+        public float SpeedLimit; // max
         public float Curve;
         public Flags m_flags;
 
@@ -238,6 +234,7 @@ namespace AdaptiveRoads.Manager {
             bool parkingLeft = false;
             bool parkingRight = false;
             float speed0 = -1;
+            float maxSpeedLimit = 0;
             float speedLimitAcc = 0;
             int speedLaneCount = 0; 
 
@@ -259,6 +256,7 @@ namespace AdaptiveRoads.Manager {
                         uniformSpeed &= laneExt.SpeedLimit == speed0;
                     speedLimitAcc += laneExt.SpeedLimit;
                     speedLaneCount++;
+                    maxSpeedLimit = Mathf.Max(maxSpeedLimit, laneExt.SpeedLimit);
                 }
             }
 
@@ -267,7 +265,8 @@ namespace AdaptiveRoads.Manager {
             m_flags = m_flags.SetFlags(Flags.UniformSpeedLimit, uniformSpeed);
             m_flags = m_flags.SetFlags(Flags.LeftHandTraffic, NetUtil.LHT);
 
-            AverageSpeedLimit = speedLimitAcc / speedLaneCount;
+            float averageSpeedLimit = speedLimitAcc / speedLaneCount;
+            SpeedLimit = maxSpeedLimit;
 
             Curve = CalculateCurve();
 

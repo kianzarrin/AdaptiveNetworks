@@ -2,6 +2,7 @@ using ColossalFramework;
 using ColossalFramework.Threading;
 using KianCommons;
 using KianCommons.Math;
+using KianCommons.Serialization;
 using PrefabMetadata.API;
 using PrefabMetadata.Helpers;
 using System;
@@ -307,7 +308,38 @@ namespace AdaptiveRoads.Manager {
 
         [Serializable]
         [Optional(AR_MODE)]
-        public class LaneProp : ICloneable {
+        public class LaneProp : ICloneable, ISerializable {
+            #region serialization
+            [Obsolete("only useful for the purpose of shallow clone and serialization", error: true)]
+            public LaneProp() { }
+            public LaneProp Clone() => this.ShalowClone();
+            object ICloneable.Clone() => Clone();
+            public LaneProp(NetLaneProps.Prop template) { }
+
+            //serialization
+            public void GetObjectData(SerializationInfo info, StreamingContext context) =>
+                SerializationUtil.GetObjectFields(info, this);
+
+            // deserialization
+            public LaneProp(SerializationInfo info, StreamingContext context) {
+                SerializationUtil.SetObjectFields(info, this);
+
+                // backward compatiblity: SpeedLimit, AverageSpeedLimit
+                SerializationUtil.SetObjectProperties(info, this);
+            }
+
+            [Obsolete("for backward compatibility only", error: true)]
+            private Range SpeedLimit {
+                set => LaneSpeedLimit = value;
+            }
+
+            [Obsolete("for backward compatibility only", error: true)]
+            private Range AverageSpeedLimit {
+                set => SegmentSpeedLimit = value;
+            }
+
+            #endregion
+
             [CustomizableProperty("Lane")]
             [Hint("lane extension flags")]
             public LaneInfoFlags LaneFlags = new LaneInfoFlags();
@@ -341,10 +373,10 @@ namespace AdaptiveRoads.Manager {
             public NodeInfoFlags EndNodeFlags = new NodeInfoFlags();
 
             [CustomizableProperty("Lane Speed Limit Range")]
-            public Range SpeedLimit; // null => N/A
+            public Range LaneSpeedLimit; // null => N/A
 
-            [CustomizableProperty("Average Speed Limit Range")]
-            public Range AverageSpeedLimit; // null => N/A
+            [CustomizableProperty("Max Segment Speed Limit Range")]
+            public Range SegmentSpeedLimit; // null => N/A
 
             //[CustomizableProperty("Lane Curve")]
             //public Range LaneCurve; // minimum |curve| with same sign
@@ -353,14 +385,14 @@ namespace AdaptiveRoads.Manager {
             //public Range SegmentCurve;
 
             /// <param name="laneSpeed">game speed</param>
-            /// <param name="averageSpeed">game speed</param>
+            /// <param name="segmentSpeedLimit">game speed</param>
             public bool Check(
                 NetLaneExt.Flags laneFlags,
                 NetSegmentExt.Flags segmentFlags,
                 NetSegment.Flags vanillaSegmentFlags,
                 NetNodeExt.Flags startNodeFlags, NetNodeExt.Flags endNodeFlags,
                 NetSegmentEnd.Flags segmentStartFlags, NetSegmentEnd.Flags segmentEndFlags,
-                float laneSpeed, float averageSpeed) =>
+                float laneSpeed, float segmentSpeedLimit) =>
                 LaneFlags.CheckFlags(laneFlags) &&
                 SegmentFlags.CheckFlags(segmentFlags) &&
                 VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags) &&
@@ -368,15 +400,8 @@ namespace AdaptiveRoads.Manager {
                 SegmentEndFlags.CheckFlags(segmentEndFlags) &&
                 StartNodeFlags.CheckFlags(startNodeFlags) &&
                 EndNodeFlags.CheckFlags(endNodeFlags) &&
-                SpeedLimit.CheckRange(laneSpeed) &&
-                AverageSpeedLimit.CheckRange(averageSpeed);
-
-
-            [Obsolete("only useful for the purpose of shallow clone", error: true)]
-            public LaneProp() { }
-            public LaneProp Clone() => this.ShalowClone();
-            object ICloneable.Clone() => Clone();
-            public LaneProp(NetLaneProps.Prop template) { }
+                LaneSpeedLimit.CheckRange(laneSpeed) &&
+                SegmentSpeedLimit.CheckRange(segmentSpeedLimit);
         }
 
         #endregion

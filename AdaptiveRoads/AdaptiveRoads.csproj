@@ -2,12 +2,9 @@
   <PropertyGroup>
     <ProjectGuid>{4E0BB9B3-EFB1-4D63-99D8-A3B82D33E4FE}</ProjectGuid>
     <TargetFramework>net35</TargetFramework>
+    <Copyright>Copyright ©  2021</Copyright>
     <Deterministic>false</Deterministic>
-    <AssemblyTitle>AdaptiveRoads</AssemblyTitle>
-    <Product>AdaptiveRoads</Product>
-    <Copyright>Copyright ©  2020</Copyright>
-    <Deterministic>false</Deterministic>
-    <AssemblyVersion>1.7.12.*</AssemblyVersion>
+    <AssemblyVersion>1.8.0.*</AssemblyVersion>
     <FileAlignment>512</FileAlignment>
     <LangVersion>latest</LangVersion>
     <Configurations>Debug;Release;FAST_TEST_PATCHES</Configurations>
@@ -36,6 +33,14 @@
     <AssemblyName>AdaptiveRoads</AssemblyName>
     <RootNamespace>AdaptiveRoads</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="CitiesHarmony.API" Version="2.0.0" />
+    <PackageReference Include="Mono.Unofficial.pdb2mdb" Version="4.2.3.4" />
+    <PackageReference Include="GitInfo" Version="2.1.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
   <ItemGroup>
     <Compile Remove="FbxUtil\**" />
     <Compile Remove="KianCommons\**" />
@@ -103,6 +108,7 @@
     <Compile Include="KianCommons\KianCommons\ObjUnity3D\OBJGroup.cs" />
     <Compile Include="KianCommons\KianCommons\ObjUnity3D\OBJLoader.cs" />
     <Compile Include="KianCommons\KianCommons\ObjUnity3D\OBJMaterial.cs" />
+    <Compile Include="KianCommons\KianCommons\Plugins\PluginUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Serialization\IOHelpers.cs" />
     <Compile Include="KianCommons\KianCommons\Serialization\Vector3Serializable.cs" />
     <Compile Include="KianCommons\KianCommons\Patches\HarmonyUtil.cs" />
@@ -124,7 +130,6 @@
     <Compile Include="KianCommons\KianCommons\Util\HelpersExtensions.cs" />
     <Compile Include="KianCommons\KianCommons\Util\Log.cs" />
     <Compile Include="KianCommons\KianCommons\Util\NetUtil.cs" />
-    <Compile Include="KianCommons\KianCommons\Util\PluginUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Util\ReflectionHelpers.cs" />
     <Compile Include="KianCommons\KianCommons\Serialization\SerializationUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Util\StringExtensions.cs" />
@@ -132,9 +137,6 @@
     <Compile Include="FbxUtil\UnityFBXExporter\FBXExporter.cs" />
     <Compile Include="FbxUtil\UnityFBXExporter\FBXUnityMaterialGetter.cs" />
     <Compile Include="FbxUtil\UnityFBXExporter\FBXUnityMeshGetter.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="CitiesHarmony.API" Version="1.0.6" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">

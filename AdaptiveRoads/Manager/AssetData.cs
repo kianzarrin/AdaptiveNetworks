@@ -1,12 +1,14 @@
 using KianCommons;
+using KianCommons.Serialization;
 using PrefabMetadata.API;
 using PrefabMetadata.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace AdaptiveRoads.Manager {
     [Serializable]
-    public class AssetData {
+    public class AssetData : ISerializable{
         [Serializable]
         public class NetInfoMetaData {
             public List<NetInfoExtionsion.Node> Nodes = new List<NetInfoExtionsion.Node>();
@@ -92,6 +94,32 @@ namespace AdaptiveRoads.Manager {
                 }
             }
         }
+
+        #region serialization
+        public AssetData() { } 
+
+        //serialization
+        public void GetObjectData(SerializationInfo info, StreamingContext context) =>
+            SerializationUtil.GetObjectFields(info, this);
+
+        // deserialization
+        public AssetData(SerializationInfo info, StreamingContext context) {
+            try {
+                VersionString = info.GetString("VersionString");
+            } catch {
+                VersionString = default(Version).ToString(3);
+            }
+            try {
+                var version = SerializationUtil.DeserializationVersion = new Version(VersionString);
+                if(version < new Version("1,8")) {
+                    Log.Warning($"old asset data (version:{version})");
+                }
+            } catch { }
+            SerializationUtil.SetObjectFields(info, this);
+        }
+        #endregion
+
+        public string VersionString = typeof(AssetData).VersionOf().ToString(3);
 
         public NetInfoMetaData Ground, Elevated, Bridge, Slope, Tunnel;
 

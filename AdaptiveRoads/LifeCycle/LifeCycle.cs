@@ -5,6 +5,7 @@ namespace AdaptiveRoads.LifeCycle {
     using CitiesHarmony.API;
     using ICities;
     using KianCommons;
+    using KianCommons.Plugins;
     using System;
     using System.Diagnostics;
     using UnityEngine.SceneManagement;
