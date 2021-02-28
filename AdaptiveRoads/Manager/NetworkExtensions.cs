@@ -13,6 +13,7 @@ namespace AdaptiveRoads.Manager {
     using UnityEngine;
     using Log = KianCommons.Log;
     using System.Linq;
+    using AdaptiveRoads.Util;
 
     public static class AdvanedFlagsExtensions {
         public static bool CheckFlags(this NetLaneExt.Flags value, NetLaneExt.Flags required, NetLaneExt.Flags forbidden) =>
@@ -182,7 +183,6 @@ namespace AdaptiveRoads.Manager {
         public void Deserialize(DataSerializer s) => m_flags = (Flags)s.ReadInt32();
         public void Init(ushort segmentID) => SegmentID = segmentID;
 
-
         [Flags]
         public enum Flags {
             None = 0,
@@ -229,10 +229,6 @@ namespace AdaptiveRoads.Manager {
             bool parkingLeft = false;
             bool parkingRight = false;
             float speed0 = -1;
-            float maxForwardSpeedLimit = 0;
-            float maxBackwardSpeedLimit = 0;
-            float speedLimitAcc = 0;
-            int speedLaneCount = 0;
 
             bool uniformSpeed = true;
             foreach(LaneData lane in NetUtil.IterateSegmentLanes(SegmentID)) {
@@ -250,15 +246,6 @@ namespace AdaptiveRoads.Manager {
                         speed0 = laneExt.SpeedLimit;
                     else
                         uniformSpeed &= laneExt.SpeedLimit == speed0;
-                    speedLimitAcc += laneExt.SpeedLimit;
-                    speedLaneCount++;
-
-                    bool segmentInvert = SegmentID.ToSegment().IsInvert();
-                    if(lane.LaneInfo.IsGoingForward(segmentInvert)) {
-                        maxForwardSpeedLimit = Mathf.Max(maxForwardSpeedLimit, laneExt.SpeedLimit);
-                    }else if(lane.LaneInfo.IsGoingBackward(segmentInvert)) {
-                        maxBackwardSpeedLimit = Mathf.Max(maxBackwardSpeedLimit, laneExt.SpeedLimit);
-                    }
                 }
             }
 
@@ -267,9 +254,7 @@ namespace AdaptiveRoads.Manager {
             m_flags = m_flags.SetFlags(Flags.UniformSpeedLimit, uniformSpeed);
             m_flags = m_flags.SetFlags(Flags.LeftHandTraffic, NetUtil.LHT);
 
-            float averageSpeedLimit = speedLimitAcc / speedLaneCount;
-            ForwardSpeedLimit = maxForwardSpeedLimit;
-            BackwardSpeedLimit = maxBackwardSpeedLimit;
+
 
             Curve = CalculateCurve();
 
@@ -434,27 +419,27 @@ namespace AdaptiveRoads.Manager {
             flags = flags.SetFlags(Flags.IsStartNode, StartNode);
             flags = flags.SetFlags(Flags.IsTailNode, NetUtil.GetTailNode(SegmentID) == NodeID);
 
-            var segments = Segments;
+            var segmentIDs = NodeID.ToNode().IterateSegments().ToArray();
             bool speedChange;
-            if( segments.Length == 2){
+            // recalculate speed limits to avoid update order issues.
+            if(segmentIDs.Length == 2){
                 ushort segmentID2 = NodeID.ToNode().GetAnotherSegment(SegmentID);
                 bool startNode2 = segmentID2.ToSegment().IsStartNode(NodeID);
                 bool reverse = startNode2 == StartNode; // segment invert already is taken into account.
+                TMPEHelpers.GetMaxSpeedLimit(SegmentID, out float forward, out float backward);
+                TMPEHelpers.GetMaxSpeedLimit(segmentID2, out float forward2, out float backward2);
                 if(!reverse) {
-                    speedChange =
-                        (Segments[0].ForwardSpeedLimit != Segments[1].ForwardSpeedLimit) ||
-                        (Segments[0].BackwardSpeedLimit != Segments[1].BackwardSpeedLimit);
+                    speedChange = (forward  != forward2) || (backward != backward2);
                 } else {
-                    speedChange =
-                        (Segments[0].ForwardSpeedLimit != Segments[1].BackwardSpeedLimit) ||
-                        (Segments[0].BackwardSpeedLimit != Segments[1].ForwardSpeedLimit);
+                    speedChange = (forward != backward2) || (backward != forward2);
                 }
             } else{
-                speedChange = segments.Any(_segment2 => _segment2.MaxSpeedLimit != segments[0].MaxSpeedLimit);
+                var speedLimit = TMPEHelpers.GetMaxSpeedLimit(SegmentID);
+                speedChange = segmentIDs.Any(_segmentID2 => TMPEHelpers.GetMaxSpeedLimit(_segmentID2) != speedLimit);
             }
 
             flags = flags.SetFlags(Flags.SpeedChange, speedChange);
-            flags = flags.SetFlags(Flags.TwoSegments, segments.Length == 2);
+            flags = flags.SetFlags(Flags.TwoSegments, segmentIDs.Length == 2);
 
             m_flags = flags;
         }
