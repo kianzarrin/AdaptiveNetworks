@@ -208,7 +208,7 @@ namespace AdaptiveRoads.Manager {
 
         public override string ToString() =>
             $"NetSegmentExt(SegmentID:{SegmentID} flags:{m_flags}"
-            //+ $"AverageSpeedLimit:{AverageSpeedLimit} " +
+            + $"\n\tForwardSpeedLimit:{ForwardSpeedLimit} BackwardSpeedLimit:{BackwardSpeedLimit}"
             + $"\n\tStart:{Start})" + $"\n\tEnd  :{End}";
 
         public ref NetSegmentEnd GetEnd(ushort nodeID) {
@@ -436,7 +436,6 @@ namespace AdaptiveRoads.Manager {
 
             var segments = Segments;
             bool speedChange;
-
             if( segments.Length == 2){
                 ushort segmentID2 = NodeID.ToNode().GetAnotherSegment(SegmentID);
                 bool startNode2 = segmentID2.ToSegment().IsStartNode(NodeID);
