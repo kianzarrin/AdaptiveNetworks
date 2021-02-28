@@ -435,9 +435,27 @@ namespace AdaptiveRoads.Manager {
             flags = flags.SetFlags(Flags.IsTailNode, NetUtil.GetTailNode(SegmentID) == NodeID);
 
             var segments = Segments;
-            var speedChange = segments.Any(_segment2 => _segment2.MaxSpeedLimit != segments[0].MaxSpeedLimit);
+            bool speedChange;
+
+            if( segments.Length == 2){
+                ushort segmentID2 = NodeID.ToNode().GetAnotherSegment(SegmentID);
+                bool startNode2 = segmentID2.ToSegment().IsStartNode(NodeID);
+                bool reverse = startNode2 == StartNode; // segment invert already is taken into account.
+                if(!reverse) {
+                    speedChange =
+                        (Segments[0].ForwardSpeedLimit != Segments[1].ForwardSpeedLimit) ||
+                        (Segments[0].BackwardSpeedLimit != Segments[1].BackwardSpeedLimit);
+                } else {
+                    speedChange =
+                        (Segments[0].ForwardSpeedLimit != Segments[1].BackwardSpeedLimit) ||
+                        (Segments[0].BackwardSpeedLimit != Segments[1].ForwardSpeedLimit);
+                }
+            } else{
+                speedChange = segments.Any(_segment2 => _segment2.MaxSpeedLimit != segments[0].MaxSpeedLimit);
+            }
+
             flags = flags.SetFlags(Flags.SpeedChange, speedChange);
-            flags = flags.SetFlags(Flags.TwoSegments, NodeID.ToNode().CountSegments() == 2);
+            flags = flags.SetFlags(Flags.TwoSegments, segments.Length == 2);
 
             m_flags = flags;
         }
