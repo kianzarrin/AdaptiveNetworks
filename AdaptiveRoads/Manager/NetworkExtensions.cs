@@ -172,8 +172,10 @@ namespace AdaptiveRoads.Manager {
 
     public struct NetSegmentExt {
         public ushort SegmentID;
-        public float SpeedLimit; // max
         public float Curve;
+        public float ForwardSpeedLimit; // max
+        public float BackwardSpeedLimit; // max
+        public float MaxSpeedLimit => Mathf.Max(ForwardSpeedLimit, BackwardSpeedLimit);
         public Flags m_flags;
 
         public void Serialize(DataSerializer s) => s.WriteInt32((int)m_flags);
@@ -227,7 +229,8 @@ namespace AdaptiveRoads.Manager {
             bool parkingLeft = false;
             bool parkingRight = false;
             float speed0 = -1;
-            float maxSpeedLimit = 0;
+            float maxForwardSpeedLimit = 0;
+            float maxBackwardSpeedLimit = 0;
             float speedLimitAcc = 0;
             int speedLaneCount = 0;
 
@@ -249,7 +252,13 @@ namespace AdaptiveRoads.Manager {
                         uniformSpeed &= laneExt.SpeedLimit == speed0;
                     speedLimitAcc += laneExt.SpeedLimit;
                     speedLaneCount++;
-                    maxSpeedLimit = Mathf.Max(maxSpeedLimit, laneExt.SpeedLimit);
+
+                    bool segmentInvert = SegmentID.ToSegment().IsInvert();
+                    if(lane.LaneInfo.IsGoingForward(segmentInvert)) {
+                        maxForwardSpeedLimit = Mathf.Max(maxForwardSpeedLimit, laneExt.SpeedLimit);
+                    }else if(lane.LaneInfo.IsGoingBackward(segmentInvert)) {
+                        maxBackwardSpeedLimit = Mathf.Max(maxBackwardSpeedLimit, laneExt.SpeedLimit);
+                    }
                 }
             }
 
@@ -259,7 +268,8 @@ namespace AdaptiveRoads.Manager {
             m_flags = m_flags.SetFlags(Flags.LeftHandTraffic, NetUtil.LHT);
 
             float averageSpeedLimit = speedLimitAcc / speedLaneCount;
-            SpeedLimit = maxSpeedLimit;
+            ForwardSpeedLimit = maxForwardSpeedLimit;
+            BackwardSpeedLimit = maxBackwardSpeedLimit;
 
             Curve = CalculateCurve();
 
@@ -425,7 +435,7 @@ namespace AdaptiveRoads.Manager {
             flags = flags.SetFlags(Flags.IsTailNode, NetUtil.GetTailNode(SegmentID) == NodeID);
 
             var segments = Segments;
-            var speedChange = segments.Any(_segment2 => _segment2.SpeedLimit != segments[0].SpeedLimit);
+            var speedChange = segments.Any(_segment2 => _segment2.MaxSpeedLimit != segments[0].MaxSpeedLimit);
             flags = flags.SetFlags(Flags.SpeedChange, speedChange);
             flags = flags.SetFlags(Flags.TwoSegments, NodeID.ToNode().CountSegments() == 2);
 

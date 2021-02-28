@@ -108,7 +108,9 @@ namespace AdaptiveRoads.Patches.Lane {
                 netLaneExt.m_flags, netSegmentExt.m_flags, segment.m_flags,
                 netNodeExtStart.m_flags, netNodeExtEnd.m_flags,
                 netSegmentStart.m_flags, netSegmentEnd.m_flags,
-                laneSpeed: netLaneExt.SpeedLimit, segmentSpeedLimit: netSegmentExt.SpeedLimit);
+                laneSpeed: netLaneExt.SpeedLimit,
+                forwardSpeedLimit: netSegmentExt.ForwardSpeedLimit,
+                backwardSpeedLimit: netSegmentExt.BackwardSpeedLimit);
         }
 
         static MethodInfo mCheckFlagsExt =>

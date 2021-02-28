@@ -335,7 +335,7 @@ namespace AdaptiveRoads.Manager {
 
             [Obsolete("for backward compatibility only", error: true)]
             private Range AverageSpeedLimit {
-                set => SegmentSpeedLimit = value;
+                set => ForwardSpeedLimit = BackwardSpeedLimit = value;
             }
 
             #endregion
@@ -375,8 +375,13 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Lane Speed Limit Range")]
             public Range LaneSpeedLimit; // null => N/A
 
-            [CustomizableProperty("Max Segment Speed Limit Range")]
-            public Range SegmentSpeedLimit; // null => N/A
+            [Hint("Max speed limit of all forward lanes")]
+            [CustomizableProperty("Forward Speed Limit Range(considering LHT/Invert)")]
+            public Range ForwardSpeedLimit; // null => N/A
+
+            [Hint("Max speed limit of all backward lanes(considering LHT/Invert)")]
+            [CustomizableProperty("Backward Speed Limit Range")]
+            public Range BackwardSpeedLimit; // null => N/A
 
             //[CustomizableProperty("Lane Curve")]
             //public Range LaneCurve; // minimum |curve| with same sign
@@ -385,14 +390,15 @@ namespace AdaptiveRoads.Manager {
             //public Range SegmentCurve;
 
             /// <param name="laneSpeed">game speed</param>
-            /// <param name="segmentSpeedLimit">game speed</param>
+            /// <param name="forwardSpeedLimit">game speed</param>
+            /// <param name="backwardSpeedLimit">game speed</param>
             public bool Check(
                 NetLaneExt.Flags laneFlags,
                 NetSegmentExt.Flags segmentFlags,
                 NetSegment.Flags vanillaSegmentFlags,
                 NetNodeExt.Flags startNodeFlags, NetNodeExt.Flags endNodeFlags,
                 NetSegmentEnd.Flags segmentStartFlags, NetSegmentEnd.Flags segmentEndFlags,
-                float laneSpeed, float segmentSpeedLimit) =>
+                float laneSpeed, float forwardSpeedLimit, float backwardSpeedLimit) =>
                 LaneFlags.CheckFlags(laneFlags) &&
                 SegmentFlags.CheckFlags(segmentFlags) &&
                 VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags) &&
@@ -401,7 +407,8 @@ namespace AdaptiveRoads.Manager {
                 StartNodeFlags.CheckFlags(startNodeFlags) &&
                 EndNodeFlags.CheckFlags(endNodeFlags) &&
                 LaneSpeedLimit.CheckRange(laneSpeed) &&
-                SegmentSpeedLimit.CheckRange(segmentSpeedLimit);
+                ForwardSpeedLimit.CheckRange(forwardSpeedLimit) &&
+                BackwardSpeedLimit.CheckRange(backwardSpeedLimit);
         }
 
         #endregion
