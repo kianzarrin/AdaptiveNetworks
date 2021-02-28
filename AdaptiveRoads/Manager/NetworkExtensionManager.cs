@@ -238,7 +238,7 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
-        public void UpdateSegment(ushort segmentID, ushort fromNodeID = 0, int level = 0) {
+        public void UpdateSegment(ushort segmentID, ushort fromNodeID = 0, int level = -1) {
             Log.Debug($"mark segment:{segmentID} for update level={level}" /*+ Environment.StackTrace*/);
             m_updatedSegments[segmentID >> 6] |= 1UL << (int)segmentID;
             m_segmentsUpdated = true;
