@@ -241,7 +241,7 @@ namespace AdaptiveRoads.Manager {
                         parkingRight = true;
                 }
                 if(lane.LaneInfo.m_laneType.IsFlagSet(SpeedLimitManager.LANE_TYPES) &&
-                    lane.LaneInfo.m_vehicleType.IsFlagSet(SpeedLimitManager.VEHICLE_TYPES)) {
+                   lane.LaneInfo.m_vehicleType.IsFlagSet(SpeedLimitManager.VEHICLE_TYPES)) {
                     if(speed0 == -1)
                         speed0 = laneExt.SpeedLimit;
                     else
@@ -255,6 +255,7 @@ namespace AdaptiveRoads.Manager {
             m_flags = m_flags.SetFlags(Flags.LeftHandTraffic, NetUtil.LHT);
 
 
+            TMPEHelpers.GetMaxSpeedLimit(SegmentID, out ForwardSpeedLimit, out BackwardSpeedLimit);
 
             Curve = CalculateCurve();
 
@@ -429,7 +430,7 @@ namespace AdaptiveRoads.Manager {
                 TMPEHelpers.GetMaxSpeedLimit(SegmentID, out float forward, out float backward);
                 TMPEHelpers.GetMaxSpeedLimit(segmentID2, out float forward2, out float backward2);
                 if(!reverse) {
-                    speedChange = (forward  != forward2) || (backward != backward2);
+                    speedChange = (forward != forward2) || (backward != backward2);
                 } else {
                     speedChange = (forward != backward2) || (backward != forward2);
                 }
