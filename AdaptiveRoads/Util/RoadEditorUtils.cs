@@ -12,6 +12,7 @@ using static AdaptiveRoads.Util.DPTHelpers;
 using static KianCommons.ReflectionHelpers;
 using Object = UnityEngine.Object;
 using HarmonyLib;
+using UnityEngine;
 
 namespace AdaptiveRoads.Util {
     internal static class RoadEditorUtils {
@@ -44,7 +45,7 @@ namespace AdaptiveRoads.Util {
 
         static void SelectDPT(UICustomControl dpt) {
             try {
-                ToggleDPTColor(dpt, true);
+                SetDPTColor(dpt, SELECT_COLOR);
                 SelectedDPTs.Add(dpt);
             } catch (Exception ex) {
                 Log.Exception(ex);
@@ -65,6 +66,16 @@ namespace AdaptiveRoads.Util {
                 } catch { }
             }
             SelectedDPTs.Clear();
+        }
+
+        static Color SELECT_COLOR = new Color32(188, 255, 206, 255);
+        public static void SetDPTColor(UICustomControl dpt, Color c) {
+            var m_SelectButton = GetDPTSelectButton(dpt);
+            m_SelectButton.color = c;
+            m_SelectButton.focusedColor = c;
+            m_SelectButton.hoveredColor = c;
+            m_SelectButton.pressedColor = c;
+            m_SelectButton.disabledColor = c;
         }
 
         public static void OnDPTMoreOptions(UICustomControl dpt) {
