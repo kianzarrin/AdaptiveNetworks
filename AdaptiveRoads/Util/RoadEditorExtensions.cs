@@ -134,16 +134,15 @@ namespace AdaptiveRoads.Util {
         internal static UIButton GetDPTSelectButton(UICustomControl dpt) =>
             dpt.GetFieldValue<UIButton>("m_SelectButton");
 
-        // gets the element in array the DPT represents.
+        /// <summary>gets the element in array the DPT represents.</summary>
         internal static object GetDPTTargetElement(UICustomControl dpt) =>
             dpt.GetFieldValue<object>("m_TargetElement");
 
-        /// <summary>
-        /// gets the object that contains the array (m_field)
-        /// </summary>
+        /// <summary>gets the object that contains the array (m_field)</summary>
         internal static object GetDPTTargetObject(UICustomControl dpt) =>
             dpt.GetFieldValue<object>("m_TargetObject");
 
+        /// <summary>gets the array field(m_field)</summary>
         internal static FieldInfo GetDPTField(UICustomControl dpt) =>
             dpt.GetFieldValue<object>("m_Field") as FieldInfo;
 

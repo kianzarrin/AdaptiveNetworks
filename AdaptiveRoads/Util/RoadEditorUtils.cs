@@ -2,25 +2,169 @@ using AdaptiveRoads.Manager;
 using AdaptiveRoads.UI.RoadEditor;
 using AdaptiveRoads.UI.RoadEditor.MenuStyle;
 using ColossalFramework.UI;
+using HarmonyLib;
 using KianCommons;
 using PrefabMetadata.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEngine;
 using static AdaptiveRoads.Util.DPTHelpers;
 using static KianCommons.ReflectionHelpers;
 using Object = UnityEngine.Object;
-using HarmonyLib;
-using UnityEngine;
 
 namespace AdaptiveRoads.Util {
+    internal static class DPTDrag {
+        static UIPanel Bar;
+
+        public static void OnDragStart(UICustomControl dpt, UIDragEventParameter eventParam) {
+            if(RoadEditorUtils.IsDPTSelected(dpt)) {
+                LogCalled();
+                eventParam.Use();
+                eventParam.state = UIDragDropState.Dragging;
+
+                var groupPanel = dpt.GetComponentInParent<RoadEditorCollapsiblePanel>();
+                groupPanel.m_Panel.eventDragLeave -= OnLeave;
+                groupPanel.m_Panel.eventDragEnter -= OnEnter;
+                groupPanel.m_Panel.eventDragOver -= OnOver;
+                groupPanel.m_Panel.eventDragDrop -= OnDrop;
+                groupPanel.m_Panel.eventDragLeave += OnLeave;
+                groupPanel.m_Panel.eventDragEnter += OnEnter;
+                groupPanel.m_Panel.eventDragOver += OnOver;
+                groupPanel.m_Panel.eventDragDrop += OnDrop;
+
+                Log.Debug("creating `Add from template` button");
+                Bar = groupPanel.Container.AddUIComponent<UIPanel>();
+                Bar.width = groupPanel.m_Panel.width;
+                Bar.height = 1;
+                Bar.backgroundSprite = "TextFieldPanel";
+                Bar.atlas = KianCommons.UI.TextureUtil.Ingame;
+                Bar.color = Color.red;
+                Bar.name = "ARDragPointer";
+                Bar.Show();
+                Bar.zOrder = CalculateZOrder(groupPanel, eventParam);
+                Bar.zOrder = CalculateZOrder(groupPanel, eventParam);
+
+                // disable moving dpts
+                foreach(var selectedDPT in RoadEditorUtils.SelectedDPTs) {
+                    selectedDPT.component.isEnabled = false;
+                    selectedDPT.component.opacity = 0.5f;
+                }
+            }
+        }
+
+        static void OnLeave(UIComponent _, UIDragEventParameter __) => Bar?.Hide();
+        static void OnEnter(UIComponent _, UIDragEventParameter __) => Bar?.Show();
+
+        static void OnOver(UIComponent c, UIDragEventParameter e) {
+            try {
+                LogCalled();
+                e.Use();
+                var groupPanel = c.GetComponentInParent<RoadEditorCollapsiblePanel>();
+
+                Bar.zOrder = CalculateZOrder(groupPanel, e);
+                Bar.zOrder = CalculateZOrder(groupPanel, e);
+
+                Bar.isVisible = true;
+            } catch(Exception ex) {
+                Log.Exception(ex);
+            }
+        }
+
+        static void OnDrop(UIComponent c, UIDragEventParameter e) {
+            try {
+                LogCalled();
+                var groupPanel = c.GetComponentInParent<RoadEditorCollapsiblePanel>();
+                int z = Bar.zOrder;
+                foreach(var dpt in RoadEditorUtils.SelectedDPTsSorted) {
+                    dpt.component.zOrder = z;
+                    z = dpt.component.zOrder; // put next dpt after this
+                }
+
+                RearrangeArray(groupPanel);
+                e.Use();
+                e.state = UIDragDropState.Dropped;
+            } catch(Exception ex) {
+                Log.Exception(ex);
+            }
+        }
+
+        public static void OnDragEnd(UICustomControl dpt, UIDragEventParameter e) {
+            try {
+                LogCalled();
+                e.Use();
+                GameObject.Destroy(Bar?.gameObject);
+                Bar = null;
+                foreach(var selectedDPT in RoadEditorUtils.SelectedDPTsSorted) {
+                    selectedDPT.component.isEnabled = true;
+                    selectedDPT.component.opacity = 1;
+                }
+
+                var groupPanel = dpt.GetComponentInParent<RoadEditorCollapsiblePanel>();
+                groupPanel.m_Panel.eventDragLeave -= OnLeave;
+                groupPanel.m_Panel.eventDragEnter -= OnEnter;
+                groupPanel.m_Panel.eventDragOver -= OnOver;
+                groupPanel.m_Panel.eventDragDrop -= OnDrop;
+
+            } catch(Exception ex) {
+                Log.Exception(ex);
+            }
+
+        }
+
+        /// <summary>
+        /// rearange group's array based on zorder of the DPTs
+        /// </summary>
+        public static void RearrangeArray(RoadEditorCollapsiblePanel groupPanel) {
+            try {
+                var ar = groupPanel.GetArray().Clone() as Array; // shallow clone
+                var sortedDPTs = SortedDPTs(groupPanel);
+                for(int i = 0; i < sortedDPTs.Length; ++i) {
+                    var element = GetDPTTargetElement(sortedDPTs[i]);
+                    ar.SetValue(element, i);
+                }
+                groupPanel.SetArray(ar);
+            } catch(Exception ex) {
+                Log.Exception(ex);
+                throw ex;
+            }
+        }
+
+        static int CalculateZOrder(RoadEditorCollapsiblePanel groupPanel, UIDragEventParameter _) {
+            var dpts = SortedDPTs(groupPanel);
+            float mouseY = RoadEditorUtils.MouseGUIPosition().y;
+            //Log.Debug(ThisMethod + "mouseY = " + mouseY);
+            foreach(var dpt in dpts) {
+                float dptY = dpt.component.absolutePosition.y + dpt.component.height;
+                if(mouseY < dptY)
+                    return Mathf.Max(dpt.component.zOrder - 1, 0);
+            }
+            int lastZOrder = dpts[dpts.Length - 1].component.zOrder;
+            return lastZOrder+1;
+        }
+
+        static UICustomControl[] SortedDPTs(RoadEditorCollapsiblePanel groupPanel) {
+            var dpts = groupPanel.GetComponentsInChildren(DPTType).Cast<UICustomControl>();
+            return dpts.OrderBy(_dpt => _dpt.component.zOrder).ToArray();
+        }
+    }
+
     internal static class RoadEditorUtils {
+        public static Vector3 MouseGUIPosition() {
+            var uiView = UIView.GetAView();
+            return uiView.ScreenPointToGUI(Input.mousePosition / uiView.inputScale);
+        }
+
         public static List<UICustomControl> SelectedDPTs = new List<UICustomControl>();
+        public static IOrderedEnumerable<UICustomControl> SelectedDPTsSorted =>
+            SelectedDPTs.OrderBy(_dpt => _dpt.component.zOrder);
+
+        public static bool IsDPTSelected(UICustomControl dpt) => SelectedDPTs.Contains(dpt);
 
         public static void OnToggleDPT(UICustomControl dpt) {
             VerifySelectedDPTs(dpt);
-            if (SelectedDPTs.Contains(dpt))
+            if(IsDPTSelected(dpt))
                 DeselectDPT(dpt);
             else
                 SelectDPT(dpt);
@@ -32,14 +176,14 @@ namespace AdaptiveRoads.Util {
         /// </summary>
         public static void VerifySelectedDPTs(UICustomControl dpt) {
             bool predicateRemove(UICustomControl dpt2) {
-                if (!dpt2 || !dpt2.isActiveAndEnabled) return true;
+                if(!dpt2 || !dpt2.isActiveAndEnabled) return true;
                 var target1 = GetDPTTargetObject(dpt);
                 var target2 = GetDPTTargetObject(dpt2);
                 Log.Debug($"target1={target1} and target2={target2}");
                 return target1 != target2;
             }
             var removeDPTs = SelectedDPTs.Where(predicateRemove).ToList();
-            foreach (var dpt3 in removeDPTs)
+            foreach(var dpt3 in removeDPTs)
                 DeselectDPT(dpt3);
         }
 
@@ -47,7 +191,7 @@ namespace AdaptiveRoads.Util {
             try {
                 SetDPTColor(dpt, SELECT_COLOR);
                 SelectedDPTs.Add(dpt);
-            } catch (Exception ex) {
+            } catch(Exception ex) {
                 Log.Exception(ex);
             }
         }
@@ -60,7 +204,7 @@ namespace AdaptiveRoads.Util {
         }
 
         public static void DeselectAllDPTs() {
-            foreach (var dpt in SelectedDPTs) {
+            foreach(var dpt in SelectedDPTs) {
                 try {
                     ToggleDPTColor(dpt, false);
                 } catch { }
@@ -81,7 +225,7 @@ namespace AdaptiveRoads.Util {
         public static void OnDPTMoreOptions(UICustomControl dpt) {
             Log.Debug("OnDPTMoreOptions() called");
             VerifySelectedDPTs(dpt);
-            if (!SelectedDPTs.Contains(dpt)) {
+            if(!SelectedDPTs.Contains(dpt)) {
                 DeselectAllDPTs();
             }
 
@@ -94,12 +238,12 @@ namespace AdaptiveRoads.Util {
             object target = GetDPTTargetObject(dpt);
             object element = GetDPTTargetElement(dpt);
             IEnumerable<object> elements;
-            if (SelectedDPTs.Any())
+            if(SelectedDPTs.Any())
                 elements = SelectedDPTs.Select(_dpt => GetDPTTargetElement(_dpt));
             else
                 elements = new object[] { element };
 
-            if (target is NetLaneProps netLaneProps
+            if(target is NetLaneProps netLaneProps
                 && element is NetLaneProps.Prop) {
                 var lane = sidePanel.GetTarget() as NetInfo.Lane;
                 Assertion.AssertNotNull(lane, "sidePanel.target is lane");
@@ -117,8 +261,8 @@ namespace AdaptiveRoads.Util {
                     AddProps(groupPanel, cloned_props.ToArray());
                 });
 
-                if (cloned_props.Any(_p => _p.CanInvert())) {
-                    string hint =  HintExtension.GetHintSwichLHT_RHT(unidirectional);
+                if(cloned_props.Any(_p => _p.CanInvert())) {
+                    string hint = HintExtension.GetHintSwichLHT_RHT(unidirectional);
                     panel.AddButton(
                         "LHT duplicate" + strAll,
                         hint,
@@ -137,18 +281,18 @@ namespace AdaptiveRoads.Util {
                     ClipBoard.SetData(cloned_props);
                 });
                 panel.AddButton("Copy" + strAll + " to other elevations", null, delegate () {
-                    foreach (var item in cloned_props)
+                    foreach(var item in cloned_props)
                         PropHelpers.CopyPropsToOtherElevations(item);
                 });
                 panel.AddButton("Add" + strAll + " to Template", null, delegate () {
                     SaveTemplatePanel.Display(cloned_props);
                 });
-                if (cloned_props.Count() >= 2) {
+                if(cloned_props.Count() >= 2) {
                     panel.AddButton("Displace all", null, delegate () {
                         DisplaceAll(original_props);
                     });
                 }
-            } else if (element is NetInfo.Lane lane && lane.HasProps()
+            } else if(element is NetInfo.Lane lane && lane.HasProps()
                 && target == NetInfoExtionsion.EditedNetInfo) {
                 var panel = MiniPanel.Display();
                 var m_lanes = NetInfoExtionsion.EditedNetInfo.m_lanes;
@@ -157,7 +301,7 @@ namespace AdaptiveRoads.Util {
                     "Copy props to other elevation",
                     "appends props to equivalent lane on other elevations",
                     delegate () {
-                        foreach (var laneIndex in laneIndeces) {
+                        foreach(var laneIndex in laneIndeces) {
                             PropHelpers.CopyPropsToOtherElevations(
                                 laneIndex: laneIndex, clear: false);
                         }
@@ -167,12 +311,11 @@ namespace AdaptiveRoads.Util {
                     "clears props from other elevations before\n" +
                     "copying props to equivalent lane on other elevations",
                     delegate () {
-                        foreach (var laneIndex in laneIndeces) {
+                        foreach(var laneIndex in laneIndeces) {
                             PropHelpers.CopyPropsToOtherElevations(
                                 laneIndex: laneIndex, clear: true);
                         }
                     });
-
             }
         }
 
@@ -191,7 +334,7 @@ namespace AdaptiveRoads.Util {
             NetLaneProps.Prop[] props) {
             try {
                 Log.Debug("AddProps called");
-                if (props == null || props.Length == 0) return;
+                if(props == null || props.Length == 0) return;
                 NetLaneProps.Prop[] m_props = groupPanel.GetArray() as NetLaneProps.Prop[];
                 props = props.Select(_p => _p.Extend().Base).ToArray();
                 var m_props2 = m_props.AddRangeToArray(props);
@@ -202,11 +345,11 @@ namespace AdaptiveRoads.Util {
 
                 Log.Debug($"Adding props {props.Length}+{m_props.Length}={m_props2.Length}");
                 groupPanel.SetArray(m_props2);
-                foreach (var prop in props) {
+                foreach(var prop in props) {
                     sidePanel.AddToArrayField(groupPanel, prop, arrayField, target);
                 }
                 sidePanel.OnObjectModified();
-            } catch (Exception ex) {
+            } catch(Exception ex) {
                 Log.Exception(ex);
             }
         }
@@ -227,7 +370,7 @@ namespace AdaptiveRoads.Util {
 
         public static void DisplaceAll(IEnumerable<NetLaneProps.Prop> props, float z) {
             Log.Debug(ThisMethod + $" props={props.ToSTR()} z={z}");
-            foreach (var prop in props)
+            foreach(var prop in props)
                 prop.Displace(z);
             LogSucceeded();
         }
@@ -235,7 +378,7 @@ namespace AdaptiveRoads.Util {
         public static void RefreshRoadEditor() {
             try {
                 var mainPanel = Object.FindObjectOfType<RoadEditorMainPanel>();
-                if (mainPanel) {
+                if(mainPanel) {
                     InvokeMethod(mainPanel, "OnObjectModified");
                     InvokeMethod(mainPanel, "Clear");
                     InvokeMethod(mainPanel, "Initialize");
@@ -243,7 +386,7 @@ namespace AdaptiveRoads.Util {
                 }
                 MenuPanelBase.CloseAll();
                 MiniPanel.CloseAll();
-            } catch (Exception ex) {
+            } catch(Exception ex) {
                 Log.Exception(ex);
             }
         }

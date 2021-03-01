@@ -8,6 +8,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using static KianCommons.ReflectionHelpers;
     using static Util.DPTHelpers;
     using AdaptiveRoads.UI.RoadEditor;
+    using AdaptiveRoads.Util;
 
     /// <summary>
     /// highlight lanes
@@ -25,15 +26,18 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             ___m_DeleteButton.eventMouseEnter -= OnMouseEnter;
             ___m_SelectButton.eventMouseLeave -= OnMouseLeave;
             ___m_DeleteButton.eventMouseLeave -= OnMouseLeave;
-            ___m_SelectButton.eventMouseDown -= OnMouseDown;
+            ___m_SelectButton.eventMouseUp -= OnMouseUp;
 
             ___m_SelectButton.eventMouseEnter += OnMouseEnter;
             ___m_DeleteButton.eventMouseEnter += OnMouseEnter;
             ___m_SelectButton.eventMouseLeave += OnMouseLeave;
             ___m_DeleteButton.eventMouseLeave += OnMouseLeave;
 
-            ___m_SelectButton.eventMouseDown += OnMouseDown;
+            ___m_SelectButton.eventMouseUp += OnMouseUp;
             ___m_SelectButton.buttonsMask |= UIMouseButton.Right;
+
+            ___m_SelectButton.eventDragStart += OnDragStart;
+            ___m_SelectButton.eventDragEnd += OnDragEnd;
         }
 
         static void OnMouseEnter(UIComponent component, UIMouseEventParameter eventParam) {
@@ -50,7 +54,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
         }
 
-        static void OnMouseDown(UIComponent component, UIMouseEventParameter eventParam) {
+        static void OnMouseUp(UIComponent component, UIMouseEventParameter eventParam) {
             try {
                 UICustomControl dpt = GetDPTInParent(component);
                 bool right = eventParam.buttons == UIMouseButton.Right;
@@ -67,6 +71,24 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     OnDPTMoreOptions(dpt);
                 }
             }catch (Exception ex) {
+                Log.Exception(ex);
+            }
+        }
+
+        static void OnDragStart(UIComponent component, UIDragEventParameter eventParam) {
+            try {
+                UICustomControl dpt = GetDPTInParent(component);
+                DPTDrag.OnDragStart(dpt, eventParam);
+            } catch(Exception ex) {
+                Log.Exception(ex);
+            }
+        }
+
+        static void OnDragEnd(UIComponent component, UIDragEventParameter eventParam) {
+            try {
+                UICustomControl dpt = GetDPTInParent(component);
+                DPTDrag.OnDragEnd(dpt, eventParam);
+            } catch(Exception ex) {
                 Log.Exception(ex);
             }
         }
