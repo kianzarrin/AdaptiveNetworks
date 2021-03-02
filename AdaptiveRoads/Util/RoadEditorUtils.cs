@@ -333,7 +333,7 @@ namespace AdaptiveRoads.Util {
             RoadEditorCollapsiblePanel groupPanel,
             NetLaneProps.Prop[] props) {
             try {
-                Log.Debug("AddProps called");
+                Log.Debug("AddProps called, props.count=" + props.Length);
                 if(props == null || props.Length == 0) return;
                 NetLaneProps.Prop[] m_props = groupPanel.GetArray() as NetLaneProps.Prop[];
                 props = props.Select(_p => _p.Extend().Base).ToArray();
