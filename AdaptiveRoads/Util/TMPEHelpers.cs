@@ -32,7 +32,7 @@ namespace AdaptiveRoads.Util {
         public static float GetMaxSpeedLimit(ushort segmentID, NetInfo.Direction direction) {
             float ret = -1;
             foreach(var lane in NetUtil.IterateSegmentLanes(segmentID)) {
-                if(lane.IsSpeedLane() && lane.LaneInfo.m_direction == direction) {
+                if(lane.IsSpeedLane() && lane.LaneInfo.m_finalDirection == direction) {
                     ret = Mathf.Max(ret, lane.GetLaneSpeedLimit());
                 }
             }

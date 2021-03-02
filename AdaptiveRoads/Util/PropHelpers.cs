@@ -126,8 +126,7 @@ namespace AdaptiveRoads.Util {
                 propExt.VanillaSegmentFlags.Required.InvertLeftRight();
                 propExt.VanillaSegmentFlags.Forbidden.InvertLeftRight();
 
-                // not necessary becasuse I am not using final direction.
-                // Helpers.Swap(ref propExt.ForwardSpeedLimit, ref propExt.BackwardSpeedLimit);
+                Helpers.Swap(ref propExt.ForwardSpeedLimit, ref propExt.BackwardSpeedLimit);
             }
             if(TryInvertLeftRight(prop.m_prop, out var propInfoInverted))
                 prop.m_prop = prop.m_finalProp = propInfoInverted;
