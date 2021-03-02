@@ -30,9 +30,13 @@ namespace AdaptiveRoads.Util {
             lane.LaneInfo.m_vehicleType.IsFlagSet(SpeedLimitManager.VEHICLE_TYPES);
 
         public static float GetMaxSpeedLimit(ushort segmentID, NetInfo.Direction direction) {
-            return NetUtil.IterateSegmentLanes(segmentID)
-                .Where(lane => lane.IsSpeedLane() && lane.LaneInfo.m_finalDirection == direction)
-                .Max(lane => lane.GetLaneSpeedLimit());
+            float ret = -1;
+            foreach(var lane in NetUtil.IterateSegmentLanes(segmentID)) {
+                if(lane.IsSpeedLane() && lane.LaneInfo.m_finalDirection == direction) {
+                    ret = Mathf.Max(ret, lane.GetLaneSpeedLimit());
+                }
+            }
+            return ret;
         }
 
         public static void GetMaxSpeedLimit(ushort segmentID, out float forward, out float backward) {

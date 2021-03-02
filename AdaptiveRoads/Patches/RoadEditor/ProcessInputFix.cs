@@ -63,7 +63,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
             try {
                 var codes = instructions.ToCodeList();
-                int iCallDisance = codes.Search(c => c.Calls(mDistance));
+                int iCallDisance = codes.Search(c => c.Calls(mDistance), throwOnError: false);
+                if(iCallDisance < 0) return instructions; //patched somewhere else
                 int index = codes.Search(c => c.IsLdLoc(0), startIndex:iCallDisance, count:-1);
 
                 /*
