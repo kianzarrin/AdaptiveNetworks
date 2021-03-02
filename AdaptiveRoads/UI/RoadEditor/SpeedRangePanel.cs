@@ -132,6 +132,9 @@ namespace AdaptiveRoads.UI.RoadEditor {
             }else if(LowerField.containsMouse) {
                 h = h + "\nLower speed limit (inclusive).";
             }
+            var h2 = fieldInfo_.GetHints()?.JoinLines();
+            if(!string.IsNullOrEmpty(h2))
+                h = h + "\n" + h2;
 
             return h;
         }

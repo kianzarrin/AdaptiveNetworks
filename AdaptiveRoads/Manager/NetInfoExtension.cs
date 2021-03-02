@@ -375,11 +375,11 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Lane Speed Limit Range")]
             public Range LaneSpeedLimit; // null => N/A
 
-            [Hint("Max speed limit of all forward lanes(considering LHT/Invert)")]
+            [Hint("Max speed limit of all forward lanes(considering LHT)")]
             [CustomizableProperty("Forward Lanes")]
             public Range ForwardSpeedLimit; // null => N/A
 
-            [Hint("Max speed limit of all backward lanes(considering LHT/Invert)")]
+            [Hint("Max speed limit of all backward lanes(considering LHT)")]
             [CustomizableProperty("Backward Lanes")]
             public Range BackwardSpeedLimit; // null => N/A
 
