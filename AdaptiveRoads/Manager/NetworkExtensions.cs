@@ -426,7 +426,9 @@ namespace AdaptiveRoads.Manager {
             if(segmentIDs.Length == 2){
                 ushort segmentID2 = NodeID.ToNode().GetAnotherSegment(SegmentID);
                 bool startNode2 = segmentID2.ToSegment().IsStartNode(NodeID);
-                bool reverse = startNode2 == StartNode; // segment invert already is taken into account.
+                bool segmentInvert = SegmentID.ToSegment().IsInvert();
+                bool segmentInvert2 = segmentID2.ToSegment().IsInvert();
+                bool reverse = (startNode2 == StartNode) ^ (segmentInvert != segmentInvert2); 
                 TMPEHelpers.GetMaxSpeedLimit(SegmentID, out float forward, out float backward);
                 TMPEHelpers.GetMaxSpeedLimit(segmentID2, out float forward2, out float backward2);
                 if(!reverse) {
