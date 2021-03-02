@@ -32,7 +32,7 @@ namespace AdaptiveRoads.Util {
         public static float GetMaxSpeedLimit(ushort segmentID, NetInfo.Direction direction) {
             float ret = -1;
             foreach(var lane in NetUtil.IterateSegmentLanes(segmentID)) {
-                if(lane.IsSpeedLane() && lane.LaneInfo.m_finalDirection == direction) {
+                if(lane.IsSpeedLane() && lane.LaneInfo.m_direction == direction) {
                     ret = Mathf.Max(ret, lane.GetLaneSpeedLimit());
                 }
             }
@@ -42,8 +42,6 @@ namespace AdaptiveRoads.Util {
         public static void GetMaxSpeedLimit(ushort segmentID, out float forward, out float backward) {
             forward = GetMaxSpeedLimit(segmentID, NetInfo.Direction.Forward);
             backward = GetMaxSpeedLimit(segmentID, NetInfo.Direction.Backward);
-            //if(segmentID.ToSegment().IsInvert())
-            //    Helpers.Swap(ref forward, ref backward);
         }
         public static float GetMaxSpeedLimit(ushort segmentID) {
             GetMaxSpeedLimit(segmentID, out float forward, out float backward);
