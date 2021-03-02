@@ -125,6 +125,8 @@ namespace AdaptiveRoads.Util {
                 propExt.SegmentFlags.Forbidden.InvertLeftRight();
                 propExt.VanillaSegmentFlags.Required.InvertLeftRight();
                 propExt.VanillaSegmentFlags.Forbidden.InvertLeftRight();
+
+                Helpers.Swap(ref propExt.ForwardSpeedLimit, ref propExt.BackwardSpeedLimit);
             }
             if(TryInvertLeftRight(prop.m_prop, out var propInfoInverted))
                 prop.m_prop = prop.m_finalProp = propInfoInverted;
@@ -157,6 +159,7 @@ namespace AdaptiveRoads.Util {
                 propExt.VanillaSegmentFlags.Required.InvertLeftRight();
                 propExt.VanillaSegmentFlags.Forbidden.InvertLeftRight();
 
+                Helpers.Swap(ref propExt.ForwardSpeedLimit, ref propExt.BackwardSpeedLimit);
             }
         }
 

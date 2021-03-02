@@ -98,6 +98,7 @@
     <Compile Remove="Patches\TMPE\PublishSegmentChanges.cs" />
     <Compile Remove="Patches\TMPE\SetParkingAllowed.cs" />
     <Compile Remove="Patches\TMPE\UpdateSegmentEnd.cs" />
+    <Compile Remove="Util\MarkerArray.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FbxUtil\FbxConverter.cs" />
