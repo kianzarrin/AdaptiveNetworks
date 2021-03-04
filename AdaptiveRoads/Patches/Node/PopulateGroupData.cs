@@ -8,6 +8,7 @@ using System.Reflection.Emit;
 
 namespace AdaptiveRoads.Patches.Node {
     [HarmonyPatch()]
+    [InGamePatch]
     public static class PopulateGroupData {
         static string logPrefix_ = "NetNode.PopulateGroupData Transpiler: ";
 

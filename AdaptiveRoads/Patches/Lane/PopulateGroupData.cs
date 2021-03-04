@@ -9,7 +9,8 @@ using KianCommons.Patches;
 namespace AdaptiveRoads.Patches.Lane {
 
 
-    [HarmonyPatch()]
+    [HarmonyPatch]
+    [InGamePatch]
     public static class PopulateGroupData {
         static string logPrefix_ = "NetLane.PopulateGroupData Transpiler: ";
 

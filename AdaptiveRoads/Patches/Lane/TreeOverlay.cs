@@ -9,6 +9,7 @@ using ColossalFramework.Math;
 using System;
 using UnityEngine;
 using AdaptiveRoads.UI.RoadEditor;
+using System.Linq;
 
 namespace AdaptiveRoads.Patches.Lane {
     public static class TreeOverlay {
@@ -37,8 +38,9 @@ namespace AdaptiveRoads.Patches.Lane {
                 startIndex: iStFinalTree, count: -1);
             CodeInstruction ldProp = codes[iLdProp].Clone();
 
+            Log.Debug(codes.Skip(iStFinalTree).IL2STR());
             int iPosition = codes.Search(_c => _c.Calls(mPosition), startIndex: iStFinalTree);
-            int iStLocPos = codes.Search(_c => _c.IsStLoc(typeof(Vector3)), startIndex:iPosition );
+            int iStLocPos = codes.Search(_c => _c.IsStLoc(typeof(Vector3)), startIndex: iPosition);
             CodeInstruction ldPos = codes[iStLocPos].BuildLdLocFromStLoc();
 
             int iMinScale = codes.Search(_c => _c.LoadsField(f_minScale), startIndex: iStFinalTree);

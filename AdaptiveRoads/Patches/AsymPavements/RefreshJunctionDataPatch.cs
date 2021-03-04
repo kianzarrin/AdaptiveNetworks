@@ -1,4 +1,4 @@
-namespace NodeController.Patches {
+namespace AdaptiveRoads.Patches {
     using ColossalFramework;
     using HarmonyLib;
     using JetBrains.Annotations;
@@ -16,6 +16,7 @@ namespace NodeController.Patches {
     // private void NetNode.RefreshJunctionData(
     //      ushort nodeID, int segmentIndex, ushort nodeSegment, Vector3 centerPos, ref uint instanceIndex, ref RenderManager.Instance data
     [UsedImplicitly]
+    [InGamePatch]
     [HarmonyPatch]
     static class RefreshJunctionDataPatch {
         [UsedImplicitly]

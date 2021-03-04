@@ -4,6 +4,7 @@ using CitiesGameBridge.Service;
 namespace AdaptiveRoads.Patches.TMPE {
     // CitiesGameBridge.Service.NetService:
     // public void PublishSegmentChanges(ushort segmentId)
+    [InGamePatch]
     [HarmonyPatch(typeof(NetService))]
     [HarmonyPatch(nameof(NetService.PublishSegmentChanges))]
     class PublishSegmentChanges {

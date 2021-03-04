@@ -5,6 +5,7 @@ using System;
 namespace AdaptiveRoads.Patches.TMPE {
     // ParkingRestrictionsManager:
     // public bool SetParkingAllowed(ushort segmentId, NetInfo.Direction finalDir, bool flag) {
+    [InGamePatch]
     [HarmonyPatch(typeof(ParkingRestrictionsManager))]
     [HarmonyPatch(nameof(ParkingRestrictionsManager.SetParkingAllowed))]
     [HarmonyPatch(new Type[] { typeof(ushort), typeof(NetInfo.Direction), typeof(bool)})]

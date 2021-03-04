@@ -8,8 +8,9 @@ using KianCommons.Patches;
 
 namespace AdaptiveRoads.Patches.Segment {
     using JetBrains.Annotations;
-    
 
+
+    [InGamePatch]
     [HarmonyPatch()]
     public static class CalculateGroupData {
         static string logPrefix_ = "NetSegment.CalculateGroupData Transpiler: ";

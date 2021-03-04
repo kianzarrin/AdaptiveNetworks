@@ -9,6 +9,7 @@ namespace AdaptiveRoads.Patches.TMPE {
     using TrafficManager.Manager.Impl;
     using AdaptiveRoads.Util;
 
+    [InGamePatch]
     [HarmonyPatch(typeof(TrafficManager.LoadingExtension))]
     [HarmonyPatch(nameof(TrafficManager.LoadingExtension.OnLevelLoaded))]
     class OnLevelLoaded {

@@ -1,4 +1,4 @@
-namespace NodeController.Patches {
+namespace AdaptiveRoads.Patches {
     using AdaptiveRoads.Manager;
     using HarmonyLib;
     using JetBrains.Annotations;
@@ -8,6 +8,7 @@ namespace NodeController.Patches {
     /// Modifies data vectors to match asymmetric pavements.
     /// </summary>
     [UsedImplicitly]
+    [InGamePatch]
     [HarmonyPatch(typeof(NetNode), "RefreshEndData")]
     static class RefreshEndDataPatch {
         //private void NetNode.RefreshEndData

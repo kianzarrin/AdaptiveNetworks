@@ -11,6 +11,7 @@ namespace AdaptiveRoads.Patches.Node {
     
 
     [HarmonyPatch()]
+    [InGamePatch]
     public static class RenderInstance {
         static string logPrefix_ = "NetNode.RenderInstance Transpiler: ";
 
@@ -35,11 +36,13 @@ namespace AdaptiveRoads.Patches.Node {
                 // Bend node -> segment.Checkflags (does not use info flags.)
                 CheckNodeFlagsCommons.PatchCheckFlags(codes, Target, occuranceCheckFlags: 4, counterGetSegment: 2); // DC bend
 
-                NodeOverlay.Patch(codes, original, occuranceDrawMesh: 1, counterGetSegment: 2); // DC
-                NodeOverlay.Patch(codes, original, occuranceDrawMesh: 2, counterGetSegment: 1); // junction
-                NodeOverlay.Patch(codes, original, occuranceDrawMesh: 3, counterGetSegment: 0); // end
-                NodeOverlay.PatchBend(codes, original, occuranceDrawMesh: 4); // end
-                NodeOverlay.Patch(codes, original, occuranceDrawMesh: 5, counterGetSegment: 0); // DC-bend
+                if(!HelpersExtensions.InGame) {
+                    NodeOverlay.Patch(codes, original, occuranceDrawMesh: 1, counterGetSegment: 2); // DC
+                    NodeOverlay.Patch(codes, original, occuranceDrawMesh: 2, counterGetSegment: 1); // junction
+                    NodeOverlay.Patch(codes, original, occuranceDrawMesh: 3, counterGetSegment: 0); // end
+                    NodeOverlay.PatchBend(codes, original, occuranceDrawMesh: 4); // end
+                    NodeOverlay.Patch(codes, original, occuranceDrawMesh: 5, counterGetSegment: 0); // DC-bend
+                }
 
                 Log.Info(logPrefix_ + "successfully patched NetNode.RenderInstance");
                 return codes;

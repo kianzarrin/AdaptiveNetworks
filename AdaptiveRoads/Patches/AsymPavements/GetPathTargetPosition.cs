@@ -1,4 +1,4 @@
-namespace NodeController.Patches {
+namespace AdaptiveRoads.Patches {
     using ColossalFramework;
     using HarmonyLib;
     using JetBrains.Annotations;

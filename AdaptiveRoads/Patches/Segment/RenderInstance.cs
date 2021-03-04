@@ -8,8 +8,9 @@ using KianCommons.Patches;
 
 namespace AdaptiveRoads.Patches.Segment {
     using JetBrains.Annotations;
-    
 
+
+    [InGamePatch]
     [HarmonyPatch()]
     public static class RenderInstance {
         static string logPrefix_ = "NetSegment.RenderInstance Transpiler: ";
@@ -28,7 +29,9 @@ namespace AdaptiveRoads.Patches.Segment {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
                 CheckSegmentFlagsCommons.PatchCheckFlags(codes, original);
-                SegmentOverlay.Patch(codes, original);
+                if(!HelpersExtensions.InGame) {
+                    SegmentOverlay.Patch(codes, original);
+                }
                 Log.Info(logPrefix_ + "successfully patched NetSegment.RenderInstance");
                 return codes;
             }

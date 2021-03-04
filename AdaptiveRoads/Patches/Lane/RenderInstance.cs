@@ -10,7 +10,8 @@ using KianCommons.Patches;
 namespace AdaptiveRoads.Patches.Lane {
     using JetBrains.Annotations;
 
-    [HarmonyPatch()]
+    [HarmonyPatch]
+    [InGamePatch]
     public static class RenderInstance {
         static string logPrefix_ = "NetLane.RenderInstance Transpiler: ";
 
@@ -23,8 +24,10 @@ namespace AdaptiveRoads.Patches.Lane {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
                 CheckPropFlagsCommons.PatchCheckFlags(codes, Target);
-                PropOverlay.Patch(codes, Target);
-                TreeOverlay.Patch(codes, Target);
+                if(!HelpersExtensions.InGame) {
+                    PropOverlay.Patch(codes, Target);
+                    TreeOverlay.Patch(codes, Target);
+                }
                 Log.Info(logPrefix_ + "successfully patched NetLane.RenderInstance");
                 return codes;
             }

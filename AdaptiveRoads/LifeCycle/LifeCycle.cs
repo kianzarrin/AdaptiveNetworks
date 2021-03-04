@@ -83,7 +83,10 @@ namespace AdaptiveRoads.LifeCycle {
                 Log.Info("testing stack trace:\n" + Environment.StackTrace, false);
 
                 NetworkExtensionManager.Instance.OnLoad();
-                HarmonyUtil.InstallHarmony(HARMONY_ID);
+                if(HelpersExtensions.InGame)
+                    HarmonyUtil.InstallHarmony<InGamePatchAttribute>(HARMONY_ID);
+                else
+                    HarmonyUtil.InstallHarmony(HARMONY_ID);
                 NetInfoExtionsion.Ensure_EditedNetInfos();
                 HintBox.Create();
                 Log.Info("LifeCycle.Load() successfull!");

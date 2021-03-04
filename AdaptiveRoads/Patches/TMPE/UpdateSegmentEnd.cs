@@ -7,6 +7,7 @@ namespace AdaptiveRoads.Patches.TMPE {
     // CitiesGameBridge.Service.NetService:
     // public void PublishSegmentChanges(ushort segmentId)
 #pragma warning disable CS0618 // Type or member is obsolete
+    [InGamePatch]
     [HarmonyPatch(typeof(SegmentEndManager))]
     [HarmonyPatch(nameof(SegmentEndManager.UpdateSegmentEnd))]
 #pragma warning restore CS0618 // Type or member is obsolete

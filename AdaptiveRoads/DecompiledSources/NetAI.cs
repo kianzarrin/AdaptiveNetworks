@@ -5,7 +5,7 @@ using System;
 using UnityEngine;
 using KianCommons;
 
-namespace NodeController.DecompiledSources {
+namespace AdaptiveRoads.DecompiledSources {
     class NetAI2: NetAI {
         // NetAI
         public NetInfo m_info;

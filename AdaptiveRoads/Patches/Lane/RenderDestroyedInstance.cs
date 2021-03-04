@@ -10,7 +10,8 @@ using KianCommons.Patches;
 namespace AdaptiveRoads.Patches.Lane {
     using JetBrains.Annotations;
 
-    [HarmonyPatch()]
+    [HarmonyPatch]
+    [InGamePatch]
     public static class RenderDestroyedInstance {
         static string logPrefix_ = "NetLane.RenderInsRenderDestroyedInstancetance Transpiler: ";
 

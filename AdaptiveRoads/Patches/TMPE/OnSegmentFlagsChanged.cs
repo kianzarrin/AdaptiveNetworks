@@ -9,6 +9,7 @@ using System.Diagnostics;
 using TrafficManager.API.Traffic.Enums;
 
 namespace AdaptiveRoads.Patches.TMPE {
+    [InGamePatch]
     [HarmonyPatch]
     static class OnSegmentFlagsChanged {
         static IEnumerable<MethodBase> TargetMethods() {
