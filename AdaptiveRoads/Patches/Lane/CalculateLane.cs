@@ -4,7 +4,7 @@ using HarmonyLib;
 
 namespace AdaptiveRoads.Patches.Lane {
     
-    [HarmonyPatch(typeof(NetNode), nameof(NetNode.CalculateNode))]
+    //[HarmonyPatch(typeof(NetNode), nameof(NetNode.CalculateNode))]
     class CalculateLane {
         static void Postfix(ref NetNode __instance) {
             //Log.Debug("CalculateNode.PostFix() was called");

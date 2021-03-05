@@ -15,7 +15,7 @@ namespace AdaptiveRoads.Patches {
 
     // protected Vector4 CitizenAI.GetPathTargetPosition(ushort, ref CitizenInstance, ref CitizenInstance.Frame, float)
     [UsedImplicitly]
-    //[HarmonyPatch]
+    //[HarmonyPatch][InGamePatch]
     static class GetPathTargetPositionPatch {
         delegate Vector4 dGetPathTargetPosition
             (ushort instanceID, ref CitizenInstance citizenData, ref CitizenInstance.Frame frameData, float minSqrDistance);

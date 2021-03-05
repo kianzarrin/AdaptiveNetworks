@@ -6,6 +6,7 @@ namespace AdaptiveRoads.Patches.NetworkDetective {
     using System;
 
     [HarmonyPatch]
+    [InGamePatch]
     static class GetDetails {
         static MethodBase TargetMethod() {
             var asm = PluginUtil.GetNetworkDetective().GetMainAssembly();

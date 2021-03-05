@@ -6,6 +6,7 @@ namespace AdaptiveRoads.Lanes {
     [HarmonyPatch(typeof(NetAI))]
     [HarmonyPatch(nameof(NetAI.UpdateLanes))]
     [HarmonyAfter("de.viathinksoft.tmpe")]
+    [InGamePatch]
     class NetAI_UpdateLanes {
         static void Postfix(ushort segmentID) {
             if (!NetUtil.IsSegmentValid(segmentID)) return;

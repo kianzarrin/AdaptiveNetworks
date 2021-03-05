@@ -4,6 +4,7 @@ using System.Reflection;
 
 namespace AdaptiveRoads.Patches.Segment {
     [HarmonyPatch]
+    [InGamePatch]
     class NetAI_UpdateSegmentFlags {
         //public virtual void UpdateSegmentFlags(ushort segmentID, ref NetSegment data)
         static MethodInfo Target => AccessTools.DeclaredMethod(

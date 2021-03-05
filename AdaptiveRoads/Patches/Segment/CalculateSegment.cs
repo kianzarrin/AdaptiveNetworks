@@ -6,6 +6,7 @@ using AdaptiveRoads.Manager;
 namespace AdaptiveRoads.Patches.Segment {
     
     [HarmonyPatch(typeof(NetSegment), nameof(NetSegment.CalculateSegment))]
+    [InGamePatch]
     class CalculateSegment {
         static void Postfix(ref NetSegment __instance) {
             if (!__instance.IsValid())return;

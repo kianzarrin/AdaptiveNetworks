@@ -3,6 +3,7 @@ namespace AdaptiveRoads.Patches.Node {
     using HarmonyLib;
     using KianCommons;
 
+    [InGamePatch]
     [HarmonyPatch(typeof(NetNode), nameof(NetNode.CalculateNode))]
     class CalculateNode {
         static void Postfix(ref NetNode __instance) {

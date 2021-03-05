@@ -4,6 +4,7 @@ namespace AdaptiveRoads {
     using AdaptiveRoads.Manager;
 
     //[HarmonyPatch(typeof(NetAI))]
+    //[InGamePatch]
     //[HarmonyPatch(nameof(NetAI.UpdateNodeFlags))]
     class NetAI_UpdateNodeFlags {
         static void Postfix(ref NetNode data) {
