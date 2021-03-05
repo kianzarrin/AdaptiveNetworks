@@ -38,8 +38,6 @@ namespace AdaptiveRoads.Patches.Lane {
                 startIndex: iStFinalTree, count: -1);
             CodeInstruction ldProp = codes[iLdProp].Clone();
 
-            Log.Debug("Tree Overlay Patch ALL:\n" + codes.IL2STR(), false);
-            Log.Debug($"Tree Overlay Patch After {iStFinalTree}:\n" + codes.IL2STR(), false);
             int iPosition = codes.Search(_c => _c.Calls(mPosition), startIndex: iStFinalTree);
             int iStLocPos = codes.Search(_c => _c.IsStLoc(typeof(Vector3)), startIndex: iPosition);
             CodeInstruction ldPos = codes[iStLocPos].BuildLdLocFromStLoc();
