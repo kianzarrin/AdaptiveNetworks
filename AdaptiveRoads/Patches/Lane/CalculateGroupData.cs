@@ -9,6 +9,7 @@ using KianCommons.Patches;
 namespace AdaptiveRoads.Patches.Lane {
     [InGamePatch]
     [HarmonyPatch]
+    [HarmonyBefore("com.klyte.redirectors.PS")]
     public static class CalculateGroupData {
         static string logPrefix_ = "NetLane.CalculateGroupData Transpiler: ";
 

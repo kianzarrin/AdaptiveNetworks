@@ -11,6 +11,7 @@ namespace AdaptiveRoads.Patches.Lane {
 
     [HarmonyPatch]
     [InGamePatch]
+    [HarmonyBefore("com.klyte.redirectors.PS")]
     public static class PopulateGroupData {
         static string logPrefix_ = "NetLane.PopulateGroupData Transpiler: ";
 

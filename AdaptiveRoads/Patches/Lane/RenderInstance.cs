@@ -9,6 +9,7 @@ namespace AdaptiveRoads.Patches.Lane {
 
     [HarmonyPatch]
     [InGamePatch]
+    [HarmonyBefore("com.klyte.redirectors.PS")]
     public static class RenderInstance {
         static string logPrefix_ = "NetLane.RenderInstance Transpiler: ";
 
@@ -30,6 +31,7 @@ namespace AdaptiveRoads.Patches.Lane {
     } // end class
 
     [HarmonyPatch]
+    [HarmonyBefore("com.klyte.redirectors.PS")]
     public static class RenderInstanceOverlayPatch {
         static MethodBase TargetMethod() => ReflectionHelpers.GetMethod(
             typeof(NetLane), nameof(NetLane.RenderInstance));

@@ -74,7 +74,6 @@ namespace AdaptiveRoads.LifeCycle {
                 HarmonyUtil.ManualPatch(typeof(HideCrosswalksPatch), HARMONY_ID_MANUAL);
                 HideCrosswalksPatch.patched = true;
             }
-            HelpersExtensions.VERBOSE = false;
         }
 
         public static void Load() {
@@ -83,10 +82,14 @@ namespace AdaptiveRoads.LifeCycle {
                 Log.Info("testing stack trace:\n" + Environment.StackTrace, false);
 
                 NetworkExtensionManager.Instance.OnLoad();
-                if(HelpersExtensions.InGame)
+                Log.Info($"Scene={Scene} LoadMode={Mode}");
+                if(Mode == LoadMode.LoadAsset || Mode == LoadMode.NewAsset) {
+                    Log.Info("Applying in game patches");
                     HarmonyUtil.InstallHarmony<InGamePatchAttribute>(HARMONY_ID);
-                else
+                } else {
+                    Log.Info("Applying all patches");
                     HarmonyUtil.InstallHarmony(HARMONY_ID);
+                }
                 NetInfoExtionsion.Ensure_EditedNetInfos();
                 HintBox.Create();
                 Log.Info("LifeCycle.Load() successfull!");

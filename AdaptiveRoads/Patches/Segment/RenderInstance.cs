@@ -20,9 +20,6 @@ namespace AdaptiveRoads.Patches.Segment {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
                 CheckSegmentFlagsCommons.PatchCheckFlags(codes, original);
-                if(!HelpersExtensions.InGame) {
-                    SegmentOverlay.Patch(codes, original);
-                }
                 Log.Info(ReflectionHelpers.ThisMethod + " successful!");
                 return codes;
             } catch(Exception e) {
@@ -44,10 +41,7 @@ namespace AdaptiveRoads.Patches.Segment {
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, MethodBase original) {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
-                CheckSegmentFlagsCommons.PatchCheckFlags(codes, original);
-                if(!HelpersExtensions.InGame) {
-                    SegmentOverlay.Patch(codes, original);
-                }
+                SegmentOverlay.Patch(codes, original);
                 Log.Info(ReflectionHelpers.ThisMethod + " successful!");
                 return codes;
             } catch(Exception e) {
