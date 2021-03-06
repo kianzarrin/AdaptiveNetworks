@@ -1,27 +1,18 @@
-using HarmonyLib;
-using System;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Collections.Generic;
-using KianCommons;
-using KianCommons.Patches;
-
 namespace AdaptiveRoads.Patches.Segment {
-    using JetBrains.Annotations;
-
+    using HarmonyLib;
+    using KianCommons;
+    using KianCommons.Patches;
+    using System;
+    using System.Collections.Generic;
+    using System.Reflection;
 
     [InGamePatch]
     [HarmonyPatch()]
     public static class RenderInstance {
-        static string logPrefix_ = "NetSegment.RenderInstance Transpiler: ";
-
-        // private void NetSegment.RenderInstance(RenderManager.CameraInfo cameraInfo, ushort segmentID, int layerMask, NetInfo info, ref RenderManager.Instance data)
-        static MethodInfo Target => typeof(global::NetSegment).GetMethod("RenderInstance", BindingFlags.NonPublic | BindingFlags.Instance);
-
         public static MethodBase TargetMethod() {
-            var ret = Target;
+            // private void NetSegment.RenderInstance(RenderManager.CameraInfo cameraInfo, ushort segmentID, int layerMask, NetInfo info, ref RenderManager.Instance data)
+            var ret = typeof(NetSegment).GetMethod("RenderInstance", BindingFlags.NonPublic | BindingFlags.Instance); ;
             Assertion.Assert(ret != null, "did not manage to find original function to patch");
-            Log.Info(logPrefix_ + "aquired method " + ret);
             return ret;
         }
 
@@ -32,10 +23,34 @@ namespace AdaptiveRoads.Patches.Segment {
                 if(!HelpersExtensions.InGame) {
                     SegmentOverlay.Patch(codes, original);
                 }
-                Log.Info(logPrefix_ + "successfully patched NetSegment.RenderInstance");
+                Log.Info(ReflectionHelpers.ThisMethod + " successful!");
                 return codes;
+            } catch(Exception e) {
+                Log.Error(e.ToString());
+                throw e;
             }
-            catch (Exception e) {
+        }
+    } // end class
+
+    [HarmonyPatch()]
+    public static class RenderInstanceOverlayPatch {
+        public static MethodBase TargetMethod() {
+            // private void NetSegment.RenderInstance(RenderManager.CameraInfo cameraInfo, ushort segmentID, int layerMask, NetInfo info, ref RenderManager.Instance data)
+            var ret = typeof(NetSegment).GetMethod("RenderInstance", BindingFlags.NonPublic | BindingFlags.Instance); ;
+            Assertion.Assert(ret != null, "did not manage to find original function to patch");
+            return ret;
+        }
+
+        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, MethodBase original) {
+            try {
+                var codes = TranspilerUtils.ToCodeList(instructions);
+                CheckSegmentFlagsCommons.PatchCheckFlags(codes, original);
+                if(!HelpersExtensions.InGame) {
+                    SegmentOverlay.Patch(codes, original);
+                }
+                Log.Info(ReflectionHelpers.ThisMethod + " successful!");
+                return codes;
+            } catch(Exception e) {
                 Log.Error(e.ToString());
                 throw e;
             }
