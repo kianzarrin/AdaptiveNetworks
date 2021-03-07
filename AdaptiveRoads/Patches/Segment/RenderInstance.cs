@@ -8,7 +8,6 @@ namespace AdaptiveRoads.Patches.Segment {
 
     [InGamePatch]
     [HarmonyPatch()]
-    [HarmonyBefore("boformer.NetworkSkins")]
     public static class RenderInstance {
         public static MethodBase TargetMethod() {
             // private void NetSegment.RenderInstance(RenderManager.CameraInfo cameraInfo, ushort segmentID, int layerMask, NetInfo info, ref RenderManager.Instance data)
