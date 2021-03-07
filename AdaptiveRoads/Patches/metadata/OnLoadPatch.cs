@@ -10,12 +10,10 @@ namespace AdaptiveRoads.Patches.metadata {
         public static void Postfix() {
             if(ToolsModifierControl.toolController.m_templatePrefabInfo is NetInfo) {
                 if(PluginUtil.GetNetworkSkins().IsActive()) {
-                    UIView.library
-                          .ShowModal<ExceptionPanel>("ExceptionPanel")
-                          .SetMessage(
-                              "Incompatible mod",
-                              "NS2 is incompatible with AR in Road editor.",
-                              false);
+                    UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage(
+                            "Incompatible mod",
+                            "NS2 is incompatible with AR in Road editor.",
+                            false);
                 }
 
                 // don't know why but the lods do not load the first time i load an asset.
