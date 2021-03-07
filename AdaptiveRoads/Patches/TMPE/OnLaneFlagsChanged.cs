@@ -7,9 +7,9 @@ namespace AdaptiveRoads.Patches.TMPE {
     using AdaptiveRoads.Manager;
 
     [HarmonyPatch]
+    [InGamePatch]
     class OnLaneFlagsChanged {
         // private void LaneArrowManager.OnLaneChange(uint laneId) {
-        [InGamePatch]
         [HarmonyPatch(typeof(LaneArrowManager))]
         [HarmonyPatch("OnLaneChange")]
         static void Postfix(uint laneId) {

@@ -83,7 +83,7 @@ namespace AdaptiveRoads.LifeCycle {
 
                 NetworkExtensionManager.Instance.OnLoad();
                 Log.Info($"Scene={Scene} LoadMode={Mode}");
-                if(Mode == LoadMode.LoadAsset || Mode == LoadMode.NewAsset) {
+                if(Scene != "AssetEditor") {
                     Log.Info("Applying in game patches");
                     HarmonyUtil.InstallHarmony<InGamePatchAttribute>(HARMONY_ID);
                 } else {

@@ -222,7 +222,7 @@ namespace AdaptiveRoads.Manager {
         }
         #endregion
 
-        public void UpdateNode(ushort nodeID, ushort fromSegmentID = 0, int level = 0) {
+        public void UpdateNode(ushort nodeID, ushort fromSegmentID = 0, int level = -1) {
             // TODO run in order to update nodes.
             if(false) {
                 m_updatedNodes[nodeID >> 6] |= 1UL << (int)nodeID;
