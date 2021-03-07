@@ -73,6 +73,7 @@ namespace AdaptiveRoads.LifeCycle {
             if (!HideCrosswalksPatch.patched && PluginUtil.GetHideCrossings().IsActive()) {
                 HarmonyUtil.ManualPatch(typeof(HideCrosswalksPatch), HARMONY_ID_MANUAL);
                 HideCrosswalksPatch.patched = true;
+                HarmonyUtil.InstallHarmony<PreloadPatchAttribute>(HARMONY_ID_MANUAL);
             }
         }
 
@@ -88,7 +89,7 @@ namespace AdaptiveRoads.LifeCycle {
                     HarmonyUtil.InstallHarmony<InGamePatchAttribute>(HARMONY_ID);
                 } else {
                     Log.Info("Applying all patches");
-                    HarmonyUtil.InstallHarmony(HARMONY_ID);
+                    HarmonyUtil.InstallHarmony(HARMONY_ID, forbidden:typeof(PreloadPatchAttribute));
                 }
                 NetInfoExtionsion.Ensure_EditedNetInfos();
                 HintBox.Create();

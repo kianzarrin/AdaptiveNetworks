@@ -1,24 +1,20 @@
 namespace AdaptiveRoads.Patches.TMPE {
-    using AdaptiveRoads.Manager;
+    using AdaptiveRoads.Util;
     using HarmonyLib;
     using System.Reflection;
-    using TrafficManager.API.Geometry;
-    using TrafficManager.API.Manager;
-    using TrafficManager.API.Traffic.Data;
-    using TrafficManager.API.Util;
     using TrafficManager.Manager.Impl;
-    using AdaptiveRoads.Util;
 
-    [InGamePatch]
+    [PreloadPatch]
     [HarmonyPatch(typeof(TrafficManager.LoadingExtension))]
     [HarmonyPatch(nameof(TrafficManager.LoadingExtension.OnLevelLoaded))]
     class OnLevelLoaded {
         static void Postfix() {
             GeometryManager.Instance.Subscribe(observer_ as ARTMPEObsever);
+            LifeCycle.LifeCycle.Load();
         }
 
         static void Prepare(MethodBase original) {
-            if (original == null) // first call
+            if(original == null) // first call
                 observer_ = new ARTMPEObsever();
         }
         static object observer_;
