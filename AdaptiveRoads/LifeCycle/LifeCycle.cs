@@ -73,8 +73,8 @@ namespace AdaptiveRoads.LifeCycle {
             if (!HideCrosswalksPatch.patched && PluginUtil.GetHideCrossings().IsActive()) {
                 HarmonyUtil.ManualPatch(typeof(HideCrosswalksPatch), HARMONY_ID_MANUAL);
                 HideCrosswalksPatch.patched = true;
-                HarmonyUtil.InstallHarmony<PreloadPatchAttribute>(HARMONY_ID_MANUAL);
             }
+            HarmonyUtil.InstallHarmony<PreloadPatchAttribute>(HARMONY_ID_MANUAL);
         }
 
         public static void Load() {
