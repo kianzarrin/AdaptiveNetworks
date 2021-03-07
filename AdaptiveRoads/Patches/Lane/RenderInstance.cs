@@ -41,7 +41,7 @@ namespace AdaptiveRoads.Patches.Lane {
                 var codes = TranspilerUtils.ToCodeList(instructions);
                 PropOverlay.Patch(codes, original);
                 TreeOverlay.Patch(codes, original);
-                Log.Info(ReflectionHelpers.ThisMethod + " successful!");
+                Log.Info($"{ReflectionHelpers.ThisMethod} patched {original} successfully!");
                 return codes;
             } catch(Exception e) {
                 Log.Error(e.ToString());

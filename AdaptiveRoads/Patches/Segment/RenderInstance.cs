@@ -8,6 +8,7 @@ namespace AdaptiveRoads.Patches.Segment {
 
     [InGamePatch]
     [HarmonyPatch()]
+    [HarmonyBefore("boformer.NetworkSkins")]
     public static class RenderInstance {
         public static MethodBase TargetMethod() {
             // private void NetSegment.RenderInstance(RenderManager.CameraInfo cameraInfo, ushort segmentID, int layerMask, NetInfo info, ref RenderManager.Instance data)
@@ -20,7 +21,8 @@ namespace AdaptiveRoads.Patches.Segment {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
                 CheckSegmentFlagsCommons.PatchCheckFlags(codes, original);
-                Log.Info(ReflectionHelpers.ThisMethod + " successful!");
+                Log.Info($"{ReflectionHelpers.ThisMethod} patched {original} successfully!");
+                Log.Debug(codes.IL2STR());
                 return codes;
             } catch(Exception e) {
                 Log.Error(e.ToString());
@@ -42,7 +44,7 @@ namespace AdaptiveRoads.Patches.Segment {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
                 SegmentOverlay.Patch(codes, original);
-                Log.Info(ReflectionHelpers.ThisMethod + " successful!");
+                Log.Info($"{ReflectionHelpers.ThisMethod} patched {original} successfully!");
                 return codes;
             } catch(Exception e) {
                 Log.Error(e.ToString());

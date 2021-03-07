@@ -28,7 +28,7 @@ namespace AdaptiveRoads.Patches.Node {
                 CheckNodeFlagsCommons.PatchCheckFlags(codes, original, occuranceCheckFlags: 4, counterGetSegment: 2); // DC bend
 
 
-                Log.Info(ReflectionHelpers.ThisMethod + " successful!");
+                Log.Info($"{ReflectionHelpers.ThisMethod} patched {original} successfully!");
                 return codes;
             } catch(Exception e) {
                 Log.Error(e.ToString());
@@ -56,7 +56,7 @@ namespace AdaptiveRoads.Patches.Node {
                 NodeOverlay.Patch(codes, original, occuranceDrawMesh: 3, counterGetSegment: 0); // end
                 NodeOverlay.PatchBend(codes, original, occuranceDrawMesh: 4); // end
                 NodeOverlay.Patch(codes, original, occuranceDrawMesh: 5, counterGetSegment: 0); // DC-bend
-                Log.Info(ReflectionHelpers.ThisMethod + " successful!");
+                Log.Info($"{ReflectionHelpers.ThisMethod} patched {original} successfully!");
                 return codes;
             } catch(Exception e) {
                 Log.Error(e.ToString());
