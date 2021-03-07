@@ -31,7 +31,7 @@ namespace AdaptiveRoads.LifeCycle {
                         Log.Info("AssetDataExtension.OnAssetLoaded(): extracted data for " + ID_NetInfo);
                         AssertNotNull(data, "data");
                         var assetData0 = SerializationUtil.Deserialize(data, default);
-                        AssertNotNull(assetData0, "assetData0 | data version is too old");
+                        AssertNotNull(assetData0, "assetData0 | data version is too old for " + prefab);
                         var assetData = assetData0 as AssetData;
                         AssertNotNull(assetData, $"assetData: {assetData0.GetType()} is not ${typeof(AssetData)}");
                         AssetData.Load(assetData, prefab);
@@ -41,7 +41,7 @@ namespace AdaptiveRoads.LifeCycle {
                     // TODO: load stored custom road flags for intersections or buildings.
                 }
             } catch (Exception e) {
-                Log.Exception(e);
+                Log.Exception(e, $"asset:{asset} name:{name}");
             }
         }
 

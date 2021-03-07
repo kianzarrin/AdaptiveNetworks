@@ -92,20 +92,23 @@ namespace AdaptiveRoads.Manager {
 
         public void UpdateLane(LaneData lane) {
             Assertion.AssertEqual(LaneData.LaneID, lane.LaneID, "lane id");
-            LaneData = lane;
+            try {
+                LaneData = lane;
 
-            bool parkingAllowed = LaneData.LaneInfo.m_laneType == NetInfo.LaneType.Parking;
-            if(PMan != null)
-                parkingAllowed &= PMan.IsParkingAllowed(LaneData.SegmentID, LaneData.LaneInfo.m_finalDirection);
-            m_flags = m_flags.SetFlags(Flags.ParkingAllowed, parkingAllowed);
+                bool parkingAllowed = LaneData.LaneInfo.m_laneType == NetInfo.LaneType.Parking;
+                if(PMan != null)
+                    parkingAllowed &= PMan.IsParkingAllowed(LaneData.SegmentID, LaneData.LaneInfo.m_finalDirection);
+                m_flags = m_flags.SetFlags(Flags.ParkingAllowed, parkingAllowed);
 
-            if(VRMan != null) {
-                var mask = VRMan.GetAllowedVehicleTypes(
-                    segmentId: LaneData.SegmentID,
-                    segmentInfo: LaneData.Segment.Info,
-                    laneIndex: (uint)LaneData.LaneIndex,
-                    laneInfo: LaneData.LaneInfo,
-                    busLaneMode: VehicleRestrictionsMode.Configured);
+                ExtVehicleType mask = 0;
+                if(VRMan != null) {
+                    mask = VRMan.GetAllowedVehicleTypes(
+                        segmentId: LaneData.SegmentID,
+                        segmentInfo: LaneData.Segment.Info,
+                        laneIndex: (uint)LaneData.LaneIndex,
+                        laneInfo: LaneData.LaneInfo,
+                        busLaneMode: VehicleRestrictionsMode.Configured);
+                }
 
                 m_flags = m_flags.SetFlags(Flags.Car, VRMan.IsPassengerCarAllowed(mask));
                 m_flags = m_flags.SetFlags(Flags.SOS, VRMan.IsEmergencyAllowed(mask));
@@ -115,15 +118,19 @@ namespace AdaptiveRoads.Manager {
                 m_flags = m_flags.SetFlags(Flags.Service, VRMan.IsServiceAllowed(mask));
                 m_flags = m_flags.SetFlags(Flags.CargoTrain, VRMan.IsCargoTrainAllowed(mask));
                 m_flags = m_flags.SetFlags(Flags.PassengerTrain, VRMan.IsPassengerTrainAllowed(mask));
+
+                if(SLMan != null)
+                    SpeedLimit = (SLMan as SpeedLimitManager).GetGameSpeedLimit(LaneData.LaneID);
+                else
+                    SpeedLimit = lane.LaneInfo.m_speedLimit;
+
+                //TODO lane connections
+
+                //Log.Debug("NetLaneExt.UpdateLane() result: " + this);
+            } catch (Exception ex) {
+                Log.Exception(ex, this.ToString(), false);
+                throw ex;
             }
-            if(SLMan != null)
-                SpeedLimit = (SLMan as SpeedLimitManager).GetGameSpeedLimit(LaneData.LaneID);
-            else
-                SpeedLimit = lane.LaneInfo.m_speedLimit;
-
-            //TODO lane connections
-
-            //Log.Debug("NetLaneExt.UpdateLane() result: " + this);
         }
 
         public override string ToString() {
@@ -207,7 +214,7 @@ namespace AdaptiveRoads.Manager {
         public ref NetSegmentEnd End => ref NetworkExtensionManager.Instance.GetSegmentEnd(SegmentID, false);
 
         public override string ToString() =>
-            $"NetSegmentExt(SegmentID:{SegmentID} flags:{m_flags}"
+            $"NetSegmentExt(SegmentID:{SegmentID} info={SegmentID.ToSegment().Info} flags:{m_flags}"
             + $"\n\tForwardSpeedLimit:{ForwardSpeedLimit} BackwardSpeedLimit:{BackwardSpeedLimit}"
             + $"\n\tStart:{Start})" + $"\n\tEnd  :{End}";
 
@@ -224,49 +231,52 @@ namespace AdaptiveRoads.Manager {
                 //Log.Debug("Skip updating invalid segment:" + SegmentID);
                 return;
             }
-            Log.Debug($"NetSegmentExt.UpdateAllFlags() called. SegmentID={SegmentID}" /*Environment.StackTrace*/, false);
+            //Log.Debug($"NetSegmentExt.UpdateAllFlags() called. SegmentID={SegmentID}" /*Environment.StackTrace*/, false);
+            try {
+                bool parkingLeft = false;
+                bool parkingRight = false;
+                float speed0 = -1;
 
-            bool parkingLeft = false;
-            bool parkingRight = false;
-            float speed0 = -1;
+                bool uniformSpeed = true;
+                foreach(LaneData lane in NetUtil.IterateSegmentLanes(SegmentID)) {
+                    ref NetLaneExt laneExt = ref NetworkExtensionManager.Instance.LaneBuffer[lane.LaneID];
+                    laneExt.UpdateLane(lane);
+                    if(laneExt.m_flags.IsFlagSet(NetLaneExt.Flags.ParkingAllowed)) {
+                        if(lane.LeftSide)
+                            parkingLeft = true;
+                        else
+                            parkingRight = true;
+                    }
+                    if(lane.LaneInfo.m_laneType.IsFlagSet(SpeedLimitManager.LANE_TYPES) &&
+                       lane.LaneInfo.m_vehicleType.IsFlagSet(SpeedLimitManager.VEHICLE_TYPES)) {
+                        if(speed0 == -1)
+                            speed0 = laneExt.SpeedLimit;
+                        else
+                            uniformSpeed &= laneExt.SpeedLimit == speed0;
+                    }
+                }
 
-            bool uniformSpeed = true;
-            foreach(LaneData lane in NetUtil.IterateSegmentLanes(SegmentID)) {
-                ref NetLaneExt laneExt = ref NetworkExtensionManager.Instance.LaneBuffer[lane.LaneID];
-                laneExt.UpdateLane(lane);
-                if(laneExt.m_flags.IsFlagSet(NetLaneExt.Flags.ParkingAllowed)) {
-                    if(lane.LeftSide)
-                        parkingLeft = true;
-                    else
-                        parkingRight = true;
-                }
-                if(lane.LaneInfo.m_laneType.IsFlagSet(SpeedLimitManager.LANE_TYPES) &&
-                   lane.LaneInfo.m_vehicleType.IsFlagSet(SpeedLimitManager.VEHICLE_TYPES)) {
-                    if(speed0 == -1)
-                        speed0 = laneExt.SpeedLimit;
-                    else
-                        uniformSpeed &= laneExt.SpeedLimit == speed0;
-                }
+                m_flags = m_flags.SetFlags(Flags.ParkingAllowedLeft, parkingLeft);
+                m_flags = m_flags.SetFlags(Flags.ParkingAllowedRight, parkingRight);
+                m_flags = m_flags.SetFlags(Flags.UniformSpeedLimit, uniformSpeed);
+                m_flags = m_flags.SetFlags(Flags.LeftHandTraffic, NetUtil.LHT);
+
+
+                TMPEHelpers.GetMaxSpeedLimit(SegmentID, out ForwardSpeedLimit, out BackwardSpeedLimit);
+
+                Curve = CalculateCurve();
+
+                Start.UpdateFlags();
+                Start.UpdateDirections();
+
+                End.UpdateFlags();
+                End.UpdateDirections();
+
+
+                //Log.Debug($"NetSegmentExt.UpdateAllFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
+            } catch (Exception ex) {
+                Log.Exception(ex, $"failed to update segment:{SegmentID} info:{SegmentID.ToSegment().Info} startNode:{Start.NodeID} endNode:{End.NodeID}");
             }
-
-            m_flags = m_flags.SetFlags(Flags.ParkingAllowedLeft, parkingLeft);
-            m_flags = m_flags.SetFlags(Flags.ParkingAllowedRight, parkingRight);
-            m_flags = m_flags.SetFlags(Flags.UniformSpeedLimit, uniformSpeed);
-            m_flags = m_flags.SetFlags(Flags.LeftHandTraffic, NetUtil.LHT);
-
-
-            TMPEHelpers.GetMaxSpeedLimit(SegmentID, out ForwardSpeedLimit, out BackwardSpeedLimit);
-
-            Curve = CalculateCurve();
-
-            Start.UpdateFlags();
-            Start.UpdateDirections();
-
-            End.UpdateFlags();
-            End.UpdateDirections();
-
-
-            Log.Debug($"NetSegmentExt.UpdateAllFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
 
         }
 
