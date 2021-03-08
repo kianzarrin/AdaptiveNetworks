@@ -90,7 +90,8 @@ namespace AdaptiveRoads.Manager {
         static IVehicleRestrictionsManager VRMan => TMPE?.VehicleRestrictionsManager;
         static ISpeedLimitManager SLMan => TMPE?.SpeedLimitManager as SpeedLimitManager;
 
-        public void UpdateLane(LaneData lane) {
+        // sometimes lane does not point to the right segmentID so its necessary to supply segmentID.
+        public void UpdateLane(LaneData lane, ushort segmentID) {
             Assertion.AssertEqual(LaneData.LaneID, lane.LaneID, "lane id");
             try {
                 LaneData = lane;
@@ -103,8 +104,8 @@ namespace AdaptiveRoads.Manager {
                 ExtVehicleType mask = 0;
                 if(VRMan != null) {
                     mask = VRMan.GetAllowedVehicleTypes(
-                        segmentId: LaneData.SegmentID,
-                        segmentInfo: LaneData.Segment.Info,
+                        segmentId: segmentID,
+                        segmentInfo: segmentID.ToSegment().Info,
                         laneIndex: (uint)LaneData.LaneIndex,
                         laneInfo: LaneData.LaneInfo,
                         busLaneMode: VehicleRestrictionsMode.Configured);
@@ -240,7 +241,7 @@ namespace AdaptiveRoads.Manager {
                 bool uniformSpeed = true;
                 foreach(LaneData lane in NetUtil.IterateSegmentLanes(SegmentID)) {
                     ref NetLaneExt laneExt = ref NetworkExtensionManager.Instance.LaneBuffer[lane.LaneID];
-                    laneExt.UpdateLane(lane);
+                    laneExt.UpdateLane(lane, SegmentID);
                     if(laneExt.m_flags.IsFlagSet(NetLaneExt.Flags.ParkingAllowed)) {
                         if(lane.LeftSide)
                             parkingLeft = true;
