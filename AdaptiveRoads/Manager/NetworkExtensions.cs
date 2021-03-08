@@ -275,10 +275,16 @@ namespace AdaptiveRoads.Manager {
 
                 //Log.Debug($"NetSegmentExt.UpdateAllFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
             } catch (Exception ex) {
-                Log.Exception(ex, $"failed to update segment:{SegmentID} info:{SegmentID.ToSegment().Info} startNode:{Start.NodeID} endNode:{End.NodeID}");
+                Log.Exception(
+                    ex,
+                    $"failed to update segment:{SegmentID} info:{SegmentID.ToSegment().Info} " +
+                    $"startNode:{Start.NodeID} endNode:{End.NodeID}",
+                    showErrorOnce_);
+                showErrorOnce_ = false;
             }
-
         }
+
+        static bool showErrorOnce_ = true;
 
         /// <summary>
         /// Calculates Raduis of a curved segment assuming it is part of a circle.
