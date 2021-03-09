@@ -28,6 +28,7 @@ namespace AdaptiveRoads.LifeCycle {
                 KianCommons.UI.TextureUtil.EmbededResources = false;
                 HelpersExtensions.VERBOSE = false;
                 Loaded = false;
+                Log.Buffered = true;
 
                 HarmonyHelper.EnsureHarmonyInstalled();
                 //LoadingManager.instance.m_simulationDataReady += SimulationDataReady; // load/update data
