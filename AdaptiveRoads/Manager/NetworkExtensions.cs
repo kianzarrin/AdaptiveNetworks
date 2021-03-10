@@ -90,9 +90,13 @@ namespace AdaptiveRoads.Manager {
         static IVehicleRestrictionsManager VRMan => TMPE?.VehicleRestrictionsManager;
         static ISpeedLimitManager SLMan => TMPE?.SpeedLimitManager as SpeedLimitManager;
 
-        // sometimes lane does not point to the right segmentID so its necessary to supply segmentID.
+        // pass in segmentID for the sake of MOM lane problem.
         public void UpdateLane(LaneData lane, ushort segmentID) {
             Assertion.AssertEqual(LaneData.LaneID, lane.LaneID, "lane id");
+            if(lane.Lane.m_segment != 0 && lane.Lane.m_segment != segmentID) 
+                Log.Error($"lane segment mismatch: {LaneData} parentSegment:{segmentID}");
+            lane.Lane.m_segment = segmentID; // fix MOM lane issue
+
             try {
                 LaneData = lane;
 
