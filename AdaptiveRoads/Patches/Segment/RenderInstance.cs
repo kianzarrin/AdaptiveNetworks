@@ -9,19 +9,15 @@ namespace AdaptiveRoads.Patches.Segment {
     [InGamePatch]
     [HarmonyPatch()]
     public static class RenderInstance {
-        public static MethodBase TargetMethod() {
-            // private void NetSegment.RenderInstance(RenderManager.CameraInfo cameraInfo, ushort segmentID, int layerMask, NetInfo info, ref RenderManager.Instance data)
-            var ret = typeof(NetSegment).GetMethod("RenderInstance", BindingFlags.NonPublic | BindingFlags.Instance); ;
-            Assertion.Assert(ret != null, "did not manage to find original function to patch");
-            return ret;
-        }
+        // private void NetSegment.RenderInstance(RenderManager.CameraInfo cameraInfo, ushort segmentID, int layerMask, NetInfo info, ref RenderManager.Instance data)
+        public static MethodBase TargetMethod() =>
+            typeof(NetSegment).GetMethod("RenderInstance", BindingFlags.NonPublic | BindingFlags.Instance, true);
 
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, MethodBase original) {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
                 CheckSegmentFlagsCommons.PatchCheckFlags(codes, original);
                 Log.Info($"{ReflectionHelpers.ThisMethod} patched {original} successfully!");
-                Log.Debug(codes.IL2STR());
                 return codes;
             } catch(Exception e) {
                 Log.Error(e.ToString());
@@ -32,12 +28,9 @@ namespace AdaptiveRoads.Patches.Segment {
 
     [HarmonyPatch()]
     public static class RenderInstanceOverlayPatch {
-        public static MethodBase TargetMethod() {
-            // private void NetSegment.RenderInstance(RenderManager.CameraInfo cameraInfo, ushort segmentID, int layerMask, NetInfo info, ref RenderManager.Instance data)
-            var ret = typeof(NetSegment).GetMethod("RenderInstance", BindingFlags.NonPublic | BindingFlags.Instance); ;
-            Assertion.Assert(ret != null, "did not manage to find original function to patch");
-            return ret;
-        }
+        // private void NetSegment.RenderInstance(RenderManager.CameraInfo cameraInfo, ushort segmentID, int layerMask, NetInfo info, ref RenderManager.Instance data)
+        public static MethodBase TargetMethod() =>
+            typeof(NetSegment).GetMethod("RenderInstance", BindingFlags.NonPublic | BindingFlags.Instance, true); 
 
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, MethodBase original) {
             try {

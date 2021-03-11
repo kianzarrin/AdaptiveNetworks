@@ -233,10 +233,10 @@ namespace AdaptiveRoads.Manager {
 
         public void UpdateAllFlags() {
             if(!NetUtil.IsSegmentValid(SegmentID)) {
-                //Log.Debug("Skip updating invalid segment:" + SegmentID);
+                Log.Debug("Skip updating invalid segment:" + SegmentID);
                 return;
             }
-            //Log.Debug($"NetSegmentExt.UpdateAllFlags() called. SegmentID={SegmentID}" /*Environment.StackTrace*/, false);
+            Log.Debug($"NetSegmentExt.UpdateAllFlags() called. SegmentID={SegmentID}" /*Environment.StackTrace*/, false);
             try {
                 bool parkingLeft = false;
                 bool parkingRight = false;
@@ -278,7 +278,7 @@ namespace AdaptiveRoads.Manager {
                 End.UpdateDirections();
 
 
-                //Log.Debug($"NetSegmentExt.UpdateAllFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
+                Log.Debug($"NetSegmentExt.UpdateAllFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
             } catch (Exception ex) {
                 Log.Exception(
                     ex,

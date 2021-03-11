@@ -11,8 +11,6 @@ namespace AdaptiveRoads.Patches.Lane {
     [InGamePatch]
     [HarmonyBefore("com.klyte.redirectors.PS")]
     public static class RenderInstance {
-        static string logPrefix_ = "NetLane.RenderInstance Transpiler: ";
-
         // public void RenderInstance(RenderManager.CameraInfo cameraInfo, ushort segmentID, uint laneID, NetInfo.Lane laneInfo, NetNode.Flags startFlags, NetNode.Flags endFlags, Color startColor, Color endColor, float startAngle, float endAngle, bool invert, int layerMask, Vector4 objectIndex1, Vector4 objectIndex2, ref RenderManager.Instance data, ref int propIndex)
         static MethodBase TargetMethod() => ReflectionHelpers.GetMethod(
             typeof(NetLane), nameof(NetLane.RenderInstance));
@@ -21,7 +19,7 @@ namespace AdaptiveRoads.Patches.Lane {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
                 CheckPropFlagsCommons.PatchCheckFlags(codes, original);
-                Log.Info(logPrefix_ + "successfully patched NetLane.RenderInstance");
+                Log.Info($"{ReflectionHelpers.ThisMethod} patched {original} successfully!");
                 return codes;
             } catch(Exception e) {
                 Log.Error(e.ToString());

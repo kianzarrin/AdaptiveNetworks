@@ -28,7 +28,7 @@ namespace AdaptiveRoads.LifeCycle {
                 if (asset is NetInfo prefab) {
                     Log.Debug("AssetDataExtension.OnAssetLoaded():  prefab is " + prefab, false);
                     if (userData.TryGetValue(ID_NetInfo, out byte[] data)) {
-                        Log.Info("AssetDataExtension.OnAssetLoaded(): extracted data for " + ID_NetInfo);
+                        Log.Debug("AssetDataExtension.OnAssetLoaded(): extracted data for " + ID_NetInfo);
                         AssertNotNull(data, "data");
                         var assetData0 = SerializationUtil.Deserialize(data, default);
                         AssertNotNull(assetData0, "assetData0 | data version is too old for " + prefab);

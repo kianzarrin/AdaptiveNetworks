@@ -26,7 +26,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Workshop' ">
     <ContentID>2414618415</ContentID>
-    <DefineConstants>DEBUG;TRACE;</DefineConstants>
+    <DefineConstants></DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
     <ManagedDLLPath>../dependencies</ManagedDLLPath>

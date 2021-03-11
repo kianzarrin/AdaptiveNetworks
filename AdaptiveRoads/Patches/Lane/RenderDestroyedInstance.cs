@@ -13,21 +13,17 @@ namespace AdaptiveRoads.Patches.Lane {
     [HarmonyPatch]
     [InGamePatch]
     public static class RenderDestroyedInstance {
-        static string logPrefix_ = "NetLane.RenderInsRenderDestroyedInstancetance Transpiler: ";
-
         // public void RenderDestroyedInstance(RenderManager.CameraInfo cameraInfo, ushort segmentID, uint laneID,
         // NetInfo netInfo, NetInfo.Lane laneInfo, NetNode.Flags startFlags, 
-        public static MethodBase TargetMethod() => AccessTools.DeclaredMethod(
-            typeof(NetLane),
-            nameof(NetLane.RenderDestroyedInstance));
+        public static MethodBase TargetMethod() => 
+            typeof(NetLane).GetMethod(nameof(NetLane.RenderDestroyedInstance), true);
 
         public static IEnumerable<CodeInstruction> Transpiler(
             MethodBase original, IEnumerable<CodeInstruction> instructions) {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
-                CheckPropFlagsCommons.PatchCheckFlags(codes, original); 
-
-                Log.Info(logPrefix_ + "successfully patched NetLane.RenderDestroyedInstance");
+                CheckPropFlagsCommons.PatchCheckFlags(codes, original);
+                Log.Info($"{ReflectionHelpers.ThisMethod} patched {original} successfully!");
                 return codes;
             }
             catch (Exception e) {

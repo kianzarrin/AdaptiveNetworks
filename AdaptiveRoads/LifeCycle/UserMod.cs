@@ -6,7 +6,7 @@ namespace AdaptiveRoads.LifeCycle {
     public class UserMod : IUserMod {
         public static Version ModVersion => typeof(UserMod).Assembly.GetName().Version;
         public static string VersionString => ModVersion.ToString(2);
-        public string Name => "Adaptive Roads" + VersionString;
+        public string Name => "Adaptive Roads " + VersionString;
         public string Description => "fundation for roads with extra flexibality and variablity.";
 
         [UsedImplicitly]

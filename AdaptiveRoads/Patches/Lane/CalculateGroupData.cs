@@ -11,26 +11,17 @@ namespace AdaptiveRoads.Patches.Lane {
     [HarmonyPatch]
     [HarmonyBefore("com.klyte.redirectors.PS")]
     public static class CalculateGroupData {
-        static string logPrefix_ = "NetLane.CalculateGroupData Transpiler: ";
-
         //public bool CalculateGroupData(uint laneID, NetInfo.Lane laneInfo, bool destroyed, NetNode.Flags startFlags,NetNode.Flags endFlags,
         //bool invert, int layer, ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays, ref bool hasProps)
-        static MethodInfo Target => typeof(global::NetLane).
-            GetMethod("CalculateGroupData", BindingFlags.Public | BindingFlags.Instance);
+        static MethodBase TargetMethod() => typeof(global::NetLane).
+            GetMethod("CalculateGroupData", BindingFlags.Public | BindingFlags.Instance, true );
 
-        public static MethodBase TargetMethod() {
-            var ret = Target;
-            Assertion.Assert(ret != null, "did not manage to find original function to patch");
-            Log.Info(logPrefix_ + "aquired method " + ret);
-            return ret;
-        }
 
-        public static IEnumerable<CodeInstruction> Transpiler(ILGenerator il, IEnumerable<CodeInstruction> instructions) {
+        public static IEnumerable<CodeInstruction> Transpiler(MethodBase original, IEnumerable<CodeInstruction> instructions) {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
-                CheckPropFlagsCommons.PatchCheckFlags(codes, Target);
-
-                Log.Info(logPrefix_ + "successfully patched " + Target);
+                CheckPropFlagsCommons.PatchCheckFlags(codes, original);
+                Log.Info($"{ReflectionHelpers.ThisMethod} patched {original} successfully!");
                 return codes;
             }
             catch (Exception e) {
