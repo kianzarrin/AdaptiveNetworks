@@ -10,10 +10,14 @@ namespace AdaptiveRoads.LifeCycle {
     using System.Diagnostics;
     using UnityEngine.SceneManagement;
     using static KianCommons.ReflectionHelpers;
+    using AdaptiveRoads.Util;
+    using TrafficManager.Manager.Impl;
 
     public static class LifeCycle {
         public static string HARMONY_ID = "CS.Kian.AdaptiveRoads";
         public static string HARMONY_ID_MANUAL = "CS.Kian.AdaptiveRoads.Manual";
+
+        static IDisposable ObserverDisposable;
 
         public static SimulationManager.UpdateMode UpdateMode => SimulationManager.instance.m_metaData.m_updateMode;
         public static LoadMode Mode => (LoadMode)UpdateMode;
@@ -94,7 +98,10 @@ namespace AdaptiveRoads.LifeCycle {
                 }
                 NetInfoExtionsion.Ensure_EditedNetInfos();
                 HintBox.Create();
+
+                ObserverDisposable = GeometryManager.Instance.Subscribe(new ARTMPEObsever());
                 Log.Info("LifeCycle.Load() successfull!");
+
 
             } catch (Exception e) {
                 Log.Error(e.ToString() + "\n --- \n");
@@ -104,6 +111,7 @@ namespace AdaptiveRoads.LifeCycle {
 
         public static void Unload() {
             Log.Info("LifeCycle.Release() called");
+            ObserverDisposable.Dispose();
             HintBox.Release();
             HarmonyUtil.UninstallHarmony(HARMONY_ID);
             NetworkExtensionManager.Instance.OnUnload();
