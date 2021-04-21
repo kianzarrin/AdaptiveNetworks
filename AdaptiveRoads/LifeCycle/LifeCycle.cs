@@ -72,14 +72,18 @@ namespace AdaptiveRoads.LifeCycle {
 
         }
 
+        static bool preloadPatchesApplied_ = false;
         public static void Preload() {
-            Log.Info("LifeCycle.Preload() called");
-            PluginUtil.LogPlugins();
-            if (!HideCrosswalksPatch.patched && PluginUtil.GetHideCrossings().IsActive()) {
-                HarmonyUtil.ManualPatch(typeof(HideCrosswalksPatch), HARMONY_ID_MANUAL);
-                HideCrosswalksPatch.patched = true;
+            try {
+                Log.Info("LifeCycle.Preload() called");
+                PluginUtil.LogPlugins();
+                if (!preloadPatchesApplied_) {
+                    HarmonyUtil.InstallHarmony<PreloadPatchAttribute>(HARMONY_ID_MANUAL);
+                    preloadPatchesApplied_ = true;
+                }
+            } catch (Exception ex) {
+                Log.Exception(ex);
             }
-            HarmonyUtil.InstallHarmony<PreloadPatchAttribute>(HARMONY_ID_MANUAL);
         }
 
         public static void Load() {
@@ -101,11 +105,10 @@ namespace AdaptiveRoads.LifeCycle {
 
                 ObserverDisposable = GeometryManager.Instance.Subscribe(new ARTMPEObsever());
                 Log.Info("LifeCycle.Load() successfull!");
-
-
-            } catch (Exception e) {
-                Log.Error(e.ToString() + "\n --- \n");
-                throw e;
+                Log.Flush();
+            } catch (Exception ex) {
+                Log.Exception(ex);
+                throw ex;
             }
         }
 
@@ -120,7 +123,7 @@ namespace AdaptiveRoads.LifeCycle {
         public static void Exit() {
             Log.Info("LifeCycle.Exit() called");
             HarmonyUtil.UninstallHarmony(HARMONY_ID_MANUAL);
-            HideCrosswalksPatch.patched = false;
+            preloadPatchesApplied_ = false;
         }
     }
 }

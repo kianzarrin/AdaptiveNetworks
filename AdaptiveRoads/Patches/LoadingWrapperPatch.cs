@@ -7,6 +7,7 @@ namespace AdaptiveRoads.Patches {
     using System.Reflection;
 
     [HarmonyPatch(typeof(LoadingWrapper), "OnLevelLoaded")]
+    [PreloadPatch]
     public static class LoadingWrapperPatch {
         static void Finalizer(Exception __exception) {
             try {
