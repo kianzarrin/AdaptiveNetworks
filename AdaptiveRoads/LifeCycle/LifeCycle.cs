@@ -124,6 +124,7 @@ namespace AdaptiveRoads.LifeCycle {
             Log.Info("LifeCycle.Exit() called");
             HarmonyUtil.UninstallHarmony(HARMONY_ID_MANUAL);
             preloadPatchesApplied_ = false;
+            Log.Flush();
         }
     }
 }
