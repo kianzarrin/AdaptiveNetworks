@@ -51,7 +51,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             () => ClipBoard.SetData(m_props));
                             panel.AddButton("Clear all props", null,
                                 () => ClearAll(groupPanel));
-                            panel.AddButton("Save Tamplate", null, () => {
+                            panel.AddButton("Save Template", null, () => {
                                 SaveTemplatePanel.Display(m_props);
                             });
                         }
