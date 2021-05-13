@@ -5,6 +5,7 @@ namespace AdaptiveRoads.Manager {
     using System.Collections.Generic;
     using System.Linq;
     using AdaptiveRoads.Util;
+    using LifeCycle;
 
     [Serializable]
     public class NetworkExtensionManager {
@@ -17,53 +18,65 @@ namespace AdaptiveRoads.Manager {
 
         //internal ARTMPEObsever Obsever;
 
-        public void Serialize(DataSerializer s) {
-            for(ushort i = 0; i < SegmentBuffer.Length; ++i) {
-                SegmentBuffer[i].Serialize(s);
+        internal int SerializationCapacity =>
+            (NetManager.MAX_NODE_COUNT + NetManager.MAX_SEGMENT_COUNT + NetManager.MAX_LANE_COUNT) * sizeof(int);
+
+        public void Serialize(Serializer s) {
+            try {
+                for (ushort i = 0; i < SegmentBuffer.Length; ++i) {
+                    SegmentBuffer[i].Serialize(s);
+                }
+                for (int i = 0; i < SegmentEndBuffer.Length; ++i) {
+                    SegmentEndBuffer[i].Serialize(s);
+                }
+                //for (ushort i = 0; i < NodeBuffer.Length; ++i) {
+                //  NodeBuffer[i].Serialize(s);
+                //}
+                uint n = (uint)LaneBuffer.LongCount(_l => !_l.IsEmpty);
+                s.WriteUInt32(n);
+                for (uint i = 0; i < LaneBuffer.Length; ++i) {
+                    if (LaneBuffer[i].IsEmpty) continue;
+                    s.WriteUInt32(i);
+                    LaneBuffer[i].Serialize(s);
+                }
+            } catch (Exception ex) {
+                ex.Log();
             }
-            for(int i = 0; i < SegmentEndBuffer.Length; ++i) {
-                SegmentEndBuffer[i].Serialize(s);
-            }
-            //for (ushort i = 0; i < NodeBuffer.Length; ++i) {
-            //  NodeBuffer[i].Serialize(s);
-            //}
-            uint n = (uint)LaneBuffer.LongCount(_l => !_l.IsEmpty);
-            s.WriteUInt32(n);
-            for(uint i = 0; i < LaneBuffer.Length; ++i) {
-                if(LaneBuffer[i].IsEmpty) continue;
-                s.WriteUInt32(i);
-                LaneBuffer[i].Serialize(s);
+        }
+        public static void Deserialize(Serializer s) {
+            try {
+                if (s == null) {
+                    Log.Debug($"NetworkExtensionManager.Deserialize(null)");
+                    Instance = new NetworkExtensionManager();
+                } else {
+                    Log.Debug($"NetworkExtensionManager.Deserialize(s)");
+                    Instance = new NetworkExtensionManager();
+                    Instance.DeserializeImp(s);
+                }
+            } catch (Exception ex) {
+                ex.Log();
             }
         }
 
-        public static void Deserialize(DataSerializer s) {
-            if(s == null) {
-                Log.Debug($"NetworkExtensionManager.Deserialize(data=null)");
-                Instance = new NetworkExtensionManager();
-            } else {
-                Log.Debug($"NetworkExtensionManager.Deserialize(s)");
-                Instance = new NetworkExtensionManager();
-                Instance.DeserializeImp(s);
+        internal void DeserializeImp(Serializer s) {
+            try {
+                for (ushort i = 0; i < SegmentBuffer.Length; ++i) {
+                    SegmentBuffer[i].Deserialize(s);
+                }
+                for (int i = 0; i < SegmentEndBuffer.Length; ++i) {
+                    SegmentEndBuffer[i].Deserialize(s);
+                }
+                //for (ushort i = 0; i < NodeBuffer.Length; ++i) {
+                //  NodeBuffer[i].Serialize(s);
+                //}
+                uint n = s.ReadUInt32();
+                for (uint i = 0; i < n; ++i) {
+                    uint laneID = s.ReadUInt32();
+                    LaneBuffer[laneID].Deserialize(s);
+                }
+            } catch (Exception ex) {
+                ex.Log();
             }
-        }
-
-        internal void DeserializeImp(DataSerializer s) {
-            for(ushort i = 0; i < SegmentBuffer.Length; ++i) {
-                SegmentBuffer[i].Deserialize(s);
-            }
-            for(int i = 0; i < SegmentEndBuffer.Length; ++i) {
-                SegmentEndBuffer[i].Deserialize(s);
-            }
-            //for (ushort i = 0; i < NodeBuffer.Length; ++i) {
-            //  NodeBuffer[i].Serialize(s);
-            //}
-            uint n = s.ReadUInt32();
-            for(uint i = 0; i < n; ++i) {
-                uint laneID = s.ReadUInt32();
-                LaneBuffer[laneID].Deserialize(s);
-            }
-
-
         }
 
         /// <summary>

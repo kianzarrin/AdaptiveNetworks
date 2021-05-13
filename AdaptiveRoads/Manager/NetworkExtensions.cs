@@ -14,6 +14,7 @@ namespace AdaptiveRoads.Manager {
     using Log = KianCommons.Log;
     using System.Linq;
     using AdaptiveRoads.Util;
+    using LifeCycle;
 
     public static class AdvanedFlagsExtensions {
         public static bool CheckFlags(this NetLaneExt.Flags value, NetLaneExt.Flags required, NetLaneExt.Flags forbidden) =>
@@ -59,6 +60,16 @@ namespace AdaptiveRoads.Manager {
             CargoTrain = 1 << 14,
             PassengerTrain = 1 << 15,
 
+            Custom0 = 1 << 24,
+            Custom1 = 1 << 25,
+            Custom2 = 1 << 26,
+            Custom3 = 1 << 27,
+            Custom4 = 1 << 28,
+            Custom5 = 1 << 29,
+            Custom6 = 1 << 30,
+            Custom7 = 1 << 31,
+            CustomsMask = Custom0 | Custom1 | Custom2 | Custom3 | Custom4 | Custom5 | Custom6 | Custom7,
+
             // misc
             //MergesWithInnerLane = 1 << 17,
             //MergesWithOuterLane = 1 << 18,
@@ -75,9 +86,13 @@ namespace AdaptiveRoads.Manager {
 
         public LaneData LaneData;
 
-        public bool IsEmpty => m_flags == Flags.None;
-        public void Serialize(DataSerializer s) => s.WriteInt32((int)m_flags);
-        public void Deserialize(DataSerializer s) => m_flags = (Flags)s.ReadInt32();
+        const int CUSTOM_FLAG_SHIFT = 24;
+        public bool IsEmpty => (m_flags & Flags.CustomsMask) == Flags.None;
+        public void Serialize(Serializer s) => s.WriteInt32(
+            ((int)(Flags.CustomsMask & m_flags)) << CUSTOM_FLAG_SHIFT);
+        public void Deserialize(Serializer s) => m_flags =
+            (Flags)(s.ReadInt32() >> CUSTOM_FLAG_SHIFT);
+
         public void Init(uint laneID) {
             LaneData.LaneID = laneID;
             LaneData.LaneIndex = 0;
@@ -147,8 +162,13 @@ namespace AdaptiveRoads.Manager {
         public ushort NodeID;
         public Flags m_flags;
 
-        public void Serialize(DataSerializer s) => s.WriteInt32((int)m_flags);
-        public void Deserialize(DataSerializer s) => m_flags = (Flags)s.ReadInt32();
+        const int CUSTOM_FLAG_SHIFT = 24;
+        public bool IsEmpty => (m_flags & Flags.CustomsMask) == Flags.None;
+        public void Serialize(Serializer s) => s.WriteInt32(
+            ((int)(Flags.CustomsMask & m_flags)) << CUSTOM_FLAG_SHIFT);
+        public void Deserialize(Serializer s) => m_flags =
+            (Flags)(s.ReadInt32() >> CUSTOM_FLAG_SHIFT);
+
         public void Init(ushort nodeID) => NodeID = nodeID;
 
         [Flags]
@@ -162,6 +182,16 @@ namespace AdaptiveRoads.Manager {
             [Hint("all entering segment ends keep clear of the junction." +
                 "useful for drawing pattern on the junction.")]
             KeepClearAll = 1 << 1,
+
+            Custom0 = 1 << 24,
+            Custom1 = 1 << 25,
+            Custom2 = 1 << 26,
+            Custom3 = 1 << 27,
+            Custom4 = 1 << 28,
+            Custom5 = 1 << 29,
+            Custom6 = 1 << 30,
+            Custom7 = 1 << 31,
+            CustomsMask = Custom0 | Custom1 | Custom2 | Custom3 | Custom4 | Custom5 | Custom6 | Custom7,
 
             //All = -1,
         }
@@ -191,8 +221,14 @@ namespace AdaptiveRoads.Manager {
         public float MaxSpeedLimit => Mathf.Max(ForwardSpeedLimit, BackwardSpeedLimit);
         public Flags m_flags;
 
-        public void Serialize(DataSerializer s) => s.WriteInt32((int)m_flags);
-        public void Deserialize(DataSerializer s) => m_flags = (Flags)s.ReadInt32();
+        const int CUSTOM_FLAG_SHIFT = 24;
+        public bool IsEmpty => (m_flags & Flags.CustomsMask) == Flags.None;
+        public void Serialize(Serializer s) => s.WriteInt32(
+            ((int)(Flags.CustomsMask & m_flags)) << CUSTOM_FLAG_SHIFT);
+        public void Deserialize(Serializer s) => m_flags =
+            (Flags)(s.ReadInt32() >> CUSTOM_FLAG_SHIFT);
+
+
         public void Init(ushort segmentID) => SegmentID = segmentID;
 
         [Flags]
@@ -212,6 +248,17 @@ namespace AdaptiveRoads.Manager {
 
             [Hint("similar to lane inverted flag but for segment. tests if traffic drives on left (right hand drive).")]
             LeftHandTraffic = 1 << 7,
+
+            Custom0 = 1 << 24,
+            Custom1 = 1 << 25,
+            Custom2 = 1 << 26,
+            Custom3 = 1 << 27,
+            Custom4 = 1 << 28,
+            Custom5 = 1 << 29,
+            Custom6 = 1 << 30,
+            Custom7 = 1 << 31,
+            CustomsMask = Custom0 | Custom1 | Custom2 | Custom3 | Custom4 | Custom5 | Custom6 | Custom7,
+
             //All = -1,
         }
 
@@ -397,6 +444,16 @@ namespace AdaptiveRoads.Manager {
             [Hint("the junction has segments with different speed limits.\n")]
             SpeedChange = 1 << 22,
 
+            Custom0 = 1 << 24,
+            Custom1 = 1 << 25,
+            Custom2 = 1 << 26,
+            Custom3 = 1 << 27,
+            Custom4 = 1 << 28,
+            Custom5 = 1 << 29,
+            Custom6 = 1 << 30,
+            Custom7 = 1 << 31,
+            CustomsMask = Custom0 | Custom1 | Custom2 | Custom3 | Custom4 | Custom5 | Custom6 | Custom7,
+
             ALL = -1,
         }
 
@@ -408,8 +465,13 @@ namespace AdaptiveRoads.Manager {
         public NetSegmentExt[] Segments => NodeID.ToNode().IterateSegments()
             .Select(_segmentId => NetworkExtensionManager.Instance.SegmentBuffer[_segmentId]).ToArray();
 
-        public void Serialize(DataSerializer s) => s.WriteInt32((int)m_flags);
-        public void Deserialize(DataSerializer s) => m_flags = (Flags)s.ReadInt32();
+        const int CUSTOM_FLAG_SHIFT = 24;
+        public bool IsEmpty => (m_flags & Flags.CustomsMask) == Flags.None;
+        public void Serialize(Serializer s) => s.WriteInt32(
+            ((int)(Flags.CustomsMask & m_flags)) << CUSTOM_FLAG_SHIFT);
+        public void Deserialize(Serializer s) => m_flags =
+            (Flags)(s.ReadInt32() >> CUSTOM_FLAG_SHIFT);
+
         public void Init(ushort segmentID, bool startNode) {
             m_flags = Flags.None;
             SegmentID = segmentID;
