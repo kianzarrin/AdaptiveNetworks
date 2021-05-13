@@ -6,6 +6,11 @@ namespace AdaptiveRoads.Manager {
     using System.Linq;
     using AdaptiveRoads.Util;
     using LifeCycle;
+    using UnityEngine;
+
+    internal class NetworkExtensionManagerGO : Component {
+        internal NetworkExtensionManager NetworkExtensionManager => NetworkExtensionManager.Instance;
+    }
 
     [Serializable]
     public class NetworkExtensionManager {
@@ -13,10 +18,12 @@ namespace AdaptiveRoads.Manager {
         private NetworkExtensionManager() {
             InitBuffers();
         }
-        // this initalizesation maybe useful in case of a hot reload.
-        public static NetworkExtensionManager Instance { get; private set; } = new NetworkExtensionManager();
 
-        //internal ARTMPEObsever Obsever;
+        // to debug with modtools 
+        GameObject go = new GameObject(nameof(NetworkExtensionManagerGO), typeof(NetworkExtensionManagerGO));
+
+        static NetworkExtensionManager instance_;
+        public static NetworkExtensionManager Instance => instance_ ??= new NetworkExtensionManager();
 
         internal int SerializationCapacity =>
             (NetManager.MAX_NODE_COUNT + NetManager.MAX_SEGMENT_COUNT + NetManager.MAX_LANE_COUNT) * sizeof(int);
@@ -47,11 +54,11 @@ namespace AdaptiveRoads.Manager {
             try {
                 if (s == null) {
                     Log.Debug($"NetworkExtensionManager.Deserialize(null)");
-                    Instance = new NetworkExtensionManager();
+                    instance_ = new NetworkExtensionManager();
                 } else {
                     Log.Debug($"NetworkExtensionManager.Deserialize(s)");
-                    Instance = new NetworkExtensionManager();
-                    Instance.DeserializeImp(s);
+                    instance_ = new NetworkExtensionManager();
+                    instance_.DeserializeImp(s);
                 }
             } catch (Exception ex) {
                 ex.Log();
@@ -97,7 +104,8 @@ namespace AdaptiveRoads.Manager {
         }
 
         public void OnUnload() {
-            Instance = new NetworkExtensionManager();
+            GameObject.DestroyImmediate(go);
+            instance_ = null;
         }
 
         //public void OnAfterDeserialize() { }
