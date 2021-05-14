@@ -54,6 +54,10 @@ namespace AdaptiveRoads.Manager {
         public static void SetMetedata(this NetInfo netInfo, Net value) =>
             NetMetadataContainer.SetMetadata(netInfo, value);
 
+        public static void UpdateMetaData(this NetInfo netInfo) {
+            netInfo.GetMetaData()?.Update(netInfo);
+        }
+
         public static void RemoveMetadataContainer(this NetInfo netInfo) =>
             NetMetadataContainer.RemoveContainer(netInfo);
 
@@ -98,6 +102,8 @@ namespace AdaptiveRoads.Manager {
             else
                 return flags.CheckFlags(segmentInfo.m_backwardRequired, segmentInfo.m_backwardForbidden);
         }
+
+
     }
 
     public class NetMetadataContainer : MonoBehaviour {
@@ -161,6 +167,7 @@ namespace AdaptiveRoads.Manager {
         public struct SegmentInfoFlags {
             [BitMask]
             public NetSegmentExt.Flags Required, Forbidden;
+            public NetSegmentExt.Flags UsedCustomFlags => (Required | Forbidden) & NetSegmentExt.Flags.CustomsMask;
             public bool CheckFlags(NetSegmentExt.Flags flags) => flags.CheckFlags(Required, Forbidden);
         }
 
@@ -170,6 +177,7 @@ namespace AdaptiveRoads.Manager {
         public struct SegmentEndInfoFlags {
             [BitMask]
             public NetSegmentEnd.Flags Required, Forbidden;
+            public NetSegmentEnd.Flags UsedCustomFlags => (Required | Forbidden) & NetSegmentEnd.Flags.CustomsMask;
             public bool CheckFlags(NetSegmentEnd.Flags flags) => flags.CheckFlags(Required, Forbidden);
         }
 
@@ -177,6 +185,7 @@ namespace AdaptiveRoads.Manager {
         [Serializable]
         public struct NodeInfoFlags {
             public NetNodeExt.Flags Required, Forbidden;
+            public NetNodeExt.Flags UsedCustomFlags => (Required | Forbidden) & NetNodeExt.Flags.CustomsMask;
             public bool CheckFlags(NetNodeExt.Flags flags) => flags.CheckFlags(Required, Forbidden);
         }
 
@@ -185,8 +194,10 @@ namespace AdaptiveRoads.Manager {
         public struct LaneInfoFlags {
             [BitMask]
             public NetLaneExt.Flags Required, Forbidden;
+            public NetLaneExt.Flags UsedCustomFlags => (Required | Forbidden) & NetLaneExt.Flags.CustomsMask;
             public bool CheckFlags(NetLaneExt.Flags flags) => flags.CheckFlags(Required, Forbidden);
         }
+
         #endregion
 
         #region sub prefab extensions
@@ -201,11 +212,41 @@ namespace AdaptiveRoads.Manager {
             object ICloneable.Clone() => Clone();
             public Net(NetInfo template) {
                 PavementWidthRight = template.m_pavementWidth;
+                UsedCustomFlags = GetUsedCustomFlags(template);
             }
 
             [CustomizableProperty("Pavement Width Right", "Properties")]
             [Hint("must be greater than left pavement width")]
             public float PavementWidthRight;
+            public CustomFlags UsedCustomFlags;
+
+            public void Update(NetInfo template) {
+                UsedCustomFlags = GetUsedCustomFlags(template);
+            }
+
+            static CustomFlags GetUsedCustomFlags(NetInfo info) {
+                var ret = new CustomFlags();
+                foreach (var item in info.m_nodes) {
+                    if (item.GetMetaData() is var metaData)
+                        ret |= metaData.UsedCustomFlags;
+                }
+
+                foreach (var item in info.m_segments) {
+                    if (item.GetMetaData() is var metaData)
+                        ret |= metaData.UsedCustomFlags;
+                }
+
+                foreach (var lane in info.m_lanes) {
+                    var props = lane.m_laneProps?.m_props;
+                    if (props.IsNullorEmpty()) continue;
+                    foreach (var item in props) {
+                        if (item.GetMetaData() is var metaData)
+                            ret |= metaData.UsedCustomFlags;
+                    }
+                }
+
+                return ret;
+            }
         }
 
         [Serializable]
@@ -271,6 +312,11 @@ namespace AdaptiveRoads.Manager {
                 }
             }
 
+            public CustomFlags UsedCustomFlags => new CustomFlags {
+                Segment = Forward.UsedCustomFlags | Backward.UsedCustomFlags,
+                SegmentEnd = Head.UsedCustomFlags | Tail.UsedCustomFlags,
+            };
+
             [Obsolete("only useful for the purpose of shallow clone", error: true)]
             public Segment() { }
             public Segment Clone() => this.ShalowClone();
@@ -298,6 +344,12 @@ namespace AdaptiveRoads.Manager {
                 NetSegmentExt.Flags segmentFlags, NetSegment.Flags vanillaSegmentFlags) =>
                 NodeFlags.CheckFlags(nodeFlags) && SegmentEndFlags.CheckFlags(segmentEndFlags) &&
                 SegmentFlags.CheckFlags(segmentFlags) && VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags);
+
+            public CustomFlags UsedCustomFlags => new CustomFlags {
+                Segment = SegmentFlags.UsedCustomFlags,
+                SegmentEnd = SegmentEndFlags.UsedCustomFlags,
+                Node = NodeFlags.UsedCustomFlags,
+            };
 
             [Obsolete("only useful for the purpose of shallow clone", error: true)]
             public Node() { }
@@ -409,6 +461,12 @@ namespace AdaptiveRoads.Manager {
                 LaneSpeedLimit.CheckRange(laneSpeed) &&
                 ForwardSpeedLimit.CheckRange(forwardSpeedLimit) &&
                 BackwardSpeedLimit.CheckRange(backwardSpeedLimit);
+            public CustomFlags UsedCustomFlags => new CustomFlags {
+                Segment = SegmentFlags.UsedCustomFlags,
+                SegmentEnd = SegmentStartFlags.UsedCustomFlags | SegmentStartFlags.UsedCustomFlags,
+                Lane = LaneFlags.UsedCustomFlags,
+                Node = StartNodeFlags.UsedCustomFlags | EndNodeFlags.UsedCustomFlags
+            };
         }
 
         #endregion

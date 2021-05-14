@@ -7,9 +7,16 @@ namespace AdaptiveRoads.Manager {
     using AdaptiveRoads.Util;
     using LifeCycle;
     using UnityEngine;
+    using KianCommons.IImplict;
 
-    internal class NetworkExtensionManagerGO : Component {
+    internal class NetworkExtensionManagerGO : MonoBehaviour, IStartingObject, IAwakingObject, IDestroyableObject  {
+
+        public void Start() => Log.Debug("NetworkExtensionManagerGO started");
+        public void Awake() => Log.Debug("NetworkExtensionManagerGO awakened");
+        public void OnDestroy() => Log.Debug("NetworkExtensionManagerGO Destroyed");
+
         internal NetworkExtensionManager NetworkExtensionManager => NetworkExtensionManager.Instance;
+        public override string ToString() => "<NetworkExtensionManagerGO> component";
     }
 
     [Serializable]
@@ -17,6 +24,8 @@ namespace AdaptiveRoads.Manager {
         #region LifeCycle
         private NetworkExtensionManager() {
             InitBuffers();
+            GameObject.DontDestroyOnLoad(go);
+            Log.Debug("NetworkExtensionManagerGO = " + go.GetComponent<NetworkExtensionManagerGO>());
         }
 
         // to debug with modtools 

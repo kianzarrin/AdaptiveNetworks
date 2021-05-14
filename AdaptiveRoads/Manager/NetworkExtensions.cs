@@ -27,6 +27,22 @@ namespace AdaptiveRoads.Manager {
             (value & (required | forbidden)) == required;
     }
 
+    public struct CustomFlags {
+        public NetNodeExt.Flags Node;
+        public NetSegmentExt.Flags Segment;
+        public NetSegmentEnd.Flags SegmentEnd;
+        public NetLaneExt.Flags Lane;
+
+        public static CustomFlags operator |(CustomFlags lhs, CustomFlags rhs) {
+            return new CustomFlags {
+                Node = lhs.Node | rhs.Node,
+                Segment = lhs.Segment | rhs.Segment,
+                SegmentEnd = lhs.SegmentEnd | rhs.SegmentEnd,
+                Lane = lhs.Lane | rhs.Lane,
+            };
+        }
+    }
+
     public struct NetLaneExt {
         [Flags]
         public enum Flags {

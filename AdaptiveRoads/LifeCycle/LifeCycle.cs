@@ -12,6 +12,8 @@ namespace AdaptiveRoads.LifeCycle {
     using static KianCommons.ReflectionHelpers;
     using AdaptiveRoads.Util;
     using TrafficManager.Manager.Impl;
+    using AdaptiveRoads.UI.Tool;
+    using UnityEngine;
 
     public static class LifeCycle {
         public static string HARMONY_ID = "CS.Kian.AdaptiveRoads";
@@ -61,6 +63,7 @@ namespace AdaptiveRoads.LifeCycle {
         }
 
         public static void Disable() {
+            Log.Buffered = false;
             //LoadingManager.instance.m_simulationDataReady -= SimulationDataReady;
             LoadingManager.instance.m_levelPreLoaded -= Preload;
             Unload(); // in case of hot unload
@@ -96,14 +99,17 @@ namespace AdaptiveRoads.LifeCycle {
                 if(Scene != "AssetEditor") {
                     Log.Info("Applying in game patches");
                     HarmonyUtil.InstallHarmony<InGamePatchAttribute>(HARMONY_ID);
+                    HintBox.Create();
                 } else {
                     Log.Info("Applying all patches");
                     HarmonyUtil.InstallHarmony(HARMONY_ID, forbidden:typeof(PreloadPatchAttribute));
                 }
                 NetInfoExtionsion.Ensure_EditedNetInfos();
-                HintBox.Create();
 
                 ObserverDisposable = GeometryManager.Instance.Subscribe(new ARTMPEObsever());
+
+                ARTool.Create();
+
                 Log.Info("LifeCycle.Load() successfull!");
                 Log.Flush();
             } catch (Exception ex) {
@@ -113,7 +119,8 @@ namespace AdaptiveRoads.LifeCycle {
         }
 
         public static void Unload() {
-            Log.Info("LifeCycle.Release() called");
+            LogCalled();
+            ARTool.Release();
             ObserverDisposable.Dispose();
             HintBox.Release();
             HarmonyUtil.UninstallHarmony(HARMONY_ID);
@@ -121,10 +128,10 @@ namespace AdaptiveRoads.LifeCycle {
         }
 
         public static void Exit() {
+            Log.Buffered = false;
             Log.Info("LifeCycle.Exit() called");
             HarmonyUtil.UninstallHarmony(HARMONY_ID_MANUAL);
             preloadPatchesApplied_ = false;
-            Log.Flush();
         }
     }
 }

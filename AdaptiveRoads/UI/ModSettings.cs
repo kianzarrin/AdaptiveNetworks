@@ -9,6 +9,8 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using static KianCommons.EnumBitMaskExtensions;
+using UnityEngine;
+using KianCommons.UI;
 
 namespace AdaptiveRoads.UI {
     public static class ModSettings {
@@ -45,6 +47,11 @@ namespace AdaptiveRoads.UI {
 
         public static readonly SavedInt SpeedUnit = SavedInt("SpeedUnit", (int)SpeedUnitType.KPH);
 
+
+        public static SavedInputKey Hotkey = new SavedInputKey(
+            "AR_HotKey", FILE_NAME,
+            key: KeyCode.A, control: true, shift: false, alt: true, true);
+
         public static UICheckBox VanillaModeToggle;
 
         public static SavedBool GetOption(string key) {
@@ -54,7 +61,7 @@ namespace AdaptiveRoads.UI {
                 if (ret.name == key)
                     return ret;
             }
-            throw new System.ArgumentException($"option key:`{key}` does not exist.");
+            throw new ArgumentException($"option key:`{key}` does not exist.");
         }
 
         public static UICheckBox AddSavedToggle(this UIHelperBase helper, string label, SavedBool savedBool) {
@@ -74,7 +81,11 @@ namespace AdaptiveRoads.UI {
         }
 
         public static void OnSettingsUI(UIHelperBase helper) {
-            var general = helper.AddGroup("General");
+            var general = helper.AddGroup("General") as UIHelper;
+
+            var keymappingsPanel = general.AddKeymappingsPanel();
+            keymappingsPanel.AddKeymapping("Hotkey", Hotkey);
+
             VanillaModeToggle = general.AddCheckbox("Vanilla mode", !ARMode, delegate (bool vanillaMode) {
                 if (ARMode == !vanillaMode) // happens after rejecting confirmation message
                     return; // no change is necessary

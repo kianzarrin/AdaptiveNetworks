@@ -57,23 +57,23 @@
     <Reference Include="TMPE.API" />
     <Reference Include="TMPE.CitiesGameBridge" />
     <Reference Include="CSUtil.Commons" />
-    <Reference Include="System" />
+    <Reference Include="UnifiedUILib">
+      <Private>true</Private>
+      <Aliases>UnifedUILib</Aliases>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="FbxUtil\**" />
     <Compile Remove="KianCommons\**" />
     <Compile Remove="Patches\NetworkDetective\**" />
-    <Compile Remove="Resources\**" />
     <Compile Remove="UI\MainPanel\**" />
     <EmbeddedResource Remove="FbxUtil\**" />
     <EmbeddedResource Remove="KianCommons\**" />
     <EmbeddedResource Remove="Patches\NetworkDetective\**" />
-    <EmbeddedResource Remove="Resources\**" />
     <EmbeddedResource Remove="UI\MainPanel\**" />
     <None Remove="FbxUtil\**" />
     <None Remove="KianCommons\**" />
     <None Remove="Patches\NetworkDetective\**" />
-    <None Remove="Resources\**" />
     <None Remove="UI\MainPanel\**" />
   </ItemGroup>
   <ItemGroup>
@@ -101,7 +101,13 @@
     <Compile Remove="Util\MarkerArray.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Resources\back.png" />
+    <None Remove="Resources\close.png" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="FbxUtil\FbxConverter.cs" />
+    <Compile Include="KianCommons\KianCommons\IImplict\IMod.cs" />
+    <Compile Include="KianCommons\KianCommons\IImplict\IMonoBehaviour.cs" />
     <Compile Include="KianCommons\KianCommons\Math\BezierUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Math\ControlPoint2.cs" />
     <Compile Include="KianCommons\KianCommons\Math\ControlPoint3.cs" />
@@ -128,6 +134,7 @@
     <Compile Include="KianCommons\KianCommons\Serialization\Vector3Serializable.cs" />
     <Compile Include="KianCommons\KianCommons\Patches\HarmonyUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Patches\TranspilerUtils.cs" />
+    <Compile Include="KianCommons\KianCommons\Tool\KianToolBase.cs" />
     <Compile Include="KianCommons\KianCommons\UI\Helpers\UIAutoSizePanel.cs" />
     <Compile Include="KianCommons\KianCommons\UI\Helpers\UIButtonExt.cs" />
     <Compile Include="KianCommons\KianCommons\UI\Helpers\UICheckboxDropDownExt.cs" />
@@ -137,6 +144,7 @@
     <Compile Include="KianCommons\KianCommons\UI\RenderUtil.cs" />
     <Compile Include="KianCommons\KianCommons\UI\TextureUtil.cs" />
     <Compile Include="KianCommons\KianCommons\UI\UIExtensions.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\UIKeymappingsPanel.cs" />
     <Compile Include="KianCommons\KianCommons\UI\UIUtils.cs" />
     <Compile Include="KianCommons\KianCommons\Util\Assertion.cs" />
     <Compile Include="KianCommons\KianCommons\Util\EnumBitMaskExtensions.cs" />
