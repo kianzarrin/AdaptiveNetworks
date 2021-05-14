@@ -15,6 +15,8 @@ namespace AdaptiveRoads.UI.Tool {
     using UnifedUILib::UnifiedUI.Helpers;
 
     public class ARTool : KianToolBase, IStartingObject {
+        NetworkExtensionManager man_ => NetworkExtensionManager.Instance;
+
         public ushort SelectedSegmentID;
         public ushort SelectedNodeID;
         public bool SelectedStartNode => SelectedSegmentID.ToSegment().IsStartNode(SelectedNodeID);

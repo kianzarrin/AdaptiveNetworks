@@ -171,6 +171,11 @@
     <ProjectReference Include="..\prefab-metadata\PrefabMetadata.csproj" />
     <ProjectReference Include="..\PrefabMetaDataAPI\PrefabMetadataAPI.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="Resources\B.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 
   <Target Name="DeployToModDirectory" AfterTargets="Build">
@@ -179,7 +184,14 @@
       <Output TaskParameter="Assemblies" ItemName="Targets" />
     </GetAssemblyIdentity>
     <ItemGroup>
-      <AuxilaryFiles Include="$(TargetDir)PrefabMetaData*.dll;$(TargetDir)CitiesHarmony.API.dll;$(SolutionDir)\libs\FbxFormatConverter.exe" Exclude="$(TargetPath);$(TargetDir)*.pdb" />
+      <AuxilaryFiles Include="
+      $(TargetDir)PrefabMetaData*.dll;
+      $(TargetDir)CitiesHarmony.API.dll;
+      $(TargetDir)UnifiedUILib.dll;
+      $(SolutionDir)\libs\UnifiedUILib.dll.mdb;
+      (TargetDir)\*.png;
+      $(SolutionDir)\libs\FbxFormatConverter.exe;"
+      Exclude="$(TargetPath);$(TargetDir)*.pdb" />
       <VersionNumber Include="@(Targets->'%(Version)')" />
     </ItemGroup>
     <PropertyGroup>
