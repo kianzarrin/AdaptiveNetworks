@@ -28,6 +28,8 @@ namespace AdaptiveRoads.UI.Tool {
         ushort segmentID_;
         ushort nodeID_;
 
+        internal uint HighlighLaneID { get; private set; }
+
         bool SegmentEndMode => segmentID_ != 0 && nodeID_ != 0;
         bool SegmentMode => segmentID_ != 0 && nodeID_ == 0;
         bool NodeMode => segmentID_ == 0 && nodeID_ != 0;
@@ -50,14 +52,31 @@ namespace AdaptiveRoads.UI.Tool {
             base.OnDestroy();
         }
 
+        public override void Awake() {
+            try {
+                base.Awake();
+                LogCalled();
+                name = "ARMainPanel";
+
+                backgroundSprite = "MenuPanel2";
+                atlas = TextureUtil.Ingame;
+
+                autoLayout = true;
+                autoLayoutDirection = LayoutDirection.Vertical;
+                autoFitChildrenHorizontally = true;
+                autoFitChildrenVertically = true;
+                autoLayoutPadding = new RectOffset(3, 3, 3, 3);
+                padding = new RectOffset(3, 3, 3, 3);
+            } catch (Exception ex) {
+                ex.Log();
+            }
+
+        }
+
         public override void Start() {
             try {
                 base.Start();
                 LogCalled();
-                backgroundSprite = "MenuPanel2";
-
-                atlas = TextureUtil.Ingame;
-                name = "ARMainPanel";
 
                 absolutePosition = new Vector3(SavedX, SavedY);
 
@@ -125,8 +144,12 @@ namespace AdaptiveRoads.UI.Tool {
             foreach(var flag in mask.GetFlags()) {
                 LaneFlagToggle.Add(lanePanel, lane.LaneID, flag);
             }
+            lanePanel.eventMouseEnter+= (_, __) => HighlighLaneID = lane.LaneID;
+            lanePanel.eventMouseLeave += (_, __) => {
+                if (HighlighLaneID == lane.LaneID)
+                    HighlighLaneID = 0;
+            };
         }
-
 
 
         protected override void OnPositionChanged() {
@@ -145,24 +168,23 @@ namespace AdaptiveRoads.UI.Tool {
         }
 
         void Refresh() {
-            lblCaption_.relativePosition = new Vector2((width - lblCaption_.width) * 0.5f, 3);
-            FitChildrenHorizontally(3);
-            FitChildrenVertically(3);
-            dragHandle_.width = width;
+            dragHandle_.FitChildren();
+            lblCaption_.anchor = UIAnchorStyle.CenterHorizontal |  UIAnchorStyle.CenterVertical;
             Invalidate();
         }
 
         static UIPanel AddPanel(UIPanel parent) {
             Assertion.AssertNotNull(parent, "parent");
-            int pad_horizontal = 0;
-            int pad_vertical = 3;
+            int padX = 0;
+            int padY = 3;
             UIPanel newPanel = parent.AddUIComponent<UIPanel>();
             Assertion.AssertNotNull(newPanel, "newPanel");
+            newPanel.autoLayout = true;
             newPanel.autoLayoutDirection = LayoutDirection.Vertical;
             newPanel.autoFitChildrenHorizontally = true;
             newPanel.autoFitChildrenVertically = true;
-            newPanel.autoLayoutPadding = new RectOffset(pad_horizontal, pad_horizontal, pad_vertical, pad_vertical);
-            newPanel.padding = new RectOffset(pad_horizontal, pad_horizontal, pad_vertical, pad_vertical);
+            newPanel.autoLayoutPadding = new RectOffset(padX, padX, padY, padY);
+            newPanel.padding = new RectOffset(padX, padX, padY, padY);
 
             return newPanel;
         }

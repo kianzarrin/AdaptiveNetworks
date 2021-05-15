@@ -5,26 +5,29 @@ namespace AdaptiveRoads.LifeCycle {
     using System;
     using System.Collections.Generic;
     using static KianCommons.Assertion;
+    using static KianCommons.ReflectionHelpers;
     using KianCommons.Serialization;
     using AdaptiveRoads.UI;
+    using ColossalFramework.Packaging;
+    using ColossalFramework;
 
-    public class AssetDataExtension : AssetDataExtensionBase {
+    public class AssetDataExtension : IAssetDataExtension {
         public const string ID_NetInfo = "AdvancedRoadEditor_NetInfoExt";
+        public void OnCreated(IAssetData assetData) { }
+        public void OnReleased() { }
 
-        public static AssetDataExtension Instance;
-        public override void OnCreated(IAssetData assetData) {
-            base.OnCreated(assetData);
-            Instance = this;
-        }
-        public override void OnReleased() {
-            Instance = null;
-        }
+        public void OnAssetLoaded(string name, object asset, Dictionary<string, byte[]> userData) =>
+            OnAssetLoadedImpl(name, asset, userData);
 
-        public override void OnAssetLoaded(string name, object asset, Dictionary<string, byte[]> userData) {
+        // asset should be the same as ToolsModifierControl.toolController.m_editPrefabInfo
+        public void OnAssetSaved(string name, object asset, out Dictionary<string, byte[]> userData) =>
+            OnAssetSavedImpl(name, asset, out userData);
+
+        public static void OnAssetLoadedImpl(string name, object asset, Dictionary<string, byte[]> userData) {
             try {
                 if (HelpersExtensions.InAssetEditor && ModSettings.VanillaMode)
                     return;
-                Log.Debug($"AssetDataExtension.OnAssetLoaded({name}, {asset}, userData) called", false);
+                Log.Debug($"AssetDataExtension.OnAssetLoadedImpl({name}, {asset}, userData) called", false);
                 if (asset is NetInfo prefab) {
                     Log.Debug("AssetDataExtension.OnAssetLoaded():  prefab is " + prefab, false);
                     if (userData.TryGetValue(ID_NetInfo, out byte[] data)) {
@@ -45,8 +48,8 @@ namespace AdaptiveRoads.LifeCycle {
             }
         }
 
-        public override void OnAssetSaved(string name, object asset, out Dictionary<string, byte[]> userData) {
-            Log.Info($"AssetDataExtension.OnAssetSaved({name}, {asset}, userData) called");
+        public static void OnAssetSavedImpl(string name, object asset, out Dictionary<string, byte[]> userData) {
+            Log.Info($"AssetDataExtension.OnAssetSavedImpl({name}, {asset}, userData) called");
             userData = null;
             if (ModSettings.VanillaMode) {
                 Log.Info("MetaData not saved vanilla mode is set in the settings");
@@ -93,6 +96,36 @@ namespace AdaptiveRoads.LifeCycle {
             } catch (Exception e) {
                 Log.Exception(e);
                 throw e;
+            }
+        }
+
+        public static void HotReload() {
+            try {
+                LogCalled();
+                SteamHelper.DLC_BitMask ownedMask = SteamHelper.GetOwnedDLCMask();
+                var filter = new Package.AssetType[] { UserAssetType.CustomAssetMetaData };
+                foreach (Package.Asset asset in PackageManager.FilterAssets(filter)) {
+                    if (asset == null || !asset.isEnabled)
+                        continue;
+                    if (asset.Instantiate<CustomAssetMetaData>() is not CustomAssetMetaData customAssetMetaData)
+                        continue;
+                    SteamHelper.DLC_BitMask assetDLCMask = AssetImporterAssetTemplate.GetAssetDLCMask(customAssetMetaData);
+                    if ((assetDLCMask & ownedMask) != assetDLCMask)
+                        continue;
+
+                    if (customAssetMetaData.type != CustomAssetMetaData.Type.RoadElevation &&
+                        customAssetMetaData.type != CustomAssetMetaData.Type.Road)
+                        continue;
+
+                    if (customAssetMetaData.userDataRef?.Instantiate() is not AssetDataWrapper.UserAssetData userAssetData)
+                        continue;
+                    OnAssetLoadedImpl(
+                        customAssetMetaData.name,
+                        ToolsModifierControl.toolController.m_editPrefabInfo,
+                        userAssetData.Data);
+                }
+            } catch (Exception ex) {
+                Log.Exception(ex);
             }
         }
     }

@@ -57,6 +57,7 @@ namespace AdaptiveRoads.LifeCycle {
             LogCalled();
             bHotReload = true;
             Preload();
+            AssetDataExtension.HotReload();
             //SimulationDataReady();
             Load();
             Util.RoadEditorUtils.RefreshRoadEditor();

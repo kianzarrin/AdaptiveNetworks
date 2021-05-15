@@ -9,6 +9,7 @@ namespace AdaptiveRoads.UI.Tool {
     using ColossalFramework.UI;
     using UnifedUILib::UnifiedUI.Helpers;
     using System.Linq;
+    using static KianCommons.ReflectionHelpers;
 
     public class ARTool : KianToolBase {
         NetworkExtensionManager man_ => NetworkExtensionManager.Instance;
@@ -38,15 +39,15 @@ namespace AdaptiveRoads.UI.Tool {
         }
 
         protected override void OnPrimaryMouseClicked() {
+            LogCalled();
             if (!Hoverable())
                 return;
-
             if (SegmentMode) {
                 SelectedSegmentID = HoveredSegmentID;
                 SelectedNodeID = 0;
             } else if (NodeMode) {
                 SelectedNodeID = HoveredNodeID;
-                SelectedSegmentID = 0; ;
+                SelectedSegmentID = 0;
             } else if (SegmentEndMode) {
                 SelectedSegmentID = HoveredSegmentID;
                 SelectedNodeID = HoveredNodeID;
@@ -114,6 +115,11 @@ namespace AdaptiveRoads.UI.Tool {
             else if (SelectedSegmentID != 0)
                 RenderUtil.RenderSegmnetOverlay(cameraInfo, SelectedSegmentID, Color.white, true);
 
+            if (flagsPanel_ && flagsPanel_.HighlighLaneID != 0) {
+                var laneData = new LaneData(flagsPanel_.HighlighLaneID);
+                RenderUtil.RenderLaneOverlay(cameraInfo, laneData, Color.yellow, false);
+            }
+
             if (!HoverValid)
                 return;
 
@@ -173,7 +179,15 @@ namespace AdaptiveRoads.UI.Tool {
         protected override void OnDestroy() {
             base.OnDestroy();
             button_?.Destroy();
-            button_ = null;
+            flagsPanel_?.Close();
+            SetAllDeclaredFieldsToNull(this);
+        }
+
+        protected override void OnDisable() {
+            base.OnDisable();
+            flagsPanel_?.Close();
+            SelectedNodeID = 0;
+            SelectedSegmentID = 0;
         }
 
 

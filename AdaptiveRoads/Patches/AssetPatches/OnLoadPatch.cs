@@ -45,7 +45,7 @@ namespace AdaptiveRoads.Patches.AssetPatches {
                         userAssetData = new AssetDataWrapper.UserAssetData();
                     }
                     Log.Debug($"LoadAssetPanel.OnLoad().Postfix(): Loading asset from load asset panel");
-                    AssetDataExtension.Instance.OnAssetLoaded(
+                    AssetDataExtension.OnAssetLoadedImpl(
                         listingMetaData.name,
                         ToolsModifierControl.toolController.m_editPrefabInfo,
                         userAssetData.Data);
@@ -56,7 +56,7 @@ namespace AdaptiveRoads.Patches.AssetPatches {
                         // and can't be patched because its generic.
                         // so we restore asset metadata here
                         Log.Debug($" restoring original metadata.");
-                        AssetDataExtension.Instance.OnAssetLoaded(
+                        AssetDataExtension.OnAssetLoadedImpl(
                             listingMetaData.name,
                             originalInfo,
                             userAssetData.Data);
