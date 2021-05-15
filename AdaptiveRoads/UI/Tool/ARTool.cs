@@ -56,7 +56,8 @@ namespace AdaptiveRoads.UI.Tool {
         }
 
         protected override void OnSecondaryMouseClicked() {
-            if(SelectedSegmentID != 0 && SelectedNodeID != 0) {
+            LogCalled();
+            if(SelectedSegmentID != 0 || SelectedNodeID != 0) {
                 SelectedSegmentID = 0;
                 SelectedNodeID = 0;
                 ClosePanel();
@@ -185,7 +186,7 @@ namespace AdaptiveRoads.UI.Tool {
 
         protected override void OnDisable() {
             base.OnDisable();
-            flagsPanel_?.Close();
+            ClosePanel();
             SelectedNodeID = 0;
             SelectedSegmentID = 0;
         }

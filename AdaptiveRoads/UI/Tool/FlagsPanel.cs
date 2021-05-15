@@ -10,6 +10,7 @@ namespace AdaptiveRoads.UI.Tool {
     using static KianCommons.ReflectionHelpers;
     using AdaptiveRoads.Manager;
     using static KianCommons.Assertion;
+    using KianCommons.Math;
 
     public class FlagsPanel : UIPanel {
         const string SPRITES_FILE_NAME = "MainPanel.png";
@@ -116,16 +117,18 @@ namespace AdaptiveRoads.UI.Tool {
             var net = info?.GetMetaData();
             AssertNotNull(net);
 
-            foreach(var flag in net.UsedCustomFlags.Segment.GetFlags()) {
+            var mask = net.UsedCustomFlags.Segment;
+            foreach (var flag in mask.ExtractPow2Flags()) {
                 SegmentFlagToggle.Add(parent, segmentID_, flag);
             }
 
             foreach (var lane in NetUtil.GetSortedLanes(segmentID_)) {
-                var mask = GetLaneUsedCustomFlags(lane);
-                if (mask != 0)
-                    AddLaneFlags(parent, lane, mask);
+                var laneMAsk = GetLaneUsedCustomFlags(lane);
+                if (laneMAsk != 0)
+                    AddLaneFlags(parent, lane, laneMAsk);
             }
         }
+
 
         static NetLaneExt.Flags GetLaneUsedCustomFlags(LaneData lane) {
             NetLaneExt.Flags mask = 0;
@@ -141,7 +144,7 @@ namespace AdaptiveRoads.UI.Tool {
         public void AddLaneFlags(UIPanel parent, LaneData lane, NetLaneExt.Flags mask) {
             var lanePanel = AddPanel(parent);
             LaneCaptionButton.Add(lanePanel, lane);
-            foreach(var flag in mask.GetFlags()) {
+            foreach(var flag in mask.ExtractPow2Flags()) {
                 LaneFlagToggle.Add(lanePanel, lane.LaneID, flag);
             }
             lanePanel.eventMouseEnter+= (_, __) => HighlighLaneID = lane.LaneID;
@@ -169,6 +172,8 @@ namespace AdaptiveRoads.UI.Tool {
 
         void Refresh() {
             dragHandle_.FitChildren();
+            dragHandle_.width = Mathf.Max(width, dragHandle_.width);
+            dragHandle_.height = 64;
             lblCaption_.anchor = UIAnchorStyle.CenterHorizontal |  UIAnchorStyle.CenterVertical;
             Invalidate();
         }

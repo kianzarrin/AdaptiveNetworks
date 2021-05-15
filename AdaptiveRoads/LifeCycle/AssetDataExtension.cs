@@ -10,6 +10,7 @@ namespace AdaptiveRoads.LifeCycle {
     using AdaptiveRoads.UI;
     using ColossalFramework.Packaging;
     using ColossalFramework;
+    using System.Collections;
 
     public class AssetDataExtension : IAssetDataExtension {
         public const string ID_NetInfo = "AdvancedRoadEditor_NetInfoExt";
@@ -102,28 +103,27 @@ namespace AdaptiveRoads.LifeCycle {
         public static void HotReload() {
             try {
                 LogCalled();
-                SteamHelper.DLC_BitMask ownedMask = SteamHelper.GetOwnedDLCMask();
-                var filter = new Package.AssetType[] { UserAssetType.CustomAssetMetaData };
-                foreach (Package.Asset asset in PackageManager.FilterAssets(filter)) {
-                    if (asset == null || !asset.isEnabled)
-                        continue;
-                    if (asset.Instantiate<CustomAssetMetaData>() is not CustomAssetMetaData customAssetMetaData)
-                        continue;
-                    SteamHelper.DLC_BitMask assetDLCMask = AssetImporterAssetTemplate.GetAssetDLCMask(customAssetMetaData);
-                    if ((assetDLCMask & ownedMask) != assetDLCMask)
-                        continue;
+                var t = Type.GetType("LoadOrderMod.AssetDataExtension, LoadOrderMod");
+                if (t == null) {
+                    Log.Warning("Could not hot reload asset because could not find LoadOrderMod.AssetDataExtension");
+                    return;
+                }
+                Dictionary<object,object> assetToUserData =
+                    t.GetField("AssetToUserData").GetValue(null) as Dictionary<object, object>;
+                AssertNotNull(assetToUserData, "assetToUserData");
+                SimulationManager.instance.ForcedSimulationPaused = true;
 
-                    if (customAssetMetaData.type != CustomAssetMetaData.Type.RoadElevation &&
-                        customAssetMetaData.type != CustomAssetMetaData.Type.Road)
-                        continue;
-
-                    if (customAssetMetaData.userDataRef?.Instantiate() is not AssetDataWrapper.UserAssetData userAssetData)
+                foreach(var pair in assetToUserData) {
+                    PrefabInfo asset = pair.Key as PrefabInfo;
+                    Dictionary<string, byte[]> userData = pair.Value as Dictionary<string, byte[]>;
+                    if (asset is not NetInfo)
                         continue;
                     OnAssetLoadedImpl(
-                        customAssetMetaData.name,
-                        ToolsModifierControl.toolController.m_editPrefabInfo,
-                        userAssetData.Data);
+                        asset.name,
+                        asset,
+                        userData);
                 }
+
             } catch (Exception ex) {
                 Log.Exception(ex);
             }
