@@ -13,7 +13,6 @@ namespace AdaptiveRoads.UI.Tool {
     using KianCommons.Math;
 
     public class FlagsPanel : UIPanel {
-        const string SPRITES_FILE_NAME = "MainPanel.png";
         static string FileName => ModSettings.FILE_NAME;
 
         public string AtlasName => $"{GetType().FullName}_rev" + this.VersionOf();
@@ -98,12 +97,10 @@ namespace AdaptiveRoads.UI.Tool {
                     lblCaption_.name = "AR_caption";
                 }
 
-                var body = AddPanel(this);
-                body.name = "ContianerPanel";
-                body.autoLayoutPadding = new RectOffset(3, 3, 3, 3);
-
                 if (SegmentMode)
-                    AddSegmentFlags(body);
+                    AddSegmentFlags(this);
+
+                AddSpacePanel(this, 5);
 
                 isVisible = true;
                 Refresh();
@@ -173,7 +170,7 @@ namespace AdaptiveRoads.UI.Tool {
         void Refresh() {
             dragHandle_.FitChildren();
             dragHandle_.width = Mathf.Max(width, dragHandle_.width);
-            dragHandle_.height = 64;
+            dragHandle_.height = 32;
             lblCaption_.anchor = UIAnchorStyle.CenterHorizontal |  UIAnchorStyle.CenterVertical;
             Invalidate();
         }
@@ -197,6 +194,7 @@ namespace AdaptiveRoads.UI.Tool {
         static UIPanel AddSpacePanel(UIPanel parent, int space) {
             var panel = parent.AddUIComponent<UIPanel>();
             panel.height = space;
+            panel.width = 1;
             return panel;
         }
     }
