@@ -1,3 +1,5 @@
+Fix: traffic lights are not reversed when swiching LHT/RHT or FOrward/backward
+
 
 flags for:
     arrrows:

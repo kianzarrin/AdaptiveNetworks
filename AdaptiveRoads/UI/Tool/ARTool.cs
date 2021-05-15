@@ -6,10 +6,8 @@ namespace AdaptiveRoads.UI.Tool {
     using KianCommons.Tool;
     using UnityEngine;
     using AdaptiveRoads.Manager;
-    using KianCommons.IImplict;
     using ColossalFramework.UI;
     using UnifedUILib::UnifiedUI.Helpers;
-    using ColossalFramework;
     using System.Linq;
 
     public class ARTool : KianToolBase {
@@ -22,16 +20,48 @@ namespace AdaptiveRoads.UI.Tool {
         public static bool NodeMode => Helpers.ControlIsPressed;
         public static bool SegmentEndMode => Helpers.AltIsPressed;
 
-        public static bool SegmentMode = !NodeMode && !SegmentEndMode;
+        public static bool SegmentMode => !NodeMode && !SegmentEndMode;
 
-        public static bool MultiSelect = Helpers.ShiftIsPressed;
+        public static bool MultiSelect => Helpers.ShiftIsPressed;
 
         UIComponent button_;
+        FlagsPanel flagsPanel_;
+
+        void OpenPanel() {
+            ClosePanel();
+            flagsPanel_ = FlagsPanel.Open(SelectedSegmentID, SelectedNodeID);
+        }
+
+        void ClosePanel() {
+            flagsPanel_?.Close();
+            flagsPanel_ = null;
+        }
 
         protected override void OnPrimaryMouseClicked() {
+            if (!Hoverable())
+                return;
+
+            if (SegmentMode) {
+                SelectedSegmentID = HoveredSegmentID;
+                SelectedNodeID = 0;
+            } else if (NodeMode) {
+                SelectedNodeID = HoveredNodeID;
+                SelectedSegmentID = 0; ;
+            } else if (SegmentEndMode) {
+                SelectedSegmentID = HoveredSegmentID;
+                SelectedNodeID = HoveredNodeID;
+            }
+            OpenPanel();
         }
 
         protected override void OnSecondaryMouseClicked() {
+            if(SelectedSegmentID != 0 && SelectedNodeID != 0) {
+                SelectedSegmentID = 0;
+                SelectedNodeID = 0;
+                ClosePanel();
+            } else {
+                enabled = false;
+            }
         }
 
         public NetInfo HoveredNetInfo {
@@ -47,7 +77,10 @@ namespace AdaptiveRoads.UI.Tool {
 
         protected override void OnToolUpdate() {
             base.OnToolUpdate();
-            ToolCursor = ToolsModifierControl.toolController.Tools.OfType<NetTool>().FirstOrDefault()?.m_upgradeCursor;
+            if (Hoverable())
+                ToolCursor = ToolsModifierControl.toolController.Tools.OfType<NetTool>().FirstOrDefault()?.m_upgradeCursor;
+            else
+                ToolCursor = null;
         }
 
         public bool Hoverable() {
@@ -66,12 +99,16 @@ namespace AdaptiveRoads.UI.Tool {
             throw new Exception("Unreachable code");
         }
 
+        public static void LogModes() {
+            Log.Info($"={SegmentMode} NodeMode={NodeMode} SegmentEndMode={SegmentEndMode}\n" +
+                $"SegmentMode=!NodeMode && !SegmentEndMode={!NodeMode} && {!SegmentEndMode}={!NodeMode && !SegmentEndMode}={SegmentMode} ");
+        }
 
         public override void RenderOverlay(RenderManager.CameraInfo cameraInfo) {
             base.RenderOverlay(cameraInfo);
 
             if (SelectedSegmentID != 0 && SelectedNodeID != 0)
-                RenderUtil.DrawCutSegmentEnd(cameraInfo, SelectedSegmentID, 0.5f, SelectedStartNode, Color.white, true);
+                HighlightSegmentEnd(cameraInfo, SelectedSegmentID, SelectedNodeID, Color.white);
             else if (SelectedNodeID != 0)
                 RenderUtil.DrawNodeCircle(cameraInfo, Color.white, SelectedNodeID, true);
             else if (SelectedSegmentID != 0)
@@ -91,10 +128,20 @@ namespace AdaptiveRoads.UI.Tool {
             if (SegmentMode) {
                 RenderUtil.RenderSegmnetOverlay(cameraInfo, HoveredSegmentID, color, true);
             } else if (NodeMode) {
-                RenderUtil.DrawNodeCircle(cameraInfo, Color.white, HoveredNodeID, true);
+                RenderUtil.DrawNodeCircle(cameraInfo, color, HoveredNodeID, true);
             } else if (SegmentEndMode) {
-                RenderUtil.DrawCutSegmentEnd(cameraInfo, SelectedSegmentID, 0.5f, SelectedStartNode, color, true);
+                HighlightSegmentEnd(cameraInfo, HoveredSegmentID, HoveredNodeID, color);
             }
+        }
+
+        static void HighlightSegmentEnd(RenderManager.CameraInfo cameraInfo, ushort segmentID, ushort nodeID, Color color, bool alpha = false) {
+            RenderUtil.DrawCutSegmentEnd(
+                cameraInfo: cameraInfo,
+                segmentId: segmentID,
+                cut: 0.5f,
+                bStartNode: segmentID.ToSegment().IsStartNode(nodeID),
+                color: color,
+                alpha: alpha);
         }
 
         public static void Create() {

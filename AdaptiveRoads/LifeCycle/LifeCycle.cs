@@ -121,10 +121,10 @@ namespace AdaptiveRoads.LifeCycle {
         public static void Unload() {
             LogCalled();
             ARTool.Release();
-            ObserverDisposable.Dispose();
+            ObserverDisposable?.Dispose();
             HintBox.Release();
             HarmonyUtil.UninstallHarmony(HARMONY_ID);
-            NetworkExtensionManager.Instance.OnUnload();
+            NetworkExtensionManager.RawInstance?.OnUnload();
         }
 
         public static void Exit() {

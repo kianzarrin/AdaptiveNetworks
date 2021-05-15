@@ -19,6 +19,8 @@ namespace AdaptiveRoads.Manager {
         static NetworkExtensionManager instance_;
         public static NetworkExtensionManager Instance => instance_ ??= new NetworkExtensionManager();
 
+        public static NetworkExtensionManager RawInstance => instance_;
+
         internal int SerializationCapacity =>
             (NetManager.MAX_NODE_COUNT + NetManager.MAX_SEGMENT_COUNT + NetManager.MAX_LANE_COUNT) * sizeof(int);
 
@@ -221,8 +223,8 @@ namespace AdaptiveRoads.Manager {
                 return ref SegmentEndBuffer[segmentID * 2 + 1];
         }
 
-        public NetSegmentEnd GetSegmentEnd(ushort segmentId, ushort nodeId) {
-            return SegmentBuffer[segmentId].GetEnd(nodeId);
+        public ref NetSegmentEnd GetSegmentEnd(ushort segmentId, ushort nodeId) {
+            return ref SegmentBuffer[segmentId].GetEnd(nodeId);
         }
 
         #region data tranfer
