@@ -227,12 +227,12 @@ namespace AdaptiveRoads.Manager {
             static CustomFlags GetUsedCustomFlags(NetInfo info) {
                 var ret = new CustomFlags();
                 foreach (var item in info.m_nodes) {
-                    if (item.GetMetaData() is var metaData)
+                    if (item.GetMetaData() is Node metaData)
                         ret |= metaData.UsedCustomFlags;
                 }
 
                 foreach (var item in info.m_segments) {
-                    if (item.GetMetaData() is var metaData)
+                    if (item.GetMetaData() is Segment metaData)
                         ret |= metaData.UsedCustomFlags;
                 }
 
@@ -240,7 +240,7 @@ namespace AdaptiveRoads.Manager {
                     var props = lane.m_laneProps?.m_props;
                     if (props.IsNullorEmpty()) continue;
                     foreach (var item in props) {
-                        if (item.GetMetaData() is var metaData)
+                        if (item.GetMetaData() is LaneProp metaData)
                             ret |= metaData.UsedCustomFlags;
                     }
                 }

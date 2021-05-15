@@ -46,6 +46,11 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Reference>
+      <Private>False</Private>
+    </Reference>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp" />
     <Reference Include="ColossalManaged" />
@@ -189,7 +194,7 @@
       $(TargetDir)CitiesHarmony.API.dll;
       $(TargetDir)UnifiedUILib.dll;
       $(SolutionDir)\libs\UnifiedUILib.dll.mdb;
-      (TargetDir)\*.png;
+      $(TargetDir)\Resources\*.png;
       $(SolutionDir)\libs\FbxFormatConverter.exe;"
       Exclude="$(TargetPath);$(TargetDir)*.pdb" />
       <VersionNumber Include="@(Targets->'%(Version)')" />

@@ -1,20 +1,18 @@
 namespace AdaptiveRoads.UI.Tool {
     extern alias UnifedUILib;
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
     using KianCommons;
     using KianCommons.UI;
     using KianCommons.Tool;
     using UnityEngine;
     using AdaptiveRoads.Manager;
     using KianCommons.IImplict;
-    using ColossalFramework;
     using ColossalFramework.UI;
     using UnifedUILib::UnifiedUI.Helpers;
+    using ColossalFramework;
+    using System.Linq;
 
-    public class ARTool : KianToolBase, IStartingObject {
+    public class ARTool : KianToolBase {
         NetworkExtensionManager man_ => NetworkExtensionManager.Instance;
 
         public ushort SelectedSegmentID;
@@ -31,11 +29,9 @@ namespace AdaptiveRoads.UI.Tool {
         UIComponent button_;
 
         protected override void OnPrimaryMouseClicked() {
-            throw new NotImplementedException();
         }
 
         protected override void OnSecondaryMouseClicked() {
-            throw new NotImplementedException();
         }
 
         public NetInfo HoveredNetInfo {
@@ -49,26 +45,25 @@ namespace AdaptiveRoads.UI.Tool {
             }
         }
 
+        protected override void OnToolUpdate() {
+            base.OnToolUpdate();
+            ToolCursor = ToolsModifierControl.toolController.Tools.OfType<NetTool>().FirstOrDefault()?.m_upgradeCursor;
+        }
+
         public bool Hoverable() {
-            if (!HoverValid)
+            var net = HoveredNetInfo?.GetMetaData();
+            if (net == null)
                 return false;
 
             if (NodeMode) {
-                return
-                    HoveredNetInfo?.GetMetaData() is var netMetaData
-                    && netMetaData.UsedCustomFlags.Node != 0;
+                return net.UsedCustomFlags.Node != 0;
             } else if (SegmentMode) {
-                return
-                    HoveredNetInfo?.GetMetaData() is var netMetaData &&
-                    netMetaData.UsedCustomFlags.Segment != 0 &&
-                    netMetaData.UsedCustomFlags.Lane != 0; 
+                return net.UsedCustomFlags.Segment != 0 || net.UsedCustomFlags.Lane != 0;
             } else if (SegmentEndMode) {
-                return
-                    HoveredNetInfo?.GetMetaData() is var netMetaData &&
-                    netMetaData.UsedCustomFlags.Segment != 0 &&
-                    netMetaData.UsedCustomFlags.Lane != 0;
+                return net.UsedCustomFlags.SegmentEnd != 0;
             }
-            return false;
+
+            throw new Exception("Unreachable code");
         }
 
 
@@ -76,20 +71,22 @@ namespace AdaptiveRoads.UI.Tool {
             base.RenderOverlay(cameraInfo);
 
             if (SelectedSegmentID != 0 && SelectedNodeID != 0)
-                RenderUtil.DrawCutSegmentEnd(cameraInfo, SelectedSegmentID,0.5f, SelectedStartNode, Color.white, true);
+                RenderUtil.DrawCutSegmentEnd(cameraInfo, SelectedSegmentID, 0.5f, SelectedStartNode, Color.white, true);
             else if (SelectedNodeID != 0)
                 RenderUtil.DrawNodeCircle(cameraInfo, Color.white, SelectedNodeID, true);
             else if (SelectedSegmentID != 0)
                 RenderUtil.RenderSegmnetOverlay(cameraInfo, SelectedSegmentID, Color.white, true);
 
-            if (!Hoverable())
+            if (!HoverValid)
                 return;
 
             Color color;
             if (Input.GetMouseButton(0))
                 color = GetToolColor(true, false);
-            else
+            else if (Hoverable())
                 color = GetToolColor(false, false);
+            else
+                color = GetToolColor(false, true);
 
             if (SegmentMode) {
                 RenderUtil.RenderSegmnetOverlay(cameraInfo, HoveredSegmentID, color, true);
@@ -105,12 +102,13 @@ namespace AdaptiveRoads.UI.Tool {
         }
 
         public static void Release() {
-            DestroyImmediate(ToolsModifierControl.toolController.gameObject.AddComponent<ARTool>()?.gameObject);
+            DestroyImmediate(ToolsModifierControl.toolController?.GetComponent<ARTool>());
         }
 
-        public void Start() {
+        protected override void Awake() {
             try {
-                string sprites = UUIHelpers.GetFullPath<LifeCycle.UserMod>("Resources", "B.png");
+                base.Awake();
+                string sprites = UUIHelpers.GetFullPath<LifeCycle.UserMod>("B.png");
                 Debug.Log("[UUIExampleMod] ExampleTool.Awake() sprites=" + sprites);
                 button_ = UUIHelpers.RegisterToolButton(
                     name: nameof(ARTool),

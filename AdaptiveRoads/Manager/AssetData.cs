@@ -50,6 +50,7 @@ namespace AdaptiveRoads.Manager {
                         (info.m_segments[i] as IInfoExtended).SetMetaData(Segments[i]);
                     ApplyProps(info);
                     info.SetMetedata(NetData?.Clone());
+                    info.UpdateMetaData();
                     Log.Debug("Net Metadata restored.");
                 }catch(Exception ex) {
                     Log.Exception(ex);
