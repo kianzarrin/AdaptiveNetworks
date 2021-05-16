@@ -96,6 +96,10 @@ namespace AdaptiveRoads.UI.Tool {
 
                 if (SegmentMode)
                     AddSegmentFlags(this);
+                else if (SegmentEndMode)
+                    AddSegmentEndFlags(this);
+                else if (NodeMode)
+                    AddNodeFlags(this);
 
                 AddSpacePanel(this, 5);
 
@@ -107,38 +111,27 @@ namespace AdaptiveRoads.UI.Tool {
         public void AddSegmentFlags(UIPanel parent) {
             AssertNotNull(parent,"parent");
             NetUtil.AssertSegmentValid(segmentID_);
-            var info = segmentID_.ToSegment().Info;
-            var net = info?.GetMetaData();
-            AssertNotNull(net);
-
-            var mask = net.UsedCustomFlags.Segment;
+            var mask = ARTool.GetUsedFlagsSegment(segmentID_).Segment;
             foreach (var flag in mask.ExtractPow2Flags()) {
                 SegmentFlagToggle.Add(parent, segmentID_, flag);
             }
 
             foreach (var lane in NetUtil.GetSortedLanes(segmentID_)) {
-                var laneMAsk = GetLaneUsedCustomFlags(lane);
+                var laneMAsk = ARTool.GetUsedCustomFlagsLane(lane);
                 if (laneMAsk != 0)
                     AddLaneFlags(parent, lane, laneMAsk);
             }
         }
 
-
-        static NetLaneExt.Flags GetLaneUsedCustomFlags(LaneData lane) {
-            NetLaneExt.Flags mask = 0;
-            var props = (lane.LaneInfo.m_laneProps?.m_props).EmptyIfNull();
-            foreach (var prop in props) {
-                var metadata = prop.GetMetaData();
-                if (metadata != null)
-                    mask |= (metadata.LaneFlags.Required | metadata.LaneFlags.Forbidden);
-            }
-            return mask & NetLaneExt.Flags.CustomsMask;
-        }
-
         public void AddLaneFlags(UIPanel parent, LaneData lane, NetLaneExt.Flags mask) {
+            AddSpacePanel(this, 6);
+
+            var caption = LaneCaptionButton.Add(this,lane);
+
             var lanePanel = AddPanel(parent);
-            LaneCaptionButton.Add(lanePanel, lane);
-            foreach(var flag in mask.ExtractPow2Flags()) {
+            caption.SetTarget(lanePanel);
+
+            foreach (var flag in mask.ExtractPow2Flags()) {
                 LaneFlagToggle.Add(lanePanel, lane.LaneID, flag);
             }
             lanePanel.eventMouseEnter+= (_, __) => HighlighLaneID = lane.LaneID;
@@ -148,7 +141,25 @@ namespace AdaptiveRoads.UI.Tool {
             };
         }
 
+        public void AddSegmentEndFlags(UIPanel parent) {
+            AssertNotNull(parent, "parent");
+            NetUtil.AssertSegmentValid(segmentID_);
 
+            var mask = ARTool.GetUsedFlagsSegmentEnd(segmentID: segmentID_, nodeID: nodeID_);
+            foreach (var flag in mask.ExtractPow2Flags()) {
+                SegmentEndFlagToggle.Add(parent, segmentID: segmentID_, nodeID: nodeID_, flag: flag);
+            }
+        }
+
+        public void AddNodeFlags(UIPanel parent) {
+            AssertNotNull(parent, "parent");
+            NetUtil.AssertSegmentValid(segmentID_);
+
+            var mask = ARTool.GetUsedFlagsNode(nodeID_);
+            foreach (var flag in mask.ExtractPow2Flags()) {
+                NodeFlagToggle.Add(parent, nodeID_, flag);
+            }
+        }
         protected override void OnPositionChanged() {
             base.OnPositionChanged();
             Log.DebugWait("OnPositionChanged called", id: "OnPositionChanged called".GetHashCode(), seconds: 0.2f, copyToGameLog: false);

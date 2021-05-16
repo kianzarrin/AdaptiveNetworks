@@ -66,17 +66,6 @@ namespace AdaptiveRoads.UI.Tool {
             }
         }
 
-        public NetInfo HoveredNetInfo {
-            get {
-                if (!HoverValid)
-                    return null;
-                else if (NodeMode)
-                    return HoveredNodeID.ToNode().Info;
-                else
-                    return HoveredSegmentID.ToSegment().Info;
-            }
-        }
-
         protected override void OnToolUpdate() {
             base.OnToolUpdate();
             if (Hoverable())
@@ -85,25 +74,54 @@ namespace AdaptiveRoads.UI.Tool {
                 ToolCursor = null;
         }
 
-        public bool Hoverable() {
-            var net = HoveredNetInfo?.GetMetaData();
-            if (net == null)
-                return false;
+        public static NetNodeExt.Flags GetUsedFlagsNode(ushort nodeID) {
+            NetNodeExt.Flags ret = nodeID.ToNode().Info.GetMetaData()?.UsedCustomFlags.Node ?? 0;
+            foreach(ushort segmentID in nodeID.ToNode().IterateSegments()) {
+                ret |= segmentID.ToSegment().Info.GetMetaData()?.UsedCustomFlags.Node ?? 0;
+            }
+            return ret;
+        }
 
+        public static CustomFlags GetUsedFlagsSegment(ushort segmentID) {
+            CustomFlags ret = segmentID.ToSegment().Info.GetMetaData()?.UsedCustomFlags ?? new CustomFlags();
+            ushort startNodeID = segmentID.ToSegment().m_startNode;
+            ushort endNodeID = segmentID.ToSegment().m_endNode;
+            ret |= startNodeID.ToNode().Info.GetMetaData()?.UsedCustomFlags ?? new CustomFlags();
+            ret |= endNodeID.ToNode().Info.GetMetaData()?.UsedCustomFlags ?? new CustomFlags();
+            return ret;
+        }
+
+        public static NetSegmentEnd.Flags GetUsedFlagsSegmentEnd(ushort segmentID, ushort nodeID) {
+            NetSegmentEnd.Flags ret = segmentID.ToSegment().Info.GetMetaData()?.UsedCustomFlags.SegmentEnd ?? 0;
+            ret |= nodeID.ToNode().Info.GetMetaData()?.UsedCustomFlags.SegmentEnd ?? 0;
+            return ret;
+        }
+        public static NetLaneExt.Flags GetUsedCustomFlagsLane(LaneData lane) {
+            NetLaneExt.Flags mask = 0;
+            var props = (lane.LaneInfo.m_laneProps?.m_props).EmptyIfNull();
+            foreach (var prop in props) {
+                var metadata = prop.GetMetaData();
+                if (metadata != null)
+                    mask |= (metadata.LaneFlags.Required | metadata.LaneFlags.Forbidden);
+            }
+            return mask & NetLaneExt.Flags.CustomsMask;
+        }
+
+        public bool Hoverable() {
             if (NodeMode) {
-                return net.UsedCustomFlags.Node != 0;
+                return GetUsedFlagsNode(HoveredNodeID) != 0;
             } else if (SegmentMode) {
-                return net.UsedCustomFlags.Segment != 0 || net.UsedCustomFlags.Lane != 0;
+                var usedCustomFlags = GetUsedFlagsSegment(HoveredSegmentID);
+                return usedCustomFlags.Segment != 0 || usedCustomFlags.Lane != 0;
             } else if (SegmentEndMode) {
-                return net.UsedCustomFlags.SegmentEnd != 0;
+                return GetUsedFlagsSegmentEnd(segmentID:HoveredSegmentID, nodeID:HoveredNodeID) != 0;
             }
 
             throw new Exception("Unreachable code");
         }
 
         public static void LogModes() {
-            Log.Info($"={SegmentMode} NodeMode={NodeMode} SegmentEndMode={SegmentEndMode}\n" +
-                $"SegmentMode=!NodeMode && !SegmentEndMode={!NodeMode} && {!SegmentEndMode}={!NodeMode && !SegmentEndMode}={SegmentMode} ");
+            Log.Info($"SegmentMode={SegmentMode} NodeMode={NodeMode} SegmentEndMode={SegmentEndMode}");
         }
 
         public override void RenderOverlay(RenderManager.CameraInfo cameraInfo) {

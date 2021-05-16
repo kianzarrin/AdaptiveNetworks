@@ -15,19 +15,22 @@ namespace AdaptiveRoads.UI.Tool {
         LaneData lane_;
         UIPanel panel_;
 
-        public static LaneCaptionButton Add(UIPanel panel, LaneData lane) {
-            var ret = panel.AddUIComponent<LaneCaptionButton>();
+        public static LaneCaptionButton Add(UIPanel parent,  LaneData lane) {
+            var ret = parent.AddUIComponent<LaneCaptionButton>();
             ret.lane_ = lane;
-            ret.panel_ = panel;
             return ret;
         }
 
+        public void SetTarget(UIPanel panel) => panel_ = panel;
+
         public override void Start() {
-            base.Start();
-            FitTo(panel_, LayoutDirection.Horizontal);
             var laneType = lane_.LaneInfo.m_laneType;
             var vehicleTypes = lane_.LaneInfo.m_vehicleType;
             text = $"▲ [{laneType}] : {vehicleTypes} + ";
+
+            var padding = spritePadding;
+            padding.bottom = -3;
+            spritePadding = padding;
         }
 
         protected override void OnClick(UIMouseEventParameter p) {

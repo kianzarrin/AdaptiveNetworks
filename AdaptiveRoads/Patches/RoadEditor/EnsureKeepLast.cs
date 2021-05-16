@@ -1,4 +1,4 @@
-namespace AdaptiveRoads.Patches.RoadEditor.x {
+namespace AdaptiveRoads.Patches.RoadEditor {
     using AdaptiveRoads.UI.RoadEditor;
     using HarmonyLib;
 
