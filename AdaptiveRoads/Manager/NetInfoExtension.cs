@@ -218,6 +218,8 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Pavement Width Right", "Properties")]
             [Hint("must be greater than left pavement width")]
             public float PavementWidthRight;
+
+            [NonSerialized]
             public CustomFlags UsedCustomFlags;
 
             public void Update(NetInfo template) {
