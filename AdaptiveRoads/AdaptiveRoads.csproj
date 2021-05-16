@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <PackageReference Include="CitiesHarmony.API" Version="2.0.0" />
     <PackageReference Include="GitInfo" Version="2.1.2">
@@ -64,6 +64,17 @@
       <Aliases>UnifedUILib</Aliases>
     </Reference>
   </ItemGroup>
+  <ItemGroup Condition="'@(_NETStandardLibraryNETFrameworkLib)' != ''">
+    <UnifiedUILibReference Include = "@(_NETStandardLibraryNETFrameworkLib)" Condition="'%(_NETStandardLibraryNETFrameworkLib.FileName)' == 'System.Net.Http'" />
+
+    <Reference Remove="%(UnifiedUILibReference.FileName)" Condition="'@(UnifiedUILibReference)' != ''"/>
+    <Reference Include="%(UnifiedUILibReference.FileName)" Condition="'@(UnifiedUILibReference)' != ''">
+      <HintPath>%(UnifiedUILibReference.Identity)</HintPath>
+      <Private>false</Private>
+      <Aliases>UnifiedUILib</Aliases>
+    </Reference>
+  </ItemGroup>
+
   <ItemGroup>
     <Compile Remove="FbxUtil\**" />
     <Compile Remove="KianCommons\**" />
