@@ -105,6 +105,13 @@ namespace AdaptiveRoads.LifeCycle {
 
         public static void HotReload() {
             try {
+                if(ToolsModifierControl.toolController.m_editPrefabInfo != null) {
+                    Log.Info("Skipping hot reload of asset data in asset editor");
+                    return;
+                    /* I don't know why it does not work and some elevations are returning null.
+                     * maybe it only fails if it loads the original copy of the loaded asset.
+                     */
+                }
                 LogCalled();
                 var assets2UserData = PluginUtil.GetLoadOrderMod()
                     ?.GetMainAssembly()
@@ -121,7 +128,8 @@ namespace AdaptiveRoads.LifeCycle {
                 foreach (var asset2UserData in assets2UserData) {
                     var asset = asset2UserData.Key;
                     var userData = asset2UserData.Value;
-                    OnAssetLoadedImpl(asset.name, asset, userData);
+                    if(asset)
+                        OnAssetLoadedImpl(asset.name, asset, userData);
                 }
 
             } catch (Exception ex) {

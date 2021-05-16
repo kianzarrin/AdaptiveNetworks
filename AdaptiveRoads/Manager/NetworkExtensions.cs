@@ -299,7 +299,8 @@ namespace AdaptiveRoads.Manager {
 
         public void UpdateAllFlags() {
             if(!NetUtil.IsSegmentValid(SegmentID)) {
-                Log.Debug("Skip updating invalid segment:" + SegmentID);
+                if(SegmentID.ToSegment().m_flags.IsFlagSet(NetSegment.Flags.Created))
+                    Log.Debug("Skip updating invalid segment:" + SegmentID);
                 return;
             }
             Log.Debug($"NetSegmentExt.UpdateAllFlags() called. SegmentID={SegmentID}" /*Environment.StackTrace*/, false);
