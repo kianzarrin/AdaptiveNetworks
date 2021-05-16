@@ -105,7 +105,7 @@ namespace AdaptiveRoads.LifeCycle {
                     ?.GetMainAssembly()
                     ?.GetType("LoadOrderMod.LOMAssetDataExtension", throwOnError: false)
                     ?.GetField("Assets2UserData")
-                    ?.GetValue(null)
+                    ?.GetValue(null) 
                     as Dictionary<PrefabInfo, Dictionary<string, byte[]>>;
 
                 if (null == assets2UserData) {

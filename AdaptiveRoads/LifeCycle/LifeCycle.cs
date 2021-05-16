@@ -48,10 +48,16 @@ namespace AdaptiveRoads.LifeCycle {
                         HarmonyUtil.InstallHarmony(HARMONY_ID);
                     });
 #endif
+                Test();
             } catch (Exception ex) {
                 Log.Exception(ex);
             }
         }
+
+        static void Test() {
+            AssetDataExtension
+        }
+
 
         public static void HotReload() {
             LogCalled();
