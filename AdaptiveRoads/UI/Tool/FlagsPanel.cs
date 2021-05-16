@@ -109,6 +109,7 @@ namespace AdaptiveRoads.UI.Tool {
         }
 
         public void AddSegmentFlags(UIPanel parent) {
+            LogCalled();
             AssertNotNull(parent,"parent");
             NetUtil.AssertSegmentValid(segmentID_);
             var mask = ARTool.GetUsedFlagsSegment(segmentID_).Segment;
@@ -117,28 +118,34 @@ namespace AdaptiveRoads.UI.Tool {
             }
 
             foreach (var lane in NetUtil.GetSortedLanes(segmentID_)) {
-                var laneMAsk = ARTool.GetUsedCustomFlagsLane(lane);
-                if (laneMAsk != 0)
-                    AddLaneFlags(parent, lane, laneMAsk);
+                var laneMask = ARTool.GetUsedCustomFlagsLane(lane);
+                Log.Info($"lane:{lane} laneMask:" + laneMask);
+                if (laneMask != 0)
+                    AddLaneFlags(parent, lane, laneMask);
             }
         }
 
         public void AddLaneFlags(UIPanel parent, LaneData lane, NetLaneExt.Flags mask) {
-            AddSpacePanel(this, 6);
+            try {
+                LogCalled("parent", lane.LaneID, mask);
+                AddSpacePanel(this, 6);
 
-            var caption = LaneCaptionButton.Add(this,lane);
+                var caption = LaneCaptionButton.Add(this, lane);
 
-            var lanePanel = AddPanel(parent);
-            caption.SetTarget(lanePanel);
+                var lanePanel = AddPanel(parent);
+                caption.SetTarget(lanePanel);
 
-            foreach (var flag in mask.ExtractPow2Flags()) {
-                LaneFlagToggle.Add(lanePanel, lane.LaneID, flag);
+                foreach (var flag in mask.ExtractPow2Flags()) {
+                    LaneFlagToggle.Add(lanePanel, lane.LaneID, flag);
+                }
+                lanePanel.eventMouseEnter += (_, __) => HighlighLaneID = lane.LaneID;
+                lanePanel.eventMouseLeave += (_, __) => {
+                    if (HighlighLaneID == lane.LaneID)
+                        HighlighLaneID = 0;
+                };
+            } catch (Exception ex) {
+                Log.Exception(ex);
             }
-            lanePanel.eventMouseEnter+= (_, __) => HighlighLaneID = lane.LaneID;
-            lanePanel.eventMouseLeave += (_, __) => {
-                if (HighlighLaneID == lane.LaneID)
-                    HighlighLaneID = 0;
-            };
         }
 
         public void AddSegmentEndFlags(UIPanel parent) {
