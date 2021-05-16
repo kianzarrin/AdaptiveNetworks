@@ -48,20 +48,25 @@ namespace AdaptiveRoads.LifeCycle {
         }
 
         public static void OnAssetSavedImpl(string name, object asset, out Dictionary<string, byte[]> userData) {
-            Log.Info($"AssetDataExtension.OnAssetSavedImpl({name}, {asset}, userData) called");
-            userData = null;
-            if (ModSettings.VanillaMode) {
-                Log.Info("MetaData not saved vanilla mode is set in the settings");
-                return;
-            }
+            try {
+                Log.Info($"AssetDataExtension.OnAssetSavedImpl({name}, {asset}, userData) called");
+                userData = null;
+                if (ModSettings.VanillaMode) {
+                    Log.Info("MetaData not saved vanilla mode is set in the settings");
+                    return;
+                }
 
-            if (asset is NetInfo prefab) {
-                Log.Info("AssetDataExtension.OnAssetSaved():  prefab is " + prefab);
-                AssertNotNull(AssetData.Snapshot, "snapshot");
-                var assetData = AssetData.Snapshot; //AssetData.CreateFromEditPrefab();
-                Log.Debug("AssetDataExtension.OnAssetSaved(): assetData=" + assetData);
-                userData = new Dictionary<string, byte[]>();
-                userData.Add(ID_NetInfo, SerializationUtil.Serialize(assetData));
+                if (asset is NetInfo prefab) {
+                    Log.Info("AssetDataExtension.OnAssetSaved():  prefab is " + prefab);
+                    AssertNotNull(AssetData.Snapshot, "snapshot");
+                    var assetData = AssetData.Snapshot; //AssetData.CreateFromEditPrefab();
+                    Log.Debug("AssetDataExtension.OnAssetSaved(): assetData=" + assetData);
+                    userData = new Dictionary<string, byte[]>();
+                    userData.Add(ID_NetInfo, SerializationUtil.Serialize(assetData));
+                }
+            } catch (Exception ex) {
+                ex.Log();
+                userData = null;
             }
         }
 
