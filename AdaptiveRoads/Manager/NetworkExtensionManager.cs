@@ -4,13 +4,19 @@ namespace AdaptiveRoads.Manager {
     using System.Collections.Generic;
     using System.Linq;
     using KianCommons.Serialization;
+    using static KianCommons.ReflectionHelpers;
 
     [Serializable]
     public class NetworkExtensionManager {
         #region LifeCycle
         private NetworkExtensionManager() {
+            LogCalled();
             InitBuffers();
         }
+
+#if DEBUG
+        internal static NetworkExtensionManager CreateNew() => new NetworkExtensionManager();
+#endif
 
         static NetworkExtensionManager instance_;
         public static NetworkExtensionManager Instance => instance_ ??= new NetworkExtensionManager();
@@ -22,6 +28,7 @@ namespace AdaptiveRoads.Manager {
 
         public void Serialize(SimpleDataSerializer s) {
             try {
+                LogCalled();
                 for (ushort i = 0; i < SegmentBuffer.Length; ++i) {
                     SegmentBuffer[i].Serialize(s);
                 }
@@ -44,14 +51,10 @@ namespace AdaptiveRoads.Manager {
         }
         public static void Deserialize(SimpleDataSerializer s) {
             try {
-                if (s == null) {
-                    Log.Debug($"NetworkExtensionManager.Deserialize(null)");
-                    instance_ = new NetworkExtensionManager();
-                } else {
-                    Log.Debug($"NetworkExtensionManager.Deserialize(s)");
-                    instance_ = new NetworkExtensionManager();
+                LogCalled();
+                instance_ = new NetworkExtensionManager();
+                if (s != null)
                     instance_.DeserializeImp(s);
-                }
             } catch (Exception ex) {
                 ex.Log();
             }
@@ -59,6 +62,7 @@ namespace AdaptiveRoads.Manager {
 
         internal void DeserializeImp(SimpleDataSerializer s) {
             try {
+                LogCalled();
                 for (ushort i = 0; i < SegmentBuffer.Length; ++i) {
                     SegmentBuffer[i].Deserialize(s);
                 }
