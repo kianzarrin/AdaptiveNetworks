@@ -38,6 +38,7 @@ namespace AdaptiveRoads.LifeCycle
             try {
                 Log.Info("OnSaveData() ...", true);
                 var man = NetworkExtensionManager.Instance;
+                Assertion.AssertNotNull(DataVersion, "DataVersion");
                 var s = Serializer.Writer(DataVersion, man.SerializationCapacity);
                 man.Serialize(s);
                 serializableDataManager.SaveData(DATA_ID, s.GetBytes());
@@ -61,6 +62,8 @@ namespace AdaptiveRoads.LifeCycle
         // make serailizer
         Serializer(Version version, int capacity) {
             Stream = new MemoryStream(capacity);
+            Assertion.AssertNotNull(version);
+            Version = version;
             WriteVersion(version);
         }
 
@@ -101,10 +104,11 @@ namespace AdaptiveRoads.LifeCycle
         public Version ReadVersion() =>
             new Version(ReadInt32(), ReadInt32(), ReadInt32(), ReadInt32());
         public void WriteVersion(Version version) {
-            WriteInt32(Version.Major);
-            WriteInt32(Version.Minor);
-            WriteInt32(Version.Build);
-            WriteInt32(Version.Revision);
+            Assertion.AssertNotNull(version);
+            WriteInt32(version.Major);
+            WriteInt32(version.Minor);
+            WriteInt32(version.Build);
+            WriteInt32(version.Revision);
         }
     }
 

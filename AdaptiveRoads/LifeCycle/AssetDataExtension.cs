@@ -8,9 +8,7 @@ namespace AdaptiveRoads.LifeCycle {
     using static KianCommons.ReflectionHelpers;
     using KianCommons.Serialization;
     using AdaptiveRoads.UI;
-    using ColossalFramework.Packaging;
-    using ColossalFramework;
-    using System.Collections;
+    using KianCommons.Plugins;
 
     public class AssetDataExtension : IAssetDataExtension {
         public const string ID_NetInfo = "AdvancedRoadEditor_NetInfoExt";
@@ -59,7 +57,7 @@ namespace AdaptiveRoads.LifeCycle {
 
             if (asset is NetInfo prefab) {
                 Log.Info("AssetDataExtension.OnAssetSaved():  prefab is " + prefab);
-                AssertNotNull(AssetData.Snapshot,"snapshot");
+                AssertNotNull(AssetData.Snapshot, "snapshot");
                 var assetData = AssetData.Snapshot; //AssetData.CreateFromEditPrefab();
                 Log.Debug("AssetDataExtension.OnAssetSaved(): assetData=" + assetData);
                 userData = new Dictionary<string, byte[]>();
@@ -103,25 +101,22 @@ namespace AdaptiveRoads.LifeCycle {
         public static void HotReload() {
             try {
                 LogCalled();
-                var t = Type.GetType("LoadOrderMod.AssetDataExtension, LoadOrderMod");
-                if (t == null) {
-                    Log.Warning("Could not hot reload asset because could not find LoadOrderMod.AssetDataExtension");
+                var assets2UserData = PluginUtil.GetLoadOrderMod()
+                    ?.GetMainAssembly()
+                    ?.GetType("LoadOrderMod.LOMAssetDataExtension", throwOnError: false)
+                    ?.GetField("Assets2UserData")
+                    ?.GetValue(null)
+                    as Dictionary<PrefabInfo, Dictionary<string, byte[]>>;
+
+                if (null == assets2UserData) {
+                    Log.Warning("Could not hot reload assets because LoadOrderMod was not found");
                     return;
                 }
-                Dictionary<object,object> assetToUserData =
-                    t.GetField("AssetToUserData").GetValue(null) as Dictionary<object, object>;
-                AssertNotNull(assetToUserData, "assetToUserData");
-                SimulationManager.instance.ForcedSimulationPaused = true;
 
-                foreach(var pair in assetToUserData) {
-                    PrefabInfo asset = pair.Key as PrefabInfo;
-                    Dictionary<string, byte[]> userData = pair.Value as Dictionary<string, byte[]>;
-                    if (asset is not NetInfo)
-                        continue;
-                    OnAssetLoadedImpl(
-                        asset.name,
-                        asset,
-                        userData);
+                foreach (var asset2UserData in assets2UserData) {
+                    var asset = asset2UserData.Key;
+                    var userData = asset2UserData.Value;
+                    OnAssetLoadedImpl(asset.name, asset, userData);
                 }
 
             } catch (Exception ex) {
