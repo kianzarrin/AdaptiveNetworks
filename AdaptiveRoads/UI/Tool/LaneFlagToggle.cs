@@ -14,6 +14,8 @@ namespace AdaptiveRoads.UI.Tool {
             var toggle = parent.AddUIComponent<LaneFlagToggle>();
             toggle.flag_ = flag;
             toggle.laneID_ = laneID;
+            ref var lane = ref man_.LaneBuffer[laneID];
+            toggle.isChecked = lane.m_flags.IsFlagSet(flag);
             return toggle;
         }
 
@@ -26,8 +28,11 @@ namespace AdaptiveRoads.UI.Tool {
             base.OnCheckChanged(component, value);
             SimulationManager.instance.AddAction(delegate () {
                 ref var lane = ref man_.LaneBuffer[laneID_];
-                lane.m_flags = lane.m_flags.SetFlags(flag_, value);
-                man_.UpdateSegment(laneID_.ToLane().m_segment);
+                var newFlags = lane.m_flags.SetFlags(flag_, value);
+                if (lane.m_flags != newFlags) {
+                    lane.m_flags = newFlags;
+                    man_.UpdateSegment(laneID_.ToLane().m_segment);
+                }
             });
         }
     }

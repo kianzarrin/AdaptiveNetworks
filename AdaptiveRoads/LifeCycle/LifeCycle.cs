@@ -13,7 +13,7 @@ namespace AdaptiveRoads.LifeCycle {
     using AdaptiveRoads.Util;
     using TrafficManager.Manager.Impl;
     using AdaptiveRoads.UI.Tool;
-    using UnityEngine;
+    using KianCommons.Serialization;
 
     public static class LifeCycle {
         public static string HARMONY_ID = "CS.Kian.AdaptiveRoads";
@@ -48,16 +48,10 @@ namespace AdaptiveRoads.LifeCycle {
                         HarmonyUtil.InstallHarmony(HARMONY_ID);
                     });
 #endif
-                Test();
             } catch (Exception ex) {
                 Log.Exception(ex);
             }
         }
-
-        static void Test() {
-            AssetDataExtension
-        }
-
 
         public static void HotReload() {
             LogCalled();

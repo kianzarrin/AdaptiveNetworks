@@ -15,6 +15,8 @@ namespace AdaptiveRoads.UI.Tool {
             toggle.flag_ = flag;
             toggle.segmentID_ = segmentID;
             toggle.nodeID_ = nodeID;
+            ref var segmentEnd = ref man_.GetSegmentEnd(segmentID, nodeID);
+            toggle.isChecked = segmentEnd.m_flags.IsFlagSet(flag);
         }
 
         public override void Start() {
@@ -26,8 +28,11 @@ namespace AdaptiveRoads.UI.Tool {
             base.OnCheckChanged(component, value);
             SimulationManager.instance.AddAction(delegate () {
                 ref var segmentEnd = ref man_.GetSegmentEnd(segmentID_, nodeID_);
-                segmentEnd.m_flags = segmentEnd.m_flags.SetFlags(flag_, value);
-                man_.UpdateNode(nodeID_);
+                var newFlags = segmentEnd.m_flags.SetFlags(flag_, value);
+                if (segmentEnd.m_flags != newFlags) {
+                    segmentEnd.m_flags = newFlags;
+                    man_.UpdateNode(nodeID_);
+                }
             });
         }
     }

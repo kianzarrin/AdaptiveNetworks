@@ -13,6 +13,8 @@ namespace AdaptiveRoads.UI.Tool {
             var toggle = parent.AddUIComponent<SegmentFlagToggle>();
             toggle.flag_ = flag;
             toggle.segmentID_ = segmentID;
+            ref var segment = ref man_.SegmentBuffer[segmentID];
+            toggle.isChecked = segment.m_flags.IsFlagSet(flag);
             return toggle;
         }
 
@@ -25,8 +27,11 @@ namespace AdaptiveRoads.UI.Tool {
             base.OnCheckChanged(component, value);
             SimulationManager.instance.AddAction(delegate () {
                 ref var segment = ref man_.SegmentBuffer[segmentID_];
-                segment.m_flags = segment.m_flags.SetFlags(flag_, value);
-                man_.UpdateSegment(segmentID_);
+                var newFlags = segment.m_flags.SetFlags(flag_, value);
+                if (segment.m_flags != newFlags) {
+                    segment.m_flags = newFlags;
+                    man_.UpdateSegment(segmentID_);
+                }
             });
         }
     }

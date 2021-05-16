@@ -5,12 +5,9 @@ namespace AdaptiveRoads.UI.Tool {
     using KianCommons.UI;
     using System;
     using UnityEngine;
-    using System.Collections.Generic;
-    using System.Linq;
     using static KianCommons.ReflectionHelpers;
     using AdaptiveRoads.Manager;
     using static KianCommons.Assertion;
-    using KianCommons.Math;
 
     public class FlagsPanel : UIPanel {
         static string FileName => ModSettings.FILE_NAME;
