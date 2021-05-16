@@ -26,7 +26,7 @@ namespace AdaptiveRoads.UI.Tool {
         public override void Start() {
             var laneType = lane_.LaneInfo.m_laneType;
             var vehicleTypes = lane_.LaneInfo.m_vehicleType;
-            text = $"▲ [{laneType}] : {vehicleTypes} + ";
+            text = $"▲ [{laneType}] : {vehicleTypes}";
 
             var padding = spritePadding;
             padding.bottom = -3;

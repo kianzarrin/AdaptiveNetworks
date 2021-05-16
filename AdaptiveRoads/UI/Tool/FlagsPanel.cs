@@ -119,7 +119,7 @@ namespace AdaptiveRoads.UI.Tool {
 
             foreach (var lane in NetUtil.GetSortedLanes(segmentID_)) {
                 var laneMask = ARTool.GetUsedCustomFlagsLane(lane);
-                Log.Info($"lane:{lane} laneMask:" + laneMask);
+                //Log.Info($"lane:{lane} laneMask:" + laneMask);
                 if (laneMask != 0)
                     AddLaneFlags(parent, lane, laneMask);
             }
@@ -128,21 +128,25 @@ namespace AdaptiveRoads.UI.Tool {
         public void AddLaneFlags(UIPanel parent, LaneData lane, NetLaneExt.Flags mask) {
             try {
                 LogCalled("parent", lane.LaneID, mask);
-                AddSpacePanel(this, 6);
+                AddSpacePanel(parent, 6);
+                var laneContainer = AddPanel(parent);
+                laneContainer.padding = laneContainer.autoLayoutPadding = new RectOffset();
 
-                var caption = LaneCaptionButton.Add(this, lane);
+                var caption = LaneCaptionButton.Add(laneContainer, lane);
 
-                var lanePanel = AddPanel(parent);
+                var lanePanel = AddPanel(laneContainer);
                 caption.SetTarget(lanePanel);
 
                 foreach (var flag in mask.ExtractPow2Flags()) {
                     LaneFlagToggle.Add(lanePanel, lane.LaneID, flag);
                 }
-                lanePanel.eventMouseEnter += (_, __) => HighlighLaneID = lane.LaneID;
-                lanePanel.eventMouseLeave += (_, __) => {
+                laneContainer.eventMouseEnter += (_, __) => HighlighLaneID = lane.LaneID;
+                laneContainer.eventMouseLeave += (_, __) => {
                     if (HighlighLaneID == lane.LaneID)
                         HighlighLaneID = 0;
                 };
+                laneContainer.atlas = TextureUtil.Ingame;
+                laneContainer.backgroundSprite = "MenuPanelInfo";
             } catch (Exception ex) {
                 Log.Exception(ex);
             }
