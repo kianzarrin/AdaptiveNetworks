@@ -64,17 +64,6 @@
       <Aliases>UnifedUILib</Aliases>
     </Reference>
   </ItemGroup>
-  <ItemGroup Condition="'@(_NETStandardLibraryNETFrameworkLib)' != ''">
-    <UnifiedUILibReference Include = "@(_NETStandardLibraryNETFrameworkLib)" Condition="'%(_NETStandardLibraryNETFrameworkLib.FileName)' == 'System.Net.Http'" />
-
-    <Reference Remove="%(UnifiedUILibReference.FileName)" Condition="'@(UnifiedUILibReference)' != ''"/>
-    <Reference Include="%(UnifiedUILibReference.FileName)" Condition="'@(UnifiedUILibReference)' != ''">
-      <HintPath>%(UnifiedUILibReference.Identity)</HintPath>
-      <Private>false</Private>
-      <Aliases>UnifiedUILib</Aliases>
-    </Reference>
-  </ItemGroup>
-
   <ItemGroup>
     <Compile Remove="FbxUtil\**" />
     <Compile Remove="KianCommons\**" />
