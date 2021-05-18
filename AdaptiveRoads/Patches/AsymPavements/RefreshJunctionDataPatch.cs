@@ -83,6 +83,26 @@ namespace AdaptiveRoads.Patches {
                     new CodeInstruction(OpCodes.Ldc_I4_4), // occurance
                     new CodeInstruction(OpCodes.Call, mModifyPavement),
                 });
+
+            /********************************
+             * m_dataVector0 */
+            index = codes.Search(_c => _c.LoadsField(f_pavementWidth), count: 5); //m_dataVector0.z
+            codes.InsertInstructions(index + 1, //after
+                new[] {
+                    ldSegmentID.Clone(),
+                    ldSegmentID.Clone(), // does not matter
+                    new CodeInstruction(OpCodes.Ldc_I4_5), // occurance
+                    new CodeInstruction(OpCodes.Call, mModifyPavement),
+                });
+
+            index = codes.Search(_c => _c.LoadsField(f_pavementWidth), count: 6); //m_dataVector0.w
+            codes.InsertInstructions(index + 1, //after
+                new[] {
+                    ldSegmentID.Clone(),
+                    ldSegmentID.Clone(), // does not matter
+                    new CodeInstruction(OpCodes.Ldc_I4_6), // occurance
+                    new CodeInstruction(OpCodes.Call, mModifyPavement),
+                });
             return codes;
         }
 
@@ -118,6 +138,9 @@ namespace AdaptiveRoads.Patches {
                     if (!reverse)
                         return width;
                     break;
+                case 5:
+                case 6:
+                    return Math.Max(pwLeft, pwRight);
                 default:
                     throw new ArgumentException("unexpected occurance:" + occurance);
             }
@@ -128,10 +151,17 @@ namespace AdaptiveRoads.Patches {
                     return pwRight;
                 case 1:
                 case 3:
-                    // formula found by trial and error
-                    float A = pwLeft / pwRight - 1;
-                    float r = info2.m_pavementWidth * info.m_halfWidth / info2.m_halfWidth;
-                    return A * r + pwLeft;
+                    if (pwRight > pwLeft) {
+                        // formula found by trial and error
+                        float A = pwLeft / pwRight - 1;
+                        float r = info2.m_pavementWidth * info.m_halfWidth / info2.m_halfWidth;
+                        return A * r + pwLeft;
+                    } else {
+                        float A = pwRight / pwLeft - 1;
+                        float r = info2.m_pavementWidth * info.m_halfWidth / info2.m_halfWidth;
+                        return A * r + pwRight;
+
+                    }
                 default:
                     throw new ArgumentException("unexpected occurance:" + occurance);
             }
