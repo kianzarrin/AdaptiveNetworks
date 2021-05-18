@@ -30,13 +30,20 @@ namespace AdaptiveRoads.Util {
             flags.SwitchFlags(NetSegment.Flags.StopLeft, NetSegment.Flags.StopRight);
             flags.SwitchFlags(NetSegment.Flags.StopLeft2, NetSegment.Flags.StopRight2);
         }
-        public static void SwitchFlags<T>(ref this T flags, T flag1, T flag2) where T : struct, IConvertible{
+        public static NetLaneProps.ColorMode InvertStartEnd(this NetLaneProps.ColorMode colorMode) {
+            return colorMode switch {
+                NetLaneProps.ColorMode.StartState => NetLaneProps.ColorMode.EndState,
+                NetLaneProps.ColorMode.EndState => NetLaneProps.ColorMode.StartState,
+                _ => colorMode,
+            };
+        }
+        public static void SwitchFlags<T>(ref this T flags, T flag1, T flag2) where T : struct, Enum, IConvertible{
             bool hasFlag1 = flags.IsFlagSet(flag1);
             bool hasFlag2 = flags.IsFlagSet(flag2);
             flags = flags.SetFlags(flag1, hasFlag2);
             flags = flags.SetFlags(flag2, hasFlag1);
         }
-        public static bool TryInvertLeftRight(PropInfo prop, out PropInfo prop2) {
+        public static bool TryMirrorMesh(PropInfo prop, out PropInfo prop2) {
             string name2 = prop.name.Replace("left", "right").Replace("Left", "Right")
                 .Replace("LEFT", "RIGHT").Replace("LHT", "RHT").Replace("lht", "rht");
             string name3 = prop.name.Replace("right", "left").Replace("Right", "Left")
@@ -102,6 +109,7 @@ namespace AdaptiveRoads.Util {
 
             prop.ChangeInvertedFlag();
             if(!unidirectional) {
+                prop.m_colorMode = prop.m_colorMode.InvertStartEnd();
                 prop.m_flagsRequired.InvertStartEnd();
                 prop.m_flagsForbidden.InvertStartEnd();
                 Helpers.Swap(ref prop.m_startFlagsRequired, ref prop.m_endFlagsRequired);
@@ -109,7 +117,6 @@ namespace AdaptiveRoads.Util {
             }
             prop.m_flagsRequired.InvertLeftRight();
             prop.m_flagsForbidden.InvertLeftRight();
-
 
             var propExt = prop.GetMetaData();
             if (propExt != null) {
@@ -128,11 +135,9 @@ namespace AdaptiveRoads.Util {
 
                 Helpers.Swap(ref propExt.ForwardSpeedLimit, ref propExt.BackwardSpeedLimit);
             }
-            if(TryInvertLeftRight(prop.m_prop, out var propInfoInverted))
+            if(TryMirrorMesh(prop.m_prop, out var propInfoInverted))
                 prop.m_prop = prop.m_finalProp = propInfoInverted;
         }
-
-
 
         public static void ToggleForwardBackward(this NetLaneProps.Prop prop) {
             Log.Debug("ToggleForwardBackward() called for " + prop.m_prop.name);
@@ -142,6 +147,7 @@ namespace AdaptiveRoads.Util {
             prop.m_position.z = -prop.m_position.z;
             prop.m_position.x = -prop.m_position.x;
 
+            prop.m_colorMode = prop.m_colorMode.InvertStartEnd();
             prop.m_flagsRequired.InvertStartEnd();
             prop.m_flagsForbidden.InvertStartEnd();
 

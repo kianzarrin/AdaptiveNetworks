@@ -1,5 +1,6 @@
-Fix: traffic lights are not reversed when swiching LHT/RHT or FOrward/backward
-
+- merge extension and vanilla  dropdowns togoether.
+    - add node flags.
+- shift (left/right half width)
 
 flags for:
     arrrows:
