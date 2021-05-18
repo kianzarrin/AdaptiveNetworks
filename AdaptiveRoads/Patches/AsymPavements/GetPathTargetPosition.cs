@@ -1,4 +1,4 @@
-namespace AdaptiveRoads.Patches {
+namespace AdaptiveRoads.Patches.AsymPavements {
     using ColossalFramework;
     using HarmonyLib;
     using JetBrains.Annotations;

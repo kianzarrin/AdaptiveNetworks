@@ -88,17 +88,31 @@ namespace AdaptiveRoads.Manager {
         /// preconditions: none. does not need any patches.
         /// </summary>
         public void OnLoad() {
-            Log.Debug("NetworkExtensionManager.OnLoad() called");
+            SimulationManager.instance.AddAction(OnLoadImpl);
+        }
+
+        // should be called from simulation thread.
+        void OnLoadImpl() {
+            LogCalled();
+#if DEBUG
+            for (ushort segmentID = 0; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
+                if (!NetUtil.IsSegmentValid(segmentID)) continue;
+                if (!segmentID.ToSegment().Info.IsAdaptive()) continue;
+                NetManager.instance.UpdateSegment(segmentID);
+            }
+#else
             for (ushort nodeID = 0; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID) {
                 if (!NetUtil.IsNodeValid(nodeID)) continue;
                 NodeBuffer[nodeID].UpdateFlags();
             }
             for (ushort segmentID = 0; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
                 if (!NetUtil.IsSegmentValid(segmentID)) continue;
-                if (segmentID.ToSegment().Info.IsAdaptive()) continue;
+                if (!segmentID.ToSegment().Info.IsAdaptive()) continue;
                 SegmentBuffer[segmentID].UpdateAllFlags();
             }
-            Log.Debug("NetworkExtensionManager.OnLoad() successfull!");
+#endif
+            LogSucceeded();
+
         }
 
         public void OnUnload() {

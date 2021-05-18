@@ -1,5 +1,4 @@
-namespace AdaptiveRoads.Patches {
-    using ColossalFramework;
+namespace AdaptiveRoads.Patches.AsymPavements {
     using HarmonyLib;
     using JetBrains.Annotations;
     using KianCommons;
@@ -11,6 +10,7 @@ namespace AdaptiveRoads.Patches {
     using UnityEngine;
     using static KianCommons.Patches.TranspilerUtils;
     using AdaptiveRoads.Manager;
+    using System.Diagnostics;
 
     // non-dc node
     // private void NetNode.RefreshJunctionData(
@@ -108,9 +108,53 @@ namespace AdaptiveRoads.Patches {
 
         static MethodInfo mModifyPavement = GetMethod(typeof(RefreshJunctionDataPatch), nameof(ModifyPavement));
 
-        /// <summary>
-        /// right pavement width is begger
-        /// </summary>
+
+        public static class Util {
+            public enum Operation {
+                None, //return input width
+                PWBig,
+                PWSmall,
+                PWAR,
+            }
+
+            [Flags]
+            public enum Geometry {
+                None = 0,
+                Reverse = 1,
+                BiggerLeft = 2,
+            }
+
+            public static Geometry GetGeometry(bool reverse, bool biggerLeft) {
+                Geometry ret = Geometry.None;
+                if (reverse)
+                    ret |= Geometry.Reverse;
+                if (biggerLeft)
+                    ret |= Geometry.BiggerLeft;
+                return ret;
+            }
+
+            public static Operation GetOperation(int occurance, bool reverse, bool biggerLeft) {
+                int index = occurance - 1;
+                var geometry = GetGeometry(reverse: reverse, biggerLeft: biggerLeft);
+                return Operations[index, (int)geometry];
+            }
+
+            const int CASE_COUNT = 6;
+            const int GEOMETRY_COUNT = 4;
+            static Operation[,] Operations = new Operation[CASE_COUNT, GEOMETRY_COUNT] {
+
+                //     right          right-reverse       left             left-reverse    */                                                
+                { Operation.PWBig  , Operation.PWAR   , Operation.PWAR   , Operation.PWBig  }, // case 1
+                { Operation.PWSmall, Operation.PWBig  , Operation.PWBig  , Operation.PWSmall}, // case 2
+                { Operation.PWAR   , Operation.PWBig  , Operation.PWBig  , Operation.PWAR   }, // case 3
+                { Operation.PWBig  , Operation.PWSmall, Operation.PWSmall, Operation.PWBig  }, // case 4
+                { Operation.PWBig  , Operation.PWBig  , Operation.PWBig  , Operation.PWBig  }, // case 5
+                { Operation.PWBig  , Operation.PWBig  , Operation.PWBig  , Operation.PWBig  }, // case 6
+            };
+        }
+
+
+
         public static float ModifyPavement(float width, ushort segmentID, ushort segmentID2, int occurance) {
             ref var segment = ref segmentID.ToSegment();
             NetInfo info = segment.Info;
@@ -120,51 +164,118 @@ namespace AdaptiveRoads.Patches {
 
             float pwLeft = info.m_pavementWidth;
             float pwRight = netData.PavementWidthRight;
-            if (pwLeft == pwRight) {
+            float pwSmall = Mathf.Min(pwLeft, pwRight);
+            float pwBig = Mathf.Max(pwLeft, pwRight);
+            if (pwLeft == pwRight)
                 return width;
-            }
 
             ushort nodeID = segment.GetSharedNode(segmentID2);
             bool startNode = segment.IsStartNode(nodeID);
             bool reverse = startNode ^ segment.IsInvert();
-            switch (occurance) {
-                case 2:
-                case 3:
-                    if (reverse)
-                        return width;
-                    break;
-                case 1:
-                case 4:
-                    if (!reverse)
-                        return width;
-                    break;
-                case 5:
-                case 6:
-                    return Math.Max(pwLeft, pwRight);
+
+            var op = Util.GetOperation(occurance: occurance, reverse: reverse, biggerLeft: pwLeft < pwRight);
+            switch (op) {
+                case Util.Operation.PWBig:
+                    return pwBig;
+                case Util.Operation.PWSmall:
+                    return pwSmall;
+                case Util.Operation.PWAR:
+                    float A = pwBig / pwSmall - 1;
+                    float r = info2.m_pavementWidth * info.m_halfWidth / info2.m_halfWidth;
+                    return A * r + pwBig;
                 default:
-                    throw new ArgumentException("unexpected occurance:" + occurance);
+                    return width;
+            } 
+        }
+#if DEBUG
+        public class ARAsymTest : MonoBehaviour {
+            static GameObject go_;
+            static ARAsymTest instance_;
+            public static ARAsymTest Instance {
+                get {
+                    if (!instance_) {
+                        go_ = new GameObject(nameof(ARAsymTest));
+                        instance_ = go_.AddComponent<ARAsymTest>();
+                    }
+                    return instance_;
+                }
             }
 
-            switch (occurance) {
-                case 2:
-                case 4:
-                    return pwRight;
-                case 1:
-                case 3:
-                    if (pwRight < pwLeft) {
-                        // formula found by trial and error
-                        float A = pwLeft / pwRight - 1;
-                        float r = info2.m_pavementWidth * info.m_halfWidth / info2.m_halfWidth;
-                        return A * r + pwLeft;
-                    } else {
-                        float A = pwRight / pwLeft - 1;
-                        float r = info2.m_pavementWidth * info.m_halfWidth / info2.m_halfWidth;
-                        return A * r + pwRight;
+            public bool Switch12;
+            public Util.Operation Case1 = default;
+            public Util.Operation Case2 = Util.Operation.PWAR;
+            public Util.Operation Case3 = Util.Operation.PWSmall;
+            public Util.Operation Case4 = default;
+            public Util.Operation Case5 = Util.Operation.PWBig;
+            public Util.Operation Case6 = Util.Operation.PWBig;
 
-                    }
-                default:
-                    throw new ArgumentException("unexpected occurance:" + occurance);
+            public Util.Operation GetOperation(int occurance) {
+                return occurance switch {
+                    1 => Case1,
+                    2 => Case2,
+                    3 => Case3,
+                    4 => Case4,
+                    5 => Case5,
+                    6 => Case6,
+                    _ => default,
+                };
+            }
+
+            bool updateNow_;
+            public bool UpdateNow {
+                get => updateNow_;
+                set {
+                    updateNow_ = value;
+                    SimulationManager.instance.AddAction(RefreshImpl);
+                }
+            }
+
+            void RefreshImpl() {
+                for (ushort segmentID = 0; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
+                    if (!NetUtil.IsSegmentValid(segmentID)) continue;
+                    if (!segmentID.ToSegment().Info.IsAdaptive()) continue;
+                    NetManager.instance.UpdateSegment(segmentID);
+                }
+            }
+
+            public static float ModifyPavementDebug(float width, ushort segmentID, ushort segmentID2, int occurance) {
+                Log.Debug($"ModifyPavementDebug() called", false);
+                if (ARAsymTest.Instance.Switch12) Helpers.Swap(ref segmentID, ref segmentID2);
+                ref var segment = ref segmentID.ToSegment();
+                NetInfo info = segment.Info;
+                NetInfo info2 = segmentID2.ToSegment().Info;
+                if (info.GetMetaData() is not NetInfoExtionsion.Net netData)
+                    return width;
+
+                float pwLeft = info.m_pavementWidth;
+                float pwRight = netData.PavementWidthRight;
+                float pwSmall = Mathf.Min(pwLeft, pwRight);
+                float pwBig = Mathf.Max(pwLeft, pwRight);
+                if (pwLeft >= pwRight)
+                    return width;
+
+                ushort nodeID = segment.GetSharedNode(segmentID2);
+                bool startNode = segment.IsStartNode(nodeID);
+                bool reverse = startNode ^ segment.IsInvert();
+
+                Log.Debug($"XXX ModifyPavementRight: segmentID={segmentID} segmentID2={segmentID2}\n" +
+                    $"pwBig={pwBig} pwSmall={pwSmall}\n" +
+                    $"occurance={occurance} reverse={reverse} ");
+
+                switch (ARAsymTest.Instance.GetOperation(occurance)) {
+                    case Util.Operation.PWBig:
+                        return pwBig;
+                    case Util.Operation.PWSmall:
+                        return pwSmall;
+                    case Util.Operation.PWAR:
+                        float A = pwBig / pwSmall - 1;
+                        float r = info2.m_pavementWidth * info.m_halfWidth / info2.m_halfWidth;
+                        return A * r + pwBig;
+                    default:
+                        return width;
+                }
             }
         }
+#endif
     }
 }
