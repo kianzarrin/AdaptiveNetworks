@@ -65,7 +65,7 @@ namespace AdaptiveRoads.Patches {
                 });
 
             /****************************************************
-             * non-invert */
+             * invert */
             index = codes.Search(_c => _c.LoadsField(f_pavementWidth), count: 1); //A left
             codes.InsertInstructions(index + 1, //after
                 new[] {
@@ -151,7 +151,7 @@ namespace AdaptiveRoads.Patches {
                     return pwRight;
                 case 1:
                 case 3:
-                    if (pwRight > pwLeft) {
+                    if (pwRight < pwLeft) {
                         // formula found by trial and error
                         float A = pwLeft / pwRight - 1;
                         float r = info2.m_pavementWidth * info.m_halfWidth / info2.m_halfWidth;
