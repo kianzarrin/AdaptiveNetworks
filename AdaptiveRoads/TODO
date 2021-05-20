@@ -1,4 +1,10 @@
+- introduce after/merge  attributes
+
+
+
+
 - merge extension and vanilla  dropdowns togoether.
+    - introduce after/merge  attributes
     - add node flags.
 - shift (left/right) half width
 - sharp nodes
