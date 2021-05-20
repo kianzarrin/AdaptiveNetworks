@@ -1,6 +1,8 @@
 - merge extension and vanilla  dropdowns togoether.
     - add node flags.
-- shift (left/right half width)
+- shift (left/right) half width
+- sharp nodes
+- DC support
 
 flags for:
     arrrows:

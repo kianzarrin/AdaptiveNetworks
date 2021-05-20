@@ -5,6 +5,7 @@ using KianCommons.UI;
 using System.Collections.Generic;
 using UnityEngine;
 using KianCommons.Math;
+using System;
 
 namespace AdaptiveRoads.UI.RoadEditor {
     internal static class Overlay {
@@ -48,7 +49,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 for (ushort segmentID = 1; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
                     if (!NetUtil.IsSegmentValid(segmentID)) continue;
                     var m_lanes = segmentID.ToSegment().Info.m_lanes;
-                    int laneIndex = m_lanes.IndexOf(laneInfo);
+                    int laneIndex = Array.IndexOf(m_lanes, laneInfo);
                     if (laneIndex < 0) continue;
                     uint laneID = NetUtil.GetlaneID(segmentID, laneIndex);
                     LaneData lane = new LaneData(laneID, laneIndex);

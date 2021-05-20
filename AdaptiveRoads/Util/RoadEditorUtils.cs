@@ -296,7 +296,7 @@ namespace AdaptiveRoads.Util {
                 && target == NetInfoExtionsion.EditedNetInfo) {
                 var panel = MiniPanel.Display();
                 var m_lanes = NetInfoExtionsion.EditedNetInfo.m_lanes;
-                var laneIndeces = elements.Select(_lane => m_lanes.IndexOf(_lane));
+                var laneIndeces = elements.Select(_lane => Array.IndexOf(m_lanes, _lane));
                 panel.AddButton(
                     "Copy props to other elevation",
                     "appends props to equivalent lane on other elevations",

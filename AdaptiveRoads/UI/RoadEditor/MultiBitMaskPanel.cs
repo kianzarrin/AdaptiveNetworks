@@ -10,58 +10,17 @@ namespace AdaptiveRoads.UI.RoadEditor {
     using KianCommons.UI.Helpers;
     using AdaptiveRoads.Manager;
     using static KianCommons.ReflectionHelpers;
+    using HarmonyLib;
     using KianCommons.Plugins;
+    using System.Collections.Generic;
 
-    internal struct FlagDataT {
-        public delegate void SetHandlerD(IConvertible flag);
-        public delegate IConvertible GetHandlerD();
-        internal readonly Type EnumType;
-        public readonly SetHandlerD SetValue;
-        public readonly GetHandlerD GetValue;
-        public readonly TypeCode UnderlyingType;
-        public FlagDataT(SetHandlerD setValue, GetHandlerD getValue, Type enumType) {
-            SetValue = setValue;
-            GetValue = getValue;
-            EnumType = enumType;
-            UnderlyingType = getValue().GetTypeCode();
-            Assertion.Assert(
-                UnderlyingType == TypeCode.Int64 || UnderlyingType == TypeCode.Int32,
-                $"bad enum type:{enumType}, Underlying Type:{UnderlyingType}");
-            Assertion.Assert(enumType.IsEnum, "isEnum");
-            Assertion.Equal(
-                Type.GetTypeCode(Enum.GetUnderlyingType(enumType)),
-                UnderlyingType,
-                "underlaying types mismatch");
-        }
+    public class MultiBitMaskPanel : UIPanel, IDataUI {
 
-        public long GetValueLong() {
-            var flag = GetValue();
-            switch (UnderlyingType) {
-                case TypeCode.Int32: return (long)(uint)(int)flag;
-                case TypeCode.Int64: return (long)flag;
-                default: throw new Exception("unreachable code");
-            }
-        }
 
-        public void SetValueLong(long flag) {
-            switch (UnderlyingType) {
-                case TypeCode.Int32:
-                    SetValue((int)flag);
-                    break;
-                case TypeCode.Int64:
-                    SetValue(flag);
-                    break;
-                default: throw new Exception("unreachable code");
-            }
-        }
-    }
-
-    public class BitMaskPanel : UIPanel, IDataUI {
-        internal FlagDataT FlagData;
-
+        internal FlagDataT[] FlagDatas;
         public UILabel Label;
         public UICheckboxDropDown DropDown;
-
+        
         public string Hint;
         public event REPropertySet.PropertyChangedHandler EventPropertyChanged;
 
@@ -70,33 +29,24 @@ namespace AdaptiveRoads.UI.RoadEditor {
             base.OnDestroy();
         }
 
-        internal static BitMaskPanel Add(
+        internal static MultiBitMaskPanel Add(
             RoadEditorPanel roadEditorPanel,
             UIComponent container,
             string label,
             string hint,
-            FlagDataT flagData) {
-            try {
-                Log.Debug($"BitMaskPanel.Add(container:{container}, label:{label}, enumType:{flagData.EnumType})");
-                var subPanel = UIView.GetAView().AddUIComponent(typeof(BitMaskPanel)) as BitMaskPanel;
-                subPanel.FlagData = flagData;
-                subPanel.Initialize();
-                subPanel.Label.text = label + ":";
-                subPanel.Hint = hint;
-                //if (dark)
-                //    subPanel.opacity = 0.1f;
-                //else
-                //    subPanel.opacity = 0.3f;
+            params FlagDataT [] flagDatas) {
+            Log.Debug($"BitMaskPanel.Add(container:{container}, label:{label})");
+            var subPanel = UIView.GetAView().AddUIComponent(typeof(MultiBitMaskPanel)) as MultiBitMaskPanel;
+            subPanel.FlagDatas = flagDatas;
+            subPanel.Initialize();
+            subPanel.Label.text = label + ":";
+            subPanel.Hint = hint;
 
-                container.AttachUIComponent(subPanel.gameObject);
-                roadEditorPanel.FitToContainer(subPanel);
-                subPanel.EventPropertyChanged += roadEditorPanel.OnObjectModified;
+            container.AttachUIComponent(subPanel.gameObject);
+            roadEditorPanel.FitToContainer(subPanel);
+            subPanel.EventPropertyChanged += roadEditorPanel.OnObjectModified;
 
-                return subPanel;
-            }catch(Exception ex) {
-                Log.Exception(ex);
-                return null;
-            }
+            return subPanel;
         }
 
         public override void Awake() {
@@ -117,12 +67,18 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
         private void Initialize() {
             //Disable();
-            Populate(DropDown, FlagData.GetValueLong(), FlagData.EnumType);
+            Populate(DropDown, FlagDatas);
             UpdateText();
             Enable();
         }
 
         public void Refresh() => Initialize();
+
+        internal static void Populate(UICheckboxDropDown dropdown, FlagDataT [] flagDatas) {
+            foreach (FlagDataT flagData in flagDatas) {
+                Populate(dropdown, flagData.GetValueLong(), flagData.EnumType);
+            }
+        }
 
         public static void Populate(UICheckboxDropDown dropdown, long flags, Type enumType) {
             var values = EnumBitMaskExtensions.GetPow2Values(enumType);
@@ -143,43 +99,50 @@ namespace AdaptiveRoads.UI.RoadEditor {
             }
         }
 
-        public override void Start() {
-            base.Start();
-            UIButton button = DropDown.triggerButton as UIButton;
-        }
-
         private void DropdownClose(UICheckboxDropDown checkboxdropdown) {
             SetValue(GetCheckedFlags());
             UpdateText();
-            UIButton button = DropDown.triggerButton as UIButton;
         }
 
         // apply checked flags from UI to prefab
-        protected void SetValue(long value) {
-            if (FlagData.GetValueLong() != value) {
-                FlagData.SetValueLong(value);
-                
-                EventPropertyChanged?.Invoke();
+        protected void SetValue(long []enumFlags) {
+            for (int i = 0; i < FlagDatas.Length; ++i) {
+                long originalValue = FlagDatas[i].GetValueLong();
+                if (originalValue == enumFlags[i]) {
+                    FlagDatas[i].SetValueLong(enumFlags[i]);
+                    EventPropertyChanged?.Invoke();
+                }
             }
         }
 
         // get checked flags in UI
-        private long GetCheckedFlags() {
-            long ret = 0;
-            for (int i = 0; i < DropDown.items.Length; i++) {
-                if (DropDown.GetChecked(i)) {
-                    ret |= (DropDown.GetItemUserData(i) as IConvertible).ToInt64();
+        private long[] GetCheckedFlags() {
+            long[] ret = new long[FlagDatas.Length];
+            for(int i = 0; i < DropDown.items.Length; i++) {
+                if(DropDown.GetChecked(i)) {
+                    IConvertible flag = DropDown.GetItemUserData(i) as IConvertible;
+                    int j = FlagDatas.FindIndex(item => item.EnumType == flag.GetType());
+                    Assertion.GTEq(j, 0, "j");
+                    ret[j] |= flag.ToInt64();
                 }
             }
             return ret;
         }
 
-        private string ToText(IConvertible value) =>
-            Enum.Format(enumType: FlagData.EnumType, value: value, format: "G");
+        private string ToText(IConvertible[] enumFlags) {
+            string ret = "";
+            for (int i = 0; i < FlagDatas.Length; ++i) {
+                if (enumFlags[i].ToInt64() == 0) continue;
+                if (ret != "") ret += ", ";
+                ret += Enum.Format(enumType: FlagDatas[i].EnumType, value: enumFlags[i], "G");
+            }
+            if (ret == "") ret = "None";
+            return ret;
+        }
 
         private void UpdateText() {
-            var flags = FlagData.GetValue();
-            string text = ToText(flags);
+            var enumFlags = FlagDatas.Select(item => item.GetValue()).ToArray();
+            string text = ToText(enumFlags);
             ApplyText(DropDown, text);
         }
 
@@ -196,7 +159,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
             uibutton.text = text; // must set text to mearure text once and only once.
 
-            using (UIFontRenderer uifontRenderer = ObtainTextRenderer(uibutton)) {
+            using(UIFontRenderer uifontRenderer = ObtainTextRenderer(uibutton)) {
                 float p2uRatio = uibutton.GetUIView().PixelsToUnits();
                 var widths = uifontRenderer.GetCharacterWidths(text);
                 float x = widths.Sum() / p2uRatio;
@@ -206,10 +169,10 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 //else
                 //    uibutton.textHorizontalAlignment = UIHorizontalAlignment.Center;
 
-                if (x > uibutton.width - uibutton.textPadding.horizontal) {
-                    for (int n = 4; n < text.Length; ++n) {
+                if(x > uibutton.width - uibutton.textPadding.horizontal) {
+                    for(int n = 4; n < text.Length; ++n) {
                         float x2 = widths.Take(n).Sum() / p2uRatio + 15; // 15 = width of ...
-                        if (x2 > uibutton.width - 21) {
+                        if(x2 > uibutton.width - 21) {
                             text = text.Substring(0, n - 1) + "...";
                             break;
                         }
@@ -219,7 +182,6 @@ namespace AdaptiveRoads.UI.RoadEditor {
             }
             uibutton.text = text;
         }
-
 
         [FPSBoosterSkipOptimizations]
         public override void Update() {
@@ -232,9 +194,9 @@ namespace AdaptiveRoads.UI.RoadEditor {
         }
 
         public bool IsHovered() {
-            if (containsMouse)
+            if(containsMouse)
                 return true;
-            if (DropDown.GetHoverIndex() >= 0)
+            if(DropDown.GetHoverIndex() >= 0)
                 return true;
             return false;
         }

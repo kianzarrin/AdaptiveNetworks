@@ -23,38 +23,44 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         /// </summary>
         public static bool Prefix(string groupName, FieldInfo field, object target,
             RoadEditorPanel __instance) {
-            if (NetInfoExtionsion.EditedNetInfo == null)
-                return true; // ignore this outside of asset editor.
-            if (RoadEditorPanelExtensions.RequiresUserFlag(field.FieldType))
-                return true;
-            if (field.HasAttribute<BitMaskAttribute>() && field.HasAttribute<CustomizablePropertyAttribute>()) {
-                UIComponent container = __instance.m_Container;
-                if (!string.IsNullOrEmpty(groupName)) {
-                    container = __instance.GetGroupPanel(groupName).Container;
+            try {
+                if (NetInfoExtionsion.EditedNetInfo == null)
+                    return true; // ignore this outside of asset editor.
+                if (RoadEditorPanelExtensions.RequiresUserFlag(field.FieldType))
+                    return true;
+                if (field.HasAttribute<BitMaskAttribute>() && field.HasAttribute<CustomizablePropertyAttribute>()) {
+                    UIComponent container = __instance.m_Container;
+                    if (!string.IsNullOrEmpty(groupName)) {
+                        container = __instance.GetGroupPanel(groupName).Container;
+                    }
+                    var att = field.GetAttribute<CustomizablePropertyAttribute>();
+
+                    var enumType = field.FieldType;
+                    enumType = HintExtension.GetMappedEnumWithHints(enumType);
+
+                    var hints = field.GetHints();
+                    if (field.Name == "m_stopType")
+                        hints.Add("set this for the pedestrian lane that contains the bus/tram stop.");
+                    hints.AddRange(enumType.GetHints());
+                    string hint = hints.JoinLines();
+                    Log.Debug($"{field} -> hint is: " + hint);
+
+                    var bitMaskPanel = BitMaskPanel.Add(
+                        roadEditorPanel: __instance,
+                        container: container,
+                        label: att.name,
+                        hint: hint,
+                        flagData: new FlagDataT(
+                            setValue: val => field.SetValue(target, val),
+                            getValue: () => (int)field.GetValue(target),
+                            enumType: enumType));
+                    return false;
                 }
-                var att = field.GetAttribute<CustomizablePropertyAttribute>();
-
-                var enumType = field.FieldType;
-                enumType = HintExtension.GetMappedEnumWithHints(enumType);
-
-                var hints = field.GetHints();
-                if (field.Name == "m_stopType")
-                    hints.Add("set this for the pedestrian lane that contains the bus/tram stop.");
-                hints.AddRange(enumType.GetHints());
-                string hint = hints.JoinLines();
-                Log.Debug($"{field} -> hint is: " + hint);
-
-                var bitMaskPanel = BitMaskPanel.Add(
-                    roadEditorPanel: __instance,
-                    container: container,
-                    label: att.name,
-                    enumType: enumType,
-                    setHandler: val => field.SetValue(target, val),
-                    getHandler: () => (int)field.GetValue(target),
-                    hint: hint);
+                return true;
+            } catch (Exception ex) {
+                ex.Log();
                 return false;
             }
-            return true;
         }
 
         /// <summary>
@@ -157,7 +163,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             } catch (Exception e) {
                 Log.Exception(e);
             }
-
         }
 
         /// <summary>
@@ -165,11 +170,15 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         /// </summary>
         /// <param name="component">this component and all its children are searched</param>
         public static void ReplaceLabel(Component component, string oldLabel, string newLabel) {
-            var labels = component.GetComponentsInChildren<UILabel>()
-                .Where(_lbl => _lbl.text == oldLabel);
-            if (labels == null) return;
-            foreach (var label in labels)
-                label.text = newLabel;
+            try {
+                var labels = component.GetComponentsInChildren<UILabel>()
+                    .Where(_lbl => _lbl.text == oldLabel);
+                if (labels == null) return;
+                foreach (var label in labels)
+                    label.text = newLabel;
+            } catch (Exception ex) {
+                ex.Log();
+            }
         }
 
         /// <summary>
@@ -182,91 +191,93 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         /// <param name="prefix"></param>
         public static void CreateExtendedComponent(
             string groupName, FieldInfo fieldInfo, object target, RoadEditorPanel instance, string prefix = "") {
-            //Assert(string.IsNullOrEmpty(groupName), "groupName is empty");
-            UIComponent container = instance.m_Container;  //instance.component.GetComponentInChildren<UIScrollablePanel>();
-            if (!string.IsNullOrEmpty(groupName)) {
-                container = instance.GetGroupPanel(groupName).Container;
-            }
-
-            AssertNotNull(container, "container");
-            Log.Debug("CreateExtendedComponent():container=" + container);
-
-            Assert(fieldInfo.HasAttribute<CustomizablePropertyAttribute>(), "HasAttribute:CustomizablePropertyAttribute");
-            AssertNotNull(target, "target");
-            AssertNotNull(target, "fieldInfo");
-            AssertNotNull(target, "RoadEditorPanel instance");
-            Log.Debug(
-                $"CreateExtendedComponent(groupName={groupName}, fieldInfo={fieldInfo}, target={target}, instance={instance.name}) called",
-                false);
-
-            var att = fieldInfo.GetAttribute<CustomizablePropertyAttribute>();
-            var optionals = fieldInfo.GetAttributes<OptionalAttribute>();
-            var optionals2 = target.GetType().GetAttributes<OptionalAttribute>();
-            foreach (var optional in optionals.Concat(optionals2)) {
-                if (optional != null && !ModSettings.GetOption(optional.Option)) {
-                    Log.Debug($"Hiding {target.GetType().Name}::`{att.name}` because {optional.Option} is disabled");
-                    return;
-                }
-            }
-
-            var hints = fieldInfo.GetHints();
-            hints.AddRange(fieldInfo.FieldType.GetHints());
-            string hint = hints.JoinLines();
-            Log.Debug("hint is " + hint);
-
-            if (fieldInfo.FieldType.HasAttribute<FlagPairAttribute>()) {
-                int GetRequired() {
-                    object subTarget = fieldInfo.GetValue(target);
-                    return (int)GetFieldValue(subTarget, "Required");
-                }
-                void SetRequired(int flags) {
-                    var subTarget = fieldInfo.GetValue(target);
-                    SetFieldValue(target: subTarget, fieldName: "Required", value: flags);
-                    fieldInfo.SetValue(target, subTarget);
-                }
-                int GetForbidden() {
-                    object subTarget = fieldInfo.GetValue(target);
-                    return (int)GetFieldValue(subTarget, "Forbidden");
-                }
-                void SetForbidden(int flags) {
-                    var subTarget = fieldInfo.GetValue(target);
-                    SetFieldValue(target: subTarget, fieldName:"Forbidden", value: flags);
-                    fieldInfo.SetValue(target, subTarget);
+            try {
+                //Assert(string.IsNullOrEmpty(groupName), "groupName is empty");
+                UIComponent container = instance.m_Container;  //instance.component.GetComponentInChildren<UIScrollablePanel>();
+                if (!string.IsNullOrEmpty(groupName)) {
+                    container = instance.GetGroupPanel(groupName).Container;
                 }
 
-                Type enumType = fieldInfo.FieldType.GetField("Required").FieldType;
-                enumType = HintExtension.GetMappedEnumWithHints(enumType);
+                AssertNotNull(container, "container");
+                Log.Debug("CreateExtendedComponent():container=" + container);
 
-                var panel0 = BitMaskPanel.Add(
-                    roadEditorPanel: instance,
-                    container: container,
-                    label: prefix + att.name + " Flags Required",
-                    enumType: enumType,
-                    setHandler: SetRequired,
-                    getHandler: GetRequired,
-                    hint: hint);
-                panel0.EventPropertyChanged += instance.OnObjectModified;
-                var panel1 = BitMaskPanel.Add(
-                    roadEditorPanel: instance,
-                    container: container,
-                    label: prefix + att.name + " Flags Forbidden",
-                    enumType: enumType,
-                    setHandler: SetForbidden,
-                    getHandler: GetForbidden,
-                    hint: hint);
-                panel1.EventPropertyChanged += instance.OnObjectModified;
-            } else if (fieldInfo.FieldType == typeof(NetInfoExtionsion.Range) &&
-                       fieldInfo.Name.ToLower().Contains("speed")) {
-                var panel = SpeedRangePanel.Add(
-                    roadEditorPanel: instance,
-                    container: container,
-                    label: prefix + att.name,
-                    target: target,
-                    fieldInfo: fieldInfo);
-                panel.EventPropertyChanged += instance.OnObjectModified;
+                Assert(fieldInfo.HasAttribute<CustomizablePropertyAttribute>(), "HasAttribute:CustomizablePropertyAttribute");
+                AssertNotNull(target, "target");
+                AssertNotNull(target, "fieldInfo");
+                AssertNotNull(target, "RoadEditorPanel instance");
+                Log.Debug(
+                    $"CreateExtendedComponent(groupName={groupName}, fieldInfo={fieldInfo}, target={target}, instance={instance.name}) called",
+                    false);
 
-            } else {
-                Log.Error($"CreateExtendedComponent: Unhandled field: {fieldInfo} att:{att.name} ");
+                var att = fieldInfo.GetAttribute<CustomizablePropertyAttribute>();
+                var optionals = fieldInfo.GetAttributes<OptionalAttribute>();
+                var optionals2 = target.GetType().GetAttributes<OptionalAttribute>();
+                foreach (var optional in optionals.Concat(optionals2)) {
+                    if (optional != null && !ModSettings.GetOption(optional.Option)) {
+                        Log.Debug($"Hiding {target.GetType().Name}::`{att.name}` because {optional.Option} is disabled");
+                        return;
+                    }
+                }
+
+                var hints = fieldInfo.GetHints();
+                hints.AddRange(fieldInfo.FieldType.GetHints());
+                string hint = hints.JoinLines();
+                Log.Debug("hint is " + hint);
+
+                if (fieldInfo.FieldType.HasAttribute<FlagPairAttribute>()) {
+                    IConvertible GetRequired() {
+                        object subTarget = fieldInfo.GetValue(target);
+                        return (int)GetFieldValue(subTarget, "Required");
+                    }
+                    void SetRequired(IConvertible flags) {
+                        var subTarget = fieldInfo.GetValue(target);
+                        SetFieldValue(target: subTarget, fieldName: "Required", value: flags);
+                        fieldInfo.SetValue(target, subTarget);
+                    }
+                    IConvertible GetForbidden() {
+                        object subTarget = fieldInfo.GetValue(target);
+                        return (int)GetFieldValue(subTarget, "Forbidden");
+                    }
+                    void SetForbidden(IConvertible flags) {
+                        var subTarget = fieldInfo.GetValue(target);
+                        SetFieldValue(target: subTarget, fieldName: "Forbidden", value: flags);
+                        fieldInfo.SetValue(target, subTarget);
+                    }
+
+                    Type enumType = fieldInfo.FieldType.GetField("Required").FieldType;
+                    enumType = HintExtension.GetMappedEnumWithHints(enumType);
+
+                    var panel0 = BitMaskPanel.Add(
+                        roadEditorPanel: instance,
+                        container: container,
+                        label: prefix + att.name + " Flags Required",
+                        hint: hint,
+                        flagData: new FlagDataT(
+                            setValue: SetRequired,
+                            getValue: GetRequired,
+                            enumType: enumType));
+                    var panel1 = BitMaskPanel.Add(
+                        roadEditorPanel: instance,
+                        container: container,
+                        label: prefix + att.name + " Flags Forbidden",
+                        hint: hint,
+                        flagData: new FlagDataT(
+                            setValue: SetForbidden,
+                            getValue: GetRequired,
+                            enumType: enumType));
+                } else if (fieldInfo.FieldType == typeof(NetInfoExtionsion.Range) &&
+                           fieldInfo.Name.ToLower().Contains("speed")) {
+                    var panel = SpeedRangePanel.Add(
+                        roadEditorPanel: instance,
+                        container: container,
+                        label: prefix + att.name,
+                        target: target,
+                        fieldInfo: fieldInfo);
+                } else {
+                    Log.Error($"CreateExtendedComponent: Unhandled field: {fieldInfo} att:{att.name} ");
+                }
+            } catch (Exception ex) {
+                ex.Log();
             }
         }
     }
