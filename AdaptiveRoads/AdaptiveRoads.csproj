@@ -13,7 +13,7 @@
     <Deterministic>false</Deterministic>
     <AssemblyVersion>2.0.0.*</AssemblyVersion>
     <LangVersion>latest</LangVersion>
-    <DebugType>pdbonly</DebugType>
+    <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <PathMap>$(MSBuildProjectDirectory)\=$(ProjectName)\</PathMap>
     <Configurations>Debug;Release;FAST_TEST_PATCHES;Workshop</Configurations>
@@ -192,7 +192,7 @@
       <Output TaskParameter="Assemblies" ItemName="Targets" />
     </GetAssemblyIdentity>
     <ItemGroup>
-      <AuxilaryFiles Include="&#xD;&#xA;      $(TargetDir)PrefabMetaData*.dll;&#xD;&#xA;      $(TargetDir)CitiesHarmony.API.dll;&#xD;&#xA;      $(TargetDir)UnifiedUILib.dll;&#xD;&#xA;      $(SolutionDir)\libs\UnifiedUILib.dll.mdb;&#xD;&#xA;      $(TargetDir)\Resources\*.png;&#xD;&#xA;      $(SolutionDir)\libs\FbxFormatConverter.exe;" Exclude="$(TargetPath);$(TargetDir)*.pdb" />
+      <AuxilaryFiles Include="$(TargetDir)PrefabMetaData*.dll;$(TargetDir)CitiesHarmony.API.dll;$(TargetDir)UnifiedUILib.dll;$(SolutionDir)\libs\UnifiedUILib.dll.mdb;$(TargetDir)\Resources\*.png;$(SolutionDir)\libs\FbxFormatConverter.exe;" Exclude="$(TargetPath);$(TargetDir)*.pdb" />
       <VersionNumber Include="@(Targets->'%(Version)')" />
     </ItemGroup>
     <PropertyGroup>
@@ -206,12 +206,13 @@
       <OldZipFiles Include="$(DeployDir)/../$(ProjectName)-*-$(Configuration).zip" />
     </ItemGroup>
     
-    <Delete Files="$(TargetDir)*.mdb" />
+    <Delete Files="$(TargetPath).mdb;$(TargetDir)PrefabMetaData.dll.mdb" />
     <Exec Command="&quot;$(pdb2mdb)&quot; &quot;$(TargetPath)&quot;" />
-    <Exec Command="&quot;$(pdb2mdb)&quot; &quot;$(TargetDir)PrefabMetaData.dll&quot;" />
-
     <Copy SourceFiles="$(TargetPath).mdb" DestinationFolder="$(DeployDir)" />
-    <Copy SourceFiles="$(TargetDir)PrefabMetaData.dll.mdb" DestinationFolder="$(DeployDir)" />
+
+    <!--<Copy SourceFiles="$(TargetDir)PrefabMetaData.dll.mdb" DestinationFolder="$(DeployDir)" />
+    <Exec Command="&quot;$(pdb2mdb)&quot; &quot;$(TargetDir)PrefabMetaData.dll&quot;" />-->
+
     <Copy SourceFiles="@(AuxilaryFiles)" DestinationFolder="$(DeployDir)" />
 
     <Delete Files="$(DeployDir)$(TargetFileName)" />

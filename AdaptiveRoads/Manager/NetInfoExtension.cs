@@ -17,8 +17,15 @@ using static KianCommons.ReflectionHelpers;
 namespace AdaptiveRoads.Manager {
     using static HintExtension;
 
-    [AttributeUsage(AttributeTargets.Struct)]
-    public class FlagPairAttribute : Attribute { }
+    [AttributeUsage(AttributeTargets.Struct, AllowMultiple = true)]
+    public class FlagPairAttribute : Attribute {
+        public Type MergeWithEnum;
+    }
+
+    public class AfterFieldAttribute : Attribute {
+        public string FieldName;
+        public AfterFieldAttribute(string fieldName) => FieldName = fieldName;
+    }
 
     /// <summary>
     /// Field visibility in asset is controlled by settings.
@@ -102,8 +109,6 @@ namespace AdaptiveRoads.Manager {
             else
                 return flags.CheckFlags(segmentInfo.m_backwardRequired, segmentInfo.m_backwardForbidden);
         }
-
-
     }
 
     public class NetMetadataContainer : MonoBehaviour {
@@ -146,8 +151,8 @@ namespace AdaptiveRoads.Manager {
             public override string ToString() => $"[{Lower}:{Upper})";
         }
 
-        [FlagPair]
         [Serializable]
+        [FlagPair]
         public struct VanillaSegmentInfoFlags {
             [BitMask]
             public NetSegment.Flags Required, Forbidden;
@@ -162,7 +167,8 @@ namespace AdaptiveRoads.Manager {
             public bool CheckFlags(NetNode.Flags flags) => flags.CheckFlags(Required, Forbidden);
         }
 
-        [FlagPair]
+        [FlagPair(MergeWithEnum = typeof(NetSegment.Flags))]
+        [FlagPair(MergeWithEnum = typeof(NetSegmentFlags))]
         [Serializable]
         public struct SegmentInfoFlags {
             [BitMask]
@@ -181,7 +187,8 @@ namespace AdaptiveRoads.Manager {
             public bool CheckFlags(NetSegmentEnd.Flags flags) => flags.CheckFlags(Required, Forbidden);
         }
 
-        [FlagPair]
+        [FlagPair(MergeWithEnum = typeof(NetNode.Flags))]
+        [FlagPair(MergeWithEnum = typeof(NetNodeFlags))]
         [Serializable]
         public struct NodeInfoFlags {
             public NetNodeExt.Flags Required, Forbidden;
@@ -189,7 +196,9 @@ namespace AdaptiveRoads.Manager {
             public bool CheckFlags(NetNodeExt.Flags flags) => flags.CheckFlags(Required, Forbidden);
         }
 
-        [FlagPair]
+
+        [FlagPair(MergeWithEnum = typeof(NetLane.Flags))]
+        [FlagPair(MergeWithEnum = typeof(NetLaneFlags))]
         [Serializable]
         public struct LaneInfoFlags {
             [BitMask]
@@ -215,6 +224,7 @@ namespace AdaptiveRoads.Manager {
                 UsedCustomFlags = GetUsedCustomFlags(template);
             }
 
+            [AfterField(nameof(NetInfo.m_pavementWidth))]
             [CustomizableProperty("Pavement Width Right", "Properties")]
             [Hint("must be greater than left pavement width")]
             public float PavementWidthRight;
@@ -398,13 +408,13 @@ namespace AdaptiveRoads.Manager {
             [Hint("lane extension flags")]
             public LaneInfoFlags LaneFlags = new LaneInfoFlags();
 
+            [CustomizableProperty("Segment")]
+            [Optional(LANE_SEGMENT)]
+            public VanillaSegmentInfoFlags VanillaSegmentFlags = new VanillaSegmentInfoFlags();
+
             [CustomizableProperty("Segment Extionsion")]
             [Optional(LANE_SEGMENT)]
             public SegmentInfoFlags SegmentFlags = new SegmentInfoFlags();
-
-            [CustomizableProperty("Vanilla Segment")]
-            [Optional(LANE_SEGMENT)]
-            public VanillaSegmentInfoFlags VanillaSegmentFlags = new VanillaSegmentInfoFlags();
 
             [Hint(LANE_HEAD_TAIL)]
             [CustomizableProperty("Segment Tail")]
