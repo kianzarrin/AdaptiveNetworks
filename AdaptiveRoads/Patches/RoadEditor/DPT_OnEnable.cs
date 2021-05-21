@@ -12,9 +12,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
     /// <summary>
     /// highlight lanes
-    /// TODO highlight nodes/segments/props ...
-    /// TODO add summary hint.
-    /// TODO right-click to copy/duplicate/duplicate_invert
     /// </summary>
     [HarmonyPatch]
     internal static class DPT_OnEnable {

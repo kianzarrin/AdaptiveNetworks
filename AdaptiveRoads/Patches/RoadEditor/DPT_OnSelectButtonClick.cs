@@ -8,7 +8,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
     /// <summary>
     /// if control is pressed, show more options instead of toggling the side panel.
-    /// TODO multi-select
     /// </summary>
     [HarmonyPatch]
     public static class DPT_OnSelectButtonClick {
