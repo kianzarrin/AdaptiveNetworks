@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <PackageReference Include="CitiesHarmony.API" Version="2.0.0" />
     <PackageReference Include="GitInfo" Version="2.1.2">
@@ -17,6 +17,9 @@
     <DebugSymbols>true</DebugSymbols>
     <PathMap>$(MSBuildProjectDirectory)\=$(ProjectName)\</PathMap>
     <Configurations>Debug;Release;FAST_TEST_PATCHES;Workshop</Configurations>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='DEBUG'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='FAST_TEST_PATCHES'">
     <DefineConstants>DEBUG;TRACE;FAST_TEST_HARMONY</DefineConstants>
