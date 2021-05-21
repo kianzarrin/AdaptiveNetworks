@@ -315,9 +315,23 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
                 var vanillas = GetARFlagUIData(mergedField, metadata);
                 var arDatas = GetARFlagUIData(fieldInfo, metadata);
-                if (arDatas.IsNullorEmpty()) {
+                if (vanillas.IsNullorEmpty() && arDatas.IsNullorEmpty()) {
+                    return; //both optional and hidden;
+                } else if (vanillas.IsNullorEmpty()) {
+                    // only vanilla is optional and hidden
+                    Assertion.Equal(arDatas.Length, 2, "arDatas.Length");
                     for (int i = 0; i < 2; ++i) {
-                        // hide optional flags.
+                        BitMaskPanel.Add(
+                            roadEditorPanel: roadEditorPanel,
+                            container: container,
+                            label: arDatas[i].Label,
+                            hint: arDatas[i].Hint,
+                            flagData: arDatas[i].FlagData);
+                    }
+                } else if (arDatas.IsNullorEmpty()) {
+                    // only ara data is optional and hidden
+                    Assertion.Equal(vanillas.Length, 2, "vanillas.Length");
+                    for (int i = 0; i < 2; ++i) {
                         BitMaskPanel.Add(
                             roadEditorPanel: roadEditorPanel,
                             container: container,
@@ -371,11 +385,14 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 var atts = extensionField.FieldType.GetAttributes<FlagPairAttribute>().EmptyIfNull();
                 bool forward1 = extensionField.Name.Contains("Forward");
                 bool forward2 = vanillaField.Name.Contains("forward");
+                bool start1 = extensionField.Name.Contains("Start") || extensionField.Name.Contains("Tail");
+                bool start2 = vanillaField.Name.Contains("start");
                 return
                     Merge &&
                     IsUIReplaced(vanillaField) &&
-                    atts.Any(att=> att?.MergeWithEnum == vanillaField.FieldType) &&
-                    forward1 == forward2; // do not match forward with backward flags.
+                    atts.Any(att => att?.MergeWithEnum == vanillaField.FieldType) &&
+                    forward1 == forward2 && // forward/backward segment flags
+                    start1 == start2; // start/end node flags
             }
         }
 
@@ -397,14 +414,14 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         !vanillaField.FieldType.HasAttribute<FlagPairAttribute>()) {
                         return false;
                     }
-                    //Log.Debug("[P1]");
                     var atts = extensionField.FieldType.GetAttributes<FlagPairAttribute>();
                     var vanillaEnumType = vanillaField.FieldType.GetField("Required").FieldType;
-                    //Log.Debug("[P2] " + atts[0].MergeWithEnum);
-                    //Log.Debug("[P2] " + atts[0].MergeWithEnum);
+                    bool start1 = extensionField.Name.Contains("Start") || extensionField.Name.Contains("Tail");
+                    bool start2 = vanillaField.Name.Contains("Start") || vanillaField.Name.Contains("Tail");
                     return
                         Merge && InRoadEditor &&
-                        atts.Any(att => att.MergeWithEnum == vanillaEnumType);
+                        atts.Any(att => att.MergeWithEnum == vanillaEnumType) &&
+                        start1 == start2; //match start/end Node flag;
                 }catch(Exception ex) {
                     Log.Exception(ex, $"extensionField={extensionField}, vanillaField={vanillaField}");
                     return false;
@@ -426,7 +443,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             if (!Merge || !ModSettings.ARMode || field.DeclaringType == typeof(NetInfo.Lane))
                 return false;
             return
-                // field.FieldType == typeof(NetNode.Flags) || // TODO: uncomment when added node extension flags
+                field.FieldType == typeof(NetNode.Flags) ||
                 field.FieldType == typeof(NetSegment.Flags) ||
                 field.FieldType == typeof(NetLane.Flags);
         }

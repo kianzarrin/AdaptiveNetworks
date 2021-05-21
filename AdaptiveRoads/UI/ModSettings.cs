@@ -20,12 +20,11 @@ namespace AdaptiveRoads.UI {
 
         public enum SpeedUnitType { KPH, MPH }
 
-        public const string SEGMENT_VANILLA_NODE = "Segment.VanillaNode";
+        public const string SEGMENT_NODE = "Segment.Node";
         public const string SEGMENT_SEGMENT_END = "Segment.SegmentEnd";
         public const string NODE_SEGMENT = "Node.Segment";
         public const string LANE_SEGMENT = "Lane.Segment";
         public const string LANE_SEGMENT_END = "Lane.SegmentEnd";
-        public const string LANE_NODE = "Lane.Node";
         public const string AR_MODE = "AR_MODE";
 
         //public static readonly SavedBool InLineLaneInfo = SavedBool("InLineLaneInfo", true);
@@ -34,12 +33,11 @@ namespace AdaptiveRoads.UI {
         public static readonly SavedBool HideIrrelavant = SavedBool("HideIrrelavant", true);
         public static readonly SavedBool HideHints = SavedBool("HideHints", false);
 
-        public static readonly SavedBool Segment_Node = SavedBool(SEGMENT_VANILLA_NODE, false);
+        public static readonly SavedBool Segment_Node = SavedBool(SEGMENT_NODE, false);
         public static readonly SavedBool Segment_SegmentEnd = SavedBool(SEGMENT_SEGMENT_END, true);
         public static readonly SavedBool Node_Segment = SavedBool(NODE_SEGMENT, false);
         public static readonly SavedBool Lane_Segment = SavedBool(LANE_SEGMENT, true);
         public static readonly SavedBool Lane_SegmentEnd = SavedBool(LANE_SEGMENT_END, false);
-        public static readonly SavedBool Lane_Node = SavedBool(LANE_NODE, false);
 
         public static readonly SavedBool ARMode = SavedBool(AR_MODE, true);
         public static bool VanillaMode => !ARMode;
@@ -129,7 +127,6 @@ namespace AdaptiveRoads.UI {
 
             var laneProp = extensions.AddGroup("Lane prop");
             laneProp.AddSavedToggle("Segment and Segment-extension flags", Lane_Segment);
-            //laneProp.AddSavedToggle("Node flags", Lane_Node);
             laneProp.AddSavedToggle("Segment End flags", Lane_SegmentEnd);
         }
 

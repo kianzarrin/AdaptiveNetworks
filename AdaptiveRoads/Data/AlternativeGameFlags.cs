@@ -86,7 +86,6 @@ namespace AdaptiveRoads.Manager {
     }
 
     [Flags]
-    [Hint("Vanilla Segment Flags")]
     public enum NetSegmentFlags {
         None = 0,
         //[Hide]
@@ -192,7 +191,6 @@ namespace AdaptiveRoads.Manager {
     }
 
     [Flags]
-    [Hint("Vanilla node flags")]
     public enum NetNodeFlags {
         None = 0,
         [Hide]
@@ -314,7 +312,6 @@ namespace AdaptiveRoads.Manager {
 
 
     [Flags]
-    [Hint("Vanilla lane flags")]
     public enum NetLaneFlags {
         None = 0,
         [Hide]

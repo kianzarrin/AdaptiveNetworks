@@ -201,6 +201,12 @@ namespace AdaptiveRoads.Manager {
                 "useful for drawing pattern on the junction.")]
             KeepClearAll = 1 << 1,
 
+            [Hint("the junction only has two segments.\n")]
+            TwoSegments = 1 << 2,
+
+            [Hint("the junction has segments with different speed limits.\n")]
+            SpeedChange = 1 << 3,
+
             Custom0 = 1 << 24,
             Custom1 = 1 << 25,
             Custom2 = 1 << 26,
@@ -227,7 +233,18 @@ namespace AdaptiveRoads.Manager {
 
                 }
                 m_flags = m_flags.SetFlags(Flags.KeepClearAll, keepClearAll);
+
+
+                bool speedChange = TMPEHelpers.SpeedChanges(NodeID);
+                bool twoSegments = NodeID.ToNode().CountSegments() == 2;
+
+                m_flags = m_flags.SetFlags(Flags.SpeedChange, speedChange);
+                m_flags = m_flags.SetFlags(Flags.TwoSegments, twoSegments);
             }
+        }
+
+        public override string ToString() {
+            return $"NetNodeExt({NodeID} flags={m_flags})";
         }
     }
 
@@ -458,10 +475,14 @@ namespace AdaptiveRoads.Manager {
             [Hint("traffic drives from tail node to head node (takes into account StartNode/LHT/Invert)")]
             IsTailNode = 1 << 20,
 
-            [Hint("the junction only has two segments.\n")]
+            [Hide]
+            [Hint("[Obsolete] the junction only has two segments.\n")]
+            [Obsolete("moved to node")]
             TwoSegments = 1 << 21,
 
-            [Hint("the junction has segments with different speed limits.\n")]
+            [Hide]
+            [Hint("[Obsolete] the junction has segments with different speed limits.\n")]
+            [Obsolete("moved to node")]
             SpeedChange = 1 << 22,
 
             Custom0 = 1 << 24,
@@ -524,29 +545,11 @@ namespace AdaptiveRoads.Manager {
             flags = flags.SetFlags(Flags.IsStartNode, StartNode);
             flags = flags.SetFlags(Flags.IsTailNode, NetUtil.GetTailNode(SegmentID) == NodeID);
 
-            var segmentIDs = NodeID.ToNode().IterateSegments().ToArray();
-            bool speedChange;
-            // recalculate speed limits to avoid update order issues.
-            if(segmentIDs.Length == 2){
-                ushort segmentID2 = NodeID.ToNode().GetAnotherSegment(SegmentID);
-                bool startNode2 = segmentID2.ToSegment().IsStartNode(NodeID);
-                bool segmentInvert = SegmentID.ToSegment().IsInvert();
-                bool segmentInvert2 = segmentID2.ToSegment().IsInvert();
-                bool reverse = (startNode2 == StartNode) ^ (segmentInvert != segmentInvert2); 
-                TMPEHelpers.GetMaxSpeedLimit(SegmentID, out float forward, out float backward);
-                TMPEHelpers.GetMaxSpeedLimit(segmentID2, out float forward2, out float backward2);
-                if(!reverse) {
-                    speedChange = (forward != forward2) || (backward != backward2);
-                } else {
-                    speedChange = (forward != backward2) || (backward != forward2);
-                }
-            } else{
-                var speedLimit = TMPEHelpers.GetMaxSpeedLimit(SegmentID);
-                speedChange = segmentIDs.Any(_segmentID2 => TMPEHelpers.GetMaxSpeedLimit(_segmentID2) != speedLimit);
-            }
+            bool speedChange = TMPEHelpers.SpeedChanges(NodeID);
+            bool twoSegments = NodeID.ToNode().CountSegments() == 2;
 
             flags = flags.SetFlags(Flags.SpeedChange, speedChange);
-            flags = flags.SetFlags(Flags.TwoSegments, segmentIDs.Length == 2);
+            flags = flags.SetFlags(Flags.TwoSegments, twoSegments);
 
             m_flags = flags;
         }
