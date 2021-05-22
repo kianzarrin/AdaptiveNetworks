@@ -141,8 +141,7 @@ namespace AdaptiveRoads.Patches.AsymPavements {
 
             const int CASE_COUNT = 6;
             const int GEOMETRY_COUNT = 4;
-            static Operation[,] Operations = new Operation[CASE_COUNT, GEOMETRY_COUNT] {
-
+            public static Operation[,] Operations = new Operation[CASE_COUNT, GEOMETRY_COUNT] {
                 //     right          right-reverse       left             left-reverse    */                                                
                 { Operation.PWBig  , Operation.PWAR   , Operation.PWAR   , Operation.PWBig  }, // case 1
                 { Operation.PWSmall, Operation.PWBig  , Operation.PWBig  , Operation.PWSmall}, // case 2
