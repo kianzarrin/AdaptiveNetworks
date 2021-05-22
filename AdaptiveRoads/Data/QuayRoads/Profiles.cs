@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using static TerrainModify;
 
-namespace QuayRoadsMod
+namespace AdaptiveRoads.Data
 {
     struct ProfileSection
     {
@@ -101,6 +101,10 @@ namespace QuayRoadsMod
 
     class Profiles
     {
+        public static ProfileSection[] OneSidedRoadProfile = {
+            new ProfileSection(new float[]{0f, .5f}, new float[]{0f}, new float[]{0f,-.3f}, new float[]{0f }, null, null, null),
+            new ProfileSection(new float[]{.5f, 1f}, new float[]{0f}, new float[]{-.3f}, new float[]{0f}, null, Heights.PrimaryMax, null)
+        };
         public static ProfileSection[] QuayProfile = {
             new ProfileSection(new float[]{.5f, .5f}, new float[]{ -5f, 5f}, new float[]{ 0f}, new float[]{0f}, null, Heights.None, null) ,
             new ProfileSection(new float[]{.5f, .5f}, new float[]{ -1f, 5f}, new float[]{ 0f}, new float[]{0f}, Surface.None, Heights.PrimaryLevel | Heights.BlockHeight | Heights.RawHeight, Edges.BC | Edges.CD | Edges.DA),
