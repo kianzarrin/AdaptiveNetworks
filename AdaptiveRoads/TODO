@@ -6,6 +6,9 @@
 - formula for asym nodes for one way road.
 - sharp corners
 - angled parkings
+- formula for asym nodes for one way road.
+- sharp corners
+- angled parkings
 - merge extension and vanilla  dropdowns togoether.
     - introduce after/merge  attributes
     - add node flags.
