@@ -1,6 +1,14 @@
+- fix merged hints
+    - no need for vanilla/extension hint. I should just set the name
+- add Node extension flag
+- expand DD height and scroll   
+
 - merge extension and vanilla  dropdowns togoether.
+    - introduce after/merge  attributes
     - add node flags.
-- shift (left/right half width)
+- shift (left/right) half width
+- sharp nodes
+- DC support
 
 flags for:
     arrrows:

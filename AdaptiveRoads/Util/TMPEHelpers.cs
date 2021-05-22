@@ -48,5 +48,30 @@ namespace AdaptiveRoads.Util {
             return Mathf.Max(forward, backward);
         }
 
+        public static bool SpeedChanges(ushort nodeID) {
+            var segmentIDs = nodeID.ToNode().IterateSegments().ToArray();
+            bool speedChange;
+            // recalculate speed limits to avoid update order issues.
+            if (segmentIDs.Length == 2) {
+                ushort segmentID = segmentIDs[0];
+                ushort segmentID2 = segmentIDs[1];
+                bool startNode = segmentID.ToSegment().IsStartNode(nodeID);
+                bool startNode2 = segmentID2.ToSegment().IsStartNode(nodeID);
+                bool segmentInvert = segmentID.ToSegment().IsInvert();
+                bool segmentInvert2 = segmentID2.ToSegment().IsInvert();
+                bool reverse = (startNode2 == startNode) ^ (segmentInvert != segmentInvert2);
+                TMPEHelpers.GetMaxSpeedLimit(segmentID, out float forward, out float backward);
+                TMPEHelpers.GetMaxSpeedLimit(segmentID2, out float forward2, out float backward2);
+                if (!reverse) {
+                    speedChange = (forward != forward2) || (backward != backward2);
+                } else {
+                    speedChange = (forward != backward2) || (backward != forward2);
+                }
+            } else {
+                speedChange = !segmentIDs.AllEqual(_segmentID => TMPEHelpers.GetMaxSpeedLimit(_segmentID));
+            }
+            return speedChange;
+        }
+
     }
 }

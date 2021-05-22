@@ -10,19 +10,24 @@ namespace AdaptiveRoads.Patches.Segment {
     using static KianCommons.Patches.TranspilerUtils;
 
     public static class CheckSegmentFlagsCommons {
+        static NetworkExtensionManager man_ => NetworkExtensionManager.Instance;
         public static bool CheckFlags(NetInfo.Segment segmentInfo, ushort segmentID, ref bool turnAround) {
             var segmentInfoExt = segmentInfo?.GetMetaData();
             if (segmentInfoExt == null) return true; // bypass
 
-            ref NetSegmentExt netSegmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
+            ref NetSegmentExt netSegmentExt = ref man_.SegmentBuffer[segmentID];
             ref NetSegment netSegment = ref segmentID.ToSegment();
             ref NetNode netNodeStart = ref netSegment.m_startNode.ToNode();
             ref NetNode netNodeEnd = ref netSegment.m_endNode.ToNode();
+            ref NetNodeExt netNodeExtStart = ref man_.NodeBuffer[netSegment.m_startNode];
+            ref NetNodeExt netNodeExtEnd = ref man_.NodeBuffer[netSegment.m_endNode];
 
             var segmentTailFlags = netSegmentExt.Start.m_flags; 
-            var segmentHeadFlags = netSegmentExt.End.m_flags; 
-            var nodeTailFlags = netNodeStart.m_flags; 
-            var nodeHeadFlags = netNodeEnd.m_flags; 
+            var segmentHeadFlags = netSegmentExt.End.m_flags;
+            var nodeTailFlags = netNodeStart.m_flags;
+            var nodeHeadFlags = netNodeEnd.m_flags;
+            var nodeExtTailFlags = netNodeExtStart.m_flags;
+            var nodeExtHeadFlags = netNodeExtEnd.m_flags;
 
             bool reverse = /*netSegment.IsInvert() ^*/ NetUtil.LHT;
             if (reverse) {
@@ -40,6 +45,9 @@ namespace AdaptiveRoads.Patches.Segment {
                     headFlags:segmentHeadFlags,
                     tailNodeFlags: nodeTailFlags,
                     headNodeFlags: nodeHeadFlags,
+                    tailNodeExtFlags: nodeExtTailFlags,
+                    headNodeExtFlags: nodeExtHeadFlags,
+
                     turnAround);
                 if (ret) return true;
             }
@@ -52,6 +60,8 @@ namespace AdaptiveRoads.Patches.Segment {
                     headFlags: segmentHeadFlags,
                     tailNodeFlags: nodeTailFlags,
                     headNodeFlags: nodeHeadFlags,
+                    tailNodeExtFlags: nodeExtTailFlags,
+                    headNodeExtFlags: nodeExtHeadFlags,
                     turnAround);
                 if (ret) return true;
             }

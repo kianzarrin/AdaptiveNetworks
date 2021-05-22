@@ -22,6 +22,7 @@ namespace AdaptiveRoads.Manager {
                 .Select(_item => (_item as HintAttribute).Text)
                 .ToList();
         }
+
         public const string LANE_HEAD_TAIL =
             "cars drive from tail to head.\n" +
             "head/tail swap when:\n" +
@@ -70,7 +71,7 @@ namespace AdaptiveRoads.Manager {
         public static string GetEnumMappedHint(Type enumType, string key) {
             object value = Enum.Parse(enumType, key);
             var enumType2 = GetMappedEnumWithHints(enumType);
-            return enumType2.GetEnumMember(value).GetHints().JoinLines();
+            return enumType2.GetEnumMemberInfo(value).GetHints().JoinLines();
         }
 
         public static string GetHintSwichLHT_RHT(bool unidirectional) {
@@ -85,7 +86,6 @@ namespace AdaptiveRoads.Manager {
     }
 
     [Flags]
-    [Hint("Vanilla Segment Flags")]
     public enum NetSegmentFlags {
         None = 0,
         //[Hide]
@@ -191,7 +191,6 @@ namespace AdaptiveRoads.Manager {
     }
 
     [Flags]
-    [Hint("Vanilla node flags")]
     public enum NetNodeFlags {
         None = 0,
         [Hide]
@@ -313,7 +312,6 @@ namespace AdaptiveRoads.Manager {
 
 
     [Flags]
-    [Hint("Vanilla lane flags")]
     public enum NetLaneFlags {
         None = 0,
         [Hide]

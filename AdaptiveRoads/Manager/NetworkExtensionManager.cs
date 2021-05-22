@@ -35,9 +35,11 @@ namespace AdaptiveRoads.Manager {
                 for (int i = 0; i < SegmentEndBuffer.Length; ++i) {
                     SegmentEndBuffer[i].Serialize(s);
                 }
-                //for (ushort i = 0; i < NodeBuffer.Length; ++i) {
-                //  NodeBuffer[i].Serialize(s);
-                //}
+                if (s.Version >= new Version(2, 1)) {
+                    for (ushort i = 0; i < NodeBuffer.Length; ++i) {
+                        NodeBuffer[i].Serialize(s);
+                    }
+                }
                 uint n = (uint)LaneBuffer.LongCount(_l => !_l.IsEmpty);
                 s.WriteUInt32(n);
                 for (uint i = 0; i < LaneBuffer.Length; ++i) {
@@ -69,9 +71,9 @@ namespace AdaptiveRoads.Manager {
                 for (int i = 0; i < SegmentEndBuffer.Length; ++i) {
                     SegmentEndBuffer[i].Deserialize(s);
                 }
-                //for (ushort i = 0; i < NodeBuffer.Length; ++i) {
-                //  NodeBuffer[i].Serialize(s);
-                //}
+                for (ushort i = 0; i < NodeBuffer.Length; ++i) {
+                    NodeBuffer[i].Deserialize(s);
+                }
                 uint n = s.ReadUInt32();
                 for (uint i = 0; i < n; ++i) {
                     uint laneID = s.ReadUInt32();
@@ -126,20 +128,6 @@ namespace AdaptiveRoads.Manager {
             if (segmentsUpdated) m_segmentsUpdated = false;
 
             for (int i = 0; i < 3; ++i) {
-                if (nodesUpdated) {
-                    for (int maskIndex = 0; maskIndex < m_updatedNodes.Length; maskIndex++) {
-                        ulong bitmask = m_updatedNodes[maskIndex];
-                        if (bitmask != 0) {
-                            for (int bitIndex = 0; bitIndex < 64; bitIndex++) {
-                                if ((bitmask & 1UL << bitIndex) != 0) {
-                                    ushort nodeID = (ushort)(maskIndex << 6 | bitIndex);
-                                    NodeBuffer[nodeID].UpdateFlags();
-                                }
-                            }
-                        }
-                    }
-                }
-
                 if (segmentsUpdated) {
                     for (int maskIndex = 0; maskIndex < m_updatedSegments.Length; maskIndex++) {
                         ulong bitmask = m_updatedSegments[maskIndex];
@@ -149,6 +137,19 @@ namespace AdaptiveRoads.Manager {
                                     ushort segmentID = (ushort)(maskIndex << 6 | bitIndex);
                                     Log.Debug($"updating {segmentID} ...");
                                     SegmentBuffer[segmentID].UpdateAllFlags();
+                                }
+                            }
+                        }
+                    }
+                }
+                if (nodesUpdated) {
+                    for (int maskIndex = 0; maskIndex < m_updatedNodes.Length; maskIndex++) {
+                        ulong bitmask = m_updatedNodes[maskIndex];
+                        if (bitmask != 0) {
+                            for (int bitIndex = 0; bitIndex < 64; bitIndex++) {
+                                if ((bitmask & 1UL << bitIndex) != 0) {
+                                    ushort nodeID = (ushort)(maskIndex << 6 | bitIndex);
+                                    NodeBuffer[nodeID].UpdateFlags();
                                 }
                             }
                         }
@@ -239,11 +240,8 @@ namespace AdaptiveRoads.Manager {
         #endregion
 
         public void UpdateNode(ushort nodeID, ushort fromSegmentID = 0, int level = -1) {
-            // TODO run in order to update nodes.
-            if (false) {
-                m_updatedNodes[nodeID >> 6] |= 1UL << (int)nodeID;
-                m_nodesUpdated = true;
-            }
+            m_updatedNodes[nodeID >> 6] |= 1UL << (int)nodeID;
+            m_nodesUpdated = true;
             if (level <= 0) {
                 for (int i = 0; i < 8; ++i) {
                     ushort segmentID = nodeID.ToNode().GetSegment(i);

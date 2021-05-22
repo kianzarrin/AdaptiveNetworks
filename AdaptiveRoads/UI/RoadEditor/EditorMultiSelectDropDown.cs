@@ -14,8 +14,6 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 base.Awake();
                 LogCalled();
 
-                // This cannot be called before AddUICompnent is completed.
-                // TODO move relavent code to start.
                 Init(this); 
 
                 LogSucceeded();

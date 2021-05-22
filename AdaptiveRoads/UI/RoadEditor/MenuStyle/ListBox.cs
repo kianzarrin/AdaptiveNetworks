@@ -53,7 +53,7 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
             thumbSprite.spriteName = "ScrollbarThumb";
             scrollbar.thumbObject = thumbSprite;
 
-            // TODO add this to see if enables us to add UIScrollbar before setting the size.
+            // TODO add this to see if it enables us to add UIScrollbar before setting the size.
             //eventSizeChanged += (_, __) => {
             //    scrollbar.AlignTo(this, UIAlignAnchor.TopRight);
             //    scrollbar.pivot = UIPivotPoint.TopRight;
