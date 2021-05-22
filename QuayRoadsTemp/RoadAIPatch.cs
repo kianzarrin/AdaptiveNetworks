@@ -10,6 +10,7 @@ namespace QuayRoadsMod
     {
         [HarmonyPrefix]
         [HarmonyPatch(typeof(NetAI), "SegmentModifyMask")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051", Justification = "called by harmony")]
         static bool SegmentModifyMaskPrefix(ushort segmentID, ref NetSegment data, int index, ref TerrainModify.Surface surface, ref TerrainModify.Heights heights, ref TerrainModify.Edges edges, ref float left, ref float right, ref float leftStartY, ref float rightStartY, ref float leftEndY, ref float rightEndY, ref bool __result, ref RoadAI __instance)
         {
             //Debug.Log(segmentID);
@@ -17,7 +18,7 @@ namespace QuayRoadsMod
             ushort startNodeId = data.m_startNode;
             ushort endNodeId = data.m_endNode;
             float halfWidth = __instance.m_info.m_halfWidth; //TODO: respect bridge etc.
-            ProfileSection[] profile = Profiles.QuayProfile; //TODO: different profiles by mesh type
+            ProfileSection[] profile = Profiles.PainterProfile; //TODO: different profiles by mesh type
             NetManager netManager = Singleton<NetManager>.instance;
             Vector3 startPos = netManager.m_nodes.m_buffer[startNodeId].m_position;
             Vector3 endPos = netManager.m_nodes.m_buffer[endNodeId].m_position;
@@ -32,6 +33,21 @@ namespace QuayRoadsMod
             return ModifyMask(profile, startPos, endPos, startLeftPos, startRightPos, endLeftPos, endRightPos, halfWidth, invert, index, ref surface, ref heights, ref edges, ref left, ref right, ref leftStartY, ref rightStartY, ref leftEndY, ref rightEndY, ref __result);
 
         }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(NetAI), "NodeModifyMask")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051", Justification = "called by harmony")]
+        static bool NodeModifyMaskPrefix(ushort nodeID, ref NetNode data, ushort segment1, ushort segment2, int index, ref TerrainModify.Surface surface, ref TerrainModify.Heights heights, ref TerrainModify.Edges edges, ref float left, ref float right, ref float leftY, ref float rightY, ref bool __result, ref RoadAI __instance)
+        {
+            return true;
+            if ((data.m_flags & NetNode.Flags.Bend) == 0)
+            {
+                //return true; //this is not a bend node, no patch needed
+            }
+            __result = false;
+            return false;
+        }
+
+
 
         static bool ModifyMask(ProfileSection[] profile, Vector3 startPos, Vector3 endPos, Vector3 startLeftPos, Vector3 startRightPos, Vector3 endLeftPos, Vector3 endRightPos, float halfWidth, bool invert, int index, ref TerrainModify.Surface surface, ref TerrainModify.Heights heights, ref TerrainModify.Edges edges, ref float leftT, ref float rightT, ref float leftStartY, ref float rightStartY, ref float leftEndY, ref float rightEndY, ref bool __result)
         {

@@ -20,34 +20,34 @@ namespace QuayRoadsMod
         /// relative position of section boundaries. 0 means left edge of segment, 1 means right edge of segment.
         /// 2 elements: left and right boundary
         /// </summary>
-        public float[] PosRel { get; }
+        public float[] PosRel; //{ get; }
         /// <summary>
         /// absolute offset of section boundaries. positive means right.
         /// 2: elements: left and right boundary
         /// </summary>
-        public float[] PosAbs { get; }
+        public float[] PosAbs; //{ get; }
         /// <summary>
         /// absolute offset to node position for terrain height deformation<br/>
         /// 4 elements: startLeft, endLeft, startRight, endRight<br/>
         /// can be set by shorthand with 2 elements: left, right
         /// </summary>
-        public float[] HeightOffset { get; }
+        public float[] HeightOffset; //{ get; }
         /// <summary>
         /// original terrain height influence for terrain height deformation. 0 means no influence, 1 means no deformation
         /// </summary>
-        public float[] HeightTerrain { get; }
+        public float[] HeightTerrain; //{ get; }
         /// <summary>
         /// surface "paint" to apply within this profile section. null means use default
         /// </summary>
-        public Surface? Surface { get; }
+        public Surface? Surface; //{ get; }
         /// <summary>
         /// height deformation mode to apply within this profile section. null means use default
         /// </summary>
-        public Heights? Heights { get; }
+        public Heights? Heights; //{ get; }
         /// <summary>
         /// edge mode to apply within this profile section. Effect unknown. null means use default
         /// </summary>
-        public Edges? EdgeFlags { get; }
+        public Edges? EdgeFlags; //{ get; }
 
         public ProfileSection Inverse()
         {
@@ -101,11 +101,29 @@ namespace QuayRoadsMod
 
     class Profiles
     {
-        readonly public static ProfileSection[] QuayProfile = {
+        public static ProfileSection[] QuayProfile = {
             new ProfileSection(new float[]{.5f, .5f}, new float[]{ -5f, 5f}, new float[]{ 0f}, new float[]{0f}, null, Heights.None, null) ,
             new ProfileSection(new float[]{.5f, .5f}, new float[]{ -1f, 5f}, new float[]{ 0f}, new float[]{0f}, Surface.None, Heights.PrimaryLevel | Heights.BlockHeight | Heights.RawHeight, Edges.BC | Edges.CD | Edges.DA),
             new ProfileSection(new float[]{.5f, .5f}, new float[]{-15f,-1f}, new float[]{-1f}, new float[]{0f}, Surface.None, Heights.PrimaryMax, Edges.AB | Edges.BC | Edges.DA),
             new ProfileSection(new float[]{.5f, 1f }, new float[]{  8f, 0f}, new float[]{ 0f}, new float[]{0f, .6f}, Surface.None, Heights.SecondaryLevel | Heights.BlockHeight | Heights.RawHeight, Edges.BC|Edges.CD|Edges.DA)
+        };
+        public static ProfileSection[] HalfpipeProfile =
+        {
+            new ProfileSection(new float[]{.4f,.6f}, new float[]{0f}, new float[]{0f}, new float[]{0f}, null, Heights.PrimaryLevel | Heights.BlockHeight | Heights.RawHeight, Edges.All),
+            new ProfileSection(new float[]{.6f,.8f}, new float[]{0f}, new float[]{0f,4f}, new float[]{0f}, Surface.Gravel, Heights.PrimaryLevel | Heights.BlockHeight | Heights.RawHeight, Edges.All),
+            new ProfileSection(new float[]{.8f,1f}, new float[]{0f}, new float[]{4f,10f}, new float[]{0f}, Surface.Field, Heights.PrimaryLevel | Heights.BlockHeight | Heights.RawHeight, Edges.All),
+            new ProfileSection(new float[]{.2f,.4f}, new float[]{0f}, new float[]{4f,0f}, new float[]{0f}, Surface.None, Heights.PrimaryLevel | Heights.BlockHeight | Heights.RawHeight, Edges.All),
+            new ProfileSection(new float[]{0f,.2f}, new float[]{0f}, new float[]{10f,4f}, new float[]{0f}, Surface.PavementA, Heights.PrimaryLevel | Heights.BlockHeight | Heights.RawHeight, Edges.All)
+        };
+        public static ProfileSection[] PainterProfile =
+        {
+            new ProfileSection(new float[]{0/7f,1/7f}, new float[]{0f}, new float[]{0f}, new float[]{0f}, Surface.Clip, Heights.None, null),
+            new ProfileSection(new float[]{1/7f,2/7f}, new float[]{0f}, new float[]{0f}, new float[]{0f}, Surface.Field, Heights.None, null),
+            new ProfileSection(new float[]{2/7f,3/7f}, new float[]{0f}, new float[]{0f}, new float[]{0f}, Surface.Gravel, Heights.None, null),
+            new ProfileSection(new float[]{3/7f,4/7f}, new float[]{0f}, new float[]{0f}, new float[]{0f}, Surface.PavementA, Heights.None, null),
+            new ProfileSection(new float[]{4/7f,5/7f}, new float[]{0f}, new float[]{0f}, new float[]{0f}, Surface.PavementB, Heights.None, null),
+            new ProfileSection(new float[]{5/7f,6/7f}, new float[]{0f}, new float[]{0f}, new float[]{0f}, Surface.Ruined, Heights.None, null),
+            new ProfileSection(new float[]{6/7f,7/7f}, new float[]{0f}, new float[]{0f}, new float[]{0f}, Surface.RuinedWeak, Heights.None, null)
         };
     }
 
