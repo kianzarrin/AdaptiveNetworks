@@ -1,9 +1,7 @@
-- fix merged hints
-    - no need for vanilla/extension hint. I should just set the name
-- add Node extension flag
-- expand DD height and scroll   
+- expand DD height and scroll
+- option for merge flags
 
-- formula for asym nodes for one way road.
+
 - sharp corners
 - angled parkings
 - formula for asym nodes for one way road.
