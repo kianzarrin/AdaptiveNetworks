@@ -230,7 +230,7 @@ namespace AdaptiveRoads.Manager {
 
             [AfterField(nameof(NetInfo.m_pavementWidth))]
             [CustomizableProperty("Shift", "Properties")]
-            [Hint("shifts road right-wards")]
+            [Hint("shifts road right-wards (when going from tail to head)")]
             public float Shift = 0;
 
 #if QUAY_ROADS_SHOW
