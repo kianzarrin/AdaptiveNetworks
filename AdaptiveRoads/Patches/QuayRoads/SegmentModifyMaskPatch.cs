@@ -18,7 +18,7 @@ namespace AdaptiveRoads.Patches
             if (net is null) return true;
             if (!net.UseOneSidedTerrainModification) return true;
 
-            ProfileSection[] profile = Profiles.OneSidedRoadProfile; //TODO: different profiles by mesh type
+            ProfileSection[] profile = Profiles.HighRightOneSidedRoadProfile; //TODO: different profiles by mesh type
             //Debug.Log(segmentID);
             bool invert = (data.m_flags & NetSegment.Flags.Invert) != 0;
             ushort startNodeId = data.m_startNode;

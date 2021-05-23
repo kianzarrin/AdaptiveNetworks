@@ -101,9 +101,13 @@ namespace AdaptiveRoads.Data
 
     class Profiles
     {
-        public static ProfileSection[] OneSidedRoadProfile = {
+        public static ProfileSection[] HighRightOneSidedRoadProfile = {
+            new ProfileSection(new float[]{.5f, 1f}, new float[]{0f}, new float[]{-.3f, 0f}, new float[]{0f }, null, null, null),
+            new ProfileSection(new float[]{0f, .5f}, new float[]{0f}, new float[]{-.3f}, new float[]{0f}, Surface.None, Heights.PrimaryMax, null)
+        };
+        public static ProfileSection[] HighLeftOneSidedRoadProfile = {
             new ProfileSection(new float[]{0f, .5f}, new float[]{0f}, new float[]{0f,-.3f}, new float[]{0f }, null, null, null),
-            new ProfileSection(new float[]{.5f, 1f}, new float[]{0f}, new float[]{-.3f}, new float[]{0f}, null, Heights.PrimaryMax, null)
+            new ProfileSection(new float[]{.5f, 1f}, new float[]{0f}, new float[]{-.3f}, new float[]{0f}, Surface.None, Heights.PrimaryMax, null)
         };
         public static ProfileSection[] QuayProfile = {
             new ProfileSection(new float[]{.5f, .5f}, new float[]{ -5f, 5f}, new float[]{ 0f}, new float[]{0f}, null, Heights.None, null) ,
