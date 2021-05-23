@@ -94,13 +94,6 @@ namespace AdaptiveRoads.Manager {
         // should be called from simulation thread.
         void OnLoadImpl() {
             LogCalled();
-#if DEBUG
-            for (ushort segmentID = 0; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
-                if (!NetUtil.IsSegmentValid(segmentID)) continue;
-                if (!segmentID.ToSegment().Info.IsAdaptive()) continue;
-                NetManager.instance.UpdateSegment(segmentID);
-            }
-#else
             for (ushort nodeID = 0; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID) {
                 if (!NetUtil.IsNodeValid(nodeID)) continue;
                 NodeBuffer[nodeID].UpdateFlags();
@@ -109,8 +102,10 @@ namespace AdaptiveRoads.Manager {
                 if (!NetUtil.IsSegmentValid(segmentID)) continue;
                 if (!segmentID.ToSegment().Info.IsAdaptive()) continue;
                 SegmentBuffer[segmentID].UpdateAllFlags();
-            }
+#if HOTRELOAD // change to debug for hot-reload testing.
+                NetManager.instance.UpdateSegment(segmentID);
 #endif
+            }
             LogSucceeded();
 
         }
