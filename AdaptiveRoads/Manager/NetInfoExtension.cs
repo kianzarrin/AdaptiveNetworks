@@ -222,12 +222,17 @@ namespace AdaptiveRoads.Manager {
             public Net(NetInfo template) {
                 PavementWidthRight = template.m_pavementWidth;
                 UsedCustomFlags = GetUsedCustomFlags(template);
+                UseOneSidedTerrainModification = false;
             }
 
             [AfterField(nameof(NetInfo.m_pavementWidth))]
             [CustomizableProperty("Pavement Width Right", "Properties")]
             [Hint("must be greater than left pavement width")]
             public float PavementWidthRight;
+
+            [CustomizableProperty("Quay Road", "Properties")]
+            [Hint("only affect the terrain on one side")]
+            public bool UseOneSidedTerrainModification;
 
             [NonSerialized]
             public CustomFlags UsedCustomFlags;

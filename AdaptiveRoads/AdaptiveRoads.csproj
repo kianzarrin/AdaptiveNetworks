@@ -16,9 +16,12 @@
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <PathMap>$(MSBuildProjectDirectory)\=$(ProjectName)\</PathMap>
-    <Configurations>Debug;Release;FAST_TEST_PATCHES;Workshop</Configurations>
+    <Configurations>Debug;Release;FAST_TEST_PATCHES;Workshop;DebugQuayRoads</Configurations>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='DEBUG'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='DebugQuayRoads'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='FAST_TEST_PATCHES'">
@@ -45,6 +48,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugQuayRoads|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;QUAY_ROADS_SHOW</DefineConstants>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Reference>
