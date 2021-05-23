@@ -149,12 +149,14 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             AssertNotNull(net, $"{netInfo}");
                             var f = net.GetType().GetField(nameof(net.PavementWidthRight));
                             __instance.CreateGenericField(groupName, f, net);
+#if QUAY_ROADS_SHOW
                         }else if(field.Name == nameof(NetInfo.m_flattenTerrain)) {
                             Log.Debug($"{__instance.name}.CreateGenericField.Postfix({groupName},{field},{target})\n"/* + Environment.StackTrace*/);
                             var net = netInfo.GetOrCreateMetaData();
                             AssertNotNull(net, $"{netInfo}");
                             var f = net.GetType().GetField(nameof(net.UseOneSidedTerrainModification));
                             __instance.CreateGenericField(groupName, f, net);
+#endif
                         }
                     }
                 }
