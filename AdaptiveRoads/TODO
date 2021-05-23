@@ -1,16 +1,8 @@
 - sharp corners
 - angled parkings
-- formula for asym nodes for one way road.
-- sharp corners
-- angled parkings
-- merge extension and vanilla  dropdowns togoether.
-    - introduce after/merge  attributes
-    - add node flags.
 - shift (left/right) half width
-- sharp nodes
 - DC support
 - option to un-merge bitmask dropdowns
-
 
 flags for:
     arrrows:

@@ -222,17 +222,23 @@ namespace AdaptiveRoads.Manager {
             public Net(NetInfo template) {
                 PavementWidthRight = template.m_pavementWidth;
                 UsedCustomFlags = GetUsedCustomFlags(template);
-                UseOneSidedTerrainModification = false;
             }
 
             [AfterField(nameof(NetInfo.m_pavementWidth))]
             [CustomizableProperty("Pavement Width Right", "Properties")]
-            [Hint("must be greater than left pavement width")]
             public float PavementWidthRight;
 
+            [AfterField(nameof(NetInfo.m_pavementWidth))]
+            [CustomizableProperty("Shift", "Properties")]
+            [Hint("shifts road right-wards")]
+            public float Shift = 0;
+
+#if QUAY_ROADS_SHOW
             [CustomizableProperty("Quay Road", "Properties")]
+#endif
+            [AfterField(nameof(NetInfo.m_flattenTerrain))]
             [Hint("only affect the terrain on one side")]
-            public bool UseOneSidedTerrainModification;
+            public bool UseOneSidedTerrainModification = false;
 
             [NonSerialized]
             public CustomFlags UsedCustomFlags;
@@ -266,11 +272,13 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
+        [AfterField(nameof(NetInfo.Segment.m_backwardForbidden))]
         [Serializable]
         [Optional(AR_MODE)]
         public class Segment : ICloneable {
             object ICloneable.Clone() => Clone();
 
+            [AfterField(nameof(NetInfo.Segment.m_forwardForbidden))]
             [CustomizableProperty("Forward Extension")]
             public SegmentInfoFlags Forward;
 
@@ -359,6 +367,7 @@ namespace AdaptiveRoads.Manager {
             public Segment(NetInfo.Segment template) { }
         }
 
+        [AfterField(nameof(NetInfo.Node.m_flagsForbidden))]
         [Serializable]
         [Optional(AR_MODE)]
         public class Node : ICloneable {
@@ -395,10 +404,11 @@ namespace AdaptiveRoads.Manager {
             object ICloneable.Clone() => Clone();
         }
 
+        [AfterField(nameof(NetLaneProps.Prop.m_endFlagsForbidden))]
         [Serializable]
         [Optional(AR_MODE)]
         public class LaneProp : ICloneable, ISerializable {
-            #region serialization
+#region serialization
             [Obsolete("only useful for the purpose of shallow clone and serialization", error: true)]
             public LaneProp() { }
             public LaneProp Clone() => this.ShalowClone();
@@ -427,7 +437,7 @@ namespace AdaptiveRoads.Manager {
                 set => ForwardSpeedLimit = BackwardSpeedLimit = value;
             }
 
-            #endregion
+#endregion
 
             [CustomizableProperty("Lane")]
             public LaneInfoFlags LaneFlags = new LaneInfoFlags();
@@ -503,9 +513,9 @@ namespace AdaptiveRoads.Manager {
             };
         }
 
-        #endregion
+#endregion
 
-        #region static
+#region static
         private static IEnumerable<NetLaneProps.Prop> IterateProps(NetInfo.Lane lane)
             => lane?.m_laneProps?.m_props ?? Enumerable.Empty<NetLaneProps.Prop>();
 
@@ -729,6 +739,6 @@ namespace AdaptiveRoads.Manager {
                 }
             }
         }
-        #endregion
+#endregion
     }
 }
