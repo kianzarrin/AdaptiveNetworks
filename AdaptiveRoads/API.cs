@@ -25,6 +25,8 @@ namespace AdaptiveRoads {
             => man.GetSegmentEnd(segmentID, nodeID).m_flags;
         public static object GetARLaneFlags(uint id) => man.LaneBuffer[id].m_flags;
 
+        public static float GetShift(NetInfo info) => info.GetMetaData()?.Shift ?? 0;
+
 #pragma warning restore HAA0601 
     }
 }

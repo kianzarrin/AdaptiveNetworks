@@ -55,6 +55,8 @@ namespace AdaptiveRoads.LifeCycle {
                 Log.Exception(ex);
             }
         }
+
+#if DEBUG
         static void Test() {
             return;
             LogCalled();
@@ -76,6 +78,7 @@ namespace AdaptiveRoads.LifeCycle {
                 Log.Debug("After Deserialize segment flags :" + man.SegmentBuffer[1].m_flags);
             }
         }
+#endif
 
         public static void HotReload() {
             LogCalled();
@@ -133,6 +136,7 @@ namespace AdaptiveRoads.LifeCycle {
 
                 ObserverDisposable = GeometryManager.Instance.Subscribe(new ARTMPEObsever());
 
+#if DEBUG
                 ARTool.Create();
 
                 const bool testPWValues = false;
@@ -140,6 +144,7 @@ namespace AdaptiveRoads.LifeCycle {
                     UI.Debug.PWSelector.Create();
                     UI.Debug.PWModifier.Create();
                 }   
+#endif
 
                 Log.Info("LifeCycle.Load() successfull!");
                 Log.Flush();

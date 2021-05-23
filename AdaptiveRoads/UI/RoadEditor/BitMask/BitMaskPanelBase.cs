@@ -85,7 +85,10 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
 
         protected abstract void OnAfterDropdownClose(UICheckboxDropDown checkboxdropdown);
 
-        public void OnPropertyChanged() => EventPropertyChanged?.Invoke();
+        public void OnPropertyChanged() {
+            LogCalled();
+            EventPropertyChanged?.Invoke();
+        }
 
         protected abstract void Initialize();
 
@@ -170,7 +173,9 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             int i = DropDown.GetHoverIndex();
             if (i >= 0) {
                 Enum flag = DropDown.GetItemUserData(i) as Enum;
-                return flag.GetEnumMemberInfo().GetHints().JoinLines();
+                var hints = flag.GetEnumMemberInfo().GetHints();
+                hints.Add("right-click => close drop down");
+                return hints.JoinLines();
             } else if (DropDown.containsMouse || Label.containsMouse) {
                 return Hint;
             } else {
