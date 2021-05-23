@@ -233,6 +233,10 @@ namespace AdaptiveRoads.Manager {
             [Hint("shifts road right-wards (when going from tail to head)")]
             public float Shift = 0;
 
+            [AfterField(nameof(NetInfo.m_minCornerOffset))]
+            [CustomizableProperty("Parking Angle °", "Properties")]
+            public float ParkingAngleDegrees = 0;
+
 #if QUAY_ROADS_SHOW
             [CustomizableProperty("Quay Road", "Properties")]
 #endif
