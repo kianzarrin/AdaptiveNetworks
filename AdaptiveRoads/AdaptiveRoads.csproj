@@ -190,9 +190,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Data\QuayRoads\" />
-  </ItemGroup>
 
 
   <Target Name="DeployToModDirectory" AfterTargets="Build">
