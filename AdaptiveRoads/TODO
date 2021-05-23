@@ -1,7 +1,3 @@
-- expand DD height and scroll
-- option for merge flags
-
-
 - sharp corners
 - angled parkings
 - formula for asym nodes for one way road.
@@ -13,6 +9,8 @@
 - shift (left/right) half width
 - sharp nodes
 - DC support
+- option to un-merge bitmask dropdowns
+
 
 flags for:
     arrrows:
