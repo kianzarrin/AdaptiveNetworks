@@ -5,7 +5,7 @@ using UnityEngine;
 using static KianCommons.ReflectionHelpers;
 using System;
 
-namespace AdaptiveRoads.UI.RoadEditor {
+namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
     class EditorMultiSelectDropDown : UICheckboxDropDown {
         //public UIScrollablePanel Popup => GetFieldValue(this, "m_Popup") as UIScrollablePanel;
 
@@ -37,7 +37,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
                 dd.listBackground = "GenericPanelWhite";
                 dd.listWidth = 188;
-                dd.listHeight = 300;
+                dd.listHeight = 1000;
                 dd.clampListToScreen = true;
                 dd.listPosition = UICheckboxDropDown.PopupListPosition.Automatic;
 
@@ -72,7 +72,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 dd.listScrollbar.thumbPadding = new RectOffset(0, 0, 5, 5);
                 dd.listScrollbar.minValue = 0;
                 dd.listScrollbar.value = 0;
-                dd.listScrollbar.incrementAmount = 60;
+                dd.listScrollbar.incrementAmount = 90;
                 dd.listScrollbar.AlignTo(dd, UIAlignAnchor.TopRight);
                 dd.listScrollbar.autoHide = true; // false ?
                 dd.listScrollbar.isVisible = false;
