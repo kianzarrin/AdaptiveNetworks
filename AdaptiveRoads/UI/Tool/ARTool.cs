@@ -10,8 +10,11 @@ namespace AdaptiveRoads.UI.Tool {
     using UnifedUILib::UnifiedUI.Helpers;
     using System.Linq;
     using static KianCommons.ReflectionHelpers;
+    using Patches.AsymPavements;
 
     public class ARTool : KianToolBase {
+        // for mod tools:
+        RefreshJunctionDataPatch.Util.Operation [,] Operations => RefreshJunctionDataPatch.Util.Operations;
         NetworkExtensionManager man_ => NetworkExtensionManager.Instance;
 
         public ushort SelectedSegmentID;

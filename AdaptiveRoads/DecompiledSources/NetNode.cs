@@ -1801,6 +1801,7 @@ public partial struct NetNode2
                 pavementRatio_avgA = (pavementRatio_avgA + pavementRatioA) * 0.5f;
                 widthRatioA = 2f * info.m_halfWidth / (info.m_halfWidth + infoA.m_halfWidth);
             }
+
             float pavementRatio_avgB = info.m_pavementWidth / info.m_halfWidth * 0.5f;
             float widthRatioB = 1f; //redundant
 

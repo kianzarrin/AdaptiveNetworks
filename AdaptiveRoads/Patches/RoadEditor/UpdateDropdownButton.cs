@@ -4,7 +4,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using KianCommons;
     using System;
     using System.Reflection;
-    using AdaptiveRoads.UI.RoadEditor;
+    using AdaptiveRoads.UI.RoadEditor.Bitmask;
     using AdaptiveRoads.Util;
 
     /// <summary>
@@ -21,7 +21,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
                 int flags = __instance.GetFlags();
                 var text = Enum.Format(fieldType, flags, "G");
-                BitMaskPanel.ApplyText(__instance.m_DropDown, text);
+                BitMaskPanelBase.ApplyText(__instance.m_DropDown, text);
 
                 return false;
             }
