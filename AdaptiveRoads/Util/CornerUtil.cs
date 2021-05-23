@@ -1,27 +1,7 @@
 namespace AdaptiveRoads.Util {
-    using ColossalFramework;
-    using HarmonyLib;
-    using JetBrains.Annotations;
-    using KianCommons;
-    using System.Reflection;
     using UnityEngine;
-    using static ColossalFramework.Math.VectorUtils;
-    using ColossalFramework.Math;
-    using ColossalFramework.UI;
-    using CSUtil.Commons;
-    using KianCommons.Math;
-    using System;
-    using System.Diagnostics;
-    using System.Runtime.Serialization;
-    using Log = KianCommons.Log;
-    using static KianCommons.ReflectionHelpers;
-    using static KianCommons.Assertion;
-    using System.Linq;
-    using KianCommons.Serialization;
-    using Vector3Serializable = KianCommons.Math.Vector3Serializable;
 
     public static class CornerUtil {
-
         /// <summary>
         /// all directions going away fromt he junction
         /// </summary>
@@ -48,7 +28,5 @@ namespace AdaptiveRoads.Util {
             ret.z = Vector3.Dot(v, z);
             return ret;
         }
-
-
     }
 }
