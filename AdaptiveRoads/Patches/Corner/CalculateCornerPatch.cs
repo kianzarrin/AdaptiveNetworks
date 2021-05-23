@@ -42,15 +42,11 @@ namespace AdaptiveRoads.Patches.Corner {
             float shift = segment.Info?.GetMetaData()?.Shift ?? 0;
             if (shift == 0) return;
 
-            ushort nodeID = segment.GetNode(start);
-            bool headNode = segment.GetHeadNode() == nodeID;
-            if (!headNode) shift = -shift;
-
-            CornerUtil.CalculateTransformVectors(cornerDirection, leftSide, out var outward, out var forward);
-            bool rightSideGoingTowardTheJunction = !leftSide;
-            var rightward = rightSideGoingTowardTheJunction ? outward : -outward;
-
-            cornerPos += shift * rightward;
+            CornerUtil.CalculateTransformVectors(cornerDirection, leftSide, outward: out var outward, out var _);
+            bool headNode = segment.GetHeadNode() == segment.GetNode(start);
+            if (headNode ^ leftSide)
+                shift = -shift;
+            cornerPos += shift * outward;
         }
 
     }

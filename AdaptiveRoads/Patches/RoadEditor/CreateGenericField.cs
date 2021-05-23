@@ -60,8 +60,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             try {
                 if (target is NetLaneProps.Prop prop) {
                     Log.Debug($"{__instance.name}.CreateGenericField.Postfix({groupName},{field},{target})"/* + Environment.StackTrace*/);
-                    var metadata = prop.GetOrCreateMetaData();
                     if (ModSettings.ARMode) {
+                        var metadata = prop.GetOrCreateMetaData();
                         foreach (var field2 in field.GetAfterFields(metadata)) {
                             CreateBitMaskPanels(
                                 roadEditorPanel: __instance, groupName: groupName,
@@ -69,7 +69,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         }
                     }
 
-                    if ( metadata.GetType().ComesAfter(field) ) {
+                    if (typeof(NetInfoExtionsion.LaneProp).ComesAfter(field)) {
                         Assert(prop.LocateEditProp(out _, out var lane), "could not locate prop");
                         bool forward = lane.IsGoingForward();
                         bool backward = lane.IsGoingBackward();
@@ -124,20 +124,21 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                                 roadEditorPanel: __instance, groupName: groupName,
                                 target: target, metadata: metadata, extensionField: field2);
                         }
-                   } else if (target is NetInfo netInfo) {
-                        if (ModSettings.ARMode) {
-                            ReplaceLabel(__instance, "Pavement Width", "Pavement Width Left");
-                            var net = netInfo.GetOrCreateMetaData();
-                            AssertNotNull(net, $"{netInfo}");
-                            foreach (var field2 in net.GetFieldsWithAttribute<CustomizablePropertyAttribute>()) {
-                                if (field2.ComesAfter(field)) {
-                                    Log.Debug($"calling {__instance.name}.CreateGenericField({groupName},{field2},{net}) ...");
-                                    __instance.CreateGenericField(groupName, field2, net);
-                                }
+                    }
+                } else if (target is NetInfo netInfo) {
+                    if (ModSettings.ARMode) {
+                        ReplaceLabel(__instance, "Pavement Width", "Pavement Width Left");
+                        var net = netInfo.GetOrCreateMetaData();
+                        AssertNotNull(net, $"{netInfo}");
+                        foreach (var field2 in net.GetFieldsWithAttribute<CustomizablePropertyAttribute>()) {
+                            if (field2.ComesAfter(field)) {
+                                Log.Debug($"calling {__instance.name}.CreateGenericField({groupName},{field2},{net}) ...");
+                                __instance.CreateGenericField(groupName, field2, net);
                             }
                         }
                     }
                 }
+
             } catch (Exception e) {
                 Log.Exception(e);
             }
@@ -165,7 +166,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         }
 
         static bool ComesAfter(this MemberInfo after, FieldInfo before) {
-            Assert(after != before,$"{after} != {before}");
+            Assert(after != before, $"{after} != {before}");
             return after.AfterField() == before.Name;
         }
 
@@ -179,18 +180,18 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         public static void CreateBitMaskPanels(
             RoadEditorPanel roadEditorPanel, string groupName,
             object target, object metadata, FieldInfo extensionField) {
-            if(TryGetMerge(extensionField, target, out var vanillaRequired, out var vanillaForbidden)) {
+            if (TryGetMerge(extensionField, target, out var vanillaRequired, out var vanillaForbidden)) {
                 CreateMergedComponent(
                     roadEditorPanel: roadEditorPanel, groupName: groupName,
                     fieldInfo: extensionField, metadata: metadata,
                     mergedFieldRequired: vanillaRequired,
                     mergedFieldForbidden: vanillaForbidden,
                     mergedTarget: target);
-            } else if(TryGetMerge(extensionField, metadata, out var vanilla)) {
+            } else if (TryGetMerge(extensionField, metadata, out var vanilla)) {
                 CreateMergedComponent(
                     roadEditorPanel: roadEditorPanel, groupName: groupName,
                     fieldInfo: extensionField, mergedField: vanilla, metadata: metadata);
-            } else if(ARCanMerge(extensionField)) {
+            } else if (ARCanMerge(extensionField)) {
                 // do not create because it will merge with something in future.
             } else {
                 CreateExtendedComponent(roadEditorPanel, groupName, extensionField, metadata);
@@ -223,7 +224,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
                 if (fieldInfo.FieldType.HasAttribute<FlagPairAttribute>()) {
                     var uidatas = GetARFlagUIData(fieldInfo, metadata);
-                    if(uidatas != null) {
+                    if (uidatas != null) {
                         BitMaskPanel.Add(
                             roadEditorPanel: roadEditorPanel,
                             container: container,
@@ -260,7 +261,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         public static void CreateMergedComponent(
              RoadEditorPanel roadEditorPanel, string groupName,
              FieldInfo fieldInfo, object metadata,
-             FieldInfo mergedFieldRequired, FieldInfo mergedFieldForbidden,  object mergedTarget) {
+             FieldInfo mergedFieldRequired, FieldInfo mergedFieldForbidden, object mergedTarget) {
             try {
                 LogCalled(
                     $"instance={ roadEditorPanel?.name}",
@@ -297,7 +298,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             label: vanillas[i].Label,
                             hint: arDatas[i].Hint,
                             flagDatas: new[] { vanillas[i].FlagData, arDatas[i].FlagData });
-                    }                }
+                    }
+                }
             } catch (Exception ex) {
                 ex.Log();
             }
@@ -371,7 +373,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             vanillaRequiredField = vanillaForbiddenField = null;
             if (!Merge) return false;
 
-            foreach(var vanillaField in vanillaTarget.GetFieldsWithAttribute<CustomizablePropertyAttribute>()) {
+            foreach (var vanillaField in vanillaTarget.GetFieldsWithAttribute<CustomizablePropertyAttribute>()) {
                 if (CanMergeWith(extensionField, vanillaField)) {
                     if (vanillaField.Name.EndsWith("Required"))
                         vanillaRequiredField = vanillaField;
@@ -379,7 +381,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         vanillaForbiddenField = vanillaField;
                     if (vanillaRequiredField != null && vanillaForbiddenField != null)
                         return true;
-                }        
+                }
             }
             return false;
 
@@ -399,7 +401,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         }
 
         static bool TryGetMerge(FieldInfo extensionField, object metadata, out FieldInfo vanillaFlags) {
-            vanillaFlags =  null;
+            vanillaFlags = null;
             if (!Merge) return false;
 
             foreach (var vanillaField in metadata.GetFieldsWithAttribute<CustomizablePropertyAttribute>()) {
@@ -424,7 +426,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         Merge && InRoadEditor &&
                         atts.Any(att => att.MergeWithEnum == vanillaEnumType) &&
                         start1 == start2; //match start/end Node flag;
-                }catch(Exception ex) {
+                } catch (Exception ex) {
                     Log.Exception(ex, $"extensionField={extensionField}, vanillaField={vanillaField}");
                     return false;
                 }
@@ -489,7 +491,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     enumType: enumType);
 
             return new FlagUIData {
-                Label = field.GetAttribute<CustomizablePropertyAttribute>().name ,
+                Label = field.GetAttribute<CustomizablePropertyAttribute>().name,
                 Hint = hint,
                 FlagData = flagData,
                 RequiredFlag = field.Name.EndsWith("Required"),
