@@ -135,21 +135,32 @@ namespace AdaptiveRoads.LifeCycle {
 
                 ARTool.Create();
 
+                const bool testPWValues = false;
+                if (testPWValues) {
+                    UI.Debug.PWSelector.Create();
+                    UI.Debug.PWModifier.Create();
+                }   
+
                 Log.Info("LifeCycle.Load() successfull!");
                 Log.Flush();
             } catch (Exception ex) {
                 Log.Exception(ex);
-                throw ex;
             }
         }
 
         public static void Unload() {
-            LogCalled();
-            ARTool.Release();
-            ObserverDisposable?.Dispose();
-            HintBox.Release();
-            HarmonyUtil.UninstallHarmony(HARMONY_ID);
-            NetworkExtensionManager.RawInstance?.OnUnload();
+            try {
+                LogCalled();
+                UI.Debug.PWSelector.Release();
+                UI.Debug.PWModifier.Release();
+                ARTool.Release();
+                ObserverDisposable?.Dispose();
+                HintBox.Release();
+                HarmonyUtil.UninstallHarmony(HARMONY_ID);
+                NetworkExtensionManager.RawInstance?.OnUnload();
+            }catch(Exception ex) {
+                Log.Exception(ex);
+            }
         }
 
         public static void Exit() {
