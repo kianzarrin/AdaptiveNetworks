@@ -55,7 +55,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
         protected void SetValue(long[] enumFlags) {
             for (int i = 0; i < FlagDatas.Length; ++i) {
                 long originalValue = FlagDatas[i].GetValueLong();
-                if (originalValue == enumFlags[i]) {
+                if (originalValue != enumFlags[i]) {
                     FlagDatas[i].SetValueLong(enumFlags[i]);
                     OnPropertyChanged();
                 }
