@@ -524,7 +524,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
             IConvertible GetRequired() {
                 object subTarget = field.GetValue(target);
-                return (int)GetFieldValue(subTarget, "Required");
+                var flag = GetFieldValue(subTarget, "Required");
+                return flag as IConvertible;
             }
             void SetRequired(IConvertible flags) {
                 var subTarget = field.GetValue(target);
@@ -533,7 +534,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             }
             IConvertible GetForbidden() {
                 object subTarget = field.GetValue(target);
-                return (int)GetFieldValue(subTarget, "Forbidden");
+                return GetFieldValue(subTarget, "Forbidden") as IConvertible;
             }
             void SetForbidden(IConvertible flags) {
                 var subTarget = field.GetValue(target);
@@ -542,13 +543,13 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             }
 
             var flagDataRequired = new FlagDataT(
-                setValue: SetForbidden,
+                setValue: SetRequired,
                 getValue: GetRequired,
                 enumType: enumType);
             var flagDataForbidden = new FlagDataT(
-                    setValue: SetForbidden,
-                    getValue: GetRequired,
-                    enumType: enumType);
+                setValue: SetForbidden,
+                getValue: GetForbidden,
+                enumType: enumType);
 
             var ret0 = new FlagUIData {
                 Label = att.name + " Required",

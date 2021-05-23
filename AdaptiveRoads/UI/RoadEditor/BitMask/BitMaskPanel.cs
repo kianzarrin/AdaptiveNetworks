@@ -61,7 +61,6 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
         protected override void OnAfterDropdownClose(UICheckboxDropDown checkboxdropdown) {
             SetValue(GetCheckedFlags());
             UpdateText();
-            UIButton button = DropDown.triggerButton as UIButton;
         }
 
         // apply checked flags from UI to prefab

@@ -85,7 +85,10 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
 
         protected abstract void OnAfterDropdownClose(UICheckboxDropDown checkboxdropdown);
 
-        public void OnPropertyChanged() => EventPropertyChanged?.Invoke();
+        public void OnPropertyChanged() {
+            LogCalled();
+            EventPropertyChanged?.Invoke();
+        }
 
         protected abstract void Initialize();
 
