@@ -9,6 +9,7 @@ namespace AdaptiveRoads.Patches.Parking {
     using System.Collections.Generic;
     using System.Reflection.Emit;
     using System.Diagnostics.CodeAnalysis;
+    using System.Linq;
 
     [InGamePatch]
     [UsedImplicitly]
@@ -27,6 +28,8 @@ namespace AdaptiveRoads.Patches.Parking {
                 yield return code;
                 if (code.Calls(mGetLaneID_)) {
                     // laneID is already on the stack
+                    var LoadRefPathPos = instructions.ToList().Find(c => c.IsLdLocA(typeof(PathUnit.Position), out _));
+                    yield return LoadRefPathPos.Clone();
                     yield return new CodeInstruction(OpCodes.Ldarga_S, origin.GetArgLoc("width"));
                     yield return new CodeInstruction(OpCodes.Ldarga_S, origin.GetArgLoc("length"));
                     yield return new CodeInstruction(OpCodes.Call, mFixValues_); // FixValues(uint laneID, ref float width, ref float length)
@@ -41,19 +44,26 @@ namespace AdaptiveRoads.Patches.Parking {
             angle_ = 0;
         }
 
-        static uint FixValues(uint laneID, ref float width, ref float length) {
-            var net = laneID.ToLane().m_segment.ToSegment().Info.GetMetaData();
+        static uint FixValues(uint laneID, ref PathUnit.Position pathPos, ref float width, ref float length) {
+            var info = pathPos.m_segment.ToSegment().Info;
+            var net = info?.GetMetaData();
             angle_ = net?.ParkingAngleDegrees ?? 0;
             if (angle_ > 30) {
-                width = FixWidth(length, net.OneOverCosOfParkingAngle);
+                var laneInfo = info.m_lanes[pathPos.m_lane];
+                width = FixWidth(length, net.OneOverCosOfParkingAngle, laneInfo.m_width);
                 length = FixLength(width, net.OneOverCosOfParkingAngle);
             }
             return laneID;
         }
 
-        static void Rotate(ref Quaternion parkRot, float parkingAngleRad) => parkRot *= Quaternion.Euler(0, parkingAngleRad, 0);
-        static float FixWidth(float oneOverCosOfParkingAngle, float carLength) => carLength * oneOverCosOfParkingAngle;
-        static float FixLength(float oneOverCosOfParkingAngle, float carWidth) => carWidth * oneOverCosOfParkingAngle;
+        static void Rotate(ref Quaternion parkRot, float parkingAngleRad) =>
+            parkRot *= Quaternion.Euler(0, parkingAngleRad, 0);
+
+        static float FixWidth(float oneOverCosOfParkingAngle, float carLength, float laneWith) =>
+            Mathf.Min(carLength* oneOverCosOfParkingAngle, laneWith);
+
+        static float FixLength(float oneOverCosOfParkingAngle, float carWidth) =>
+            carWidth * oneOverCosOfParkingAngle;
 
     }
 }
