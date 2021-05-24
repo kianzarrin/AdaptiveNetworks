@@ -222,6 +222,7 @@ namespace AdaptiveRoads.Manager {
             public Net(NetInfo template) {
                 PavementWidthRight = template.m_pavementWidth;
                 UsedCustomFlags = GetUsedCustomFlags(template);
+                OneOverCosOfParkingAngle = 1 / Mathf.Cos(Mathf.Deg2Rad * ParkingAngleDegrees);
             }
 
             [AfterField(nameof(NetInfo.m_pavementWidth))]
@@ -236,6 +237,12 @@ namespace AdaptiveRoads.Manager {
             [AfterField(nameof(NetInfo.m_minCornerOffset))]
             [CustomizableProperty("Parking Angle °", "Properties")]
             public float ParkingAngleDegrees = 0;
+
+            /// <summary>
+            /// 1/cos(ParkingAngleDegrees)
+            /// </summary>
+            [NonSerialized]
+            public float OneOverCosOfParkingAngle;
 
 #if QUAY_ROADS_SHOW
             [CustomizableProperty("Quay Road", "Properties")]
