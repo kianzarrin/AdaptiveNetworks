@@ -28,8 +28,13 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         /// replace built-in fields
         /// </summary>
         public static bool Prefix(RoadEditorPanel __instance,
-            string groupName, FieldInfo field, object target) {
+            ref string groupName, FieldInfo field, object target) {
             try {
+                if (field == typeof(NetInfo.Node).GetField(nameof(NetInfo.Node.m_directConnect)))
+                    groupName = NetInfoExtionsion.Node.DC_GROUP_NAME;
+                else if (field == typeof(NetInfo.Node).GetField(nameof(NetInfo.Node.m_connectGroup)))
+                    groupName = NetInfoExtionsion.Node.DC_GROUP_NAME;
+
                 if (IsUIReplaced(field)) {
                     if (VanillaCanMerge(field))
                         return false; // will be merged with AR dd later
@@ -64,7 +69,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     if (ModSettings.ARMode) {
                         var metadata = prop.GetOrCreateMetaData();
                         foreach (var field2 in field.GetAfterFields(metadata)) {
-                            CreateBitMaskPanels(
+                            CreateGenericComponentExt(
                                 roadEditorPanel: __instance, groupName: groupName,
                                 target: target, metadata: metadata, extensionField: field2);
                         }
@@ -110,7 +115,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     if (ModSettings.ARMode) {
                         var metadata = node.GetOrCreateMetaData();
                         foreach (var field2 in field.GetAfterFields(metadata)) {
-                            CreateBitMaskPanels(
+                            CreateGenericComponentExt(
                                 roadEditorPanel: __instance, groupName: groupName,
                                 target: target, metadata: metadata, extensionField: field2);
                         }
@@ -121,7 +126,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         var metadata = segment.GetOrCreateMetaData();
                         AssertNotNull(metadata, $"{segment}");
                         foreach (var field2 in field.GetAfterFields(metadata)) {
-                            CreateBitMaskPanels(
+                            CreateGenericComponentExt(
                                 roadEditorPanel: __instance, groupName: groupName,
                                 target: target, metadata: metadata, extensionField: field2);
                         }
@@ -178,7 +183,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 throw new Exception("could not find after field for " + field);
         }
 
-        public static void CreateBitMaskPanels(
+        public static void CreateGenericComponentExt(
             RoadEditorPanel roadEditorPanel, string groupName,
             object target, object metadata, FieldInfo extensionField) {
             if (TryGetMerge(extensionField, target, out var vanillaRequired, out var vanillaForbidden)) {
@@ -197,8 +202,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             } else {
                 CreateExtendedComponent(roadEditorPanel, groupName, extensionField, metadata);
             }
-
-
         }
 
         /// <summary>
@@ -248,11 +251,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         target: metadata,
                         fieldInfo: fieldInfo);
                 } else {
-                    var hints = fieldInfo.GetHints();
-                    hints.AddRange(fieldInfo.FieldType.GetHints());
-                    string hint = hints.JoinLines();
-                    Log.Debug("hint is " + hint);
-                    Log.Error($"CreateExtendedComponent: Unhandled field: {fieldInfo} att:{att.name} ");
+                    roadEditorPanel.CreateGenericField(groupName, fieldInfo, metadata);
                 }
             } catch (Exception ex) {
                 ex.Log();

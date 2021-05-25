@@ -183,7 +183,7 @@ namespace AdaptiveRoads.UI.Tool {
         protected override void Awake() {
             try {
                 base.Awake();
-                string sprites = UUIHelpers.GetFullPath<LifeCycle.UserMod>("B.png");
+                string sprites = UUIHelpers.GetFullPath<LifeCycle.UserMod>("uui_ar.png");
                 Debug.Log("[UUIExampleMod] ExampleTool.Awake() sprites=" + sprites);
                 button_ = UUIHelpers.RegisterToolButton(
                     name: nameof(ARTool),

@@ -386,6 +386,8 @@ namespace AdaptiveRoads.Manager {
         [Serializable]
         [Optional(AR_MODE)]
         public class Node : ICloneable {
+            public const string DC_GROUP_NAME = "Direct Connect";
+
             [CustomizableProperty("Node Extension")]
             public NodeInfoFlags NodeFlags;
 
@@ -399,6 +401,11 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Segment Extension")]
             [Optional(NODE_SEGMENT)]
             public SegmentInfoFlags SegmentFlags;
+
+            [Hint("Apply the same flag requirements to target segment end")]
+            [CustomizableProperty("Check target flags", DC_GROUP_NAME)]
+            [AfterField(nameof(NetInfo.Node.m_directConnect))]
+            public bool CheckTargetFlags;
 
             public bool CheckFlags(
                 NetNodeExt.Flags nodeFlags, NetSegmentEnd.Flags segmentEndFlags,

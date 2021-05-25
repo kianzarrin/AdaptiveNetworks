@@ -112,6 +112,7 @@
     <Compile Remove="Util\MarkerArray.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Resources\B.png" />
     <None Remove="Resources\back.png" />
     <None Remove="Resources\close.png" />
   </ItemGroup>
@@ -187,10 +188,10 @@
     <ProjectReference Include="..\PrefabMetaDataAPI\PrefabMetadataAPI.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="Resources\B.png">
+    <None Update="Resources\PreviewImage.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\PreviewImage.png">
+    <None Update="Resources\uui_ar.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
