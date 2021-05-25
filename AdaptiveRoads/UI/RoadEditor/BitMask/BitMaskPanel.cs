@@ -1,20 +1,12 @@
 namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
     using ColossalFramework.UI;
     using KianCommons;
-    using KianCommons.UI;
     using System;
-    using UnityEngine;
     using AdaptiveRoads.Util;
-    using System.Reflection;
-    using System.Linq;
-    using KianCommons.UI.Helpers;
-    using AdaptiveRoads.Manager;
-    using static KianCommons.ReflectionHelpers;
-    using KianCommons.Plugins;
 
 
 
-    public class BitMaskPanel : BitMaskPanelBase{
+    public class BitMaskPanel : BitMaskPanelBase {
         internal FlagDataT FlagData;
 
         public override void OnDestroy() {
@@ -45,22 +37,31 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
                 subPanel.EventPropertyChanged += roadEditorPanel.OnObjectModified;
 
                 return subPanel;
-            }catch(Exception ex) {
+            } catch (Exception ex) {
                 Log.Exception(ex);
                 return null;
             }
         }
 
         protected override void Initialize() {
-            //Disable();
-            Populate(DropDown, FlagData.GetValueLong(), FlagData.EnumType);
-            UpdateText();
-            Enable();
+            try {
+                //Disable();
+                Populate(DropDown, FlagData.GetValueLong(), FlagData.EnumType);
+                UpdateText();
+                Enable();
+            } catch (Exception ex) {
+                ex.Log();
+            }
         }
 
+
         protected override void OnAfterDropdownClose(UICheckboxDropDown checkboxdropdown) {
-            SetValue(GetCheckedFlags());
-            UpdateText();
+            try {
+                SetValue(GetCheckedFlags());
+                UpdateText();
+            } catch (Exception ex) {
+                ex.Log();
+            }
         }
 
         // apply checked flags from UI to prefab
@@ -82,8 +83,10 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             return ret;
         }
 
-        private string ToText(IConvertible value) =>
-            Enum.Format(enumType: FlagData.EnumType, value: value, format: "G");
+        private string ToText(IConvertible value) {
+            value = Convert2RawInteger(value, FlagData.UnderlyingType);
+            return Enum.Format(enumType: FlagData.EnumType, value: value, format: "G");
+        }
 
         private void UpdateText() {
             var flags = FlagData.GetValue();

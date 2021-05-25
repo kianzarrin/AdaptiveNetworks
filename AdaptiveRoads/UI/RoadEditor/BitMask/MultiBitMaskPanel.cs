@@ -81,7 +81,8 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             for (int i = 0; i < FlagDatas.Length; ++i) {
                 if (enumFlags[i].ToInt64() == 0) continue;
                 if (ret != "") ret += ", ";
-                ret += Enum.Format(enumType: FlagDatas[i].EnumType, value: enumFlags[i], "G");
+                var value = Convert2RawInteger(enumFlags[i], FlagDatas[i].UnderlyingType);
+                ret += Enum.Format(enumType: FlagDatas[i].EnumType, value: value, "G");
             }
             if (ret == "") ret = "None";
             return ret;

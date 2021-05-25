@@ -37,6 +37,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     var container = GetContainer(__instance, groupName);
                     var uidata = GetVanillaFlagUIData(field, target);
 
+                    //Log.Info($"[P1] CreateGenericField.Prefix() : field:{field}, target:{target}, group:{groupName}");
                     var bitMaskPanel = BitMaskPanel.Add(
                         roadEditorPanel: __instance,
                         container: container,
@@ -48,7 +49,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 return true;
             } catch (Exception ex) {
                 ex.Log();
-                return true;
+                return false;
             }
         }
 
@@ -487,7 +488,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
             var flagData = new FlagDataT(
                     setValue: val => field.SetValue(target, val),
-                    getValue: () => (int)field.GetValue(target),
+                    getValue: () => field.GetValue(target) as IConvertible,
                     enumType: enumType);
 
             return new FlagUIData {

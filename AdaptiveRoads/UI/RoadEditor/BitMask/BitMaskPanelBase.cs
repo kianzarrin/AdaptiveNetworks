@@ -68,26 +68,39 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
         }
 
         public override void Awake() {
-            base.Awake();
-            size = new Vector2(370, 54);
-            atlas = TextureUtil.Ingame;
-            //backgroundSprite = "GenericPanelWhite";
-            //color = Color.white;
+            try {
+                base.Awake();
+                size = new Vector2(370, 54);
+                atlas = TextureUtil.Ingame;
+                color = new Color32(87, 97, 100, 255);
 
-            Label = AddUIComponent<UILabel>();
-            Label.relativePosition = new Vector2(0, 6);
+                Label = AddUIComponent<UILabel>();
+                Label.relativePosition = new Vector2(0, 6);
 
-            DropDown = AddUIComponent<UICheckboxDropDown>();
-            EditorMultiSelectDropDown.Init(DropDown);
-            DropDown.relativePosition = new Vector2(width - DropDown.width, 28);
-            DropDown.eventAfterDropdownClose += OnAfterDropdownClose;
+                DropDown = AddUIComponent<UICheckboxDropDown>();
+                EditorMultiSelectDropDown.Init(DropDown);
+                DropDown.relativePosition = new Vector2(width - DropDown.width, 28);
+                DropDown.eventAfterDropdownClose += OnAfterDropdownClose;
+                isInteractive = true;
+            } catch (Exception ex) {
+                ex.Log();
+            }
+        }
+
+        public override void Start() {
+            base.Start();
+            FitTo(parent, LayoutDirection.Horizontal);
         }
 
         protected abstract void OnAfterDropdownClose(UICheckboxDropDown checkboxdropdown);
 
         public void OnPropertyChanged() {
-            LogCalled();
-            EventPropertyChanged?.Invoke();
+            try {
+                LogCalled();
+                EventPropertyChanged?.Invoke();
+            } catch (Exception ex) {
+                ex.Log();
+            }
         }
 
         protected abstract void Initialize();
@@ -95,22 +108,40 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
         public void Refresh() => Initialize();
 
         public static void Populate(UICheckboxDropDown dropdown, long flags, Type enumType) {
-            var values = EnumBitMaskExtensions.GetPow2Values(enumType);
-            foreach (IConvertible flag in values) {
-                bool hasFlag = (flags & flag.ToInt64()) != 0;
+            try {
+                var values = EnumBitMaskExtensions.GetPow2Values(enumType);
+                foreach (IConvertible flag in values) {
+                    bool hasFlag = (flags & flag.ToInt64()) != 0;
 
-                var itemInfo = enumType.GetEnumMemberInfo(flag);
-                bool hide = itemInfo.HasAttribute<HideAttribute>();
-                hide &= ModSettings.HideIrrelavant;
-                hide &= !hasFlag;
-                if (hide)
-                    continue; // hide
+                    var itemInfo = enumType.GetEnumMemberInfo(flag);
+                    bool hide = itemInfo.HasAttribute<HideAttribute>();
+                    hide &= ModSettings.HideIrrelavant;
+                    hide &= !hasFlag;
+                    if (hide)
+                        continue; // hide
 
-                dropdown.AddItem(
-                    item: Enum.GetName(enumType, flag),
-                    isChecked: hasFlag,
-                    userData: flag);
+                    dropdown.AddItem(
+                        item: Enum.GetName(enumType, flag),
+                        isChecked: hasFlag,
+                        userData: flag);
+                }
+            } catch (Exception ex) {
+                ex.Log();
             }
+        }
+
+        /// <summary>
+        /// convirts enum value to its underlying type. (useful for enum.format)
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="underlyingType"></param>
+        /// <returns></returns>
+        public static IConvertible Convert2RawInteger(IConvertible value, TypeCode underlyingType) {
+            return underlyingType switch {
+                TypeCode.Int32 => (int)value,
+                TypeCode.Int64 => (long)value,
+                _ => value,
+            };
         }
 
 
@@ -120,65 +151,81 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             mObtainTextRenderer.Invoke(button, null) as UIFontRenderer;
 
         public static void ApplyText(UICheckboxDropDown dd, string text) {
-            UIButton uibutton = (UIButton)dd.triggerButton;
-            var padding = uibutton.textPadding;
-            padding.left = 5;
-            padding.right = 21;
+            try {
+                UIButton uibutton = (UIButton)dd.triggerButton;
+                var padding = uibutton.textPadding;
+                padding.left = 5;
+                padding.right = 21;
 
-            uibutton.text = text; // must set text to mearure text once and only once.
+                uibutton.text = text; // must set text to mearure text once and only once.
 
-            using (UIFontRenderer uifontRenderer = ObtainTextRenderer(uibutton)) {
-                float p2uRatio = uibutton.GetUIView().PixelsToUnits();
-                var widths = uifontRenderer.GetCharacterWidths(text);
-                float x = widths.Sum() / p2uRatio;
-                //Log.Debug($"{uifontRenderer}.GetCharacterWidths(\"{text}\")->{widths.ToSTR()}");
-                //if (x > uibutton.width - 42) 
-                //    uibutton.textHorizontalAlignment = UIHorizontalAlignment.Left;
-                //else
-                //    uibutton.textHorizontalAlignment = UIHorizontalAlignment.Center;
+                using (UIFontRenderer uifontRenderer = ObtainTextRenderer(uibutton)) {
+                    float p2uRatio = uibutton.GetUIView().PixelsToUnits();
+                    var widths = uifontRenderer.GetCharacterWidths(text);
+                    float x = widths.Sum() / p2uRatio;
+                    //Log.Debug($"{uifontRenderer}.GetCharacterWidths(\"{text}\")->{widths.ToSTR()}");
+                    //if (x > uibutton.width - 42) 
+                    //    uibutton.textHorizontalAlignment = UIHorizontalAlignment.Left;
+                    //else
+                    //    uibutton.textHorizontalAlignment = UIHorizontalAlignment.Center;
 
-                if (x > uibutton.width - uibutton.textPadding.horizontal) {
-                    for (int n = 4; n < text.Length; ++n) {
-                        float x2 = widths.Take(n).Sum() / p2uRatio + 15; // 15 = width of ...
-                        if (x2 > uibutton.width - 21) {
-                            text = text.Substring(0, n - 1) + "...";
-                            break;
+                    if (x > uibutton.width - uibutton.textPadding.horizontal) {
+                        for (int n = 4; n < text.Length; ++n) {
+                            float x2 = widths.Take(n).Sum() / p2uRatio + 15; // 15 = width of ...
+                            if (x2 > uibutton.width - 21) {
+                                text = text.Substring(0, n - 1) + "...";
+                                break;
+                            }
                         }
-                    }
 
+                    }
                 }
+                uibutton.text = text;
+            } catch (Exception ex) {
+                ex.Log();
             }
-            uibutton.text = text;
         }
 
         [FPSBoosterSkipOptimizations]
         public override void Update() {
-            isVisible = isVisible;
-            base.Update();
-            if (IsHovered())
-                color = Color.blue;
-            else
-                color = Color.white;
+            try {
+                base.Update();
+                if (IsHovered())
+                    backgroundSprite = "GenericPanelWhite";
+                else
+                    backgroundSprite = "";
+            } catch (Exception ex) {
+                ex.Log();
+            }
         }
 
         public bool IsHovered() {
-            if (containsMouse)
-                return true;
-            if (DropDown.GetHoverIndex() >= 0)
-                return true;
+            try {
+                if (containsMouse)
+                    return true;
+                if (DropDown.GetHoverIndex() >= 0)
+                    return true;
+            } catch (Exception ex) {
+                ex.Log();
+            }
             return false;
         }
 
         public string GetHint() {
-            int i = DropDown.GetHoverIndex();
-            if (i >= 0) {
-                Enum flag = DropDown.GetItemUserData(i) as Enum;
-                var hints = flag.GetEnumMemberInfo().GetHints();
-                hints.Add("right-click => close drop down");
-                return hints.JoinLines();
-            } else if (DropDown.containsMouse || Label.containsMouse) {
-                return Hint;
-            } else {
+            try {
+                int i = DropDown.GetHoverIndex();
+                if (i >= 0) {
+                    Enum flag = DropDown.GetItemUserData(i) as Enum;
+                    var hints = flag.GetEnumMemberInfo().GetHints();
+                    hints.Add("right-click => close drop down");
+                    return hints.JoinLines();
+                } else if (containsMouse || DropDown.containsMouse || Label.containsMouse) {
+                    return Hint;
+                } else {
+                    return null;
+                }
+            } catch (Exception ex) {
+                ex.Log();
                 return null;
             }
         }

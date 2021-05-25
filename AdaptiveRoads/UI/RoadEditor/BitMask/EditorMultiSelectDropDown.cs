@@ -97,8 +97,6 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
                 dd.eventDropdownOpen += OnDropDownOpen;
                 triggerBtn.buttonsMask |= UIMouseButton.Right;
                 dd.eventMouseDown += (_, p) => HandleMouseDown(dd, p);
-
-                LogSucceeded();
             } catch(Exception ex) {
                 Log.Exception(ex);
             }
