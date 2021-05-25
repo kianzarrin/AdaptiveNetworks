@@ -46,7 +46,15 @@ namespace AdaptiveRoads.Patches.Parking {
             }
         }
 
-        // fixes the width and the length of the bezier that it takes for the car to park.
+        /// <summary>
+        /// fixes the width and the length of the bezier that it takes for the car to park.
+        /// </summary>
+        /// <param name="laneID">this is not the parking lane ID.
+        /// this is only a lane on the same side of road that we want to find parking</param>
+        /// <param name="pathPos"></param>
+        /// <param name="width"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
         static uint FixValues(uint laneID, ref PathUnit.Position pathPos, ref float width, ref float length) {
             var info = pathPos.m_segment.ToSegment().Info;
             var net = info?.GetMetaData();
@@ -81,7 +89,7 @@ namespace AdaptiveRoads.Patches.Parking {
         delegate ushort CheckOverlap(ushort ignoreParked, ref Bezier3 bezier, Vector3 pos, Vector3 dir, float offset, float length, ushort otherID, ref VehicleParked otherData, ref bool overlap, ref float minPos, ref float maxPos);
         static FieldInfo fSize_ = typeof(VehicleInfoGen).GetField(nameof(VehicleInfoGen.m_size));
         static MethodInfo mFixGap = typeof(GapPatch).GetMethod(nameof(FixGap), throwOnError: true);
-
+        const float SIDE_GAP = 0.2f;
         static MethodBase TargetMethod() => TranspilerUtils.DeclaredMethod<CheckOverlap>(typeof(PassengerCarAI));
         
 
@@ -98,7 +106,7 @@ namespace AdaptiveRoads.Patches.Parking {
 
         static float FixGap(float gap) {
             if(ParkingAnglePatch.Angle > 30)
-                return 0.3f * ParkingAnglePatch.OneOverCosAngle; 
+                return SIDE_GAP * ParkingAnglePatch.OneOverCosAngle; 
             else
                 return gap;
         }
