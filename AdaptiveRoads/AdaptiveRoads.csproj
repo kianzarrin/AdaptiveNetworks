@@ -11,7 +11,7 @@
   <PropertyGroup>
     <TargetFramework>net35</TargetFramework>
     <Deterministic>false</Deterministic>
-    <AssemblyVersion>2.1.4.*</AssemblyVersion>
+    <AssemblyVersion>2.1.6.*</AssemblyVersion>
     <LangVersion>latest</LangVersion>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
