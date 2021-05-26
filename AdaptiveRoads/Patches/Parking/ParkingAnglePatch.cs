@@ -23,7 +23,7 @@ namespace AdaptiveRoads.Patches.Parking {
         static MethodInfo mFixValues_ => typeof(ParkingAnglePatch).GetMethod(nameof(FixValues), throwOnError: true);
         static MethodInfo mRotate_ => typeof(ParkingAnglePatch).GetMethod(nameof(Rotate), throwOnError: true);
         internal static float Angle;
-        internal static float OneOverCosAngle;
+        internal static float OneOverSinAngle;
 
         // this can be done via prefix by calling FindPathPosition and GetLaneID
         // but that would reduce performance in a performance critical part of the code.
@@ -60,10 +60,10 @@ namespace AdaptiveRoads.Patches.Parking {
             var net = info?.GetMetaData();
             Angle = net?.ParkingAngleDegrees ?? 0;
             if (Angle > 30) {
-                OneOverCosAngle = net.OneOverCosOfParkingAngle;
+                OneOverSinAngle = net.OneOverSinOfParkingAngle;
                 var laneInfo = info.m_lanes[pathPos.m_lane];
-                width = FixWidth(length, OneOverCosAngle, laneInfo.m_width);
-                length = FixLength(width, OneOverCosAngle);
+                width = FixWidth(length, OneOverSinAngle, laneInfo.m_width);
+                length = FixLength(width, OneOverSinAngle);
             }
             return laneID;
         }
@@ -74,11 +74,11 @@ namespace AdaptiveRoads.Patches.Parking {
             return parkRot;
         }
 
-        static float FixWidth(float oneOverCosOfParkingAngle, float carLength, float laneWith) =>
-            Mathf.Min(carLength * oneOverCosOfParkingAngle, laneWith);
+        static float FixWidth(float oneOverSinOfParkingAngle, float carLength, float laneWith) =>
+            Mathf.Min(carLength * oneOverSinOfParkingAngle, laneWith);
 
-        static float FixLength(float oneOverCosOfParkingAngle, float carWidth) =>
-            carWidth * oneOverCosOfParkingAngle;
+        static float FixLength(float oneOverSinOfParkingAngle, float carWidth) =>
+            carWidth * oneOverSinOfParkingAngle;
     }
 
     [InGamePatch]
@@ -89,7 +89,7 @@ namespace AdaptiveRoads.Patches.Parking {
         delegate ushort CheckOverlap(ushort ignoreParked, ref Bezier3 bezier, Vector3 pos, Vector3 dir, float offset, float length, ushort otherID, ref VehicleParked otherData, ref bool overlap, ref float minPos, ref float maxPos);
         static FieldInfo fSize_ = typeof(VehicleInfoGen).GetField(nameof(VehicleInfoGen.m_size));
         static MethodInfo mFixGap = typeof(GapPatch).GetMethod(nameof(FixGap), throwOnError: true);
-        const float SIDE_GAP = 0.2f;
+        const float SIDE_GAP = 0.1f;
         static MethodBase TargetMethod() => TranspilerUtils.DeclaredMethod<CheckOverlap>(typeof(PassengerCarAI));
         
 
@@ -106,7 +106,7 @@ namespace AdaptiveRoads.Patches.Parking {
 
         static float FixGap(float gap) {
             if(ParkingAnglePatch.Angle > 30)
-                return SIDE_GAP * ParkingAnglePatch.OneOverCosAngle; 
+                return SIDE_GAP * ParkingAnglePatch.OneOverSinAngle; 
             else
                 return gap;
         }

@@ -238,10 +238,10 @@ namespace AdaptiveRoads.Manager {
             public float ParkingAngleDegrees = 0;
 
             /// <summary>
-            /// 1/cos(ParkingAngleDegrees)
+            /// 1/sin(ParkingAngleDegrees)
             /// </summary>
             [NonSerialized]
-            public float OneOverCosOfParkingAngle = 1;
+            public float OneOverSinOfParkingAngle = 1;
 
 #if QUAY_ROADS_SHOW
             [CustomizableProperty("Quay Road", "Properties")]
@@ -255,11 +255,11 @@ namespace AdaptiveRoads.Manager {
 
             public void Update(NetInfo template) {
                 UsedCustomFlags = GetUsedCustomFlags(template);
-                float cos = Mathf.Abs(Mathf.Cos(Mathf.Deg2Rad * ParkingAngleDegrees));
-                if (cos >= Mathf.Cos(30))
-                    OneOverCosOfParkingAngle = 1 / cos;
+                float sin = Mathf.Abs(Mathf.Sin(Mathf.Deg2Rad * ParkingAngleDegrees));
+                if (sin >= Mathf.Sin(30))
+                    OneOverSinOfParkingAngle = 1 / sin;
                 else
-                    OneOverCosOfParkingAngle = 1;
+                    OneOverSinOfParkingAngle = 1;
             }
 
             static CustomFlags GetUsedCustomFlags(NetInfo info) {
