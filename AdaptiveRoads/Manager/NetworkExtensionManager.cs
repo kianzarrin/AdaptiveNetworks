@@ -35,10 +35,8 @@ namespace AdaptiveRoads.Manager {
                 for (int i = 0; i < SegmentEndBuffer.Length; ++i) {
                     SegmentEndBuffer[i].Serialize(s);
                 }
-                if (s.Version >= new Version(2, 1)) {
-                    for (ushort i = 0; i < NodeBuffer.Length; ++i) {
-                        NodeBuffer[i].Serialize(s);
-                    }
+                for (ushort i = 0; i < NodeBuffer.Length; ++i) {
+                    NodeBuffer[i].Serialize(s);
                 }
                 uint n = (uint)LaneBuffer.LongCount(_l => !_l.IsEmpty);
                 s.WriteUInt32(n);

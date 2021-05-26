@@ -11,7 +11,7 @@
   <PropertyGroup>
     <TargetFramework>net35</TargetFramework>
     <Deterministic>false</Deterministic>
-    <AssemblyVersion>2.1.4.*</AssemblyVersion>
+    <AssemblyVersion>2.1.5.*</AssemblyVersion>
     <LangVersion>latest</LangVersion>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
@@ -89,6 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="DecompiledSources\**" />
+    <Compile Remove="LifeCycle\SerializableDataExtension.cs" />
     <Compile Remove="Patches\AssetPatches\InitializePrefabImpl.cs" />
     <Compile Remove="Patches\AsymPavements\GetPathTargetPosition.cs" />
     <Compile Remove="Patches\HarmonyExtension.cs" />
