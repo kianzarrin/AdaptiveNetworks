@@ -18,9 +18,10 @@ namespace AdaptiveRoads.Patches.Node {
             if (segmentID == 0)
                 GetBendDCSegmentID(nodeID, out segmentID, out segmentID2);
 
-            bool ret = CheckFlags(nodeInfoExt, nodeID, segmentID);
-            if(nodeInfoExt.CheckTargetFlags)
-                ret = ret && CheckFlags(nodeInfoExt, nodeID, segmentID2);
+            bool ret = CheckFlagsImpl(nodeInfoExt, nodeID, segmentID).LogRet($"CheckFlags(node:{nodeID}, segment:{segmentID})");
+            Log.Debug("CheckTargetFlags=" + nodeInfoExt.CheckTargetFlags);
+            if (nodeInfoExt.CheckTargetFlags)
+                ret = ret && CheckFlagsImpl(nodeInfoExt, nodeID, segmentID2).LogRet($"CheckFlags(node:{nodeID}, segment:{segmentID2})");
             return ret;
         }
 
@@ -34,10 +35,10 @@ namespace AdaptiveRoads.Patches.Node {
                     GetBendDCSegmentID(nodeID, out segmentID, out _);
             }
 
-            return CheckFlags(nodeInfoExt, nodeID, segmentID);
+            return CheckFlagsImpl(nodeInfoExt, nodeID, segmentID);
         }
 
-        static bool CheckFlags(NetInfoExtionsion.Node node, ushort nodeID, ushort segmentID) {
+        static bool CheckFlagsImpl(NetInfoExtionsion.Node node, ushort nodeID, ushort segmentID) {
             ref NetSegment netSegment = ref segmentID.ToSegment();
             ref NetNodeExt netNodeExt = ref NetworkExtensionManager.Instance.NodeBuffer[nodeID];
             ref NetSegmentExt netSegmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
@@ -69,10 +70,10 @@ namespace AdaptiveRoads.Patches.Node {
             }
         }
 
-        static MethodInfo mCheckFlagsExt = typeof(CheckNodeFlagsCommons).GetMethod(nameof(CheckFlags), throwOnError: true);
-        static MethodInfo mCheckFlagsExtDC = typeof(CheckNodeFlagsCommons).GetMethod(nameof(CheckFlagsDC), throwOnError: true);
-        static MethodInfo mCheckFlags = typeof(NetInfo.Node).GetMethod("CheckFlags", throwOnError: true);
-        static MethodInfo mGetSegment = typeof(NetNode).GetMethod("GetSegment", throwOnError: true);
+        static MethodInfo mCheckFlagsExt => typeof(CheckNodeFlagsCommons).GetMethod(nameof(CheckFlags), throwOnError: true);
+        static MethodInfo mCheckFlagsExtDC => typeof(CheckNodeFlagsCommons).GetMethod(nameof(CheckFlagsDC), throwOnError: true);
+        static MethodInfo mCheckFlags => typeof(NetInfo.Node).GetMethod("CheckFlags", throwOnError: true);
+        static MethodInfo mGetSegment => typeof(NetNode).GetMethod("GetSegment", throwOnError: true);
 
         /// <param name="counterGetSegment">
         /// if set to 0, segmentID is auto-calculated (only for end ndoes and DC bend nodes)
