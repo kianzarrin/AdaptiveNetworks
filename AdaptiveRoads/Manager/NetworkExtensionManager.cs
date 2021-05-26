@@ -28,20 +28,23 @@ namespace AdaptiveRoads.Manager {
 
         public void Serialize(SimpleDataSerializer s) {
             try {
-                LogCalled();
-                for (ushort i = 0; i < SegmentBuffer.Length; ++i) {
+                Assertion.NotNull(s);
+                LogCalled("s.version=" + s.Version);
+                for (ushort i = 0; i < SegmentBuffer.Length; ++i)
                     SegmentBuffer[i].Serialize(s);
-                }
-                for (int i = 0; i < SegmentEndBuffer.Length; ++i) {
+            } catch (Exception ex) { ex.Log(); }
+            try {
+                for (int i = 0; i < SegmentEndBuffer.Length; ++i)
                     SegmentEndBuffer[i].Serialize(s);
-                }
-                if (s.Version >= new Version(2, 1)) {
-                    for (ushort i = 0; i < NodeBuffer.Length; ++i) {
-                        NodeBuffer[i].Serialize(s);
-                    }
-                }
+            } catch (Exception ex) { ex.Log(); }
+            try {
+                for (ushort i = 0; i < NodeBuffer.Length; ++i)
+                    NodeBuffer[i].Serialize(s);
+            } catch (Exception ex) { ex.Log(); }
+            try {
                 uint n = (uint)LaneBuffer.LongCount(_l => !_l.IsEmpty);
                 s.WriteUInt32(n);
+                Log.Debug($"Serializing {n} lanes");
                 for (uint i = 0; i < LaneBuffer.Length; ++i) {
                     if (LaneBuffer[i].IsEmpty) continue;
                     s.WriteUInt32(i);
@@ -53,7 +56,6 @@ namespace AdaptiveRoads.Manager {
         }
         public static void Deserialize(SimpleDataSerializer s) {
             try {
-                LogCalled();
                 instance_ = new NetworkExtensionManager();
                 if (s != null)
                     instance_.DeserializeImp(s);
@@ -64,23 +66,31 @@ namespace AdaptiveRoads.Manager {
 
         internal void DeserializeImp(SimpleDataSerializer s) {
             try {
-                LogCalled();
-                for (ushort i = 0; i < SegmentBuffer.Length; ++i) {
+                Assertion.NotNull(s);
+                LogCalled("s.version=" + s.Version);
+                for (ushort i = 0; i < SegmentBuffer.Length; ++i)
                     SegmentBuffer[i].Deserialize(s);
-                }
-                for (int i = 0; i < SegmentEndBuffer.Length; ++i) {
+            } catch (Exception ex) { ex.Log("failed to deserialize segments"); }
+            try {
+                for (int i = 0; i < SegmentEndBuffer.Length; ++i)
                     SegmentEndBuffer[i].Deserialize(s);
-                }
-                for (ushort i = 0; i < NodeBuffer.Length; ++i) {
+            } catch (Exception ex) { ex.Log("failed to deserialize segment ends"); }
+            try {
+                for (ushort i = 0; i < NodeBuffer.Length; ++i)
                     NodeBuffer[i].Deserialize(s);
-                }
+            } catch (Exception ex) { ex.Log("failed to deserialize nodes"); }
+
+            try {
                 uint n = s.ReadUInt32();
+                Assertion.GT((uint)LaneBuffer.Length, n, "LaneBuffer.Length > n");
+                Log.Debug($"deserializing {n} lanes");
                 for (uint i = 0; i < n; ++i) {
                     uint laneID = s.ReadUInt32();
+                    Assertion.GT((uint)LaneBuffer.Length, laneID, "LaneBuffer.Length > laneID");
                     LaneBuffer[laneID].Deserialize(s);
                 }
             } catch (Exception ex) {
-                ex.Log();
+                ex.Log($"failed to deserialize lanes");
             }
         }
 
