@@ -224,6 +224,14 @@ namespace AdaptiveRoads.Manager {
                 UsedCustomFlags = GetUsedCustomFlags(template);
             }
 
+            [Hint("Custom connect group")]
+            [CustomizableProperty("Connect Group")]
+            [AfterField(nameof(NetInfo.m_connectGroup))]
+            public string[] ConnectGroups;
+
+            [NonSerialized]
+            public int [] ConnectGroupsHash;
+
             [AfterField(nameof(NetInfo.m_pavementWidth))]
             [CustomizableProperty("Pavement Width Right", "Properties")]
             public float PavementWidthRight;
@@ -255,6 +263,11 @@ namespace AdaptiveRoads.Manager {
 
             public void Update(NetInfo template) {
                 UsedCustomFlags = GetUsedCustomFlags(template);
+
+                ConnectGroupsHash = ConnectGroups?.Select(item => item.GetHashCode()).ToArray();
+                foreach(var node in template.m_nodes)
+                    node.GetMetaData()?.Update();
+
                 float sin = Mathf.Abs(Mathf.Sin(Mathf.Deg2Rad * ParkingAngleDegrees));
                 if (sin >= Mathf.Sin(30))
                     OneOverSinOfParkingAngle = 1 / sin;
@@ -407,6 +420,24 @@ namespace AdaptiveRoads.Manager {
             [AfterField(nameof(NetInfo.Node.m_directConnect))]
             public bool CheckTargetFlags;
 
+            [Hint("Custom connect group")]
+            [CustomizableProperty("Connect Group", DC_GROUP_NAME)]
+            [AfterField(nameof(NetInfo.Node.m_connectGroup))]
+            public string []ConnectGroups;
+
+            [NonSerialized]
+            public int[] ConnectGroupsHash;
+
+            [Hint("used by other mods to decide how hide tracks/medians")]
+            [CustomizableProperty("Lane Type", DC_GROUP_NAME)]
+            [AfterField(nameof(NetInfo.Node.m_directConnect))]
+            public NetInfo.LaneType LaneType;
+
+            [Hint("used by other mods to decide how hide tracks/medians")]
+            [CustomizableProperty("Vehicle Type", DC_GROUP_NAME)]
+            [AfterField(nameof(NetInfo.Node.m_directConnect))]
+            public VehicleInfo.VehicleType VehicleType;
+
             public bool CheckFlags(
                 NetNodeExt.Flags nodeFlags, NetSegmentEnd.Flags segmentEndFlags,
                 NetSegmentExt.Flags segmentFlags, NetSegment.Flags vanillaSegmentFlags) =>
@@ -418,6 +449,10 @@ namespace AdaptiveRoads.Manager {
                 SegmentEnd = SegmentEndFlags.UsedCustomFlags,
                 Node = NodeFlags.UsedCustomFlags,
             };
+
+            public void Update() {
+                ConnectGroupsHash = ConnectGroups?.Select(item => item.GetHashCode()).ToArray();
+            }
 
             [Obsolete("only useful for the purpose of shallow clone", error: true)]
             public Node() { }
