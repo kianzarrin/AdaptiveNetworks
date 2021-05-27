@@ -224,10 +224,11 @@ namespace AdaptiveRoads.Manager {
                 UsedCustomFlags = GetUsedCustomFlags(template);
             }
 
-            [Hint("Custom connect group")]
-            [CustomizableProperty("Connect Group")]
-            [AfterField(nameof(NetInfo.m_connectGroup))]
             public string[] ConnectGroups;
+
+            [NonSerialized]
+            public int[] NodeConnectGroupsHash;
+
 
             [NonSerialized]
             public int [] ConnectGroupsHash;
@@ -261,18 +262,28 @@ namespace AdaptiveRoads.Manager {
             [NonSerialized]
             public CustomFlags UsedCustomFlags;
 
-            public void Update(NetInfo template) {
-                UsedCustomFlags = GetUsedCustomFlags(template);
+            public void Update(NetInfo netInfo) {
+                UsedCustomFlags = GetUsedCustomFlags(netInfo);
 
                 ConnectGroupsHash = ConnectGroups?.Select(item => item.GetHashCode()).ToArray();
-                foreach(var node in template.m_nodes)
-                    node.GetMetaData()?.Update();
+                if (ConnectGroupsHash.IsNullorEmpty()) ConnectGroupsHash = null;
+                NodeConnectGroupsHash = GetNodeConnectGroups(netInfo).ToArray();
+                if (NodeConnectGroupsHash.IsNullorEmpty()) NodeConnectGroupsHash = null;
 
                 float sin = Mathf.Abs(Mathf.Sin(Mathf.Deg2Rad * ParkingAngleDegrees));
                 if (sin >= Mathf.Sin(30))
                     OneOverSinOfParkingAngle = 1 / sin;
                 else
                     OneOverSinOfParkingAngle = 1;
+            }
+
+            IEnumerable<int> GetNodeConnectGroups(NetInfo netInfo) {
+                foreach(var node in netInfo.m_nodes) {
+                    var hashes = node.GetMetaData()?.ConnectGroupsHash;
+                    if (hashes == null) continue;
+                    foreach (int hash in hashes)
+                        yield return hash;
+                }
             }
 
             static CustomFlags GetUsedCustomFlags(NetInfo info) {
@@ -420,9 +431,6 @@ namespace AdaptiveRoads.Manager {
             [AfterField(nameof(NetInfo.Node.m_directConnect))]
             public bool CheckTargetFlags;
 
-            [Hint("Custom connect group")]
-            [CustomizableProperty("Connect Group", DC_GROUP_NAME)]
-            [AfterField(nameof(NetInfo.Node.m_connectGroup))]
             public string []ConnectGroups;
 
             [NonSerialized]

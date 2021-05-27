@@ -35,6 +35,13 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 else if (field == typeof(NetInfo.Node).GetField(nameof(NetInfo.Node.m_connectGroup)))
                     groupName = NetInfoExtionsion.Node.DC_GROUP_NAME;
 
+                if (ModSettings.ARMode &&
+                    field.FieldType == typeof(NetInfo.ConnectGroup)) {
+                    CreateConnectGroupComponent(__instance, groupName, target, field);
+                    return false;
+                } else {
+
+                }
                 if (IsUIReplaced(field)) {
                     if (VanillaCanMerge(field))
                         return false; // will be merged with AR dd later
@@ -256,6 +263,33 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             } catch (Exception ex) {
                 ex.Log();
             }
+        }
+
+        public static void CreateConnectGroupComponent(
+            RoadEditorPanel roadEditorPanel, string groupName, object target, FieldInfo fieldInfo) {
+            Assert(fieldInfo.FieldType == typeof(NetInfo.ConnectGroup), "field type is connect group");
+            Assert(fieldInfo.Name == nameof(NetInfo.m_connectGroup));
+
+            object metadata = null;
+            if (target is NetInfo.Node nodeInfo)
+                metadata = nodeInfo.GetOrCreateMetaData();
+            else if (target is NetInfo netInfo)
+                metadata = netInfo.GetOrCreateMetaData();
+            Assertion.NotNull(metadata,"metadata");
+            var container = GetContainer(roadEditorPanel, groupName);
+            var uidata = GetVanillaFlagUIData(fieldInfo, target);
+            var customdata = new CustomFlagDataT(
+                itemSource: ItemSource.GetOrCreate(fieldInfo.FieldType),
+                selected: Traverse.Create(metadata).Field("ConnectGroups"));
+
+            //Log.Info($"[P2] CreateGenericField.Prefix() : field:{field}, target:{target}, group:{groupName}");
+            var bitMaskPanel = BitMaskPanelCustomisable.Add(
+                roadEditorPanel: roadEditorPanel,
+                container: container,
+                label: uidata.Label,
+                hint: uidata.Hint,
+                flagData: uidata.FlagData,
+                customFlagData: customdata);
         }
 
         public static void CreateMergedComponent(
