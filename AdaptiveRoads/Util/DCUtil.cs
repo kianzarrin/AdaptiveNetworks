@@ -6,6 +6,8 @@ namespace AdaptiveRoads.Util {
     using System.Text;
     using KianCommons;
     using System.Diagnostics;
+    using KianCommons;
+    using HarmonyLib;
 
     // empty array must be null
     internal static class DCUtil {
@@ -40,7 +42,7 @@ namespace AdaptiveRoads.Util {
             return false;
         }
 
-        internal static string[] AddToConnectGroup(string[] connectGroup, string item) {
+        internal static string[] AddToConnectGroup(string[] connectGroup, string item){
             var newAr = new string[] { item };
             if (connectGroup == null)
                 return newAr;
