@@ -37,7 +37,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
 
                 dd.listBackground = "GenericPanelWhite";
                 dd.listWidth = 188;
-                dd.listHeight = 1000;
+                dd.listHeight = 900;
                 dd.clampListToScreen = true;
                 dd.listPosition = UICheckboxDropDown.PopupListPosition.Automatic;
 

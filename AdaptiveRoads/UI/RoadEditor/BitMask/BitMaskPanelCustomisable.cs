@@ -1,6 +1,7 @@
 namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
     using ColossalFramework.UI;
     using KianCommons;
+    using static KianCommons.ReflectionHelpers;
     using System;
     using AdaptiveRoads.Util;
     using System.Linq;
@@ -30,7 +31,6 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
         }
     }
 
-
     internal struct CustomFlagDataT {
         public readonly ItemSource ItemSource;
         readonly Traverse selected_;
@@ -51,7 +51,15 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
         }
     }
 
+
     public class BitMaskPanelCustomisable : BitMaskPanelBase {
+        class CustomItemUserData {
+            public bool AddCutstomItem;
+            public string Hint;
+            public override string ToString() => Hint;
+        }
+
+
         internal FlagDataT FlagData;
         internal CustomFlagDataT CustomFlagData;
 
@@ -85,6 +93,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
 
         protected override void Initialize() {
             //Disable();
+            DropDown.Clear();
             Populate(DropDown, FlagData, CustomFlagData.ItemSource.Items, CustomFlagData.Selected);
             UpdateText();
             DropDown.eventCheckedChanged -= DropDown_eventCheckedChanged;
@@ -94,43 +103,57 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             Enable();
         }
 
-
-        private void DropDown_eventCheckedChanged(UIComponent component, int value) {
-            if (DropDown.GetItemUserData(value) is null && DropDown.GetChecked(value)) {
-                // user clicked <Add custom ...>
-                DropDown.SetChecked(value, false);
-                var panel = MiniPanel.Display();
-                var field = panel.AddTextField();
-                field.width = 200;
-                panel.AddButton("Add Custom item", null, () => OnItemAdded(field.text));
-            }
-        }
-
-        private void OnItemAdded(string item) {
-            if (CustomFlagData.ItemSource.Add(item)) {
-                CustomFlagData.Selected = CustomFlagData.Selected.AddToArray(item);
-                OnPropertyChanged();
-            }
-        }
-
         internal static void Populate(UICheckboxDropDown dropdown, FlagDataT flagData, string []allStrings, string []checkedStrings) {
             Populate(dropdown, flagData.GetValueLong(), flagData.EnumType);
             foreach(var item in checkedStrings) {
                 dropdown.AddItem(
                     item: item,
                     isChecked: true,
-                    userData: item);
+                    userData: new CustomItemUserData { Hint = "custom connect group" });
             }
             foreach (var item in allStrings.Except(checkedStrings)) {
                 dropdown.AddItem(
                     item: item,
                     isChecked: false,
-                    userData: item);
+                    userData: new CustomItemUserData { Hint = "custom connect group" });
             }
             dropdown.AddItem(
                 item: "<Add Custom ...>",
                 isChecked: false,
-                userData: null);
+                userData: new CustomItemUserData {
+                    AddCutstomItem = true,
+                    Hint =
+                    "Add custom connect group. this can be used \n" +
+                    "in combination of the vanilla connect groups.\n" +
+                    "If you do use custom connect groups, please also\n" +
+                    "set lane types and vehicle types for compatibilty with DC mods"});
+        }
+        private void DropDown_eventCheckedChanged(UIComponent component, int value) {
+            try {
+                LogCalled(component, value);
+                if (DropDown.GetItemUserData(value) is CustomItemUserData cud &&
+                    cud.AddCutstomItem &&
+                    DropDown.GetChecked(value)) {
+                    // user clicked <Add custom ...>
+                    DropDown.SetChecked(value, false);
+                    var panel = MiniPanel.Display();
+                    var field = panel.AddTextField();
+                    field.width = 200;
+                    panel.AddButton("Add Custom item", null, () => OnItemAdded(field.text));
+                }
+            } catch (Exception ex) {
+                ex.Log();
+            }
+        }
+
+        private void OnItemAdded(string item) {
+            try {
+                LogCalled(item);
+                CustomFlagData.ItemSource.Add(item); // adds item to drop down
+                SetChecked(item, true);
+            } catch (Exception ex) {
+                ex.Log();
+            }
         }
 
         protected override void OnAfterDropdownClose(UICheckboxDropDown checkboxdropdown) {
@@ -141,6 +164,11 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             } catch (Exception ex) {
                 ex.Log();
             }
+        }
+
+        void SetChecked(string item, bool isChecked) {
+            DropDown.SetChecked(item, isChecked);
+            OnAfterDropdownClose(DropDown);
         }
 
         // apply checked flags from UI to prefab
@@ -174,8 +202,10 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
 
         private IEnumerable<string> GetCheckedStrings() {
             for (int i = 0; i < DropDown.items.Length; i++) {
-                if (DropDown.GetChecked(i) && DropDown.GetItemUserData(i) is string item) {
-                    yield return item;
+                if (DropDown.GetChecked(i) &&
+                    DropDown.GetItemUserData(i) is CustomItemUserData item &&
+                    !item.AddCutstomItem) {
+                    yield return DropDown.items[i];
                 }
             }
         }

@@ -10,6 +10,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
     using AdaptiveRoads.Manager;
     using static KianCommons.ReflectionHelpers;
     using KianCommons.Plugins;
+    using System.Collections.Generic;
 
     internal struct FlagDataT {
         public delegate void SetHandlerD(IConvertible flag);
@@ -105,7 +106,12 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
 
         protected abstract void Initialize();
 
-        public void Refresh() => Initialize();
+        public void Refresh() {
+            try {
+                DropDown.Clear();
+                Initialize();
+            } catch (Exception ex) { ex.Log(); }
+        }
 
         public static void Populate(UICheckboxDropDown dropdown, long flags, Type enumType) {
             try {
@@ -197,6 +203,8 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             } catch (Exception ex) {
                 ex.Log();
             }
+            if (Input.GetMouseButtonDown(1))
+                DropDown.ClosePopup(); // close all popups on left click
         }
 
         public bool IsHovered() {
@@ -215,11 +223,15 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             try {
                 int i = DropDown.GetHoverIndex();
                 if (i >= 0) {
-                    Enum flag = DropDown.GetItemUserData(i) as Enum;
-                    var hints = flag.GetEnumMemberInfo().GetHints();
+                    var userData = DropDown.GetItemUserData(i);
+                    List<string> hints = new List<string>();
+                    if (userData is Enum flag)
+                        hints = flag.GetEnumMemberInfo().GetHints();
+                    else if(userData != null)
+                        hints.Add(userData.ToString());
                     hints.Add("right-click => close drop down");
                     return hints.JoinLines();
-                } else if (containsMouse || DropDown.containsMouse || Label.containsMouse) {
+                } else if (containsMouse) {
                     return Hint;
                 } else {
                     return null;

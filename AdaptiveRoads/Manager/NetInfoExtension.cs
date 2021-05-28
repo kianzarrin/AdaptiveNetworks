@@ -13,6 +13,7 @@ using UnityEngine;
 using static AdaptiveRoads.Manager.NetInfoExtionsion;
 using static AdaptiveRoads.UI.ModSettings;
 using static KianCommons.ReflectionHelpers;
+using AdaptiveRoads.UI.RoadEditor.Bitmask;
 
 namespace AdaptiveRoads.Manager {
     using static HintExtension;
@@ -264,12 +265,11 @@ namespace AdaptiveRoads.Manager {
 
             public void Update(NetInfo netInfo) {
                 UsedCustomFlags = GetUsedCustomFlags(netInfo);
+                UpdateParkingAngle();
+                UpdateConnectGroups(netInfo);
+            }
 
-                ConnectGroupsHash = ConnectGroups?.Select(item => item.GetHashCode()).ToArray();
-                if (ConnectGroupsHash.IsNullorEmpty()) ConnectGroupsHash = null;
-                NodeConnectGroupsHash = GetNodeConnectGroups(netInfo).ToArray();
-                if (NodeConnectGroupsHash.IsNullorEmpty()) NodeConnectGroupsHash = null;
-
+            void UpdateParkingAngle() {
                 float sin = Mathf.Abs(Mathf.Sin(Mathf.Deg2Rad * ParkingAngleDegrees));
                 if (sin >= Mathf.Sin(30))
                     OneOverSinOfParkingAngle = 1 / sin;
@@ -277,12 +277,37 @@ namespace AdaptiveRoads.Manager {
                     OneOverSinOfParkingAngle = 1;
             }
 
-            IEnumerable<int> GetNodeConnectGroups(NetInfo netInfo) {
+            void UpdateConnectGroups(NetInfo netInfo) {
+                ConnectGroupsHash = ConnectGroups?.Select(item => item.GetHashCode()).ToArray();
+                if (ConnectGroupsHash.IsNullorEmpty()) ConnectGroupsHash = null;
+                NodeConnectGroupsHash = GetNodeConnectGroupsHash(netInfo).ToArray();
+                if (NodeConnectGroupsHash.IsNullorEmpty()) NodeConnectGroupsHash = null;
+
+                var itemSource = ItemSource.GetOrCreate(typeof(NetInfo.ConnectGroup));
+                foreach (var connectGroup in GetAllConnectGroups(netInfo))
+                    itemSource.Add(connectGroup);
+            }
+
+            IEnumerable<int> GetNodeConnectGroupsHash(NetInfo netInfo) {
                 foreach(var node in netInfo.m_nodes) {
                     var hashes = node.GetMetaData()?.ConnectGroupsHash;
                     if (hashes == null) continue;
                     foreach (int hash in hashes)
                         yield return hash;
+                }
+            }
+
+            IEnumerable<string> GetAllConnectGroups(NetInfo netInfo) {
+                if(ConnectGroups != null) {
+                    foreach (var cg in ConnectGroups)
+                        yield return cg;
+                }
+
+                foreach (var node in netInfo.m_nodes) {
+                    var connectGroups = node.GetMetaData()?.ConnectGroups;
+                    if (connectGroups == null) continue;
+                    foreach (var cg in connectGroups)
+                        yield return cg;
                 }
             }
 

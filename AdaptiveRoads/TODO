@@ -1,6 +1,6 @@
-- sharp corners
-- angled parkings
-- shift (left/right) half width
+
+- add node mod flags: DCR HUT
+- don't shift DC
 - DC support
 - option to un-merge bitmask dropdowns
 
