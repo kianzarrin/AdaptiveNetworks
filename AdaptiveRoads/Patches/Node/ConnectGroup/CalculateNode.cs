@@ -6,6 +6,7 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
     using System.Collections.Generic;
     using System.Reflection;
 
+    [InGamePatch]
     [HarmonyPatch(typeof(NetNode), nameof(NetNode.CalculateNode))]
     public static class CalculateNodePatch {
         public static IEnumerable<CodeInstruction> Transpiler(

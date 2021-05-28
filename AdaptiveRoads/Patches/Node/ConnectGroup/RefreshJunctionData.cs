@@ -6,6 +6,7 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
     using System.Collections.Generic;
     using System.Reflection;
 
+    [InGamePatch]
     [HarmonyPatch2(typeof(NetNode), typeof(RefreshJunctionData))]
     public static class RefreshJunctionDataPatch {
         delegate void RefreshJunctionData(ushort nodeID, NetInfo info, uint instanceIndex);
