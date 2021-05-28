@@ -22,6 +22,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
         
 
         public bool Add(string item) {
+            LogCalled(item);
             if (!item.IsNullorEmpty() && !items_.Contains(item)) {
                 items_ = items_.AddToArray(item);
                 eventItemSourceUpdated?.Invoke();

@@ -278,6 +278,7 @@ namespace AdaptiveRoads.Manager {
             }
 
             void UpdateConnectGroups(NetInfo netInfo) {
+                LogCalled();
                 ConnectGroupsHash = ConnectGroups?.Select(item => item.GetHashCode()).ToArray();
                 if (ConnectGroupsHash.IsNullorEmpty()) ConnectGroupsHash = null;
                 NodeConnectGroupsHash = GetNodeConnectGroupsHash(netInfo).ToArray();
