@@ -1,10 +1,9 @@
-using HarmonyLib;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Reflection.Emit;
-using ColossalFramework;
-
 namespace AdaptiveRoads.Patches.Node {
+    using HarmonyLib;
+    using System.Collections.Generic;
+    using System.Reflection;
+    using System.Reflection.Emit;
+    using ColossalFramework;
     using AdaptiveRoads.Manager;
     using KianCommons;
     using System;
