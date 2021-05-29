@@ -17,10 +17,10 @@ namespace AdaptiveRoads.Patches.Node {
             if (segmentID == 0)
                 GetBendDCSegmentID(nodeID, out segmentID, out segmentID2);
 
-            bool ret = CheckFlagsImpl(nodeInfoExt, nodeID, segmentID).LogRet($"CheckFlags(node:{nodeID}, segment:{segmentID})");
+            bool ret = CheckFlagsImpl(nodeInfoExt, nodeID, segmentID);
             Log.Debug("CheckTargetFlags=" + nodeInfoExt.CheckTargetFlags);
             if (nodeInfoExt.CheckTargetFlags)
-                ret = ret && CheckFlagsImpl(nodeInfoExt, nodeID, segmentID2).LogRet($"CheckFlags(node:{nodeID}, segment:{segmentID2})");
+                ret = ret && CheckFlagsImpl(nodeInfoExt, nodeID, segmentID2);
             return ret;
         }
 

@@ -93,6 +93,14 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             FitTo(parent, LayoutDirection.Horizontal);
         }
 
+        protected override void OnClick(UIMouseEventParameter p) {
+            base.OnClick(p);
+            if (!p.used && p.buttons == UIMouseButton.Left) {
+                p.Use();
+                DropDown.Invoke("OpenPopup", 0);
+            }
+        }
+
         protected abstract void OnAfterDropdownClose(UICheckboxDropDown checkboxdropdown);
 
         public void OnPropertyChanged() {

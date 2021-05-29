@@ -1,0 +1,88 @@
+no patches : 1~4 pass
+CheckNetConnectGroup : 1~4 pass
+
+
+
+---------------------
+- ENV:
+    direct connect = true
+    direct connect node texture =  meduin segment
+    direct connect node material =  meduim segment
+
+- Test 1:  
+    - node connect groups : None
+    - net conenct groups : None
+    - result: failed 
+	- expected: DC All
+	- got: no DC
+- Test 2
+    - node connect groups : None
+    - net conenct groups : Train Station
+    - result: 
+	- expected: DC All
+	- got: no DC
+- Test 3
+    - node connect groups : Train Station
+    - net conenct groups : Train Station
+    - result: 
+	- expected: DC straight
+	- got: DC all
+- Test 4
+    - node connect groups : Train Station
+    - net conenct groups : None
+    - result: failed
+	- expected: no DC 
+	- got: DC all
+
+- Test 5
+    - node connect groups : Custom
+    - net conenct groups : None
+    - result: 
+	- expected: No DC
+	- got:
+- Test 6
+    - node connect groups : Custom
+    - net conenct groups : Custom
+    - result: 
+	- expected: DC Straight
+	- got:
+- Test 7
+    - node connect groups : None 
+    - net conenct groups : Custom
+    - result: 
+	- expected: DC All
+	- got:
+
+
+- Test 8
+    - node connect groups : Custom + TrainsStation
+    - net conenct groups : None
+    - result: 
+	- expected: No DC
+	- got:
+- Test 9
+    - node connect groups : Custom + TrainsStation
+    - net conenct groups : Custom
+    - result: 
+	- expected: DC Straight
+	- got:
+- Test 10
+    - node connect groups : Custom + TrainsStation
+    - net conenct groups : TrainsStation
+    - result: 
+	- expected: DC Straight
+	- got:
+- Test 11
+    - node connect groups : None 
+    - net conenct groups : Custom + TrainsStation
+    - result: 
+	- expected: DC all
+	- got:
+
+--- tempalte:
+- Test
+    - node connect groups : 
+    - net conenct groups : 
+    - result: 
+	- expected: 
+	- got:
