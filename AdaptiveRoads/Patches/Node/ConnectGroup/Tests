@@ -86,3 +86,11 @@ CheckNodeConnectGroup :
     - result: 
 	- expected: 
 	- got:
+
+----------------------
+                        Net   NetNone   Node   NdoeNone  
+RefreshJunctionData      4       2                         
+RenderInstance                           2        2  
+CalculateNode            4       2                  
+CalculateGroupData                                     
+PopulateGroupData                                     

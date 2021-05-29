@@ -14,11 +14,11 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
 
-                //  (info3.m_nodeConnectGroups & info2.m_connectGroup) != NetInfo.ConnectGroup.None || (info2.m_nodeConnectGroups & info3.m_connectGroup) != NetInfo.ConnectGroup.None)
+                // (info3.m_nodeConnectGroups & info2.m_connectGroup) != NetInfo.ConnectGroup.None || (info2.m_nodeConnectGroups & info3.m_connectGroup) != NetInfo.ConnectGroup.None)
                 // (info2.m_nodeConnectGroups == NetInfo.ConnectGroup.None || (info2.m_nodeConnectGroups & info3.m_connectGroup) != NetInfo.ConnectGroup.None)
                 // (info3.m_nodeConnectGroups == NetInfo.ConnectGroup.None || (info3.m_nodeConnectGroups & info2.m_connectGroup) != NetInfo.ConnectGroup.None)
-                CheckNetConnectGroupNone.Patch(codes, original);
-                CheckNetConnectGroup.Patch(codes, original);
+                CheckNetConnectGroupNone.Patch(codes, original); // 2
+                CheckNetConnectGroup.Patch(codes, original); // 4
 
                 Log.Info($"{ReflectionHelpers.ThisMethod} patched {original} successfully!");
                 return codes;

@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 
 namespace AdaptiveRoads.Patches.Node.ConnectGroup {
-    [HarmonyPatch()]
+    [HarmonyPatch]
     [InGamePatch]
     public static class PopulateGroupData {
         //public void PopulateGroupData(ushort nodeID, int groupX, int groupZ, int layer, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData data, ref Vector3 min, ref Vector3 max, ref float maxRenderDistance, ref float maxInstanceDistance, ref bool requireSurfaceMaps)

@@ -27,13 +27,13 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
         static FieldInfo fNetConnectGroup => typeof(NetInfo).GetField(nameof(NetInfo.m_connectGroup));
         static MethodInfo mCheckConnectGroup => typeof(CheckNodeConnectGroupNone).GetMethod(nameof(CheckConnectGroup), throwOnError: true);
 
-        // returns the index after 'node.m_connectGroup == None'
+        // returns the index after the clause
         public static int GetNext(int startIndex, List<CodeInstruction> codes) {
             for (int i = startIndex; i < codes.Count - 1; ++i) {
                 bool b = codes[i].LoadsField(fNodeConnectGroup); // find 'Connectgroup == None'
-                b = b && !codes[i + 1].LoadsField(fNetConnectGroup); // but exclude 'Connectgroup1 & Connectgroup2'
+                b = b && codes[i + 1].Branches(out _);
                 if (b)
-                    return i + 1; // after 'node.m_connectGroup == None'
+                    return i + 1; // after the clause
             }
             return -1;
         }
@@ -80,7 +80,7 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
                 if (b)
                     return i + 4; // after the clause
             }
-            return -1;
+            return -1;//re
         }
 
         public static void Patch(List<CodeInstruction> codes, MethodBase method) {
@@ -89,11 +89,8 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
             try {
                 int count = 0;
                 for (int index = GetNext(0, codes); index >= 0 && index < codes.Count; index = GetNext(index, codes)) {
-                    Log.Debug("[P1]");
                     var iLoadNode = codes.Search(c => c.IsLdLoc(typeof(NetInfo.Node), method), startIndex: index, count: -1);
-                    Log.Debug("[P2]");
                     var iLoadNetInfo = codes.Search(c => c.IsLdLoc(typeof(NetInfo), method), startIndex: index, count: -1);
-                    Log.Debug("[P3]");
                     codes.InsertInstructions(index, new[] {
                         codes[iLoadNode].Clone(),
                         codes[iLoadNetInfo].Clone(),
@@ -129,7 +126,7 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
             // find the clause
             for (int i = startIndex; i < codes.Count - 1; ++i) {
                 bool b = codes[i].LoadsField(fNetNodeConnectGroups); // find ' Connectgroup == None'
-                b = b && !codes[i + 1].LoadsField(fNetConnectGroup); // but exclude 'Connectgroup1 & Connectgroup2'
+                b = b && codes[i + 1].Branches(out _);
                 if (b)
                     return i + 1; // after the clause
             }
