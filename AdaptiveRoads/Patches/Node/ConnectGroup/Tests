@@ -1,6 +1,6 @@
 no patches : 1~4 pass
-CheckNetConnectGroup : 1~4 pass
-
+CheckNetConnectGroup : 1~4 pass 
+CheckNodeConnectGroup :
 
 
 ---------------------
@@ -14,38 +14,38 @@ CheckNetConnectGroup : 1~4 pass
     - net conenct groups : None
     - result: failed 
 	- expected: DC All
-	- got: no DC
+	- got:
 - Test 2
     - node connect groups : None
     - net conenct groups : Train Station
     - result: 
 	- expected: DC All
-	- got: no DC
+	- got: 
 - Test 3
     - node connect groups : Train Station
     - net conenct groups : Train Station
     - result: 
 	- expected: DC straight
-	- got: DC all
+	- got: 
 - Test 4
     - node connect groups : Train Station
     - net conenct groups : None
     - result: failed
 	- expected: no DC 
-	- got: DC all
+	- got: 
 
 - Test 5
     - node connect groups : Custom
     - net conenct groups : None
     - result: 
 	- expected: No DC
-	- got:
+	- got: 
 - Test 6
     - node connect groups : Custom
     - net conenct groups : Custom
     - result: 
 	- expected: DC Straight
-	- got:
+	- got: 
 - Test 7
     - node connect groups : None 
     - net conenct groups : Custom

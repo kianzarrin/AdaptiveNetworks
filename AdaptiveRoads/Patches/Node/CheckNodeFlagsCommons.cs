@@ -85,7 +85,7 @@ namespace AdaptiveRoads.Patches.Node {
             Assertion.Assert(iCheckFlags > 0, "index>0");
 
             int iLdNodeInfo = codes.Search(
-                _c => _c.IsLdLoc(typeof(NetInfo.Node)),
+                _c => _c.IsLdLoc(typeof(NetInfo.Node), method),
                 startIndex: iCheckFlags, count: -1);
             CodeInstruction ldNodeInfo = codes[iLdNodeInfo].Clone();
             CodeInstruction ldNodeID = GetLDArg(method, "nodeID");

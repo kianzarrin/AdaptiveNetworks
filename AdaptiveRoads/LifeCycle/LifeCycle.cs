@@ -44,8 +44,8 @@ namespace AdaptiveRoads.LifeCycle {
 
 #if FAST_TEST_HARMONY
                 HarmonyHelper.DoOnHarmonyReady(() => {
-                        HarmonyUtil.InstallHarmony(HARMONY_ID_MANUAL);
-                        HarmonyUtil.InstallHarmony(HARMONY_ID);
+                        HarmonyUtil.InstallHarmony<PreloadPatchAttribute>(HARMONY_ID_MANUAL);
+                        HarmonyUtil.InstallHarmony(HARMONY_ID, forbidden: typeof(PreloadPatchAttribute));
                     });
 #endif
 #if DEBUG
@@ -97,8 +97,9 @@ namespace AdaptiveRoads.LifeCycle {
             Unload(); // in case of hot unload
             Exit();
 #if FAST_TEST_HARMONY
-                HarmonyUtil.UninstallHarmony(HARMONY_ID);
-                HarmonyUtil.UninstallHarmony(HARMONY_ID_MANUAL);
+            HarmonyUtil.UninstallHarmony(HARMONY_ID);
+            HarmonyUtil.UninstallHarmony(HARMONY_ID_MANUAL);
+            preloadPatchesApplied_ =false;
 #endif
 
         }

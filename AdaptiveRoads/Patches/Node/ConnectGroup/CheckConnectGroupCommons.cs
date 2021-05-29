@@ -1,11 +1,3 @@
-/* these must apply to NetNode.
-    RenderInstance
-    RefreshJunctionData
-    CalculateNode
-    PopulateGroupData
-    CalculateGroupData
-*/
-
 namespace AdaptiveRoads.Patches.Node.ConnectGroup {
     using HarmonyLib;
     using System.Collections.Generic;
@@ -47,14 +39,18 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
         }
 
         public static void Patch(List<CodeInstruction> codes, MethodBase method) {
+            //return;
             try {
+                int count = 0;
                 for (int index = GetNext(0, codes); index >= 0 && index < codes.Count; index = GetNext(index, codes)) {
-                    var iLoadNode = codes.Search(c => c.IsLdLoc(typeof(NetInfo.Node)), startIndex: index, count: -1);
+                    var iLoadNode = codes.Search(c => c.IsLdLoc(typeof(NetInfo.Node), method), startIndex: index, count: -1);
                     codes.InsertInstructions(index, new[] {
-                    codes[iLoadNode].Clone(),
-                    new CodeInstruction(OpCodes.Call, mCheckConnectGroup),
-                });
+                        codes[iLoadNode].Clone(),
+                        new CodeInstruction(OpCodes.Call, mCheckConnectGroup),
+                    });
+                    count++;
                 }
+                Log.Info(ThisMethod + $" successfully patched {count} places in " + method);
             } catch (Exception ex) {
                 ex.Log("failed to patch " + method);
             }
@@ -73,7 +69,7 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
 
         static FieldInfo fNodeConnectGroup => typeof(NetInfo.Node).GetField(nameof(NetInfo.Node.m_connectGroup));
         static FieldInfo fNetConnectGroup => typeof(NetInfo).GetField(nameof(NetInfo.m_connectGroup));
-        static MethodInfo mCheckConnectGroup => typeof(CheckNodeConnectGroupNone).GetMethod(nameof(CheckConnectGroup), throwOnError: true);
+        static MethodInfo mCheckConnectGroup => typeof(CheckNodeConnectGroup).GetMethod(nameof(CheckConnectGroup), throwOnError: true);
 
         public static int GetNext(int startIndex, List<CodeInstruction> codes) {
             for (int i = startIndex; i < codes.Count - 1; ++i) {
@@ -83,22 +79,29 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
                 b = b && codes[i + 3].opcode == OpCodes.And;
                 if (b)
                     return i + 4; // after the clause
-
             }
             return -1;
         }
 
         public static void Patch(List<CodeInstruction> codes, MethodBase method) {
+            TranspilerUtils.PeekBefore = 20;
+            TranspilerUtils.PeekAfter = 20;
             try {
+                int count = 0;
                 for (int index = GetNext(0, codes); index >= 0 && index < codes.Count; index = GetNext(index, codes)) {
-                    var iLoadNode = codes.Search(c => c.IsLdLoc(typeof(NetInfo.Node)), startIndex: index, count: -1);
-                    var iLoadNetInfo = codes.Search(c => c.IsLdLoc(typeof(NetInfo)), startIndex: index, count: -1);
+                    Log.Debug("[P1]");
+                    var iLoadNode = codes.Search(c => c.IsLdLoc(typeof(NetInfo.Node), method), startIndex: index, count: -1);
+                    Log.Debug("[P2]");
+                    var iLoadNetInfo = codes.Search(c => c.IsLdLoc(typeof(NetInfo), method), startIndex: index, count: -1);
+                    Log.Debug("[P3]");
                     codes.InsertInstructions(index, new[] {
-                    codes[iLoadNode].Clone(),
-                    codes[iLoadNetInfo].Clone(),
-                    new CodeInstruction(OpCodes.Call, mCheckConnectGroup),
-                });
+                        codes[iLoadNode].Clone(),
+                        codes[iLoadNetInfo].Clone(),
+                        new CodeInstruction(OpCodes.Call, mCheckConnectGroup),
+                    });
+                    count++;
                 }
+                Log.Info(ThisMethod + $" successfully patched {count} places in " + method);
             } catch (Exception ex) {
                 ex.Log("failed to patch " + method);
             }
@@ -134,14 +137,18 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
         }
 
         public static void Patch(List<CodeInstruction> codes, MethodBase method) {
+            //return;
             try {
+                int count = 0;
                 for (int index = GetNext(0, codes); index >= 0 && index < codes.Count; index = GetNext(index, codes)) {
-                    var iLoadNetInfo1 = codes.Search(c => c.IsLdLoc(typeof(NetInfo)), startIndex: index, count: -1);
-                    codes.InsertInstructions(index, new[] {
-                    codes[iLoadNetInfo1].Clone(),
-                    new CodeInstruction(OpCodes.Call, mCheckConnectGroup),
-                });
+                    var iLoadNetInfo1 = codes.Search(c => c.IsLdLoc(typeof(NetInfo), method), startIndex: index, count: -1);
+                        codes.InsertInstructions(index, new[] {
+                        codes[iLoadNetInfo1].Clone(),
+                        new CodeInstruction(OpCodes.Call, mCheckConnectGroup),
+                    });
+                    count++;
                 }
+                Log.Info(ThisMethod + $" successfully patched {count} places in " + method);
             } catch (Exception ex) {
                 ex.Log("failed to patch " + method);
             }
@@ -176,16 +183,20 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
         }
 
         public static void Patch(List<CodeInstruction> codes, MethodBase method) {
+            //return;
             try {
+                int count = 0;
                 for (int index = GetNext(0, codes); index >= 0 && index < codes.Count; index = GetNext(index, codes)) {
-                    var iLoadNetInfo1 = codes.Search(c => c.IsLdLoc(typeof(NetInfo)), startIndex: index, count: -2);
-                    var iLoadNetInfo2 = codes.Search(c => c.IsLdLoc(typeof(NetInfo)), startIndex: index, count: -1);
+                    var iLoadNetInfo1 = codes.Search(c => c.IsLdLoc(typeof(NetInfo), method), startIndex: index, count: -2);
+                    var iLoadNetInfo2 = codes.Search(c => c.IsLdLoc(typeof(NetInfo), method), startIndex: index, count: -1);
                     codes.InsertInstructions(index, new[] {
-                    codes[iLoadNetInfo1].Clone(),
-                    codes[iLoadNetInfo2].Clone(),
-                    new CodeInstruction(OpCodes.Call, mCheckConnectGroup),
-                });
-                }
+                        codes[iLoadNetInfo1].Clone(),
+                        codes[iLoadNetInfo2].Clone(),
+                        new CodeInstruction(OpCodes.Call, mCheckConnectGroup),
+                    });
+                    count++;
+                 }
+                Log.Info(ThisMethod + $" successfully patched {count} places in " + method);
             } catch (Exception ex) {
                 ex.Log("failed to patch " + method);
             }
