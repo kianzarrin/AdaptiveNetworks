@@ -13,14 +13,14 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
 
     /// <summary> insert after the clause:'node.m_ConnectGroup == None' </summary>
     internal static class CheckNodeConnectGroupNone {
-        // returns ConnectGroup != None || MetaData.ConnectGroups != null
+        // returns !(ConnectGroup == None && MetaData.ConnectGroups == null)
         // the next instruction is brfalse which aumatically takes a not of the above phrase so at the end it will be
         // (ConnectGroup == None && MetaData.ConnectGroups == null) ||
-        public static bool CheckConnectGroup(bool flagsNone, NetInfo.Node node) {
+        public static bool CheckConnectGroup(NetInfo.ConnectGroup cg, NetInfo.Node node) {
 #if DEBUG
             DCUtil.AssertNotEmpty(node.GetMetaData()?.ConnectGroupsHash, "connect groups");
 #endif
-            return !flagsNone || node.GetMetaData()?.ConnectGroupsHash != null;
+            return !(cg == 0 && node.GetMetaData()?.ConnectGroupsHash == null);
         }
 
         static FieldInfo fNodeConnectGroup => typeof(NetInfo.Node).GetField(nameof(NetInfo.Node.m_connectGroup));
@@ -110,11 +110,11 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
         // returns ConnectGroup != None || MetaData.ConnectGroups != null
         // the next instruction is brfalse which aumatically takes a not of the above phrase so at the end it will be
         // (ConnectGroup == None && MetaData.ConnectGroups == null) ||
-        public static bool CheckConnectGroup(bool flagsNone, NetInfo info) {
+        public static bool CheckConnectGroup(NetInfo.ConnectGroup cg, NetInfo info) {
 #if DEBUG
             DCUtil.AssertNotEmpty(info.GetMetaData()?.NodeConnectGroupsHash, "connect groups");
 #endif
-            return !flagsNone || info.GetMetaData()?.NodeConnectGroupsHash != null;
+            return !(cg == 0 && info.GetMetaData()?.NodeConnectGroupsHash == null);
         }
 
 
