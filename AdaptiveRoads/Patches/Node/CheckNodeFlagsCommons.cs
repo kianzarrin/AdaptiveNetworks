@@ -18,7 +18,6 @@ namespace AdaptiveRoads.Patches.Node {
                 GetBendDCSegmentID(nodeID, out segmentID, out segmentID2);
 
             bool ret = CheckFlagsImpl(nodeInfoExt, nodeID, segmentID);
-            Log.Debug("CheckTargetFlags=" + nodeInfoExt.CheckTargetFlags);
             if (nodeInfoExt.CheckTargetFlags)
                 ret = ret && CheckFlagsImpl(nodeInfoExt, nodeID, segmentID2);
             return ret;

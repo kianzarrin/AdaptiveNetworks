@@ -264,9 +264,11 @@ namespace AdaptiveRoads.Manager {
             public CustomFlags UsedCustomFlags;
 
             public void Update(NetInfo netInfo) {
-                UsedCustomFlags = GetUsedCustomFlags(netInfo);
-                UpdateParkingAngle();
-                UpdateConnectGroups(netInfo);
+                try {
+                    UsedCustomFlags = GetUsedCustomFlags(netInfo);
+                    UpdateParkingAngle();
+                    UpdateConnectGroups(netInfo);
+                } catch (Exception ex) { ex.Log(); }
             }
 
             void UpdateParkingAngle() {
@@ -281,6 +283,10 @@ namespace AdaptiveRoads.Manager {
                 LogCalled();
                 ConnectGroupsHash = ConnectGroups?.Select(item => item.GetHashCode()).ToArray();
                 if (ConnectGroupsHash.IsNullorEmpty()) ConnectGroupsHash = null;
+
+                foreach (var node in netInfo.m_nodes)
+                    node.GetMetaData()?.Update();
+
                 NodeConnectGroupsHash = GetNodeConnectGroupsHash(netInfo).ToArray();
                 if (NodeConnectGroupsHash.IsNullorEmpty()) NodeConnectGroupsHash = null;
 
