@@ -1,7 +1,4 @@
-- Btmask pannel to catch onclick
-- add node mod flags: DCR HUT
 - don't shift DC
-- DC support
 - option to un-merge bitmask dropdowns
 
 flags for:
@@ -31,13 +28,7 @@ create road with following props:
 ----------------------------
 version 2:
     remove unecessary patches outside of asset editor.
-    mixed enum type bitmask
-    custom flags
-        data manager to manage them.
-        UI to control them.
-        all the network persistancy features.
     - export/import road xml.
-
     - patch AssetImporterAssetTemplate.RefreshCoroutine() to speed up prop model loading time
         micro-benchmark UIComponent.Find<T>(string) to see how much time they take up
     - m_clipSegmentEnds for segmentInfos. (this influences corners so its hard to do it per mesh)

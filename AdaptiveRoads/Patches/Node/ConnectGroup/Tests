@@ -6,14 +6,14 @@
 - Test 0:  
     - node connect groups : None
     - net conenct groups : None
-    - result: failed 
+    - result: passed 
 	- expected: DC All
 	- got: DC All
 
 - Test 1
     - node connect groups : Train Station
     - net conenct groups : None
-    - result: failed
+    - result: passed
 	- expected: No DC
 	- got: No DC 
 - Test 2
@@ -33,19 +33,19 @@
 - Test 4
     - node connect groups : Custom
     - net conenct groups : None
-    - result: 
+    - result: passed
 	- expected: No DC
 	- got:  No DC
 - Test 5
     - node connect groups : Custom
     - net conenct groups : Custom
-    - result: 
+    - result: passed
 	- expected: DC Straight
 	- got: DC Straight
 - Test 6
     - node connect groups : None 
     - net conenct groups : Custom
-    - result: 
+    - result: passed
 	- expected: DC All
 	- got: DC All
 
@@ -53,25 +53,25 @@
 - Test 7
     - node connect groups : Custom + TrainsStation
     - net conenct groups : None
-    - result: 
+    - result: passed
 	- expected: No DC
 	- got: No DC
 - Test 8
     - node connect groups : Custom + TrainsStation
     - net conenct groups : Custom
-    - result: 
+    - result: passed
 	- expected: DC Straight
 	- got: DC Straight
 - Test 9 
     - node connect groups : Custom + TrainsStation
     - net conenct groups : TrainsStation
-    - result: 
+    - result: passed
 	- expected: DC Straight
 	- got: DC Straight
 - Test 10
     - node connect groups : None 
     - net conenct groups : Custom
-    - result: 
+    - result: passed
 	- expected: DC all
 	- got: DC all
 
