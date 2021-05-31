@@ -15,6 +15,7 @@ namespace AdaptiveRoads.Manager {
     using System.Linq;
     using AdaptiveRoads.Util;
     using KianCommons.Serialization;
+    using KianCommons.Plugins;
 
     public static class AdvanedFlagsExtensions {
         public static bool CheckFlags(this NetLaneExt.Flags value, NetLaneExt.Flags required, NetLaneExt.Flags forbidden) =>
@@ -48,8 +49,8 @@ namespace AdaptiveRoads.Manager {
         public enum Flags {
             None = 0,
 
-            [Hint("when required, the node will not be rendered when Adaptive Roads mod is enabled.\n" +
-                "when forbidden, the node will only be rendered when Adaptive Roads mod is enabled.")]
+            [Hide]
+            [Hint("[Obsolete]" + HintExtension.VANILLA)]
             Vanilla = 1 << 0,
 
             ParkingAllowed = 1 << 4,
@@ -192,20 +193,28 @@ namespace AdaptiveRoads.Manager {
         [Flags]
         public enum Flags {
             None = 0,
-
-            [Hint("when required, the node will not be rendered when Adaptive Roads mod is enabled.\n" +
-                "when forbidden, the node will only be rendered when Adaptive Roads mod is enabled.")]
+            [Hint(HintExtension.VANILLA)]
             Vanilla = 1 << 0,
+
+            [Hide]
+            [Hint("Hide Crossings mod is active")]
+            HC_Active = 1<< 1,
+
+            [Hint("Direct Connect Roads mod is active")]
+            DCR_Active = 1<< 3,
+
+            [Hint("Hide Unconnected Tracks mod is active")]
+            HUT_Active = 1<< 3,
 
             [Hint("all entering segment ends keep clear of the junction." +
                 "useful for drawing pattern on the junction.")]
-            KeepClearAll = 1 << 1,
+            KeepClearAll = 1 << 10,
 
-            [Hint("the junction only has two segments.\n")]
-            TwoSegments = 1 << 2,
+            [Hint("the junction only has two segments.")]
+            TwoSegments = 1 << 11,
 
-            [Hint("the junction has segments with different speed limits.\n")]
-            SpeedChange = 1 << 3,
+            [Hint("the junction has segments with different speed limits.")]
+            SpeedChange = 1 << 12,
 
             Custom0 = 1 << 24,
             Custom1 = 1 << 25,
@@ -224,7 +233,11 @@ namespace AdaptiveRoads.Manager {
             TrafficManager.Constants.ManagerFactory.JunctionRestrictionsManager;
 
         public void UpdateFlags() {
-            if(JRMan != null) {
+            m_flags = m_flags.SetFlags(Flags.HC_Active, PluginUtil.GetHideCrossings().IsActive());
+            m_flags = m_flags.SetFlags(Flags.DCR_Active, PluginUtil.GetDirectConnectRoads().IsActive());
+            m_flags = m_flags.SetFlags(Flags.HUT_Active, PluginUtil.GetHideUnconnectedTracks().IsActive());
+
+            if (JRMan != null) {
                 bool keepClearAll = true;
                 foreach(var segmentID in NetUtil.IterateNodeSegments(NodeID)) {
                     bool startNode = NetUtil.IsStartNode(segmentId: segmentID, nodeId: NodeID);
@@ -271,8 +284,7 @@ namespace AdaptiveRoads.Manager {
         public enum Flags {
             None = 0,
 
-            [Hint("if required, it will not be rendered when Adaptive Roads mod is enabled.\n" +
-                "if forbidden, it will only be rendered when Adaptive Roads mod is enabled.")]
+            [Hint(HintExtension.VANILLA)]
             Vanilla = 1 << 0,
 
             [Hint("tests if all lanes have the same speed")]
@@ -417,8 +429,8 @@ namespace AdaptiveRoads.Manager {
         public enum Flags {
             None = 0,
 
-            [Hint("when required, the node will not be rendered when Adaptive Roads mod is enabled.\n" +
-                "when forbidden, the node will only be rendered when Adaptive Roads mod is enabled.")]
+            [Hide]
+            [Hint("[Obsolete] " + HintExtension.VANILLA)]
             Vanilla = 1 << 0,            // priority signs
             [Hint("checks if TMPE rules requires vehicles to yield to upcomming traffic\n" +
                 "differet than the vanilla YieldStart/YieldEnd (Stop) flag.")]

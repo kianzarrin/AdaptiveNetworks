@@ -52,6 +52,10 @@ namespace AdaptiveRoads.Manager {
             "  * Left Hand traffic only swaps head/tail nodes on uni-directional lanes\n" +
             "    that excludes pavements/medians";
 
+        public const string VANILLA = "if required, it will not be rendered when Adaptive Roads mod is enabled.\n" +
+                "if forbidden, it will only be rendered when Adaptive Roads mod is enabled."
+
+
         public static Type GetMappedEnumWithHints(Type enumType) {
             Assertion.Assert(enumType.IsEnum, "enumType.IsEnum");
             if (enumType == typeof(NetSegment.Flags))
