@@ -1,83 +1,79 @@
-no patches : 1~4 pass
-CheckNetConnectGroup : 1~4 pass 
-CheckNodeConnectGroup :
-
-
----------------------
 - ENV:
     direct connect = true
     direct connect node texture =  meduin segment
     direct connect node material =  meduim segment
 
-- Test 1:  
+- Test 0:  
     - node connect groups : None
     - net conenct groups : None
     - result: failed 
 	- expected: DC All
-	- got:
+	- got: DC All
+
+- Test 1
+    - node connect groups : Train Station
+    - net conenct groups : None
+    - result: failed
+	- expected: No DC
+	- got: No DC 
 - Test 2
-    - node connect groups : None
-    - net conenct groups : Train Station
-    - result: 
-	- expected: DC All
-	- got: 
-- Test 3
     - node connect groups : Train Station
     - net conenct groups : Train Station
     - result: 
 	- expected: DC straight
-	- got: 
-- Test 4
-    - node connect groups : Train Station
-    - net conenct groups : None
-    - result: failed
-	- expected: no DC 
-	- got: 
+	- got: DC straight
+- Test 3
+    - node connect groups : None
+    - net conenct groups : Train Station
+    - result: 
+	- expected: DC All
+	- got: DC All
 
-- Test 5
+
+- Test 4
     - node connect groups : Custom
     - net conenct groups : None
     - result: 
 	- expected: No DC
-	- got: 
-- Test 6
+	- got:  No DC
+- Test 5
     - node connect groups : Custom
     - net conenct groups : Custom
     - result: 
 	- expected: DC Straight
-	- got: 
-- Test 7
+	- got: DC Straight
+- Test 6
     - node connect groups : None 
     - net conenct groups : Custom
     - result: 
 	- expected: DC All
-	- got:
+	- got: DC All
 
 
-- Test 8
+- Test 7
     - node connect groups : Custom + TrainsStation
     - net conenct groups : None
     - result: 
 	- expected: No DC
-	- got:
-- Test 9
+	- got: No DC
+- Test 8
     - node connect groups : Custom + TrainsStation
     - net conenct groups : Custom
     - result: 
 	- expected: DC Straight
-	- got:
-- Test 10
+	- got: DC Straight
+- Test 9 
     - node connect groups : Custom + TrainsStation
     - net conenct groups : TrainsStation
     - result: 
 	- expected: DC Straight
-	- got:
-- Test 11
+	- got: DC Straight
+- Test 10
     - node connect groups : None 
-    - net conenct groups : Custom + TrainsStation
+    - net conenct groups : Custom
     - result: 
 	- expected: DC all
-	- got:
+	- got: DC all
 
 --- tempalte:
 - Test
@@ -88,9 +84,10 @@ CheckNodeConnectGroup :
 	- got:
 
 ----------------------
+number of patch injections:
                         Net   NetNone   Node   NdoeNone  
-RefreshJunctionData      4       2                         
-RenderInstance                           2        2  
+RefreshJunctionData      4       2                 
+RenderInstance                           2        2
 CalculateNode            4       2                  
-CalculateGroupData                                     
-PopulateGroupData                                     
+CalculateGroupData       4       2       3        3
+PopulateGroupData        4       2       3        3                             
