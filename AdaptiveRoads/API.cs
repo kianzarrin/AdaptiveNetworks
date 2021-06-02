@@ -27,6 +27,8 @@ namespace AdaptiveRoads {
 
         public static float GetShift(NetInfo info) => info.GetMetaData()?.Shift ?? 0;
 
+        public static VehicleInfo.VehicleType NodeVehicleTypes(NetInfo.Node node) => node.GetMetaData()?.VehicleType ?? 0;
+        public static NetInfo.LaneType NodeLaneTypes(NetInfo.Node node) => node.GetMetaData()?.LaneType ?? 0;
 #pragma warning restore HAA0601 
     }
 }
