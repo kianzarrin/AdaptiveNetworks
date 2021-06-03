@@ -198,13 +198,13 @@ namespace AdaptiveRoads.Manager {
 
             [Hide]
             [Hint("Hide Crossings mod is active")]
-            HC_Active = 1<< 1,
+            HC_Mod = 1 << 1,
 
             [Hint("Direct Connect Roads mod is active")]
-            DCR_Active = 1<< 3,
+            DCR_Mod = 1 << 2,
 
             [Hint("Hide Unconnected Tracks mod is active")]
-            HUT_Active = 1<< 3,
+            HUT_Mod = 1 << 3,
 
             [Hint("all entering segment ends keep clear of the junction." +
                 "useful for drawing pattern on the junction.")]
@@ -233,9 +233,9 @@ namespace AdaptiveRoads.Manager {
             TrafficManager.Constants.ManagerFactory.JunctionRestrictionsManager;
 
         public void UpdateFlags() {
-            m_flags = m_flags.SetFlags(Flags.HC_Active, PluginUtil.GetHideCrossings().IsActive());
-            m_flags = m_flags.SetFlags(Flags.DCR_Active, PluginUtil.GetDirectConnectRoads().IsActive());
-            m_flags = m_flags.SetFlags(Flags.HUT_Active, PluginUtil.GetHideUnconnectedTracks().IsActive());
+            m_flags = m_flags.SetFlags(Flags.HC_Mod, PluginUtil.GetHideCrossings().IsActive());
+            m_flags = m_flags.SetFlags(Flags.DCR_Mod, PluginUtil.GetDirectConnectRoads().IsActive());
+            m_flags = m_flags.SetFlags(Flags.HUT_Mod, PluginUtil.GetHideUnconnectedTracks().IsActive());
 
             if (JRMan != null) {
                 bool keepClearAll = true;
