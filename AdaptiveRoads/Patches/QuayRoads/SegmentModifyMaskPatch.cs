@@ -1,3 +1,4 @@
+#if QUAY_ROADS_SHOW
 using ColossalFramework;
 using HarmonyLib;
 using UnityEngine;
@@ -7,10 +8,11 @@ namespace AdaptiveRoads.Patches
 {
 
     [HarmonyPatch]
-    class SegmentModifyMaskPatch
+    [InGamePatch]
+
+static class SegmentModifyMaskPatch
     {
         [HarmonyPrefix]
-        [InGamePatch]
         [HarmonyPatch(typeof(NetAI), "SegmentModifyMask")]
         static bool SegmentModifyMaskPrefix(ushort segmentID, ref NetSegment data, int index, ref TerrainModify.Surface surface, ref TerrainModify.Heights heights, ref TerrainModify.Edges edges, ref float left, ref float right, ref float leftStartY, ref float rightStartY, ref float leftEndY, ref float rightEndY, ref bool __result, ref RoadAI __instance)
         {
@@ -192,3 +194,4 @@ namespace AdaptiveRoads.Patches
         */
     }
 }
+#endif

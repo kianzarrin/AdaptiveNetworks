@@ -11,7 +11,7 @@
   <PropertyGroup>
     <TargetFramework>net35</TargetFramework>
     <Deterministic>false</Deterministic>
-    <AssemblyVersion>2.1.3.*</AssemblyVersion>
+    <AssemblyVersion>2.1.4.*</AssemblyVersion>
     <LangVersion>latest</LangVersion>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
@@ -88,7 +88,7 @@
     <None Remove="UI\MainPanel\**" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="DecompiledSources\**" />
+    <Compile Remove="KianCommons\KianCommons\StockCode\**" />
     <Compile Remove="Patches\AssetPatches\InitializePrefabImpl.cs" />
     <Compile Remove="Patches\AsymPavements\GetPathTargetPosition.cs" />
     <Compile Remove="Patches\HarmonyExtension.cs" />
@@ -147,6 +147,7 @@
     <Compile Include="KianCommons\KianCommons\Serialization\Vector3Serializable.cs" />
     <Compile Include="KianCommons\KianCommons\Patches\HarmonyUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Patches\TranspilerUtils.cs" />
+    <None Include="KianCommons\KianCommons\StockCode\PassengerCarAI.cs" />
     <Compile Include="KianCommons\KianCommons\Tool\KianToolBase.cs" />
     <Compile Include="KianCommons\KianCommons\UI\Helpers\UIAutoSizePanel.cs" />
     <Compile Include="KianCommons\KianCommons\UI\Helpers\UIButtonExt.cs" />
@@ -176,10 +177,10 @@
     <Compile Include="KianCommons\KianCommons\Util\TypeUtil.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="DecompiledSources\NetAI.cs" />
-    <None Include="DecompiledSources\NetLane.cs" />
-    <None Include="DecompiledSources\NetNode.cs" />
-    <None Include="DecompiledSources\NetSegment.cs" />
+    <None Include="KianCommons\KianCommons\StockCode\NetAI.cs" />
+    <None Include="KianCommons\KianCommons\StockCode\NetLane.cs" />
+    <None Include="KianCommons\KianCommons\StockCode\NetNode.cs" />
+    <None Include="KianCommons\KianCommons\StockCode\NetSegment.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\prefab-metadata\PrefabMetadata.csproj" />
