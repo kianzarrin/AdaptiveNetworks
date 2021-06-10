@@ -72,7 +72,6 @@ static class ModifyMaskPatch
                 return false;
             }
 
-            TerrainManager terrainManager = Singleton<TerrainManager>.instance;
             ProfileSection section = profile[index];
             if (invert) section = section.Inverse();
 
@@ -89,8 +88,8 @@ static class ModifyMaskPatch
                 edges = section.EdgeFlags.Value;
 
             }
-            leftT = section.PosRel[0] + section.PosAbs[0] / (2f * halfWidth);
-            rightT = section.PosRel[1] + section.PosAbs[1] / (2f * halfWidth);
+            leftT = section.PosRel[0];
+            rightT = section.PosRel[1];
             leftStartY = section.HeightOffset[0];
             leftEndY = section.HeightOffset[1];
             rightStartY = section.HeightOffset[2];
