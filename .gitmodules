@@ -1,3 +1,4 @@
 [submodule "AdaptiveRoads/KianCommons"]
 	path = AdaptiveRoads/KianCommons
 	url = https://github.com/kianzarrin/KianCommons
+	branch = master
