@@ -1,9 +1,10 @@
 using System;
 using static TerrainModify;
 
-namespace AdaptiveRoads.Data {
-    struct ProfileSection {
-        public ProfileSection(float[] posRel, float[] heightOffset, TerrainModify.Surface? surface, TerrainModify.Heights? heights, TerrainModify.Edges? edges) {
+namespace AdaptiveRoads.Data.QuayRoads {
+    [Serializable]
+    public struct ProfileSection {
+        public ProfileSection(float[] posRel, float[] heightOffset, Surface? surface, Heights? heights, Edges? edges) {
 
             PosRel = expand2(posRel);
             HeightOffset = expand4(heightOffset);
@@ -39,9 +40,9 @@ namespace AdaptiveRoads.Data {
             Edges? invertedEdgeFlags = null;
             if (EdgeFlags.HasValue) {
                 invertedEdgeFlags =
-                        (EdgeFlags.Value & ~Edges.AB & ~Edges.CD)
-                        | (((EdgeFlags.Value & Edges.AB) != 0) ? Edges.CD : 0)
-                        | (((EdgeFlags.Value & Edges.CD) != 0) ? Edges.AB : 0);
+                        EdgeFlags.Value & ~Edges.AB & ~Edges.CD
+                        | ((EdgeFlags.Value & Edges.AB) != 0 ? Edges.CD : 0)
+                        | ((EdgeFlags.Value & Edges.CD) != 0 ? Edges.AB : 0);
             }
             return new ProfileSection(
                 posRel: new float[] { 1f - PosRel[1], 1f - PosRel[0] },
@@ -76,7 +77,6 @@ namespace AdaptiveRoads.Data {
             }
         }
     }
-
     class Profiles {
         public static ProfileSection[] HighRightOneSidedRoadProfile = {
             new ProfileSection(new float[]{.5f, 1f}, new float[]{-.3f, 0f},  null, null, null),
