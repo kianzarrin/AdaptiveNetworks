@@ -68,22 +68,18 @@ namespace AdaptiveRoads.Patches {
             ProfileSection section = profile[index];
             if (invert) section = section.Inverse();
 
-            if (section.Heights.HasValue) {
-                heights = section.Heights.Value;
-            }
-            if (section.Surface.HasValue) {
-                surface = section.Surface.Value;
-            }
-            if (section.EdgeFlags.HasValue) {
-                edges = section.EdgeFlags.Value;
 
-            }
-            leftT = section.PosRel[0];
-            rightT = section.PosRel[1];
-            leftStartY = section.HeightOffset[0];
-            leftEndY = section.HeightOffset[1];
-            rightStartY = section.HeightOffset[2];
-            rightEndY = section.HeightOffset[3];
+            heights = section.Heights;
+            surface = section.Surface;
+            edges = section.Edges;
+
+
+            leftT = section.LeftX;
+            rightT = section.RightX;
+            leftStartY = section.LeftStartY;
+            leftEndY = section.LeftEndY;
+            rightStartY = section.RightStartY;
+            rightEndY = section.RightEndY;
 
             __result = true;
             return false;
