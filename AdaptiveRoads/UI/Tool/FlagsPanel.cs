@@ -191,6 +191,7 @@ namespace AdaptiveRoads.UI.Tool {
             dragHandle_.width = Mathf.Max(width, dragHandle_.width);
             dragHandle_.height = 32;
             lblCaption_.anchor = UIAnchorStyle.CenterHorizontal |  UIAnchorStyle.CenterVertical;
+            FitChildren();
             Invalidate();
         }
 
