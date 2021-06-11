@@ -1,5 +1,4 @@
-- don't shift DC
-- option to un-merge bitmask dropdowns
+- group DC components.
 
 flags for:
     arrrows:
@@ -7,28 +6,11 @@ flags for:
         slight left/right/uturn
         sharp left/right
 
-     
-create road with following props:
-    features: done
-        uturn sign  
-        yeild/sign (vanilla + AR) 
-        stop/yeild lines. : test with LHT
-        no left/right turn sign (vanilla + AR)
-        parking signs (vanilla + AR)
-        no crossing texture (AR)
-        DC node : test with no DC
-    test:
-        with no DC mod 
-        with LHT (markings)
-    publish:
-        mention all dependancies.
-
-- move DPT array elements up and down.
-
 ----------------------------
-version 2:
-    remove unecessary patches outside of asset editor.
+version 3:
     - export/import road xml.
     - patch AssetImporterAssetTemplate.RefreshCoroutine() to speed up prop model loading time
         micro-benchmark UIComponent.Find<T>(string) to see how much time they take up
     - m_clipSegmentEnds for segmentInfos. (this influences corners so its hard to do it per mesh)
+    - option to un-merge bitmask dropdowns
+    - move DPT array elements up and down.
