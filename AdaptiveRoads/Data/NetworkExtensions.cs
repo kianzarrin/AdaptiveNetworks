@@ -417,23 +417,9 @@ namespace AdaptiveRoads.Manager {
             return len / Mathf.Sqrt(2 - 2 * dot); // see https://github.com/CitiesSkylinesMods/TMPE/issues/793#issuecomment-616351792
         }
 
-        public float CalculateCurve() {
-            // see NetLane.UpdateLength()
+        public float CalculateCurve() { 
             var bezier = SegmentID.ToSegment().CalculateSegmentBezier3();
-            Vector3 d1 = bezier.b - bezier.a;
-            Vector3 d2 = bezier.c - bezier.b;
-            Vector3 d3 = bezier.d - bezier.c;
-            float m1 = d1.magnitude;
-            float m2 = d2.magnitude;
-            float m3 = d3.magnitude;
-            if(m1 > 0.1f) d1 /= m1;
-            if(m3 > 0.1f) d3 /= m3;
-
-            var length = m1 + m2 + m3;
-            var curve = (Mathf.PI * 0.5f) * (1f - Vector3.Dot(d1, d3));
-            if(length > 0.1f) curve /= length;
-
-            return curve;
+            return bezier.CalculateCurve();
         }
 
     }

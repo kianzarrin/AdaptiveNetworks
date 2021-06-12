@@ -6,6 +6,9 @@ namespace AdaptiveRoads.Util {
     using TrafficManager.API.Traffic.Enums;
     using TrafficManager.Manager.Impl;
     using AdaptiveRoads.Manager;
+    using ColossalFramework.Math;
+    using UnityEngine;
+
     internal static class LaneHelpers {
         static RoutingManager rman => RoutingManager.Instance;
         internal static bool HasProps(this NetInfo.Lane lane) =>
@@ -70,11 +73,27 @@ namespace AdaptiveRoads.Util {
                 ushort segmentID2 = transition.segmentId;
                 arrows |= ArrowDirectionUtil.GetArrowExt(segmentID, segmentID2);
             }
-            return arrows;
+            return arrows.LogRet($"GetArrowsExt(lane:{lane.LaneID} segment:{lane.SegmentID})");
         }
 
 
+        public static float CalculateCurve(this Bezier3 bezier) {
+            // see NetLane.UpdateLength()
+            Vector3 d1 = bezier.b - bezier.a;
+            Vector3 d2 = bezier.c - bezier.b;
+            Vector3 d3 = bezier.d - bezier.c;
+            float m1 = d1.magnitude;
+            float m2 = d2.magnitude;
+            float m3 = d3.magnitude;
+            if (m1 > 0.1f) d1 /= m1;
+            if (m3 > 0.1f) d3 /= m3;
 
+            var length = m1 + m2 + m3;
+            var curve = (Mathf.PI * 0.5f) * (1f - Vector3.Dot(d1, d3));
+            if (length > 0.1f) curve /= length;
+
+            return curve;
+        }
 
 
     }

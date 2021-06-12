@@ -10,6 +10,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
     using TrafficManager.Manager.Impl;
     using System;
     using static ModSettings;
+    using KianCommons.Plugins;
 
     public class SpeedRangePanel : UIPanel, IHint {
         static float HUMAN_TO_GAME => 1 / GAME_TO_HUMAN;
@@ -121,6 +122,20 @@ namespace AdaptiveRoads.UI.RoadEditor {
             float upper = Range?.Upper ?? 0;
             LowerField.Value = (uint)Mathf.RoundToInt(lower * GAME_TO_HUMAN);
             UpperField.Value = (uint)Mathf.RoundToInt(upper * GAME_TO_HUMAN);
+        }
+
+        [FPSBoosterSkipOptimizations]
+        public override void Update() {
+            try {
+                base.Update();
+                if (IsHovered())
+                    backgroundSprite = "GenericPanelWhite";
+                else
+                    backgroundSprite = "";
+            }
+            catch (Exception ex) {
+                ex.Log();
+            }
         }
 
         public bool IsHovered() => containsMouse;

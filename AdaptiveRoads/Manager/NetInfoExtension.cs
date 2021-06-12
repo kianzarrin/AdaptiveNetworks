@@ -576,11 +576,11 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Backward Lanes")]
             public Range BackwardSpeedLimit; // null => N/A
 
-            //[CustomizableProperty("Lane Curve")]
-            //public Range LaneCurve; // minimum |curve| with same sign
+            [CustomizableProperty("Lane Curve")]
+            public Range LaneCurve; 
 
-            //[CustomizableProperty("Segment Curve")]
-            //public Range SegmentCurve;
+            [CustomizableProperty("Segment Curve")]
+            public Range SegmentCurve; // TODO: minimum |curve| with same sign
 
             /// <param name="laneSpeed">game speed</param>
             /// <param name="forwardSpeedLimit">game speed</param>
@@ -591,7 +591,8 @@ namespace AdaptiveRoads.Manager {
                 NetSegment.Flags vanillaSegmentFlags,
                 NetNodeExt.Flags startNodeFlags, NetNodeExt.Flags endNodeFlags,
                 NetSegmentEnd.Flags segmentStartFlags, NetSegmentEnd.Flags segmentEndFlags,
-                float laneSpeed, float forwardSpeedLimit, float backwardSpeedLimit) =>
+                float laneSpeed, float forwardSpeedLimit, float backwardSpeedLimit,
+                float segmentCurve, float laneCurve) =>
                 LaneFlags.CheckFlags(laneFlags) &&
                 SegmentFlags.CheckFlags(segmentFlags) &&
                 VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags) &&

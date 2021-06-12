@@ -249,14 +249,22 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             hint: uidatas[1].Hint,
                             flagData: uidatas[1].FlagData);
                     }
-                } else if (fieldInfo.FieldType == typeof(NetInfoExtionsion.Range) &&
-                           fieldInfo.Name.ToLower().Contains("speed")) {
-                    var panel = SpeedRangePanel.Add(
-                        roadEditorPanel: roadEditorPanel,
-                        container: container,
-                        label: att.name,
-                        target: metadata,
-                        fieldInfo: fieldInfo);
+                } else if (fieldInfo.FieldType == typeof(NetInfoExtionsion.Range)) {
+                    if (fieldInfo.Name.ToLower().Contains("speed")) {
+                        var panel = SpeedRangePanel.Add(
+                            roadEditorPanel: roadEditorPanel,
+                            container: container,
+                            label: att.name,
+                            target: metadata,
+                            fieldInfo: fieldInfo);
+                    } else {
+                        var panel =  RangePanel.Add(
+                            roadEditorPanel: roadEditorPanel,
+                            container: container,
+                            label: att.name,
+                            target: metadata,
+                            fieldInfo: fieldInfo);
+                    }
                 } else {
                     roadEditorPanel.CreateGenericField(groupName, fieldInfo, metadata);
                 }

@@ -82,6 +82,7 @@ namespace AdaptiveRoads.Patches.Lane {
             // TODO prepare data at the begining.
             ushort segmentID = laneID.ToLane().m_segment;
             ref NetSegment segment = ref segmentID.ToSegment();
+            ref NetLane netLane= ref laneID.ToLane();
 
             bool reverse = segment.IsInvert() == laneInfo.IsGoingBackward(); // xor
 
@@ -110,7 +111,8 @@ namespace AdaptiveRoads.Patches.Lane {
                 netSegmentStart.m_flags, netSegmentEnd.m_flags,
                 laneSpeed: netLaneExt.SpeedLimit,
                 forwardSpeedLimit: netSegmentExt.ForwardSpeedLimit,
-                backwardSpeedLimit: netSegmentExt.BackwardSpeedLimit);
+                backwardSpeedLimit: netSegmentExt.BackwardSpeedLimit,
+                netSegmentExt.Curve, netLane.m_curve);
         }
 
         static MethodInfo mCheckFlagsExt =>

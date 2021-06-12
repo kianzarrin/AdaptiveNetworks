@@ -3,13 +3,9 @@ namespace AdaptiveRoads.UI.RoadEditor {
     using ColossalFramework.UI;
     using KianCommons;
     using KianCommons.UI;
-    using System;
     using UnityEngine;
-    using static KianCommons.HelpersExtensions;
 
-    public class TextFieldU32 : UITextField {
-        //UIResetButton resetButton_;
-
+    public class TextFieldFloat : UITextField {
         public override string ToString() => GetType().Name + $"({name})";
 
         public override void OnDestroy() {
@@ -19,7 +15,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
         public override void Awake() {
             base.Awake();
             atlas = TextureUtil.Ingame;
-            size = new Vector2(370,20);
+            size = new Vector2(370, 20);
             horizontalAlignment = UIHorizontalAlignment.Center;
             verticalAlignment = UIVerticalAlignment.Middle;
             selectionSprite = "EmptySprite";
@@ -34,8 +30,8 @@ namespace AdaptiveRoads.UI.RoadEditor {
             submitOnFocusLost = true;
             selectOnFocus = true;
             numericalOnly = true;
-            allowFloats = false;
-            allowNegative = false;
+            allowFloats = true;
+            allowNegative = true;
 
         }
 
@@ -52,20 +48,20 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
         public string StrippedText => PostFix != "" ? text.Replace(PostFix, "") : text;
 
-        public bool TryGetValue(out uint value) {
+        public bool TryGetValue(out float value) {
             string text2 = StrippedText;
             if (text2 == "") {
                 value = 0;
                 return true;
             }
 
-            var ret = uint.TryParse(text2, out value);
+            var ret = float.TryParse(text2, out value);
             return ret;
         }
 
-        public uint Value {
-            set => text = value.ToString() + PostFix;
-            get => uint.Parse(StrippedText);
+        public float Value {
+            set => text = value.ToString("f3") + PostFix;
+            get => float.Parse(StrippedText);
         }
     }
 }
