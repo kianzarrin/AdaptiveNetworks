@@ -79,11 +79,11 @@ namespace AdaptiveRoads.Patches.Lane {
             //var laneInfoExt = laneInfo?.GetExt();
             //if (laneInfoExt == null) return true;
 
-            // TODO prepaire data at the begining.
+            // TODO prepare data at the begining.
             ushort segmentID = laneID.ToLane().m_segment;
             ref NetSegment segment = ref segmentID.ToSegment();
 
-            bool reverse = segment.IsInvert() != laneInfo.IsGoingBackward(); // xor
+            bool reverse = segment.IsInvert() == laneInfo.IsGoingBackward(); // xor
 
             ushort startNodeID =  !reverse ? segment.m_startNode : segment.m_endNode; // tail
             ushort endNodeID = reverse ? segment.m_startNode : segment.m_endNode; // head

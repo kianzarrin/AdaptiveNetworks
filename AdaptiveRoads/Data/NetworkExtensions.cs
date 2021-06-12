@@ -242,9 +242,9 @@ namespace AdaptiveRoads.Manager {
             TrafficManager.Constants.ManagerFactory.JunctionRestrictionsManager;
 
         public void UpdateFlags() {
-            m_flags = m_flags.SetFlags(Flags.HC_Mod, PluginUtil.GetHideCrossings().IsActive());
-            m_flags = m_flags.SetFlags(Flags.DCR_Mod, PluginUtil.GetDirectConnectRoads().IsActive());
-            m_flags = m_flags.SetFlags(Flags.HUT_Mod, PluginUtil.GetHideUnconnectedTracks().IsActive());
+            m_flags = m_flags.SetFlags(Flags.HC_Mod, NetworkExtensionManager.Instance.HTC);
+            m_flags = m_flags.SetFlags(Flags.DCR_Mod, NetworkExtensionManager.Instance.DCR);
+            m_flags = m_flags.SetFlags(Flags.HUT_Mod, NetworkExtensionManager.Instance.HUT);
 
             if (JRMan != null) {
                 bool keepClearAll = true;

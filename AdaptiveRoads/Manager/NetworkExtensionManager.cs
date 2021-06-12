@@ -5,6 +5,7 @@ namespace AdaptiveRoads.Manager {
     using System.Linq;
     using KianCommons.Serialization;
     using static KianCommons.ReflectionHelpers;
+    using KianCommons.Plugins;
 
     [Serializable]
     public class NetworkExtensionManager {
@@ -224,6 +225,13 @@ namespace AdaptiveRoads.Manager {
         }
 
         #endregion LifeCycle
+
+        [NonSerialized]
+        public readonly bool HUT = PluginUtil.GetHideUnconnectedTracks().IsActive();
+        [NonSerialized]
+        public readonly bool HTC = PluginUtil.GetHideCrossings().IsActive();
+        [NonSerialized]
+        public readonly bool DCR = PluginUtil.GetDirectConnectRoads().IsActive();
 
         [NonSerialized]
         public ulong[] m_updatedNodes = new ulong[512], m_updatedSegments = new ulong[576];
