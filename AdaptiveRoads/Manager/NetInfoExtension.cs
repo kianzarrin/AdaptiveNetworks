@@ -602,7 +602,9 @@ namespace AdaptiveRoads.Manager {
                 EndNodeFlags.CheckFlags(endNodeFlags) &&
                 LaneSpeedLimit.CheckRange(laneSpeed) &&
                 ForwardSpeedLimit.CheckRange(forwardSpeedLimit) &&
-                BackwardSpeedLimit.CheckRange(backwardSpeedLimit);
+                BackwardSpeedLimit.CheckRange(backwardSpeedLimit) &&
+                SegmentCurve.CheckRange(segmentCurve) &&
+                LaneCurve.CheckRange(laneCurve);
             public CustomFlags UsedCustomFlags => new CustomFlags {
                 Segment = SegmentFlags.UsedCustomFlags,
                 SegmentEnd = SegmentStartFlags.UsedCustomFlags | SegmentStartFlags.UsedCustomFlags,

@@ -51,6 +51,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
             size = new Vector2(370, 27);
             atlas = TextureUtil.Ingame;
+            color = new Color32(87, 97, 100, 255);
             autoLayout = true;
             autoLayoutDirection = LayoutDirection.Horizontal;
             padding = new RectOffset(0, 0, 3, 3);
