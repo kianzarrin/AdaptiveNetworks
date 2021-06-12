@@ -1,16 +1,9 @@
 namespace AdaptiveRoads.Util {
-    using System;
-    using System.Runtime.CompilerServices;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
     using KianCommons;
     using System.Diagnostics;
-    using KianCommons;
-    using HarmonyLib;
 
     // empty array must be null
-    internal static class DCUtil {
+    internal static class DirectConnectUtil {
         [Conditional("Debug")]
         internal static void AssertNotEmpty(int[] ar, string name) => Assertion.AssertDebug(ar != null && ar.Length == 0, $"{name} must be null if empty");
 

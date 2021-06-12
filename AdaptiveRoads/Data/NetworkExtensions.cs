@@ -50,7 +50,7 @@ namespace AdaptiveRoads.Manager {
             None = 0,
 
             [Hide]
-            [Hint("[Obsolete]" + HintExtension.VANILLA)]
+            [Hint("[Obsolete] " + HintExtension.VANILLA)]
             Vanilla = 1 << 0,
 
             ParkingAllowed = 1 << 4,
@@ -77,6 +77,14 @@ namespace AdaptiveRoads.Manager {
             CargoTrain = 1 << 14,
             PassengerTrain = 1 << 15,
 
+            [Hint("this lane has a single merging transion\n" +
+                  "use this in conjunction with TwoSegment node flag to put merge arrow road marking")]
+            MergeUnique,
+
+            [Hint("cars can go to multiple lanes from this lane at least one of which is non-merging transion.\n" +
+                  "use this in conjunction with TwoSegment node flag to put split arrow road marking")]
+            SplitUnique = 1 << 16,
+
             Custom0 = 1 << 24,
             Custom1 = 1 << 25,
             Custom2 = 1 << 26,
@@ -86,10 +94,6 @@ namespace AdaptiveRoads.Manager {
             Custom6 = 1 << 30,
             Custom7 = 1 << 31,
             CustomsMask = Custom0 | Custom1 | Custom2 | Custom3 | Custom4 | Custom5 | Custom6 | Custom7,
-
-            // misc
-            //MergesWithInnerLane = 1 << 17,
-            //MergesWithOuterLane = 1 << 18,
 
             All = -1,
         }
@@ -122,6 +126,7 @@ namespace AdaptiveRoads.Manager {
         static IParkingRestrictionsManager PMan => TMPE?.ParkingRestrictionsManager;
         static IVehicleRestrictionsManager VRMan => TMPE?.VehicleRestrictionsManager;
         static ISpeedLimitManager SLMan => TMPE?.SpeedLimitManager as SpeedLimitManager;
+        static IRoutingManager RMan => TMPE?.RoutingManager as RoutingManager;
 
         // pass in segmentID for the sake of MOM lane problem.
         public void UpdateLane(LaneData lane, ushort segmentID) {
@@ -156,11 +161,15 @@ namespace AdaptiveRoads.Manager {
                 m_flags = m_flags.SetFlags(Flags.Service, VRMan.IsServiceAllowed(mask));
                 m_flags = m_flags.SetFlags(Flags.CargoTrain, VRMan.IsCargoTrainAllowed(mask));
                 m_flags = m_flags.SetFlags(Flags.PassengerTrain, VRMan.IsPassengerTrainAllowed(mask));
+                m_flags = m_flags.SetFlags(Flags.SplitUnique, lane.SplitsUnique());
+                m_flags = m_flags.SetFlags(Flags.MergeUnique, lane.MergesUnique());
 
-                if(SLMan != null)
+                if (SLMan != null)
                     SpeedLimit = (SLMan as SpeedLimitManager).GetGameSpeedLimit(LaneData.LaneID);
                 else
                     SpeedLimit = lane.LaneInfo.m_speedLimit;
+
+
 
                 //TODO lane connections
 
@@ -426,7 +435,7 @@ namespace AdaptiveRoads.Manager {
 
     public struct NetSegmentEnd {
         [Flags]
-        public enum Flags {
+        public enum Flags : Int64{
             None = 0,
 
             [Hide]
@@ -497,6 +506,12 @@ namespace AdaptiveRoads.Manager {
             [Obsolete("moved to node")]
             SpeedChange = 1 << 22,
 
+            [Hint("next segment has more lanes (only valid when there are two segments)")]
+            LanesIncrase = 1 << 32,
+
+            [Hint("next segment has more lanes (only valid when there are two segments)")]
+            LanesDecrease = 1 << 33,
+
             Custom0 = 1 << 24,
             Custom1 = 1 << 25,
             Custom2 = 1 << 26,
@@ -562,6 +577,28 @@ namespace AdaptiveRoads.Manager {
 
             flags = flags.SetFlags(Flags.SpeedChange, speedChange);
             flags = flags.SetFlags(Flags.TwoSegments, twoSegments);
+
+            bool lanesIncrease = false, lanesDecrease = false;
+            if (twoSegments) {
+                var sourceLanes = new LaneDataIterator(
+                    SegmentID,
+                    StartNode, // going toward node:NodeID
+                    LaneArrowManager.LANE_TYPES,
+                    LaneArrowManager.VEHICLE_TYPES);
+                var segmentID2 = NodeID.ToNode().GetAnotherSegment(SegmentID);
+                bool startNode2 = segmentID2.ToSegment().IsStartNode(NodeID);
+                var targetLanes = new LaneDataIterator(
+                    segmentID2,
+                    !startNode2, // lanes that are going away from node:NodeID
+                    LaneArrowManager.LANE_TYPES,
+                    LaneArrowManager.VEHICLE_TYPES);
+                int nSource = sourceLanes.Count;
+                int nTarget = targetLanes.Count;
+                lanesIncrease = nTarget > nSource;
+                lanesDecrease = nTarget < nSource;
+            }
+            flags = flags.SetFlags(Flags.LanesIncrase, lanesIncrease);
+            flags = flags.SetFlags(Flags.LanesDecrease, lanesDecrease);
 
             m_flags = flags;
         }

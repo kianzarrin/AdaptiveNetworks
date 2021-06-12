@@ -18,7 +18,7 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
         // (ConnectGroup == None && MetaData.ConnectGroups == null) ||
         public static bool CheckConnectGroup(NetInfo.ConnectGroup cg, NetInfo.Node node) {
 #if DEBUG
-            DCUtil.AssertNotEmpty(node.GetMetaData()?.ConnectGroupsHash, "connect groups");
+            DirectConnectUtil.AssertNotEmpty(node.GetMetaData()?.ConnectGroupsHash, "connect groups");
 #endif
             return !(cg == 0 && node.GetMetaData()?.ConnectGroupsHash == null);
         }
@@ -62,7 +62,7 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
         public static bool CheckConnectGroup(bool flagsMatch, NetInfo.Node node, NetInfo info) {
             if (flagsMatch)
                 return true;
-            return DCUtil.ConnectGroupsMatch(
+            return DirectConnectUtil.ConnectGroupsMatch(
                 node.GetMetaData()?.ConnectGroupsHash,
                 info.GetMetaData()?.ConnectGroupsHash);
         }
@@ -112,7 +112,7 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
         // (ConnectGroup == None && MetaData.ConnectGroups == null) ||
         public static bool CheckConnectGroup(NetInfo.ConnectGroup cg, NetInfo info) {
 #if DEBUG
-            DCUtil.AssertNotEmpty(info.GetMetaData()?.NodeConnectGroupsHash, "connect groups");
+            DirectConnectUtil.AssertNotEmpty(info.GetMetaData()?.NodeConnectGroupsHash, "connect groups");
 #endif
             return !(cg == 0 && info.GetMetaData()?.NodeConnectGroupsHash == null);
         }
@@ -157,7 +157,7 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
         public static bool CheckConnectGroup(bool flagsMatch, NetInfo sourceInfo, NetInfo targetInfo) {
             if (flagsMatch)
                 return true;
-            return DCUtil.ConnectGroupsMatch(
+            return DirectConnectUtil.ConnectGroupsMatch(
                 sourceInfo.GetMetaData()?.NodeConnectGroupsHash,
                 targetInfo.GetMetaData()?.ConnectGroupsHash);
         }

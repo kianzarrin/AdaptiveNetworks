@@ -1,10 +1,13 @@
+- TEST: lane turn flags because we changed lane.startNdoe
+
 - group DC components.
 
 flags for:
     arrrows:
-        merging/splitting lanes
-        slight left/right/uturn
-        sharp left/right
+        - merging/splitting lanes
+          lanes increaed/decreased
+        - slight left/right/uturn
+          sharp left/right
 
 ----------------------------
 version 3:
