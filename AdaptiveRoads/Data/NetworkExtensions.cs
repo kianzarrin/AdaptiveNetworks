@@ -46,7 +46,7 @@ namespace AdaptiveRoads.Manager {
 
     public struct NetLaneExt {
         [Flags]
-        public enum Flags {
+        public enum Flags : Int64 {
             None = 0,
 
             [Hide]
@@ -79,11 +79,11 @@ namespace AdaptiveRoads.Manager {
 
             [Hint("this lane has a single merging transion\n" +
                   "use this in conjunction with TwoSegment node flag to put merge arrow road marking")]
-            MergeUnique,
+            MergeUnique = 1 << 16 ,
 
             [Hint("cars can go to multiple lanes from this lane at least one of which is non-merging transion.\n" +
                   "use this in conjunction with TwoSegment node flag to put split arrow road marking")]
-            SplitUnique = 1 << 16,
+            SplitUnique = 1 << 17,
 
             Custom0 = 1 << 24,
             Custom1 = 1 << 25,
@@ -95,7 +95,15 @@ namespace AdaptiveRoads.Manager {
             Custom7 = 1 << 31,
             CustomsMask = Custom0 | Custom1 | Custom2 | Custom3 | Custom4 | Custom5 | Custom6 | Custom7,
 
-            All = -1,
+            LeftSlight = 1L << 32,
+            LeftModerate = 1L << 33,
+            LeftSharp = 1L << 34,
+            UTurn = 1 << 38,
+
+            RightSlight = 1L << 35,
+            RightModerate = 1L << 36,
+            RightSharp = 1 << 37,
+            AllDirections = LeftSlight | LeftModerate | LeftSharp | RightSlight | RightModerate | RightSharp | UTurn,
         }
 
         public Flags m_flags;
@@ -161,8 +169,9 @@ namespace AdaptiveRoads.Manager {
                 m_flags = m_flags.SetFlags(Flags.Service, VRMan.IsServiceAllowed(mask));
                 m_flags = m_flags.SetFlags(Flags.CargoTrain, VRMan.IsCargoTrainAllowed(mask));
                 m_flags = m_flags.SetFlags(Flags.PassengerTrain, VRMan.IsPassengerTrainAllowed(mask));
-                m_flags = m_flags.SetFlags(Flags.SplitUnique, lane.SplitsUnique());
-                m_flags = m_flags.SetFlags(Flags.MergeUnique, lane.MergesUnique());
+                m_flags = m_flags.SetFlags(Flags.SplitUnique, lane.IsSplitsUnique());
+                m_flags = m_flags.SetFlags(Flags.MergeUnique, lane.IsMergesUnique());
+                m_flags = (m_flags & ~Flags.AllDirections) | lane.GetArrowsExt();
 
                 if (SLMan != null)
                     SpeedLimit = (SLMan as SpeedLimitManager).GetGameSpeedLimit(LaneData.LaneID);
@@ -171,7 +180,7 @@ namespace AdaptiveRoads.Manager {
 
 
 
-                //TODO lane connections
+                
 
                 //Log.Debug("NetLaneExt.UpdateLane() result: " + this);
             } catch (Exception ex) {
@@ -234,8 +243,6 @@ namespace AdaptiveRoads.Manager {
             Custom6 = 1 << 30,
             Custom7 = 1 << 31,
             CustomsMask = Custom0 | Custom1 | Custom2 | Custom3 | Custom4 | Custom5 | Custom6 | Custom7,
-
-            //All = -1,
         }
 
         public static IJunctionRestrictionsManager JRMan =>
@@ -315,8 +322,6 @@ namespace AdaptiveRoads.Manager {
             Custom6 = 1 << 30,
             Custom7 = 1 << 31,
             CustomsMask = Custom0 | Custom1 | Custom2 | Custom3 | Custom4 | Custom5 | Custom6 | Custom7,
-
-            //All = -1,
         }
 
         public ref NetSegmentEnd Start => ref NetworkExtensionManager.Instance.GetSegmentEnd(SegmentID, true);
@@ -507,10 +512,10 @@ namespace AdaptiveRoads.Manager {
             SpeedChange = 1 << 22,
 
             [Hint("next segment has more lanes (only valid when there are two segments)")]
-            LanesIncrase = 1 << 32,
+            LanesIncrase = 1L << 32,
 
             [Hint("next segment has more lanes (only valid when there are two segments)")]
-            LanesDecrease = 1 << 33,
+            LanesDecrease = 1L << 33,
 
             Custom0 = 1 << 24,
             Custom1 = 1 << 25,
@@ -521,8 +526,6 @@ namespace AdaptiveRoads.Manager {
             Custom6 = 1 << 30,
             Custom7 = 1 << 31,
             CustomsMask = Custom0 | Custom1 | Custom2 | Custom3 | Custom4 | Custom5 | Custom6 | Custom7,
-
-            ALL = -1,
         }
 
         public Flags m_flags;

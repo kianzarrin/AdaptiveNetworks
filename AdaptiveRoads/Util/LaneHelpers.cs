@@ -1,12 +1,11 @@
 namespace AdaptiveRoads.Util {
     using KianCommons;
-    using TrafficManager.Manager.Impl;
-    using System.Diagnostics;
-    using TrafficManager.API.Manager;
     using System.Collections.Generic;
     using System.Linq;
+    using TrafficManager.API.Manager;
     using TrafficManager.API.Traffic.Enums;
-
+    using TrafficManager.Manager.Impl;
+    using AdaptiveRoads.Manager;
     internal static class LaneHelpers {
         static RoutingManager rman => RoutingManager.Instance;
         internal static bool HasProps(this NetInfo.Lane lane) =>
@@ -29,7 +28,7 @@ namespace AdaptiveRoads.Util {
         /// </summary>
         /// <returns>valid backward transions from other lanes to the given lane end</returns>
         internal static IEnumerable<LaneTransitionData> GetBackwardTransisions(uint laneID, bool startNode) {
-        Assertion.NotNull(rman);
+            Assertion.NotNull(rman);
             uint index = rman.GetLaneEndRoutingIndex(laneID, startNode);
             var transisions = rman.LaneEndBackwardRoutings[index].transitions
                 ?.Where(t => t.type != LaneEndTransitionType.Invalid);
@@ -37,7 +36,7 @@ namespace AdaptiveRoads.Util {
         }
 
         // splits into multiple lanes at least one of which has only one transion to it.
-        internal static bool SplitsUnique(this LaneData lane) {
+        internal static bool IsSplitsUnique(this LaneData lane) {
             var transitions = GetForwardTransisions(lane.LaneID, lane.StartNode);
 
             if (transitions.Count() < 2)
@@ -54,7 +53,7 @@ namespace AdaptiveRoads.Util {
         }
 
         // has single transition which merges into another lane.
-        internal static bool MergesUnique(this LaneData lane) {
+        internal static bool IsMergesUnique(this LaneData lane) {
             var transitions = GetForwardTransisions(lane.LaneID, lane.StartNode);
             if (transitions.Count() != 1)
                 return false; // not single transition
@@ -63,5 +62,20 @@ namespace AdaptiveRoads.Util {
             var targetBackwardTransitions = GetBackwardTransisions(transition.laneId, transition.startNode);
             return targetBackwardTransitions.Count() >= 2; // merge
         }
+
+        internal static NetLaneExt.Flags GetArrowsExt(ref this LaneData lane) {
+            NetLaneExt.Flags arrows = 0;
+            ushort segmentID = lane.SegmentID;
+            foreach(var transition in GetForwardTransisions(lane.LaneID, lane.StartNode)) {
+                ushort segmentID2 = transition.segmentId;
+                arrows |= ArrowDirectionUtil.GetArrowExt(segmentID, segmentID2);
+            }
+            return arrows;
+        }
+
+
+
+
+
     }
 }

@@ -2,12 +2,7 @@
 
 - group DC components.
 
-flags for:
-    arrrows:
-        - merging/splitting lanes
-          lanes increaed/decreased
-        - slight left/right/uturn
-          sharp left/right
+- curviture
 
 ----------------------------
 version 3:
@@ -17,3 +12,4 @@ version 3:
     - m_clipSegmentEnds for segmentInfos. (this influences corners so its hard to do it per mesh)
     - option to un-merge bitmask dropdowns
     - move DPT array elements up and down.
+    - tracks
