@@ -6,6 +6,7 @@ namespace AdaptiveRoads.Manager {
     using KianCommons.Serialization;
     using static KianCommons.ReflectionHelpers;
     using KianCommons.Plugins;
+    using TrafficManager.API;
 
     [Serializable]
     public class NetworkExtensionManager {
@@ -23,6 +24,8 @@ namespace AdaptiveRoads.Manager {
         public static NetworkExtensionManager Instance => instance_ ??= new NetworkExtensionManager();
 
         public static NetworkExtensionManager RawInstance => instance_;
+
+        public static NetworkExtensionManager Ensure() => Instance;
 
         internal int SerializationCapacity =>
             (NetManager.MAX_NODE_COUNT + NetManager.MAX_SEGMENT_COUNT + NetManager.MAX_LANE_COUNT) * sizeof(int);
@@ -95,15 +98,9 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
-        /// <summary>
-        /// preconditions: none. does not need any patches.
-        /// </summary>
-        public void OnLoad() {
-            SimulationManager.instance.AddAction(OnLoadImpl);
-        }
 
         // should be called from simulation thread.
-        void OnLoadImpl() {
+        void OnTMPELoadedImpl() {
             LogCalled();
             for (ushort nodeID = 0; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID) {
                 if (!NetUtil.IsNodeValid(nodeID)) continue;
@@ -117,11 +114,26 @@ namespace AdaptiveRoads.Manager {
                 NetManager.instance.UpdateSegment(segmentID);
 #endif
             }
-            LogSucceeded();
 
+            Notifier.EventModified -= OnTMPEModified;
+            Notifier.EventModified += OnTMPEModified;
+            LogSucceeded();
+        }
+
+        public static void OnTMPELoaded() {
+            Ensure();
+            SimulationManager.instance.AddAction(Instance.OnTMPELoadedImpl);
+        }
+
+        private void OnTMPEModified(OnModifiedEventArgs args) {
+            if (args.InstanceID.Type == InstanceType.NetNode)
+                UpdateNode(args.InstanceID.NetNode, level: -2);
+            if (args.InstanceID.Type == InstanceType.NetSegment)
+                UpdateSegment(args.InstanceID.NetSegment, level:-2);
         }
 
         public void OnUnload() {
+            Notifier.EventModified -= OnTMPEModified;
             instance_ = null;
         }
 

@@ -19,8 +19,6 @@ namespace AdaptiveRoads.LifeCycle {
         public static string HARMONY_ID = "CS.Kian.AdaptiveRoads";
         public static string HARMONY_ID_MANUAL = "CS.Kian.AdaptiveRoads.Manual";
 
-        static IDisposable ObserverDisposable;
-
         public static SimulationManager.UpdateMode UpdateMode => SimulationManager.instance.m_metaData.m_updateMode;
         public static LoadMode Mode => (LoadMode)UpdateMode;
         public static string Scene => SceneManager.GetActiveScene().name;
@@ -110,6 +108,8 @@ namespace AdaptiveRoads.LifeCycle {
                     HarmonyUtil.InstallHarmony<PreloadPatchAttribute>(HARMONY_ID_MANUAL);
                     preloadPatchesApplied_ = true;
                 }
+                TrafficManager.API.Notifier.EventLevelLaoded -= NetworkExtensionManager.OnTMPELoaded;
+                TrafficManager.API.Notifier.EventLevelLaoded += NetworkExtensionManager.OnTMPELoaded;
             } catch (Exception ex) {
                 Log.Exception(ex);
             }
@@ -119,8 +119,8 @@ namespace AdaptiveRoads.LifeCycle {
             try {
                 Log.Info("LifeCycle.Load() called");
                 Log.Info("testing stack trace:\n" + Environment.StackTrace, false);
+                NetworkExtensionManager.Ensure();
 
-                NetworkExtensionManager.Instance.OnLoad();
                 Log.Info($"Scene={Scene} LoadMode={Mode}");
                 if(Scene != "AssetEditor") {
                     Log.Info("Applying in game patches");
@@ -131,9 +131,6 @@ namespace AdaptiveRoads.LifeCycle {
                     HintBox.Create();
                 }
                 NetInfoExtionsion.Ensure_EditedNetInfos();
-
-                ObserverDisposable = GeometryManager.Instance.Subscribe(new ARTMPEObsever());
-
 #if DEBUG
                 ARTool.Create();
 
@@ -157,7 +154,6 @@ namespace AdaptiveRoads.LifeCycle {
                 UI.Debug.PWSelector.Release();
                 UI.Debug.PWModifier.Release();
                 ARTool.Release();
-                ObserverDisposable?.Dispose();
                 HintBox.Release();
                 HarmonyUtil.UninstallHarmony(HARMONY_ID);
                 NetworkExtensionManager.RawInstance?.OnUnload();
@@ -169,6 +165,7 @@ namespace AdaptiveRoads.LifeCycle {
         public static void Exit() {
             Log.Buffered = false;
             Log.Info("LifeCycle.Exit() called");
+            TrafficManager.API.Notifier.EventLevelLaoded -= NetworkExtensionManager.OnTMPELoaded;
             HarmonyUtil.UninstallHarmony(HARMONY_ID_MANUAL);
             preloadPatchesApplied_ = false;
         }
