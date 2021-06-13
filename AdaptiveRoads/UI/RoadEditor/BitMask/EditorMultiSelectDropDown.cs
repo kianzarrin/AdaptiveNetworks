@@ -72,7 +72,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
                 dd.listScrollbar.thumbPadding = new RectOffset(0, 0, 5, 5);
                 dd.listScrollbar.minValue = 0;
                 dd.listScrollbar.value = 0;
-                dd.listScrollbar.incrementAmount = 90;
+                dd.listScrollbar.incrementAmount = dd.listHeight/10;
                 dd.listScrollbar.AlignTo(dd, UIAlignAnchor.TopRight);
                 dd.listScrollbar.autoHide = true; // false ?
                 dd.listScrollbar.isVisible = false;

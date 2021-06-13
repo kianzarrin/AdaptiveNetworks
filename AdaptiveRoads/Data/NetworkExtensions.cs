@@ -98,11 +98,11 @@ namespace AdaptiveRoads.Manager {
             LeftSlight = 1L << 32,
             LeftModerate = 1L << 33,
             LeftSharp = 1L << 34,
-            UTurn = 1 << 38,
+            UTurn = 1L << 38,
 
             RightSlight = 1L << 35,
             RightModerate = 1L << 36,
-            RightSharp = 1 << 37,
+            RightSharp = 1L << 37,
             AllDirections = LeftSlight | LeftModerate | LeftSharp | RightSlight | RightModerate | RightSharp | UTurn,
         }
 

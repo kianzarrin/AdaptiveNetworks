@@ -1,8 +1,9 @@
-- TEST: lane turn flags because we changed lane.startNdoe
-
+TODO: list scrollbars
+- fix scroll bar issues
+    - drop downj
+    - horizontal sub panel
 - group DC components.
 
-- curviture
 
 ----------------------------
 version 3:
@@ -13,3 +14,4 @@ version 3:
     - option to un-merge bitmask dropdowns
     - move DPT array elements up and down.
     - tracks
+
