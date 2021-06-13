@@ -478,6 +478,11 @@ namespace AdaptiveRoads.Manager {
             [AfterField(nameof(NetInfo.Node.m_directConnect))]
             public VehicleInfo.VehicleType VehicleType;
 
+            [Hint("tell DCR mode to manage this node")]
+            [CustomizableProperty("Hide Broken Medians", DC_GROUP_NAME)]
+            [AfterField(nameof(NetInfo.Node.m_directConnect))]
+            public bool HideBrokenMedians = true;
+    
             public bool CheckFlags(
                 NetNodeExt.Flags nodeFlags, NetSegmentEnd.Flags segmentEndFlags,
                 NetSegmentExt.Flags segmentFlags, NetSegment.Flags vanillaSegmentFlags) =>

@@ -36,6 +36,8 @@ namespace AdaptiveRoads {
 
         public static VehicleInfo.VehicleType NodeVehicleTypes(NetInfo.Node node) => node.GetMetaData()?.VehicleType ?? 0;
         public static NetInfo.LaneType NodeLaneTypes(NetInfo.Node node) => node.GetMetaData()?.LaneType ?? 0;
-#pragma warning restore HAA0601 
+        public static bool HideBrokenMedians(NetInfo.Node node) => node.GetMetaData()?.HideBrokenMedians ?? true;
+
+#pragma warning restore HAA0601
     }
 }
