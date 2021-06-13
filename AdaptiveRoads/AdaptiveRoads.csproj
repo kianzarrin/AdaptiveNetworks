@@ -141,7 +141,6 @@
     <Compile Include="KianCommons\KianCommons\ObjUnity3D\OBJGroup.cs" />
     <Compile Include="KianCommons\KianCommons\ObjUnity3D\OBJLoader.cs" />
     <Compile Include="KianCommons\KianCommons\ObjUnity3D\OBJMaterial.cs" />
-    <Compile Include="KianCommons\KianCommons\Plugins\AdaptiveRoadsUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Plugins\FPSBooster.cs" />
     <Compile Include="KianCommons\KianCommons\Plugins\PluginUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Serialization\IOHelpers.cs" />
