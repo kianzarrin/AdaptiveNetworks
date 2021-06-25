@@ -12,7 +12,7 @@ namespace AdaptiveRoads.UI.Tool {
     using static KianCommons.ReflectionHelpers;
     using Patches.AsymPavements;
 
-    public class ARTool : KianToolBase {
+    public class ARTool : KianToolBase<ARTool> {
         // for mod tools:
         RefreshJunctionDataPatch.Util.Operation [,] Operations => RefreshJunctionDataPatch.Util.Operations;
         NetworkExtensionManager man_ => NetworkExtensionManager.Instance;
@@ -170,14 +170,6 @@ namespace AdaptiveRoads.UI.Tool {
                 bStartNode: segmentID.ToSegment().IsStartNode(nodeID),
                 color: color,
                 alpha: alpha);
-        }
-
-        public static void Create() {
-            ToolsModifierControl.toolController.gameObject.AddComponent<ARTool>();
-        }
-
-        public static void Release() {
-            DestroyImmediate(ToolsModifierControl.toolController?.GetComponent<ARTool>());
         }
 
         protected override void Awake() {
