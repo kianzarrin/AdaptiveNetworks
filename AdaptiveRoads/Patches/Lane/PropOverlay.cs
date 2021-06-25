@@ -30,7 +30,7 @@ namespace AdaptiveRoads.Patches.Lane {
 
         public static void Patch(List<CodeInstruction> codes, MethodBase method) {
             int iPosition = codes.Search(_c => _c.Calls(mPosition));
-            int iStLocPos = codes.Search(_c => _c.IsStLoc(typeof(Vector3)), startIndex:iPosition );
+            int iStLocPos = codes.Search(_c => _c.IsStLoc(typeof(Vector3), method), startIndex:iPosition );
             CodeInstruction ldPos = codes[iStLocPos].BuildLdLocFromStLoc();
 
             int iMinScale = codes.Search(_c => _c.LoadsField(f_minScale));
@@ -40,14 +40,14 @@ namespace AdaptiveRoads.Patches.Lane {
             int iAngle = codes.Search(_c => _c.LoadsField(f_angle));
             int iStAngle = codes.Search(_c => _c.IsStloc(), startIndex: iAngle);
             int iLdProp = codes.Search(
-                _c => _c.IsLdLoc(typeof(NetLaneProps.Prop)),
+                _c => _c.IsLdLoc(typeof(NetLaneProps.Prop), method),
                 startIndex: iAngle, count:-1);
             CodeInstruction ldAngle = codes[iStAngle].BuildLdLocFromStLoc();
             CodeInstruction ldProp = codes[iLdProp].Clone();
 
             int iRequireWaterMap = codes.Search(_c => _c.LoadsField(f_requireWaterMap));
             int iLdVariation = codes.Search(
-                _c => _c.IsLdLoc(typeof(PropInfo)),
+                _c => _c.IsLdLoc(typeof(PropInfo), method),
                 startIndex: iRequireWaterMap, count: -1);
             CodeInstruction ldVariation = codes[iLdVariation].Clone();
 
