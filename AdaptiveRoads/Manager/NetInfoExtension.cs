@@ -225,6 +225,7 @@ namespace AdaptiveRoads.Manager {
                 UsedCustomFlags = GetUsedCustomFlags(template);
             }
 
+            [OptionalField]
             public string[] ConnectGroups;
 
             [NonSerialized]
@@ -241,10 +242,12 @@ namespace AdaptiveRoads.Manager {
             [AfterField(nameof(NetInfo.m_pavementWidth))]
             [CustomizableProperty("Shift", "Properties")]
             [Hint("shifts road right-wards (when going from tail to head)")]
+            [OptionalField]
             public float Shift = 0;
 
             [AfterField(nameof(NetInfo.m_minCornerOffset))]
             [CustomizableProperty("Parking Angle °", "Properties")]
+            [OptionalField]
             public float ParkingAngleDegrees = 0;
 
             /// <summary>
@@ -258,6 +261,7 @@ namespace AdaptiveRoads.Manager {
 #endif
             [AfterField(nameof(NetInfo.m_flattenTerrain))]
             [Hint("only affect the terrain on one side")]
+            [OptionalField]
             public bool UseOneSidedTerrainModification = false;
 
             [NonSerialized]
@@ -362,6 +366,7 @@ namespace AdaptiveRoads.Manager {
 
             [CustomizableProperty("Tail Node Extension")]
             [Optional(SEGMENT_NODE)]
+            [OptionalField]
             public NodeInfoFlags TailtNode;
 
             [CustomizableProperty("Head Node")]
@@ -370,6 +375,7 @@ namespace AdaptiveRoads.Manager {
 
             [CustomizableProperty("Head Node Extension")]
             [Optional(SEGMENT_NODE)]
+            [OptionalField]
             public NodeInfoFlags HeadNode;
 
             [CustomizableProperty("Segment Tail")]
@@ -445,6 +451,7 @@ namespace AdaptiveRoads.Manager {
             public const string DC_GROUP_NAME = "Direct Connect";
 
             [CustomizableProperty("Node Extension")]
+            [OptionalField]
             public NodeInfoFlags NodeFlags;
 
             [CustomizableProperty("Segment End")]
@@ -461,8 +468,10 @@ namespace AdaptiveRoads.Manager {
             [Hint("Apply the same flag requirements to target segment end")]
             [CustomizableProperty("Check target flags", DC_GROUP_NAME)]
             [AfterField(nameof(NetInfo.Node.m_directConnect))]
+            [OptionalField]
             public bool CheckTargetFlags;
 
+            [OptionalField]
             public string []ConnectGroups;
 
             [NonSerialized]
@@ -471,16 +480,19 @@ namespace AdaptiveRoads.Manager {
             [Hint("used by other mods to decide how hide tracks/medians")]
             [CustomizableProperty("Lane Type", DC_GROUP_NAME)]
             [AfterField(nameof(NetInfo.Node.m_directConnect))]
+            [OptionalField]
             public NetInfo.LaneType LaneType;
 
             [Hint("used by other mods to decide how hide tracks/medians")]
             [CustomizableProperty("Vehicle Type", DC_GROUP_NAME)]
             [AfterField(nameof(NetInfo.Node.m_directConnect))]
+            [OptionalField]
             public VehicleInfo.VehicleType VehicleType;
 
             [Hint("tell DCR mode to manage this node")]
             [CustomizableProperty("Hide Broken Medians", DC_GROUP_NAME)]
             [AfterField(nameof(NetInfo.Node.m_directConnect))]
+            [OptionalField]
             public bool HideBrokenMedians = true;
     
             public bool CheckFlags(
