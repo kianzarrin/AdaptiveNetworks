@@ -17,8 +17,8 @@ namespace AdaptiveRoads.Patches.Node {
         public static IEnumerable<CodeInstruction> Transpiler(MethodBase original, IEnumerable<CodeInstruction> instructions) {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
-                CheckNodeFlagsCommons.PatchCheckFlags(codes, original, occuranceCheckFlags: 1, counterGetSegment: 2); //DC
-                CheckNodeFlagsCommons.PatchCheckFlags(codes, original, occuranceCheckFlags: 2, counterGetSegment: 2); //DC
+                CheckNodeFlagsCommons.PatchCheckFlags(codes, original, occuranceCheckFlags: 1, counterGetSegment: 2, true); //DC
+                CheckNodeFlagsCommons.PatchCheckFlags(codes, original, occuranceCheckFlags: 2, counterGetSegment: 2, true); //DC
 
                 // Unlike RenderInstance and CalculateGroupData, counterGetSegment for PopulateGroupData Junction is 2:
                 CheckNodeFlagsCommons.PatchCheckFlags(codes, original, occuranceCheckFlags: 3, counterGetSegment: 2); //Junction
@@ -26,7 +26,7 @@ namespace AdaptiveRoads.Patches.Node {
 
                 // End - BEND ->  segment.Checkflags (does not use info flags.)
                 // Bend node -> segment.Checkflags (does not use info flags.)
-                CheckNodeFlagsCommons.PatchCheckFlags(codes, original, occuranceCheckFlags: 5, counterGetSegment: 0); //DC Bend
+                CheckNodeFlagsCommons.PatchCheckFlags(codes, original, occuranceCheckFlags: 5, counterGetSegment: 0, true); //DC Bend
 
 
                 Log.Info($"{ReflectionHelpers.ThisMethod} patched {original} successfully!");

@@ -10,26 +10,11 @@ namespace AdaptiveRoads.UI.RoadEditor {
     using TrafficManager.Manager.Impl;
     using System;
     using static ModSettings;
+    using KianCommons.Plugins;
 
-    public class SpeedRangePanel : UIPanel, IHint {
-        static float HUMAN_TO_GAME => 1 / GAME_TO_HUMAN;
-        static float MAX_HUMAN_SPEED => SpeedLimitManager.MAX_SPEED * GAME_TO_HUMAN;
-        static float GAME_TO_HUMAN =>
-            (SpeedUnitType)SpeedUnit.value switch {
-                SpeedUnitType.KPH => ApiConstants.SPEED_TO_KMPH,
-                SpeedUnitType.MPH => ApiConstants.SPEED_TO_MPH,
-                _ => throw new Exception("unreachable code"),
-            };
-        static string unit_ =>
-            (SpeedUnitType)SpeedUnit.value switch {
-                SpeedUnitType.KPH => "kph",
-                SpeedUnitType.MPH => "mph",
-                _ => throw new Exception("unreachable code"),
-            };
-
-
+    public class RangePanel : UIPanel, IHint {
         public UILabel Label;
-        public TextFieldU32 LowerField, UpperField;
+        public TextFieldFloat LowerField, UpperField;
         FieldInfo fieldInfo_;
         object target_;
 
@@ -40,14 +25,14 @@ namespace AdaptiveRoads.UI.RoadEditor {
             base.OnDestroy();
         }
 
-        public static SpeedRangePanel Add(
+        public static RangePanel Add(
             RoadEditorPanel roadEditorPanel,
             UIComponent container,
             string label,
             object target,
             FieldInfo fieldInfo) {
             Log.Debug($"RangePanel.Add(container:{container}, label:{label})");
-            var subPanel = UIView.GetAView().AddUIComponent(typeof(SpeedRangePanel)) as SpeedRangePanel;
+            var subPanel = UIView.GetAView().AddUIComponent(typeof(RangePanel)) as RangePanel;
             subPanel.fieldInfo_ = fieldInfo;
             subPanel.target_ = target;
             subPanel.Initialize();
@@ -66,20 +51,20 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
             size = new Vector2(370, 27);
             atlas = TextureUtil.Ingame;
+            color = new Color32(87, 97, 100, 255);
             autoLayout = true;
             autoLayoutDirection = LayoutDirection.Horizontal;
             padding = new RectOffset(0, 0, 3, 3);
             autoLayoutPadding = new RectOffset(0, 3, 0, 0);
 
             Label = AddUIComponent<UILabel>();
-            LowerField = AddUIComponent<TextFieldU32>();
-            UpperField = AddUIComponent<TextFieldU32>();
+            LowerField = AddUIComponent<TextFieldFloat>();
+            UpperField = AddUIComponent<TextFieldFloat>();
             UpperField.width = LowerField.width = 100;
 
             Label.tooltip = "if both are 0, it is ignored.";
             LowerField.tooltip = "from";
             UpperField.tooltip = "to";
-            LowerField.PostFix = UpperField.PostFix = unit_;
             
             Label.eventSizeChanged += (_c, _val) => {
                 float _p = 3 * 3; //padding 3 elements => 3 paddings.
@@ -98,13 +83,13 @@ namespace AdaptiveRoads.UI.RoadEditor {
         }
 
         private void TextSubmitted(UIComponent component, string value) {
-            if (LowerField.TryGetValue(out uint lower) && UpperField.TryGetValue(out uint upper)) {
+            if (LowerField.TryGetValue(out float lower) && UpperField.TryGetValue(out float upper)) {
                 if (upper == 0) {
                     Range = null;
                 } else {
                     Range = new NetInfoExtionsion.Range {
-                        Lower = lower * HUMAN_TO_GAME,
-                        Upper = upper * HUMAN_TO_GAME,
+                        Lower = lower,
+                        Upper = upper,
                     };
                 }
             }
@@ -119,18 +104,31 @@ namespace AdaptiveRoads.UI.RoadEditor {
         private void RefreshText() {
             float lower = Range?.Lower ?? 0;
             float upper = Range?.Upper ?? 0;
-            LowerField.Value = (uint)Mathf.RoundToInt(lower * GAME_TO_HUMAN);
-            UpperField.Value = (uint)Mathf.RoundToInt(upper * GAME_TO_HUMAN);
+            LowerField.Value = lower;
+            UpperField.Value = upper;
+        }
+
+        [FPSBoosterSkipOptimizations]
+        public override void Update() {
+            try {
+                base.Update();
+                if (IsHovered())
+                    backgroundSprite = "GenericPanelWhite";
+                else
+                    backgroundSprite = "";
+            }
+            catch (Exception ex) {
+                ex.Log();
+            }
         }
 
         public bool IsHovered() => containsMouse;
         public string GetHint() {
-            string h = "set both speed limits to 0 to ignore speed limit";
+            string h = "set both lower and upper to 0 to ignore.";
             if(UpperField.containsMouse) {
-                h = h + "\nUpper speed limit (exclusive).\n" +
-                    $"set to {MAX_HUMAN_SPEED + 1}{unit_} or greator for unlimit speed";
+                h = h + "\nUpper limit (exclusive).\n";
             }else if(LowerField.containsMouse) {
-                h = h + "\nLower speed limit (inclusive).";
+                h = h + "\nLower limit (inclusive).";
             }
             var h2 = fieldInfo_.GetHints()?.JoinLines();
             if(!string.IsNullOrEmpty(h2))

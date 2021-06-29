@@ -166,7 +166,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
                 try {
                     base.OnClick(p);
                     Assertion.AssertNotNull(Action);
-                    Log.Info($"`{text}` clicked. Invoking {Action} ...", true);
+                    Log.Info($"`{text}` clicked. Invoking {Action.Method} ...", true);
                     Action();
                     GetComponentInParent<MiniPanel>().Close();
                 }catch(Exception ex) {

@@ -4,6 +4,8 @@ namespace AdaptiveRoads {
     using System.Linq;
     using System.Text;
     using AdaptiveRoads.Manager;
+    using KianCommons;
+    using AdaptiveRoads.Patches.Corner;
 
     public static class API {
         static NetworkExtensionManager man => NetworkExtensionManager.Instance;
@@ -25,8 +27,17 @@ namespace AdaptiveRoads {
             => man.GetSegmentEnd(segmentID, nodeID).m_flags;
         public static object GetARLaneFlags(uint id) => man.LaneBuffer[id].m_flags;
 
-        public static float GetShift(NetInfo info) => info.GetMetaData()?.Shift ?? 0;
+        public static float GetShift(ushort segmentId, ushort nodeId) {
+            if (segmentId == RefreshJunctionDataDCPatch.TargetSegmentID)
+                return RefreshJunctionDataDCPatch.Shift;
+            else
+                return segmentId.ToSegment().Info.GetMetaData()?.Shift ?? 0;
+        }
 
-#pragma warning restore HAA0601 
+        public static VehicleInfo.VehicleType NodeVehicleTypes(NetInfo.Node node) => node.GetMetaData()?.VehicleType ?? 0;
+        public static NetInfo.LaneType NodeLaneTypes(NetInfo.Node node) => node.GetMetaData()?.LaneType ?? 0;
+        public static bool HideBrokenMedians(NetInfo.Node node) => node.GetMetaData()?.HideBrokenMedians ?? true;
+
+#pragma warning restore HAA0601
     }
 }

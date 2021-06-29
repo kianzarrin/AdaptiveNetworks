@@ -1,13 +1,10 @@
 namespace AdaptiveRoads.Patches.Corner {
-    using ColossalFramework;
+    using AdaptiveRoads.Util;
     using HarmonyLib;
     using JetBrains.Annotations;
     using KianCommons;
     using System.Reflection;
     using UnityEngine;
-    using static ColossalFramework.Math.VectorUtils;
-    using AdaptiveRoads.Util;
-    using AdaptiveRoads.Manager;
 
     [InGamePatch]
     [UsedImplicitly]
@@ -39,15 +36,15 @@ namespace AdaptiveRoads.Patches.Corner {
             ushort segmentID, bool start, bool leftSide,
             ref Vector3 cornerPos, ref Vector3 cornerDirection) {
             ref NetSegment segment = ref segmentID.ToSegment();
-            float shift = segment.Info?.GetMetaData()?.Shift ?? 0;
+            ushort nodeId = segment.GetNode(start);
+            float shift = API.GetShift(segmentId: segmentID, nodeId: nodeId);
             if (shift == 0) return;
 
             CornerUtil.CalculateTransformVectors(cornerDirection, leftSide, outward: out var outward, out var _);
-            bool headNode = segment.GetHeadNode() == segment.GetNode(start);
+            bool headNode = segment.GetHeadNode() == nodeId;
             if (headNode ^ leftSide)
                 shift = -shift;
             cornerPos += shift * outward;
         }
-
     }
 }

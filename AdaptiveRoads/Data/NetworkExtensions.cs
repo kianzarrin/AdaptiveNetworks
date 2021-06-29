@@ -15,6 +15,7 @@ namespace AdaptiveRoads.Manager {
     using System.Linq;
     using AdaptiveRoads.Util;
     using KianCommons.Serialization;
+    using KianCommons.Plugins;
 
     public static class AdvanedFlagsExtensions {
         public static bool CheckFlags(this NetLaneExt.Flags value, NetLaneExt.Flags required, NetLaneExt.Flags forbidden) =>
@@ -45,11 +46,11 @@ namespace AdaptiveRoads.Manager {
 
     public struct NetLaneExt {
         [Flags]
-        public enum Flags {
+        public enum Flags : Int64 {
             None = 0,
 
-            [Hint("when required, the node will not be rendered when Adaptive Roads mod is enabled.\n" +
-                "when forbidden, the node will only be rendered when Adaptive Roads mod is enabled.")]
+            [Hide]
+            [Hint("[Obsolete] " + HintExtension.VANILLA)]
             Vanilla = 1 << 0,
 
             ParkingAllowed = 1 << 4,
@@ -76,6 +77,14 @@ namespace AdaptiveRoads.Manager {
             CargoTrain = 1 << 14,
             PassengerTrain = 1 << 15,
 
+            [Hint("this lane has a single merging transion\n" +
+                  "use this in conjunction with TwoSegment node flag to put merge arrow road marking")]
+            MergeUnique = 1 << 16 ,
+
+            [Hint("cars can go to multiple lanes from this lane at least one of which is non-merging transion.\n" +
+                  "use this in conjunction with TwoSegment node flag to put split arrow road marking")]
+            SplitUnique = 1 << 17,
+
             Custom0 = 1 << 24,
             Custom1 = 1 << 25,
             Custom2 = 1 << 26,
@@ -86,11 +95,15 @@ namespace AdaptiveRoads.Manager {
             Custom7 = 1 << 31,
             CustomsMask = Custom0 | Custom1 | Custom2 | Custom3 | Custom4 | Custom5 | Custom6 | Custom7,
 
-            // misc
-            //MergesWithInnerLane = 1 << 17,
-            //MergesWithOuterLane = 1 << 18,
+            LeftSlight = 1L << 32,
+            LeftModerate = 1L << 33,
+            LeftSharp = 1L << 34,
+            UTurn = 1L << 38,
 
-            All = -1,
+            RightSlight = 1L << 35,
+            RightModerate = 1L << 36,
+            RightSharp = 1L << 37,
+            AllDirections = LeftSlight | LeftModerate | LeftSharp | RightSlight | RightModerate | RightSharp | UTurn,
         }
 
         public Flags m_flags;
@@ -121,6 +134,7 @@ namespace AdaptiveRoads.Manager {
         static IParkingRestrictionsManager PMan => TMPE?.ParkingRestrictionsManager;
         static IVehicleRestrictionsManager VRMan => TMPE?.VehicleRestrictionsManager;
         static ISpeedLimitManager SLMan => TMPE?.SpeedLimitManager as SpeedLimitManager;
+        static IRoutingManager RMan => TMPE?.RoutingManager as RoutingManager;
 
         // pass in segmentID for the sake of MOM lane problem.
         public void UpdateLane(LaneData lane, ushort segmentID) {
@@ -155,13 +169,18 @@ namespace AdaptiveRoads.Manager {
                 m_flags = m_flags.SetFlags(Flags.Service, VRMan.IsServiceAllowed(mask));
                 m_flags = m_flags.SetFlags(Flags.CargoTrain, VRMan.IsCargoTrainAllowed(mask));
                 m_flags = m_flags.SetFlags(Flags.PassengerTrain, VRMan.IsPassengerTrainAllowed(mask));
+                m_flags = m_flags.SetFlags(Flags.SplitUnique, lane.IsSplitsUnique());
+                m_flags = m_flags.SetFlags(Flags.MergeUnique, lane.IsMergesUnique());
+                m_flags = (m_flags & ~Flags.AllDirections) | lane.GetArrowsExt();
 
-                if(SLMan != null)
+                if (SLMan != null)
                     SpeedLimit = (SLMan as SpeedLimitManager).GetGameSpeedLimit(LaneData.LaneID);
                 else
                     SpeedLimit = lane.LaneInfo.m_speedLimit;
 
-                //TODO lane connections
+
+
+                
 
                 //Log.Debug("NetLaneExt.UpdateLane() result: " + this);
             } catch (Exception ex) {
@@ -192,20 +211,28 @@ namespace AdaptiveRoads.Manager {
         [Flags]
         public enum Flags {
             None = 0,
-
-            [Hint("when required, the node will not be rendered when Adaptive Roads mod is enabled.\n" +
-                "when forbidden, the node will only be rendered when Adaptive Roads mod is enabled.")]
+            [Hint(HintExtension.VANILLA)]
             Vanilla = 1 << 0,
+
+            [Hide]
+            [Hint("Hide Crossings mod is active")]
+            HC_Mod = 1 << 1,
+
+            [Hint("Direct Connect Roads mod is active")]
+            DCR_Mod = 1 << 2,
+
+            [Hint("Hide Unconnected Tracks mod is active")]
+            HUT_Mod = 1 << 3,
 
             [Hint("all entering segment ends keep clear of the junction." +
                 "useful for drawing pattern on the junction.")]
-            KeepClearAll = 1 << 1,
+            KeepClearAll = 1 << 10,
 
-            [Hint("the junction only has two segments.\n")]
-            TwoSegments = 1 << 2,
+            [Hint("the junction only has two segments.")]
+            TwoSegments = 1 << 11,
 
-            [Hint("the junction has segments with different speed limits.\n")]
-            SpeedChange = 1 << 3,
+            [Hint("the junction has segments with different speed limits.")]
+            SpeedChange = 1 << 12,
 
             Custom0 = 1 << 24,
             Custom1 = 1 << 25,
@@ -216,15 +243,17 @@ namespace AdaptiveRoads.Manager {
             Custom6 = 1 << 30,
             Custom7 = 1 << 31,
             CustomsMask = Custom0 | Custom1 | Custom2 | Custom3 | Custom4 | Custom5 | Custom6 | Custom7,
-
-            //All = -1,
         }
 
         public static IJunctionRestrictionsManager JRMan =>
             TrafficManager.Constants.ManagerFactory.JunctionRestrictionsManager;
 
         public void UpdateFlags() {
-            if(JRMan != null) {
+            m_flags = m_flags.SetFlags(Flags.HC_Mod, NetworkExtensionManager.Instance.HTC);
+            m_flags = m_flags.SetFlags(Flags.DCR_Mod, NetworkExtensionManager.Instance.DCR);
+            m_flags = m_flags.SetFlags(Flags.HUT_Mod, NetworkExtensionManager.Instance.HUT);
+
+            if (JRMan != null) {
                 bool keepClearAll = true;
                 foreach(var segmentID in NetUtil.IterateNodeSegments(NodeID)) {
                     bool startNode = NetUtil.IsStartNode(segmentId: segmentID, nodeId: NodeID);
@@ -271,8 +300,7 @@ namespace AdaptiveRoads.Manager {
         public enum Flags {
             None = 0,
 
-            [Hint("if required, it will not be rendered when Adaptive Roads mod is enabled.\n" +
-                "if forbidden, it will only be rendered when Adaptive Roads mod is enabled.")]
+            [Hint(HintExtension.VANILLA)]
             Vanilla = 1 << 0,
 
             [Hint("tests if all lanes have the same speed")]
@@ -294,8 +322,6 @@ namespace AdaptiveRoads.Manager {
             Custom6 = 1 << 30,
             Custom7 = 1 << 31,
             CustomsMask = Custom0 | Custom1 | Custom2 | Custom3 | Custom4 | Custom5 | Custom6 | Custom7,
-
-            //All = -1,
         }
 
         public ref NetSegmentEnd Start => ref NetworkExtensionManager.Instance.GetSegmentEnd(SegmentID, true);
@@ -391,34 +417,20 @@ namespace AdaptiveRoads.Manager {
             return len / Mathf.Sqrt(2 - 2 * dot); // see https://github.com/CitiesSkylinesMods/TMPE/issues/793#issuecomment-616351792
         }
 
-        public float CalculateCurve() {
-            // see NetLane.UpdateLength()
+        public float CalculateCurve() { 
             var bezier = SegmentID.ToSegment().CalculateSegmentBezier3();
-            Vector3 d1 = bezier.b - bezier.a;
-            Vector3 d2 = bezier.c - bezier.b;
-            Vector3 d3 = bezier.d - bezier.c;
-            float m1 = d1.magnitude;
-            float m2 = d2.magnitude;
-            float m3 = d3.magnitude;
-            if(m1 > 0.1f) d1 /= m1;
-            if(m3 > 0.1f) d3 /= m3;
-
-            var length = m1 + m2 + m3;
-            var curve = (Mathf.PI * 0.5f) * (1f - Vector3.Dot(d1, d3));
-            if(length > 0.1f) curve /= length;
-
-            return curve;
+            return bezier.CalculateCurve();
         }
 
     }
 
     public struct NetSegmentEnd {
         [Flags]
-        public enum Flags {
+        public enum Flags : Int64{
             None = 0,
 
-            [Hint("when required, the node will not be rendered when Adaptive Roads mod is enabled.\n" +
-                "when forbidden, the node will only be rendered when Adaptive Roads mod is enabled.")]
+            [Hide]
+            [Hint("[Obsolete] " + HintExtension.VANILLA)]
             Vanilla = 1 << 0,            // priority signs
             [Hint("checks if TMPE rules requires vehicles to yield to upcomming traffic\n" +
                 "differet than the vanilla YieldStart/YieldEnd (Stop) flag.")]
@@ -485,6 +497,12 @@ namespace AdaptiveRoads.Manager {
             [Obsolete("moved to node")]
             SpeedChange = 1 << 22,
 
+            [Hint("next segment has more lanes (only valid when there are two segments)")]
+            LanesIncrase = 1L << 32,
+
+            [Hint("next segment has more lanes (only valid when there are two segments)")]
+            LanesDecrease = 1L << 33,
+
             Custom0 = 1 << 24,
             Custom1 = 1 << 25,
             Custom2 = 1 << 26,
@@ -494,8 +512,6 @@ namespace AdaptiveRoads.Manager {
             Custom6 = 1 << 30,
             Custom7 = 1 << 31,
             CustomsMask = Custom0 | Custom1 | Custom2 | Custom3 | Custom4 | Custom5 | Custom6 | Custom7,
-
-            ALL = -1,
         }
 
         public Flags m_flags;
@@ -550,6 +566,28 @@ namespace AdaptiveRoads.Manager {
 
             flags = flags.SetFlags(Flags.SpeedChange, speedChange);
             flags = flags.SetFlags(Flags.TwoSegments, twoSegments);
+
+            bool lanesIncrease = false, lanesDecrease = false;
+            if (twoSegments) {
+                var sourceLanes = new LaneDataIterator(
+                    SegmentID,
+                    StartNode, // going toward node:NodeID
+                    LaneArrowManager.LANE_TYPES,
+                    LaneArrowManager.VEHICLE_TYPES);
+                var segmentID2 = NodeID.ToNode().GetAnotherSegment(SegmentID);
+                bool startNode2 = segmentID2.ToSegment().IsStartNode(NodeID);
+                var targetLanes = new LaneDataIterator(
+                    segmentID2,
+                    !startNode2, // lanes that are going away from node:NodeID
+                    LaneArrowManager.LANE_TYPES,
+                    LaneArrowManager.VEHICLE_TYPES);
+                int nSource = sourceLanes.Count;
+                int nTarget = targetLanes.Count;
+                lanesIncrease = nTarget > nSource;
+                lanesDecrease = nTarget < nSource;
+            }
+            flags = flags.SetFlags(Flags.LanesIncrase, lanesIncrease);
+            flags = flags.SetFlags(Flags.LanesDecrease, lanesDecrease);
 
             m_flags = flags;
         }

@@ -24,7 +24,7 @@ namespace AdaptiveRoads.Patches.Node {
 
             int iDrawMesh = codes.Search(_c => _c.Calls(mDrawMesh), count: occuranceDrawMesh);
             int iLdLocNodeInfo = codes.Search(
-                _c => _c.IsLdLoc(typeof(NetInfo.Node)),
+                _c => _c.IsLdLoc(typeof(NetInfo.Node), method),
                 startIndex: iDrawMesh, count: -1);
             CodeInstruction ldNodeInfo = codes[iLdLocNodeInfo].Clone();
 
@@ -77,7 +77,7 @@ namespace AdaptiveRoads.Patches.Node {
 
             int iDrawMesh = codes.Search(_c => _c.Calls(mDrawMesh), count: occuranceDrawMesh);
             int iLdLocSegmentInfo = codes.Search(
-                _c => _c.IsLdLoc(typeof(NetInfo.Segment)),
+                _c => _c.IsLdLoc(typeof(NetInfo.Segment), method),
                 startIndex: iDrawMesh, count: -1);
             CodeInstruction ldSegmentInfo = codes[iLdLocSegmentInfo].Clone();
 

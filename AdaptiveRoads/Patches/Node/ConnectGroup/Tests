@@ -1,0 +1,93 @@
+- ENV:
+    direct connect = true
+    direct connect node texture =  meduin segment
+    direct connect node material =  meduim segment
+
+- Test 0:  
+    - node connect groups : None
+    - net conenct groups : None
+    - result: passed 
+	- expected: DC All
+	- got: DC All
+
+- Test 1
+    - node connect groups : Train Station
+    - net conenct groups : None
+    - result: passed
+	- expected: No DC
+	- got: No DC 
+- Test 2
+    - node connect groups : Train Station
+    - net conenct groups : Train Station
+    - result: 
+	- expected: DC straight
+	- got: DC straight
+- Test 3
+    - node connect groups : None
+    - net conenct groups : Train Station
+    - result: 
+	- expected: DC All
+	- got: DC All
+
+
+- Test 4
+    - node connect groups : Custom
+    - net conenct groups : None
+    - result: passed
+	- expected: No DC
+	- got:  No DC
+- Test 5
+    - node connect groups : Custom
+    - net conenct groups : Custom
+    - result: passed
+	- expected: DC Straight
+	- got: DC Straight
+- Test 6
+    - node connect groups : None 
+    - net conenct groups : Custom
+    - result: passed
+	- expected: DC All
+	- got: DC All
+
+
+- Test 7
+    - node connect groups : Custom + TrainsStation
+    - net conenct groups : None
+    - result: passed
+	- expected: No DC
+	- got: No DC
+- Test 8
+    - node connect groups : Custom + TrainsStation
+    - net conenct groups : Custom
+    - result: passed
+	- expected: DC Straight
+	- got: DC Straight
+- Test 9 
+    - node connect groups : Custom + TrainsStation
+    - net conenct groups : TrainsStation
+    - result: passed
+	- expected: DC Straight
+	- got: DC Straight
+- Test 10
+    - node connect groups : None 
+    - net conenct groups : Custom
+    - result: passed
+	- expected: DC all
+	- got: DC all
+
+--- tempalte:
+- Test
+    - node connect groups : 
+    - net conenct groups : 
+    - result: 
+	- expected: 
+	- got:
+
+----------------------
+number of patch injections:
+                        Net   NetNone   Node   NdoeNone  
+RefreshJunctionData      4       2                 
+RenderInstance                           2        2
+CalculateNode            4       2                  
+CalculateGroupData       4       2       3        3
+PopulateGroupData        4       2       3        3                             

@@ -32,22 +32,22 @@ namespace AdaptiveRoads.Patches.Lane {
 
 
         public static void Patch(List<CodeInstruction> codes, MethodBase method) {
-            int iStFinalTree = codes.Search(_c => _c.IsStLoc(typeof(TreeInfo)));
+            int iStFinalTree = codes.Search(_c => _c.IsStLoc(typeof(TreeInfo), method));
             int iLdProp = codes.Search(
-                _c => _c.IsLdLoc(typeof(NetLaneProps.Prop)),
+                _c => _c.IsLdLoc(typeof(NetLaneProps.Prop), method),
                 startIndex: iStFinalTree, count: -1);
             CodeInstruction ldProp = codes[iLdProp].Clone();
 
             int iPosition = codes.Search(_c => _c.Calls(mPosition), startIndex: iStFinalTree);
-            int iStLocPos = codes.Search(_c => _c.IsStLoc(typeof(Vector3)), startIndex: iPosition);
+            int iStLocPos = codes.Search(_c => _c.IsStLoc(typeof(Vector3), method), startIndex: iPosition);
             CodeInstruction ldPos = codes[iStLocPos].BuildLdLocFromStLoc();
 
             int iMinScale = codes.Search(_c => _c.LoadsField(f_minScale), startIndex: iStFinalTree);
-            int iStScale = codes.Search(_c => _c.IsStLoc(typeof(float)), startIndex: iMinScale);
+            int iStScale = codes.Search(_c => _c.IsStLoc(typeof(float), method), startIndex: iMinScale);
             CodeInstruction ldScale = codes[iStScale].BuildLdLocFromStLoc();
 
             int iGetVariation = codes.Search(_c => _c.Calls(mGetTreeVariation));
-            int iStVariation = codes.Search(_c => _c.IsStLoc(typeof(TreeInfo)), startIndex: iGetVariation);
+            int iStVariation = codes.Search(_c => _c.IsStLoc(typeof(TreeInfo), method), startIndex: iGetVariation);
             CodeInstruction loadVariation = codes[iStVariation].BuildLdLocFromStLoc();
 
             int iRenderTreeInstance = codes.Search(_c => _c.Calls(mRenerTreeInstance));

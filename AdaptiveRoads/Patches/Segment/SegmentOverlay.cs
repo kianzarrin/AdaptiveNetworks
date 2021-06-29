@@ -22,7 +22,7 @@ namespace AdaptiveRoads.Patches.Segment {
         public static void Patch(List<CodeInstruction> codes, MethodBase method) {
             int iDrawMesh = codes.Search(_c => _c.Calls(mDrawMesh));
             int iLdLocSegmentInfo = codes.Search(
-                _c => _c.IsLdLoc(typeof(NetInfo.Segment)),
+                _c => _c.IsLdLoc(typeof(NetInfo.Segment), method),
                 startIndex: iDrawMesh, count:-1);
             CodeInstruction ldSegmentInfo = codes[iLdLocSegmentInfo].Clone();
             CodeInstruction ldSegmentID = GetLDArg(method, "segmentID");

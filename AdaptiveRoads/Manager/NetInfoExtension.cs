@@ -13,6 +13,7 @@ using UnityEngine;
 using static AdaptiveRoads.Manager.NetInfoExtionsion;
 using static AdaptiveRoads.UI.ModSettings;
 using static KianCommons.ReflectionHelpers;
+using AdaptiveRoads.UI.RoadEditor.Bitmask;
 
 namespace AdaptiveRoads.Manager {
     using static HintExtension;
@@ -214,7 +215,7 @@ namespace AdaptiveRoads.Manager {
 
         [Serializable]
         [Optional(AR_MODE)]
-        public class Net : ICloneable {
+        public class Net : ICloneable, ISerializable {
             [Obsolete("only useful for the purpose of shallow clone", error: true)]
             public Net() { }
             public Net Clone() => this.ShalowClone();
@@ -223,6 +224,25 @@ namespace AdaptiveRoads.Manager {
                 PavementWidthRight = template.m_pavementWidth;
                 UsedCustomFlags = GetUsedCustomFlags(template);
             }
+
+            #region serialization
+            //serialization
+            public void GetObjectData(SerializationInfo info, StreamingContext context) =>
+                SerializationUtil.GetObjectFields(info, this);
+
+            // deserialization
+            public Net(SerializationInfo info, StreamingContext context) =>
+                SerializationUtil.SetObjectFields(info, this);
+            #endregion
+
+            public string[] ConnectGroups;
+
+            [NonSerialized]
+            public int[] NodeConnectGroupsHash;
+
+
+            [NonSerialized]
+            public int [] ConnectGroupsHash;
 
             [AfterField(nameof(NetInfo.m_pavementWidth))]
             [CustomizableProperty("Pavement Width Right", "Properties")]
@@ -238,10 +258,10 @@ namespace AdaptiveRoads.Manager {
             public float ParkingAngleDegrees = 0;
 
             /// <summary>
-            /// 1/cos(ParkingAngleDegrees)
+            /// 1/sin(ParkingAngleDegrees)
             /// </summary>
             [NonSerialized]
-            public float OneOverCosOfParkingAngle = 1;
+            public float OneOverSinOfParkingAngle = 1;
 
 #if QUAY_ROADS_SHOW
             [CustomizableProperty("Quay Road", "Properties")]
@@ -253,13 +273,59 @@ namespace AdaptiveRoads.Manager {
             [NonSerialized]
             public CustomFlags UsedCustomFlags;
 
-            public void Update(NetInfo template) {
-                UsedCustomFlags = GetUsedCustomFlags(template);
-                float cos = Mathf.Abs(Mathf.Cos(Mathf.Deg2Rad * ParkingAngleDegrees));
-                if (cos >= Mathf.Cos(30))
-                    OneOverCosOfParkingAngle = 1 / cos;
+            public void Update(NetInfo netInfo) {
+                try {
+                    UsedCustomFlags = GetUsedCustomFlags(netInfo);
+                    UpdateParkingAngle();
+                    UpdateConnectGroups(netInfo);
+                } catch (Exception ex) { ex.Log(); }
+            }
+
+            void UpdateParkingAngle() {
+                float sin = Mathf.Abs(Mathf.Sin(Mathf.Deg2Rad * ParkingAngleDegrees));
+                if (sin >= Mathf.Sin(30))
+                    OneOverSinOfParkingAngle = 1 / sin;
                 else
-                    OneOverCosOfParkingAngle = 1;
+                    OneOverSinOfParkingAngle = 1;
+            }
+
+            void UpdateConnectGroups(NetInfo netInfo) {
+                LogCalled();
+                ConnectGroupsHash = ConnectGroups?.Select(item => item.GetHashCode()).ToArray();
+                if (ConnectGroupsHash.IsNullorEmpty()) ConnectGroupsHash = null;
+
+                foreach (var node in netInfo.m_nodes)
+                    node.GetMetaData()?.Update();
+
+                NodeConnectGroupsHash = GetNodeConnectGroupsHash(netInfo).ToArray();
+                if (NodeConnectGroupsHash.IsNullorEmpty()) NodeConnectGroupsHash = null;
+
+                var itemSource = ItemSource.GetOrCreate(typeof(NetInfo.ConnectGroup));
+                foreach (var connectGroup in GetAllConnectGroups(netInfo))
+                    itemSource.Add(connectGroup);
+            }
+
+            IEnumerable<int> GetNodeConnectGroupsHash(NetInfo netInfo) {
+                foreach(var node in netInfo.m_nodes) {
+                    var hashes = node.GetMetaData()?.ConnectGroupsHash;
+                    if (hashes == null) continue;
+                    foreach (int hash in hashes)
+                        yield return hash;
+                }
+            }
+
+            IEnumerable<string> GetAllConnectGroups(NetInfo netInfo) {
+                if(ConnectGroups != null) {
+                    foreach (var cg in ConnectGroups)
+                        yield return cg;
+                }
+
+                foreach (var node in netInfo.m_nodes) {
+                    var connectGroups = node.GetMetaData()?.ConnectGroups;
+                    if (connectGroups == null) continue;
+                    foreach (var cg in connectGroups)
+                        yield return cg;
+                }
             }
 
             static CustomFlags GetUsedCustomFlags(NetInfo info) {
@@ -290,7 +356,7 @@ namespace AdaptiveRoads.Manager {
         [AfterField(nameof(NetInfo.Segment.m_backwardForbidden))]
         [Serializable]
         [Optional(AR_MODE)]
-        public class Segment : ICloneable {
+        public class Segment : ICloneable, ISerializable {
             object ICloneable.Clone() => Clone();
 
             [AfterField(nameof(NetInfo.Segment.m_forwardForbidden))]
@@ -380,12 +446,24 @@ namespace AdaptiveRoads.Manager {
             public Segment() { }
             public Segment Clone() => this.ShalowClone();
             public Segment(NetInfo.Segment template) { }
+
+            #region serialization
+            //serialization
+            public void GetObjectData(SerializationInfo info, StreamingContext context) =>
+                SerializationUtil.GetObjectFields(info, this);
+
+            // deserialization
+            public Segment(SerializationInfo info, StreamingContext context) =>
+                SerializationUtil.SetObjectFields(info, this);
+            #endregion
         }
 
         [AfterField(nameof(NetInfo.Node.m_flagsForbidden))]
         [Serializable]
         [Optional(AR_MODE)]
-        public class Node : ICloneable {
+        public class Node : ICloneable, ISerializable {
+            public const string DC_GROUP_NAME = "Direct Connect";
+
             [CustomizableProperty("Node Extension")]
             public NodeInfoFlags NodeFlags;
 
@@ -400,6 +478,31 @@ namespace AdaptiveRoads.Manager {
             [Optional(NODE_SEGMENT)]
             public SegmentInfoFlags SegmentFlags;
 
+            [Hint("Apply the same flag requirements to target segment end")]
+            [CustomizableProperty("Check target flags", DC_GROUP_NAME)]
+            [AfterField(nameof(NetInfo.Node.m_directConnect))]
+            public bool CheckTargetFlags;
+
+            public string []ConnectGroups;
+
+            [NonSerialized]
+            public int[] ConnectGroupsHash;
+
+            [Hint("used by other mods to decide how hide tracks/medians")]
+            [CustomizableProperty("Lane Type", DC_GROUP_NAME)]
+            [AfterField(nameof(NetInfo.Node.m_directConnect))]
+            public NetInfo.LaneType LaneType;
+
+            [Hint("used by other mods to decide how hide tracks/medians")]
+            [CustomizableProperty("Vehicle Type", DC_GROUP_NAME)]
+            [AfterField(nameof(NetInfo.Node.m_directConnect))]
+            public VehicleInfo.VehicleType VehicleType;
+
+            [Hint("tell DCR mode to manage this node")]
+            [CustomizableProperty("Hide Broken Medians", DC_GROUP_NAME)]
+            [AfterField(nameof(NetInfo.Node.m_directConnect))]
+            public bool HideBrokenMedians = true;
+    
             public bool CheckFlags(
                 NetNodeExt.Flags nodeFlags, NetSegmentEnd.Flags segmentEndFlags,
                 NetSegmentExt.Flags segmentFlags, NetSegment.Flags vanillaSegmentFlags) =>
@@ -412,11 +515,24 @@ namespace AdaptiveRoads.Manager {
                 Node = NodeFlags.UsedCustomFlags,
             };
 
+            public void Update() {
+                ConnectGroupsHash = ConnectGroups?.Select(item => item.GetHashCode()).ToArray();
+            }
+
             [Obsolete("only useful for the purpose of shallow clone", error: true)]
             public Node() { }
             public Node(NetInfo.Node template) { }
             public Node Clone() => this.ShalowClone();
             object ICloneable.Clone() => Clone();
+            #region serialization
+            //serialization
+            public void GetObjectData(SerializationInfo info, StreamingContext context) =>
+                SerializationUtil.GetObjectFields(info, this);
+
+            // deserialization
+            public Node(SerializationInfo info, StreamingContext context) =>
+                SerializationUtil.SetObjectFields(info, this);
+            #endregion
         }
 
         [AfterField(nameof(NetLaneProps.Prop.m_endFlagsForbidden))]
@@ -494,11 +610,11 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Backward Lanes")]
             public Range BackwardSpeedLimit; // null => N/A
 
-            //[CustomizableProperty("Lane Curve")]
-            //public Range LaneCurve; // minimum |curve| with same sign
+            [CustomizableProperty("Lane Curve")]
+            public Range LaneCurve; 
 
-            //[CustomizableProperty("Segment Curve")]
-            //public Range SegmentCurve;
+            [CustomizableProperty("Segment Curve")]
+            public Range SegmentCurve; // TODO: minimum |curve| with same sign
 
             /// <param name="laneSpeed">game speed</param>
             /// <param name="forwardSpeedLimit">game speed</param>
@@ -509,7 +625,8 @@ namespace AdaptiveRoads.Manager {
                 NetSegment.Flags vanillaSegmentFlags,
                 NetNodeExt.Flags startNodeFlags, NetNodeExt.Flags endNodeFlags,
                 NetSegmentEnd.Flags segmentStartFlags, NetSegmentEnd.Flags segmentEndFlags,
-                float laneSpeed, float forwardSpeedLimit, float backwardSpeedLimit) =>
+                float laneSpeed, float forwardSpeedLimit, float backwardSpeedLimit,
+                float segmentCurve, float laneCurve) =>
                 LaneFlags.CheckFlags(laneFlags) &&
                 SegmentFlags.CheckFlags(segmentFlags) &&
                 VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags) &&
@@ -519,7 +636,9 @@ namespace AdaptiveRoads.Manager {
                 EndNodeFlags.CheckFlags(endNodeFlags) &&
                 LaneSpeedLimit.CheckRange(laneSpeed) &&
                 ForwardSpeedLimit.CheckRange(forwardSpeedLimit) &&
-                BackwardSpeedLimit.CheckRange(backwardSpeedLimit);
+                BackwardSpeedLimit.CheckRange(backwardSpeedLimit) &&
+                SegmentCurve.CheckRange(segmentCurve) &&
+                LaneCurve.CheckRange(laneCurve);
             public CustomFlags UsedCustomFlags => new CustomFlags {
                 Segment = SegmentFlags.UsedCustomFlags,
                 SegmentEnd = SegmentStartFlags.UsedCustomFlags | SegmentStartFlags.UsedCustomFlags,
