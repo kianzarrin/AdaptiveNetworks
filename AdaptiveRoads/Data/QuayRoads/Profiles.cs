@@ -1,12 +1,14 @@
 using AdaptiveRoads.Manager;
+using KianCommons.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using static TerrainModify;
 
 namespace AdaptiveRoads.Data.QuayRoads {
     [Serializable]
-    public struct ProfileSection {
+    public struct ProfileSection : ISerializable {
 
         [CustomizableProperty("left", "position")]
         [Hint("relative position of the left section boundary. 0 means left edge of segment, 1 means right edge of segment.")]
@@ -83,6 +85,18 @@ namespace AdaptiveRoads.Data.QuayRoads {
                 edges: invertedEdgeFlags
             ); ;
         }
+
+        #region serialization
+        //serialization
+        public void GetObjectData(SerializationInfo info, StreamingContext context) =>
+            SerializationUtil.GetObjectFields(info, this);
+
+        // deserialization
+        public ProfileSection(SerializationInfo info, StreamingContext context) {
+            this = Default();
+            SerializationUtil.SetObjectFields(info, this);
+        }
+        #endregion
     }
     static class Profiles {
         public static ProfileSection[] Inverse(this ProfileSection[] original) {
@@ -90,7 +104,7 @@ namespace AdaptiveRoads.Data.QuayRoads {
                 .Select(section => section.Inverse())
                 .ToArray();
         }
-        public static Dictionary<string, ProfileSection[]> presets = new Dictionary<string, ProfileSection[]> {
+        public static Dictionary<string, ProfileSection[]> presets = new() {
             {
                 "OneSidedRoad",
                 new ProfileSection[] {
