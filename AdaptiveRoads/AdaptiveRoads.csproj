@@ -147,6 +147,13 @@
     <Compile Include="KianCommons\KianCommons\Serialization\Vector3Serializable.cs" />
     <Compile Include="KianCommons\KianCommons\Patches\HarmonyUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Patches\TranspilerUtils.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\Table\ArrayExtension.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\Table\UITable.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\Table\UITableCellInner.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\Table\UITableCellOuter.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\Table\UITableRow.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\UIHelperExtension.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\UIToolButton.cs" />
     <None Include="KianCommons\KianCommons\StockCode\PassengerCarAI.cs" />
     <Compile Include="KianCommons\KianCommons\Tool\KianToolBase.cs" />
     <Compile Include="KianCommons\KianCommons\UI\Helpers\UIAutoSizePanel.cs" />

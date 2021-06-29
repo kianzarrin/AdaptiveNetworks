@@ -17,6 +17,7 @@ namespace AdaptiveRoads.UI {
         public const string FILE_NAME = nameof(AdaptiveRoads);
         public static SavedBool SavedBool(string key, bool def) => new SavedBool(key, FILE_NAME, def, true);
         public static SavedInt SavedInt(string key, int def) => new SavedInt(key, FILE_NAME, def, true);
+        public static SavedFloat SavedFloat(string key, float def) => new SavedFloat(key, FILE_NAME, def, true);
 
         public enum SpeedUnitType { KPH, MPH }
 
@@ -44,6 +45,9 @@ namespace AdaptiveRoads.UI {
         public static readonly SavedBool DefaultScale100 = SavedBool("DefaultScale100", false);
 
         public static readonly SavedInt SpeedUnit = SavedInt("SpeedUnit", (int)SpeedUnitType.KPH);
+
+        public static readonly SavedFloat QuayRoadsPanelX = SavedFloat("QuayRoadsPanelX", 87);
+        public static readonly SavedFloat QuayRoadsPanelY = SavedFloat("QuayRoadsPanelY", 58);
 
 
         public static SavedInputKey Hotkey = new SavedInputKey(

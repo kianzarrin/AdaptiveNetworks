@@ -10,8 +10,12 @@ namespace AdaptiveRoads.UI.RoadEditor {
     public class ButtonPanel : UIPanel, IHint {
         public UIButton Button;
         string hint_;
+        public event EventHandler EventDestroy;
 
         public override void OnDestroy() {
+            if(EventDestroy != null) {
+                EventDestroy(this,null);
+            }
             SetAllDeclaredFieldsToNull(this);
             base.OnDestroy();
         }

@@ -15,6 +15,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using static KianCommons.Assertion;
     using static KianCommons.ReflectionHelpers;
     using PrefabMetadata.API;
+    using AdaptiveRoads.UI.QuayRoads;
+    using ColossalFramework;
 
     /// <summary>
     /// most of UI in road editor panels are managed here:
@@ -135,6 +137,18 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                                 Log.Debug($"calling {__instance.name}.CreateGenericField({groupName},{field2},{net}) ...");
                                 __instance.CreateGenericField(groupName, field2, net);
                             }
+                        }
+                        if (field.Name == nameof(NetInfo.m_surfaceLevel)) {
+                            Log.Debug("adding QuayRoads button");
+                            var qrButtonPanel = ButtonPanel.Add(
+                            roadEditorPanel: __instance,
+                            container: __instance.GetGroupPanel("Properties").m_Panel,
+                            label: "Edit QuayRoads profile",
+                            hint: "",
+                            action: () => {
+                                QuayRoadsPanel.GetOrOpen(netInfo, __instance);
+                            });
+                            qrButtonPanel.EventDestroy += (_, _) => { QuayRoadsPanel.CloseIfOpen(netInfo); };
                         }
                     }
                 }

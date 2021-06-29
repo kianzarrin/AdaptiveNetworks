@@ -1,5 +1,6 @@
 using AdaptiveRoads.Manager;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using static TerrainModify;
 
@@ -37,7 +38,7 @@ namespace AdaptiveRoads.Data.QuayRoads {
         [Hint("edge mode to apply within this profile section. Effect unknown. null means use default")]
         public Edges Edges;
 
-        public ProfileSection(float leftX = 0, float rightX = 1, float leftStartY = 0, float leftEndY = 0, float rightStartY = 0, float rightEndY = 0, Surface surface = Surface.None, Heights heights = Heights.None, Edges edges = Edges.None) {
+        public ProfileSection(float leftX = 0, float rightX = 1, float leftStartY = 0, float leftEndY = 0, float rightStartY = 0, float rightEndY = 0, Surface surface = Surface.None, Heights heights = Heights.None, Edges edges = Edges.All) {
             LeftX = leftX;
             RightX = rightX;
             LeftStartY = leftStartY;
@@ -47,6 +48,20 @@ namespace AdaptiveRoads.Data.QuayRoads {
             Surface = surface;
             Heights = heights;
             Edges = edges;
+        }
+
+        public static ProfileSection Default() {
+            return new ProfileSection(
+                leftX: 0,
+                rightX: 1,
+                leftStartY: 0,
+                leftEndY: 0,
+                rightStartY: 0,
+                rightEndY: 0,
+                surface: Surface.None,
+                edges: Edges.All,
+                heights: Heights.None
+            );
         }
 
         public ProfileSection Inverse() {
@@ -75,68 +90,75 @@ namespace AdaptiveRoads.Data.QuayRoads {
                 .Select(section => section.Inverse())
                 .ToArray();
         }
-        public static ProfileSection[] HighRightOneSidedRoadProfile = {
-            new ProfileSection(
-                leftX:.5f,
-                rightX:1f,
-                leftStartY: -.3f,
-                leftEndY: -.3f,
-                rightStartY: 0f,
-                rightEndY: 0f,
-                surface: Surface.PavementA | Surface.Clip,
-                heights: Heights.PrimaryLevel,
-                edges: Edges.All
-                ),
-            new ProfileSection(
-                leftX:0f,
-                rightX:.5f,
-                leftStartY: -.3f,
-                leftEndY: -.3f,
-                rightStartY: -.3f,
-                rightEndY: -.3f,
-                surface: Surface.None,
-                heights: Heights.PrimaryMax,
-                edges: Edges.BC | Edges.CD | Edges.DA
-                )
-        };
-        public static ProfileSection[] HighLeftOneSidedRoadProfile = HighRightOneSidedRoadProfile.Inverse();
-        public static ProfileSection[] PainterProfile =
-        {
-            new ProfileSection(
-                leftX: 0/7f,
-                rightX: 1/7f,
-                surface: Surface.Clip
-                ),
-            new ProfileSection(
-                leftX: 0/7f,
-                rightX: 1/7f,
-                surface: Surface.Field
-                ),
-            new ProfileSection(
-                leftX: 0/7f,
-                rightX: 1/7f,
-                surface: Surface.Gravel
-                ),
-            new ProfileSection(
-                leftX: 0/7f,
-                rightX: 1/7f,
-                surface: Surface.PavementA
-                ),
-            new ProfileSection(
-                leftX: 0/7f,
-                rightX: 1/7f,
-                surface: Surface.PavementB
-                ),
-            new ProfileSection(
-                leftX: 0/7f,
-                rightX: 1/7f,
-                surface: Surface.Ruined
-                ),
-            new ProfileSection(
-                leftX: 0/7f,
-                rightX: 1/7f,
-                surface: Surface.RuinedWeak
-                )
+        public static Dictionary<string, ProfileSection[]> presets = new Dictionary<string, ProfileSection[]> {
+            {
+                "OneSidedRoad",
+                new ProfileSection[] {
+                    new ProfileSection(
+                        leftX: .5f,
+                        rightX: 1f,
+                        leftStartY: -.3f,
+                        leftEndY: -.3f,
+                        rightStartY: 0f,
+                        rightEndY: 0f,
+                        surface: Surface.PavementA | Surface.Clip,
+                        heights: Heights.PrimaryLevel,
+                        edges: Edges.All
+                    ),
+                    new ProfileSection(
+                        leftX: 0f,
+                        rightX: .5f,
+                        leftStartY: -.3f,
+                        leftEndY: -.3f,
+                        rightStartY: -.3f,
+                        rightEndY: -.3f,
+                        surface: Surface.None,
+                        heights: Heights.PrimaryMax,
+                        edges: Edges.BC | Edges.CD | Edges.DA
+                    )
+                }
+            },
+            {
+                "Painter",
+                new ProfileSection[]
+                {
+                    new ProfileSection(
+                        leftX: 0 / 7f,
+                        rightX: 1 / 7f,
+                        surface: Surface.Clip
+                        ),
+                    new ProfileSection(
+                        leftX: 1 / 7f,
+                        rightX: 2 / 7f,
+                        surface: Surface.Field
+                        ),
+                    new ProfileSection(
+                        leftX: 2 / 7f,
+                        rightX: 3 / 7f,
+                        surface: Surface.Gravel
+                        ),
+                    new ProfileSection(
+                        leftX: 3 / 7f,
+                        rightX: 4 / 7f,
+                        surface: Surface.PavementA
+                        ),
+                    new ProfileSection(
+                        leftX: 4 / 7f,
+                        rightX: 5 / 7f,
+                        surface: Surface.PavementB
+                        ),
+                    new ProfileSection(
+                        leftX: 5 / 7f,
+                        rightX: 6 / 7f,
+                        surface: Surface.Ruined
+                        ),
+                    new ProfileSection(
+                        leftX: 6 / 7f,
+                        rightX: 7 / 7f,
+                        surface: Surface.RuinedWeak
+                        )
+                }
+            }
         };
     }
 
