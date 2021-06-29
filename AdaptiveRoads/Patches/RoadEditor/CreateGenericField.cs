@@ -30,8 +30,20 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         /// replace built-in fields
         /// </summary>
         public static bool Prefix(RoadEditorPanel __instance,
-            string groupName, FieldInfo field, object target) {
+            ref string groupName, FieldInfo field, object target) {
             try {
+                if (field == typeof(NetInfo.Node).GetField(nameof(NetInfo.Node.m_directConnect)))
+                    groupName = NetInfoExtionsion.Node.DC_GROUP_NAME;
+                else if (field == typeof(NetInfo.Node).GetField(nameof(NetInfo.Node.m_connectGroup)))
+                    groupName = NetInfoExtionsion.Node.DC_GROUP_NAME;
+
+                if (ModSettings.ARMode &&
+                    field.FieldType == typeof(NetInfo.ConnectGroup)) {
+                    CreateConnectGroupComponent(__instance, groupName, target, field);
+                    return false;
+                } else {
+
+                }
                 if (IsUIReplaced(field)) {
                     if (VanillaCanMerge(field))
                         return false; // will be merged with AR dd later
@@ -39,6 +51,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     var container = GetContainer(__instance, groupName);
                     var uidata = GetVanillaFlagUIData(field, target);
 
+                    //Log.Info($"[P1] CreateGenericField.Prefix() : field:{field}, target:{target}, group:{groupName}");
                     var bitMaskPanel = BitMaskPanel.Add(
                         roadEditorPanel: __instance,
                         container: container,
@@ -50,7 +63,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 return true;
             } catch (Exception ex) {
                 ex.Log();
-                return true;
+                return false;
             }
         }
 
@@ -65,7 +78,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     if (ModSettings.ARMode) {
                         var metadata = prop.GetOrCreateMetaData();
                         foreach (var field2 in field.GetAfterFields(metadata)) {
-                            CreateBitMaskPanels(
+                            CreateGenericComponentExt(
                                 roadEditorPanel: __instance, groupName: groupName,
                                 target: target, metadata: metadata, extensionField: field2);
                         }
@@ -111,7 +124,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     if (ModSettings.ARMode) {
                         var metadata = node.GetOrCreateMetaData();
                         foreach (var field2 in field.GetAfterFields(metadata)) {
-                            CreateBitMaskPanels(
+                            CreateGenericComponentExt(
                                 roadEditorPanel: __instance, groupName: groupName,
                                 target: target, metadata: metadata, extensionField: field2);
                         }
@@ -122,7 +135,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         var metadata = segment.GetOrCreateMetaData();
                         AssertNotNull(metadata, $"{segment}");
                         foreach (var field2 in field.GetAfterFields(metadata)) {
-                            CreateBitMaskPanels(
+                            CreateGenericComponentExt(
                                 roadEditorPanel: __instance, groupName: groupName,
                                 target: target, metadata: metadata, extensionField: field2);
                         }
@@ -191,7 +204,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 throw new Exception("could not find after field for " + field);
         }
 
-        public static void CreateBitMaskPanels(
+        public static void CreateGenericComponentExt(
             RoadEditorPanel roadEditorPanel, string groupName,
             object target, object metadata, FieldInfo extensionField) {
             if (TryGetMerge(extensionField, target, out var vanillaRequired, out var vanillaForbidden)) {
@@ -210,8 +223,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             } else {
                 CreateExtendedComponent(roadEditorPanel, groupName, extensionField, metadata);
             }
-
-
         }
 
         /// <summary>
@@ -252,24 +263,55 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             hint: uidatas[1].Hint,
                             flagData: uidatas[1].FlagData);
                     }
-                } else if (fieldInfo.FieldType == typeof(NetInfoExtionsion.Range) &&
-                           fieldInfo.Name.ToLower().Contains("speed")) {
-                    var panel = SpeedRangePanel.Add(
-                        roadEditorPanel: roadEditorPanel,
-                        container: container,
-                        label: att.name,
-                        target: metadata,
-                        fieldInfo: fieldInfo);
+                } else if (fieldInfo.FieldType == typeof(NetInfoExtionsion.Range)) {
+                    if (fieldInfo.Name.ToLower().Contains("speed")) {
+                        var panel = SpeedRangePanel.Add(
+                            roadEditorPanel: roadEditorPanel,
+                            container: container,
+                            label: att.name,
+                            target: metadata,
+                            fieldInfo: fieldInfo);
+                    } else {
+                        var panel =  RangePanel.Add(
+                            roadEditorPanel: roadEditorPanel,
+                            container: container,
+                            label: att.name,
+                            target: metadata,
+                            fieldInfo: fieldInfo);
+                    }
                 } else {
-                    var hints = fieldInfo.GetHints();
-                    hints.AddRange(fieldInfo.FieldType.GetHints());
-                    string hint = hints.JoinLines();
-                    Log.Debug("hint is " + hint);
-                    Log.Error($"CreateExtendedComponent: Unhandled field: {fieldInfo} att:{att.name} ");
+                    roadEditorPanel.CreateGenericField(groupName, fieldInfo, metadata);
                 }
             } catch (Exception ex) {
                 ex.Log();
             }
+        }
+
+        public static void CreateConnectGroupComponent(
+            RoadEditorPanel roadEditorPanel, string groupName, object target, FieldInfo fieldInfo) {
+            Assert(fieldInfo.FieldType == typeof(NetInfo.ConnectGroup), "field type is connect group");
+            Assert(fieldInfo.Name == nameof(NetInfo.m_connectGroup));
+
+            object metadata = null;
+            if (target is NetInfo.Node nodeInfo)
+                metadata = nodeInfo.GetOrCreateMetaData();
+            else if (target is NetInfo netInfo)
+                metadata = netInfo.GetOrCreateMetaData();
+            Assertion.NotNull(metadata,"metadata");
+            var container = GetContainer(roadEditorPanel, groupName);
+            var uidata = GetVanillaFlagUIData(fieldInfo, target);
+            var customdata = new CustomFlagDataT(
+                itemSource: ItemSource.GetOrCreate(fieldInfo.FieldType),
+                selected: Traverse.Create(metadata).Field("ConnectGroups"));
+
+            //Log.Info($"[P2] CreateGenericField.Prefix() : field:{field}, target:{target}, group:{groupName}");
+            var bitMaskPanel = BitMaskPanelCustomisable.Add(
+                roadEditorPanel: roadEditorPanel,
+                container: container,
+                label: uidata.Label,
+                hint: uidata.Hint,
+                flagData: uidata.FlagData,
+                customFlagData: customdata);
         }
 
         public static void CreateMergedComponent(
@@ -501,7 +543,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
             var flagData = new FlagDataT(
                     setValue: val => field.SetValue(target, val),
-                    getValue: () => (int)field.GetValue(target),
+                    getValue: () => field.GetValue(target) as IConvertible,
                     enumType: enumType);
 
             return new FlagUIData {

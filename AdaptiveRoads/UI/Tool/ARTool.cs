@@ -12,7 +12,7 @@ namespace AdaptiveRoads.UI.Tool {
     using static KianCommons.ReflectionHelpers;
     using Patches.AsymPavements;
 
-    public class ARTool : KianToolBase<ARTool> {
+    internal class ARTool : KianToolBase<ARTool> {
         // for mod tools:
         RefreshJunctionDataPatch.Util.Operation [,] Operations => RefreshJunctionDataPatch.Util.Operations;
         NetworkExtensionManager man_ => NetworkExtensionManager.Instance;
@@ -175,8 +175,7 @@ namespace AdaptiveRoads.UI.Tool {
         protected override void Awake() {
             try {
                 base.Awake();
-                string sprites = UUIHelpers.GetFullPath<LifeCycle.UserMod>("B.png");
-                Debug.Log("[UUIExampleMod] ExampleTool.Awake() sprites=" + sprites);
+                string sprites = UUIHelpers.GetFullPath<LifeCycle.UserMod>("uui_ar.png");
                 button_ = UUIHelpers.RegisterToolButton(
                     name: nameof(ARTool),
                     groupName: null, // default group
@@ -184,7 +183,6 @@ namespace AdaptiveRoads.UI.Tool {
                     spritefile: sprites,
                     tool: this,
                     activationKey: ModSettings.Hotkey);
-
             } catch (Exception ex) {
                 ex.Log();
             }
@@ -203,7 +201,5 @@ namespace AdaptiveRoads.UI.Tool {
             SelectedNodeID = 0;
             SelectedSegmentID = 0;
         }
-
-
     }
 }

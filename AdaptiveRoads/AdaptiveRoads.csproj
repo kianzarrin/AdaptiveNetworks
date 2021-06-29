@@ -11,7 +11,7 @@
   <PropertyGroup>
     <TargetFramework>net35</TargetFramework>
     <Deterministic>false</Deterministic>
-    <AssemblyVersion>2.1.4.*</AssemblyVersion>
+    <AssemblyVersion>2.2.3.*</AssemblyVersion>
     <LangVersion>latest</LangVersion>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
@@ -112,6 +112,7 @@
     <Compile Remove="Util\MarkerArray.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Resources\B.png" />
     <None Remove="Resources\back.png" />
     <None Remove="Resources\close.png" />
   </ItemGroup>
@@ -147,6 +148,7 @@
     <Compile Include="KianCommons\KianCommons\Serialization\Vector3Serializable.cs" />
     <Compile Include="KianCommons\KianCommons\Patches\HarmonyUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Patches\TranspilerUtils.cs" />
+    <Compile Include="KianCommons\KianCommons\Util\DirectionUtil.cs" />
     <Compile Include="KianCommons\KianCommons\UI\Table\ArrayExtension.cs" />
     <Compile Include="KianCommons\KianCommons\UI\Table\UITable.cs" />
     <Compile Include="KianCommons\KianCommons\UI\Table\UITableCellInner.cs" />
@@ -194,10 +196,10 @@
     <ProjectReference Include="..\PrefabMetaDataAPI\PrefabMetadataAPI.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="Resources\B.png">
+    <None Update="Resources\PreviewImage.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\PreviewImage.png">
+    <None Update="Resources\uui_ar.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

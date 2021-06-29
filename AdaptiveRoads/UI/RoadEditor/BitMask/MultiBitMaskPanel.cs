@@ -47,8 +47,12 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
         }
 
         protected override void OnAfterDropdownClose(UICheckboxDropDown checkboxdropdown) {
-            SetValue(GetCheckedFlags());
-            UpdateText();
+            try {
+                SetValue(GetCheckedFlags());
+                UpdateText();
+            } catch (Exception ex) {
+                ex.Log();
+            }
         }
 
         // apply checked flags from UI to prefab
@@ -81,7 +85,8 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             for (int i = 0; i < FlagDatas.Length; ++i) {
                 if (enumFlags[i].ToInt64() == 0) continue;
                 if (ret != "") ret += ", ";
-                ret += Enum.Format(enumType: FlagDatas[i].EnumType, value: enumFlags[i], "G");
+                var value = Convert2RawInteger(enumFlags[i], FlagDatas[i].UnderlyingType);
+                ret += Enum.Format(enumType: FlagDatas[i].EnumType, value: value, "G");
             }
             if (ret == "") ret = "None";
             return ret;

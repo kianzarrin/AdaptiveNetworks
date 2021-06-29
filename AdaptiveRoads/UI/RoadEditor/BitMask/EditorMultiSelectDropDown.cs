@@ -37,7 +37,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
 
                 dd.listBackground = "GenericPanelWhite";
                 dd.listWidth = 188;
-                dd.listHeight = 1000;
+                dd.listHeight = 900;
                 dd.clampListToScreen = true;
                 dd.listPosition = UICheckboxDropDown.PopupListPosition.Automatic;
 
@@ -72,7 +72,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
                 dd.listScrollbar.thumbPadding = new RectOffset(0, 0, 5, 5);
                 dd.listScrollbar.minValue = 0;
                 dd.listScrollbar.value = 0;
-                dd.listScrollbar.incrementAmount = 90;
+                dd.listScrollbar.incrementAmount = dd.listHeight/10;
                 dd.listScrollbar.AlignTo(dd, UIAlignAnchor.TopRight);
                 dd.listScrollbar.autoHide = true; // false ?
                 dd.listScrollbar.isVisible = false;
@@ -97,8 +97,6 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
                 dd.eventDropdownOpen += OnDropDownOpen;
                 triggerBtn.buttonsMask |= UIMouseButton.Right;
                 dd.eventMouseDown += (_, p) => HandleMouseDown(dd, p);
-
-                LogSucceeded();
             } catch(Exception ex) {
                 Log.Exception(ex);
             }
