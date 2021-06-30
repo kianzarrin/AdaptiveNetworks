@@ -69,7 +69,7 @@ namespace AdaptiveRoads.UI.QuayRoads {
                 propertyTextField.allowFloats = true;
                 propertyTextField.allowNegative = true;
                 propertyTextField.eventTextSubmitted += (_, value) => {
-                    float newValue = (float)LenientStringToDouble(value, (double)(float)assetValue_);
+                    float newValue = (float)lenientStringToDouble_(value, (double)(float)assetValue_);
                     propertyTextField.text = newValue.ToString();
                     if (newValue != (float)assetValue_) {
                         assetValue_ = newValue;
@@ -92,7 +92,7 @@ namespace AdaptiveRoads.UI.QuayRoads {
             }
         }
 
-        private static double LenientStringToDouble(string s, double fallback) {
+        private static double lenientStringToDouble_(string s, double fallback) {
             IFormatProvider invariantProvider = CultureInfo.InvariantCulture;
             NumberStyles style = NumberStyles.Any;
             if (Double.TryParse(s.Replace(',', '.'), style, invariantProvider, out double x)) {

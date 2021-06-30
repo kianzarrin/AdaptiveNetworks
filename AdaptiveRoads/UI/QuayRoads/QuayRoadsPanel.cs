@@ -22,25 +22,25 @@ namespace AdaptiveRoads.UI.QuayRoads {
 
         public override SavedFloat SavedY => ModSettings.QuayRoadsPanelY;
 
-        private UITable propertiesTable;
+        private UITable propertiesTable_;
 
-        private NetInfo netInfo;
-        private RoadEditorPanel parentPanel;
-        private static Dictionary<NetInfo, QuayRoadsPanel> instances = new();
+        private NetInfo netInfo_;
+        private RoadEditorPanel parentPanel_;
+        private static Dictionary<NetInfo, QuayRoadsPanel> instances_ = new();
 
-        private ProfileSection[] profile {
-            get => netInfo.GetMetaData().quayRoadsProfile;
+        private ProfileSection[] profile_ {
+            get => netInfo_.GetMetaData().quayRoadsProfile;
             set {
-                netInfo.GetMetaData().quayRoadsProfile = value;
-                parentPanel.OnObjectModified();
+                netInfo_.GetMetaData().quayRoadsProfile = value;
+                parentPanel_.OnObjectModified();
             }
         }
         public override void Start() {
             base.Start();
-            Caption = "Quay Road Settings for " + netInfo.name;
+            Caption = "Quay Road Settings for " + netInfo_.name;
             autoSize = true;
 
-            parentPanel.EventPanelClosed += (_) => Close();
+            parentPanel_.EventPanelClosed += (_) => Close();
 
             var buttonsPanel = AddUIComponent<UIPanel>();
             buttonsPanel.autoSize = true;
@@ -52,7 +52,7 @@ namespace AdaptiveRoads.UI.QuayRoads {
             var flipButton = buttonsPanel.AddUIComponent<UIButtonExt>();
             flipButton.text = "flip";
             flipButton.eventClicked += (_,_) => {
-                profile = profile.Inverse();
+                profile_ = profile_.Inverse();
                 Refresh();
             };
 
@@ -61,7 +61,7 @@ namespace AdaptiveRoads.UI.QuayRoads {
             presetDropDown.selectedIndex = 0;
             presetDropDown.eventSelectedIndexChanged += (_, selectedIndex) => {
                 if (selectedIndex != 0) {
-                    profile = Profiles.presets[presetDropDown.selectedValue];
+                    profile_ = Profiles.presets[presetDropDown.selectedValue];
                     presetDropDown.selectedIndex = 0;
                     Refresh();
                 }
@@ -71,66 +71,66 @@ namespace AdaptiveRoads.UI.QuayRoads {
             var addSectionButton = buttonsPanel.AddUIComponent<UIButtonExt>();
             addSectionButton.text = "add section";
             addSectionButton.eventClicked += (_, _) => {
-                profile = profile.Expand(profile.Length + 1, (_) => ProfileSection.Default());
+                profile_ = profile_.Expand(profile_.Length + 1, (_) => ProfileSection.Default());
                 Refresh();
             };
 
             var removeSectionButton = buttonsPanel.AddUIComponent<UIButtonExt>();
             removeSectionButton.text = "remove section";
             removeSectionButton.eventClicked += (_, _) => {
-                profile = profile.Shrink(profile.Length - 1, (_, _) => { });
+                profile_ = profile_.Shrink(profile_.Length - 1, (_, _) => { });
                 Refresh();
             };
 
             var deleteButton = buttonsPanel.AddUIComponent<UIButtonExt>();
             deleteButton.text = "delete";
             deleteButton.eventClicked += (_, _) => {
-                profile = null;
+                profile_ = null;
                 Close();
             };
 
-            if(profile is null) {
-                profile = new ProfileSection[] { };
+            if(profile_ is null) {
+                profile_ = new ProfileSection[] { };
             }
 
             
             Refresh();
         }
         public void Refresh() {
-            if (propertiesTable is not null) {
-                RemoveUIComponent(propertiesTable);
-                DestroyImmediate(propertiesTable.gameObject);
+            if (propertiesTable_ is not null) {
+                RemoveUIComponent(propertiesTable_);
+                DestroyImmediate(propertiesTable_.gameObject);
             }
 
-            propertiesTable = AddUIComponent<UITable>();
-            makeFirstColumn();
-            for (int sectionIndex = 0; sectionIndex < profile.Length; sectionIndex++) {
-                makeEditableColumn(sectionIndex);
+            propertiesTable_ = AddUIComponent<UITable>();
+            makeFirstColumn_();
+            for (int sectionIndex = 0; sectionIndex < profile_.Length; sectionIndex++) {
+                makeEditableColumn_(sectionIndex);
             }
         }
         public override void Close() {
-            instances.Remove(netInfo);
+            instances_.Remove(netInfo_);
             base.Close();
         }
 
         public static void CloseIfOpen(NetInfo netInfo) {
-            if (instances.ContainsKey(netInfo)) {
-                instances[netInfo].Close();
+            if (instances_.ContainsKey(netInfo)) {
+                instances_[netInfo].Close();
             }
         }
         public static QuayRoadsPanel GetOrOpen(NetInfo netInfo, RoadEditorPanel parentPanel) {
-            if (instances.ContainsKey(netInfo)) {
-                return instances[netInfo];
+            if (instances_.ContainsKey(netInfo)) {
+                return instances_[netInfo];
             } else {
                 var newPanel = Create();
-                newPanel.netInfo = netInfo;
-                newPanel.parentPanel = parentPanel;
-                instances[netInfo] = newPanel;
+                newPanel.netInfo_ = netInfo;
+                newPanel.parentPanel_ = parentPanel;
+                instances_[netInfo] = newPanel;
                 return newPanel;
             }
         }
         public static void CloseAll() {
-            foreach(var instance in instances) {
+            foreach(var instance in instances_) {
                 instance.Value.Close();
             }
         }
@@ -156,7 +156,7 @@ namespace AdaptiveRoads.UI.QuayRoads {
         }
 
         // TODO: precompute this. When?
-        private List<PropertyGroup> makeGroups() {
+        private List<PropertyGroup> makeGroups_() {
             List<PropertyGroup> groups = new();
             foreach (var property in
                 typeof(ProfileSection)
@@ -182,12 +182,12 @@ namespace AdaptiveRoads.UI.QuayRoads {
             }
             return groups;
         }
-        private void makeFirstColumn() {
-            var groups = makeGroups();
+        private void makeFirstColumn_() {
+            var groups = makeGroups_();
             int row = 1;
-            propertiesTable.Expand(1 + groups.Count + groups.Sum(group => group.Properties.Count), 1 + profile.Length);
+            propertiesTable_.Expand(1 + groups.Count + groups.Sum(group => group.Properties.Count), 1 + profile_.Length);
             foreach (var group in groups) {
-                var groupLabel = propertiesTable.GetCell(row, 0).AddUIComponent<UILabel>();
+                var groupLabel = propertiesTable_.GetCell(row, 0).AddUIComponent<UILabel>();
                 row++;
                 groupLabel.text = group.GroupName;
 
@@ -195,13 +195,13 @@ namespace AdaptiveRoads.UI.QuayRoads {
                     if (property.flag is not null) {
                         Log.Debug(property.flag.ToString());
                         Log.Debug(property.flag.ToUInt64().ToString());
-                        propertiesTable.Expand(row + 1, 1);
-                        var propertyLabel = propertiesTable.GetCell(row, 0).AddUIComponent<UILabel>();
+                        propertiesTable_.Expand(row + 1, 1);
+                        var propertyLabel = propertiesTable_.GetCell(row, 0).AddUIComponent<UILabel>();
                         row++;
                         propertyLabel.text = property.flag.ToString();
                     } else {
-                        propertiesTable.Expand(row + 1, 1);
-                        var propertyLabel = propertiesTable.GetCell(row, 0).AddUIComponent<UILabel>();
+                        propertiesTable_.Expand(row + 1, 1);
+                        var propertyLabel = propertiesTable_.GetCell(row, 0).AddUIComponent<UILabel>();
                         row++;
                         propertyLabel.text = property.fieldInfo.GetAttribute<CustomizablePropertyAttribute>().name;
 
@@ -209,18 +209,18 @@ namespace AdaptiveRoads.UI.QuayRoads {
                 }
             }
         }
-        private void makeEditableColumn(int sectionIndex) {
-            var groups = makeGroups();
+        private void makeEditableColumn_(int sectionIndex) {
+            var groups = makeGroups_();
             int row = 0;
-            propertiesTable.Expand(1, sectionIndex + 1);
-            var header = propertiesTable.GetCell(0, sectionIndex + 1).AddUIComponent<UILabel>();
+            propertiesTable_.Expand(1, sectionIndex + 1);
+            var header = propertiesTable_.GetCell(0, sectionIndex + 1).AddUIComponent<UILabel>();
             header.text = sectionIndex.ToString();
             row++;
             foreach (var group in groups) {
                 row++;
 
                 foreach (var property in group.Properties) {
-                    var field = new QuayRoadsPanelField(netInfo, sectionIndex, property.fieldInfo, property.flag, propertiesTable.GetCell(row, sectionIndex + 1), parentPanel);
+                    var field = new QuayRoadsPanelField(netInfo_, sectionIndex, property.fieldInfo, property.flag, propertiesTable_.GetCell(row, sectionIndex + 1), parentPanel_);
                     row++;
                 }
             }
