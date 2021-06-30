@@ -94,7 +94,9 @@ namespace AdaptiveRoads.Data.QuayRoads {
         // deserialization
         public ProfileSection(SerializationInfo info, StreamingContext context) {
             this = Default();
-            SerializationUtil.SetObjectFields(info, this);
+            var tmp = (object)this; //box
+            SerializationUtil.SetObjectFields(info, tmp);
+            this = (ProfileSection)tmp; //unbox
         }
         #endregion
     }
