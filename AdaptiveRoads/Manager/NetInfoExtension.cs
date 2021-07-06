@@ -542,7 +542,16 @@ namespace AdaptiveRoads.Manager {
 #region serialization
             [Obsolete("only useful for the purpose of shallow clone and serialization", error: true)]
             public LaneProp() { }
-            public LaneProp Clone() => this.ShalowClone();
+            public LaneProp Clone() {
+                var ret = this.ShalowClone();
+                ret.ForwardSpeedLimit = ret.ForwardSpeedLimit?.ShalowClone();
+                ret.BackwardSpeedLimit = ret.BackwardSpeedLimit?.ShalowClone();
+                ret.LaneSpeedLimit = ret.LaneSpeedLimit?.ShalowClone();
+                ret.SegmentCurve = ret.SegmentCurve?.ShalowClone();
+                ret.LaneCurve = ret.LaneCurve?.ShalowClone();
+                return ret;
+            }
+
             object ICloneable.Clone() => Clone();
             public LaneProp(NetLaneProps.Prop template) { }
 
