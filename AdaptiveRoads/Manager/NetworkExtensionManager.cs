@@ -6,7 +6,8 @@ namespace AdaptiveRoads.Manager {
     using KianCommons.Serialization;
     using static KianCommons.ReflectionHelpers;
     using KianCommons.Plugins;
-    using TrafficManager.API;
+    using TrafficManager;
+    using TrafficManager.API.Notifier;
 
     [Serializable]
     public class NetworkExtensionManager {
@@ -115,8 +116,8 @@ namespace AdaptiveRoads.Manager {
 #endif
             }
 
-            Notifier.EventModified -= OnTMPEModified;
-            Notifier.EventModified += OnTMPEModified;
+            Notifier.Instance.EventModified -= OnTMPEModified;
+            Notifier.Instance.EventModified += OnTMPEModified;
             LogSucceeded();
         }
 
@@ -133,7 +134,7 @@ namespace AdaptiveRoads.Manager {
         }
 
         public void OnUnload() {
-            Notifier.EventModified -= OnTMPEModified;
+            Notifier.Instance.EventModified -= OnTMPEModified;
             instance_ = null;
         }
 

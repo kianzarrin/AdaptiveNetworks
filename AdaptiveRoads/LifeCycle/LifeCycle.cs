@@ -108,8 +108,8 @@ namespace AdaptiveRoads.LifeCycle {
                     HarmonyUtil.InstallHarmony<PreloadPatchAttribute>(HARMONY_ID_MANUAL);
                     preloadPatchesApplied_ = true;
                 }
-                TrafficManager.API.Notifier.EventLevelLaoded -= NetworkExtensionManager.OnTMPELoaded;
-                TrafficManager.API.Notifier.EventLevelLaoded += NetworkExtensionManager.OnTMPELoaded;
+                TrafficManager.Notifier.Instance.EventLevelLoaded -= NetworkExtensionManager.OnTMPELoaded;
+                TrafficManager.Notifier.Instance.EventLevelLoaded += NetworkExtensionManager.OnTMPELoaded;
             } catch (Exception ex) {
                 Log.Exception(ex);
             }
@@ -165,7 +165,7 @@ namespace AdaptiveRoads.LifeCycle {
         public static void Exit() {
             Log.Buffered = false;
             Log.Info("LifeCycle.Exit() called");
-            TrafficManager.API.Notifier.EventLevelLaoded -= NetworkExtensionManager.OnTMPELoaded;
+            TrafficManager.Notifier.Instance.EventLevelLoaded -= NetworkExtensionManager.OnTMPELoaded;
             HarmonyUtil.UninstallHarmony(HARMONY_ID_MANUAL);
             preloadPatchesApplied_ = false;
         }
