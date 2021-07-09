@@ -215,7 +215,7 @@ namespace AdaptiveRoads.Manager {
 
         [Serializable]
         [Optional(AR_MODE)]
-        public class Net : ICloneable {
+        public class Net : ICloneable, ISerializable {
             [Obsolete("only useful for the purpose of shallow clone", error: true)]
             public Net() { }
             public Net Clone() => this.ShalowClone();
@@ -224,6 +224,16 @@ namespace AdaptiveRoads.Manager {
                 PavementWidthRight = template.m_pavementWidth;
                 UsedCustomFlags = GetUsedCustomFlags(template);
             }
+
+            #region serialization
+            //serialization
+            public void GetObjectData(SerializationInfo info, StreamingContext context) =>
+                SerializationUtil.GetObjectFields(info, this);
+
+            // deserialization
+            public Net(SerializationInfo info, StreamingContext context) =>
+                SerializationUtil.SetObjectFields(info, this);
+            #endregion
 
             public string[] ConnectGroups;
 
@@ -346,7 +356,7 @@ namespace AdaptiveRoads.Manager {
         [AfterField(nameof(NetInfo.Segment.m_backwardForbidden))]
         [Serializable]
         [Optional(AR_MODE)]
-        public class Segment : ICloneable {
+        public class Segment : ICloneable, ISerializable {
             object ICloneable.Clone() => Clone();
 
             [AfterField(nameof(NetInfo.Segment.m_forwardForbidden))]
@@ -436,12 +446,22 @@ namespace AdaptiveRoads.Manager {
             public Segment() { }
             public Segment Clone() => this.ShalowClone();
             public Segment(NetInfo.Segment template) { }
+
+            #region serialization
+            //serialization
+            public void GetObjectData(SerializationInfo info, StreamingContext context) =>
+                SerializationUtil.GetObjectFields(info, this);
+
+            // deserialization
+            public Segment(SerializationInfo info, StreamingContext context) =>
+                SerializationUtil.SetObjectFields(info, this);
+            #endregion
         }
 
         [AfterField(nameof(NetInfo.Node.m_flagsForbidden))]
         [Serializable]
         [Optional(AR_MODE)]
-        public class Node : ICloneable {
+        public class Node : ICloneable, ISerializable {
             public const string DC_GROUP_NAME = "Direct Connect";
 
             [CustomizableProperty("Node Extension")]
@@ -478,6 +498,11 @@ namespace AdaptiveRoads.Manager {
             [AfterField(nameof(NetInfo.Node.m_directConnect))]
             public VehicleInfo.VehicleType VehicleType;
 
+            [Hint("tell DCR mode to manage this node")]
+            [CustomizableProperty("Hide Broken Medians", DC_GROUP_NAME)]
+            [AfterField(nameof(NetInfo.Node.m_directConnect))]
+            public bool HideBrokenMedians = true;
+    
             public bool CheckFlags(
                 NetNodeExt.Flags nodeFlags, NetSegmentEnd.Flags segmentEndFlags,
                 NetSegmentExt.Flags segmentFlags, NetSegment.Flags vanillaSegmentFlags) =>
@@ -499,6 +524,15 @@ namespace AdaptiveRoads.Manager {
             public Node(NetInfo.Node template) { }
             public Node Clone() => this.ShalowClone();
             object ICloneable.Clone() => Clone();
+            #region serialization
+            //serialization
+            public void GetObjectData(SerializationInfo info, StreamingContext context) =>
+                SerializationUtil.GetObjectFields(info, this);
+
+            // deserialization
+            public Node(SerializationInfo info, StreamingContext context) =>
+                SerializationUtil.SetObjectFields(info, this);
+            #endregion
         }
 
         [AfterField(nameof(NetLaneProps.Prop.m_endFlagsForbidden))]
