@@ -43,8 +43,9 @@ namespace AdaptiveRoads.Manager {
                     NodeBuffer[i].Serialize(s);
             } catch (Exception ex) { ex.Log(); }
             try {
-                uint n = (uint)(ulong)LaneBuffer.LongCount(_l => !_l.IsEmpty);
-                Assertion.GT((uint)LaneBuffer.Length, n, "LaneBuffer.Length > n");
+                var n0 = LaneBuffer.LongCount(_l => !_l.IsEmpty);
+                uint n = (uint)(ulong)n0;
+                Assertion.GT((uint)LaneBuffer.Length, n, $"LaneBuffer.Length > n | n0 = {n0}");
                 s.WriteUInt32(n);
                 Log.Debug($"Serializing {n} lanes");
                 for (uint i = 0; i < LaneBuffer.Length; ++i) {
