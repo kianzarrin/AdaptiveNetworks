@@ -92,7 +92,7 @@ namespace AdaptiveRoads.Manager {
             Custom4 = 1 << 28,
             Custom5 = 1 << 29,
             Custom6 = 1 << 30,
-            Custom7 = 1 << 31,
+            Custom7 = 1L << 31,
             CustomsMask = Custom0 | Custom1 | Custom2 | Custom3 | Custom4 | Custom5 | Custom6 | Custom7,
 
             LeftSlight = 1L << 32,
@@ -510,7 +510,7 @@ namespace AdaptiveRoads.Manager {
             Custom4 = 1 << 28,
             Custom5 = 1 << 29,
             Custom6 = 1 << 30,
-            Custom7 = 1 << 31,
+            Custom7 = 1L << 31,
             CustomsMask = Custom0 | Custom1 | Custom2 | Custom3 | Custom4 | Custom5 | Custom6 | Custom7,
         }
 
