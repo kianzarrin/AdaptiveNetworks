@@ -173,14 +173,7 @@ namespace AdaptiveRoads.Manager {
                 m_flags = m_flags.SetFlags(Flags.MergeUnique, lane.IsMergesUnique());
                 m_flags = (m_flags & ~Flags.AllDirections) | lane.GetArrowsExt();
 
-                if (SLMan != null)
-                    SpeedLimit = (SLMan as SpeedLimitManager).GetGameSpeedLimit(LaneData.LaneID);
-                else
-                    SpeedLimit = lane.LaneInfo.m_speedLimit;
-
-
-
-                
+                SpeedLimit = lane.GetLaneSpeedLimit();
 
                 //Log.Debug("NetLaneExt.UpdateLane() result: " + this);
             } catch (Exception ex) {

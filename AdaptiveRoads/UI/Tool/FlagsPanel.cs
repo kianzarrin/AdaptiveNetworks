@@ -147,6 +147,7 @@ namespace AdaptiveRoads.UI.Tool {
                 };
                 laneContainer.atlas = TextureUtil.Ingame;
                 laneContainer.backgroundSprite = "MenuPanelInfo";
+
             } catch (Exception ex) {
                 Log.Exception(ex);
             }
@@ -155,6 +156,7 @@ namespace AdaptiveRoads.UI.Tool {
         public void AddSegmentEndFlags(UIPanel parent) {
             AssertNotNull(parent, "parent");
             NetUtil.AssertSegmentValid(segmentID_);
+            Assertion.Assert(NetUtil.IsNodeValid(nodeID_), $"IsNodeValid({nodeID_})");
 
             var mask = ARTool.GetUsedFlagsSegmentEnd(segmentID: segmentID_, nodeID: nodeID_);
             foreach (var flag in mask.ExtractPow2Flags()) {
@@ -164,7 +166,7 @@ namespace AdaptiveRoads.UI.Tool {
 
         public void AddNodeFlags(UIPanel parent) {
             AssertNotNull(parent, "parent");
-            NetUtil.AssertSegmentValid(segmentID_);
+            Assertion.Assert(NetUtil.IsNodeValid(nodeID_), $"IsNodeValid({nodeID_})");
 
             var mask = ARTool.GetUsedFlagsNode(nodeID_);
             foreach (var flag in mask.ExtractPow2Flags()) {
