@@ -123,10 +123,6 @@ namespace AdaptiveRoads.UI.Tool {
                 if (laneMask != 0)
                     AddLaneFlags(container, lane, laneMask);
             }
-
-            foreach(var lpc in container.GetComponentsInChildren<LanePanelCollapsable>()) {
-                lpc.FitParent();
-            }
         }
 
         public void AddLaneFlags(UIPanel container, LaneData lane, NetLaneExt.Flags mask) {
@@ -187,23 +183,10 @@ namespace AdaptiveRoads.UI.Tool {
             dragHandle_.height = 32;
             lblCaption_.anchor = UIAnchorStyle.CenterHorizontal |  UIAnchorStyle.CenterVertical;
             FitChildren();
+            foreach (var lpc in GetComponentsInChildren<LanePanelCollapsable>()) {
+                lpc.FitParent();
+            }
             Invalidate();
-        }
-
-        static UIPanel AddPanel(UIPanel parent) {
-            Assertion.AssertNotNull(parent, "parent");
-            int padX = 0;
-            int padY = 3;
-            UIPanel newPanel = parent.AddUIComponent<UIPanel>();
-            Assertion.AssertNotNull(newPanel, "newPanel");
-            newPanel.autoLayout = true;
-            newPanel.autoLayoutDirection = LayoutDirection.Vertical;
-            newPanel.autoFitChildrenHorizontally = true;
-            newPanel.autoFitChildrenVertically = true;
-            newPanel.autoLayoutPadding = new RectOffset(padX, padX, padY, padY);
-            newPanel.padding = new RectOffset(padX, padX, padY, padY);
-
-            return newPanel;
         }
 
         static UIPanel AddSpacePanel(UIPanel parent, int space) {

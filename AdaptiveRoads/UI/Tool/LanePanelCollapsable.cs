@@ -39,26 +39,30 @@ namespace AdaptiveRoads.UI.Tool {
         public static LanePanelCollapsable Add(UIComponent parent, LaneData lane, NetLaneExt.Flags mask) {
             Log.Called();
             Assertion.AssertNotNull(parent, "parent");
-            var laneContainer = parent.AddUIComponent<LanePanelCollapsable>();
-            Assertion.AssertNotNull(laneContainer, "laneContainer");
+            var ret = parent.AddUIComponent<LanePanelCollapsable>();
+            Assertion.AssertNotNull(ret, "laneContainer");
 
-            var caption = LaneCaptionButton.Add(laneContainer, lane);
+            var caption = LaneCaptionButton.Add(ret, lane);
 
-            var lanePanel = AddPanel(laneContainer);
-            caption.SetTarget(lanePanel);
-            lanePanel.name = "lanePanel";
+            var innerPanel = AddPanel(ret);
+            caption.SetTarget(innerPanel);
+            innerPanel.name = "lanePanel";
 
             foreach (var flag in mask.ExtractPow2Flags()) {
-                LaneFlagToggle.Add(lanePanel, lane.LaneID, flag);
+                LaneFlagToggle.Add(innerPanel, lane.LaneID, flag);
             }
 
-            return laneContainer;
+            return ret;
         }
 
         public void FitParent() {
             autoFitChildrenHorizontally = false;
-            this.FitTo(parent, LayoutDirection.Horizontal);
-            GetComponentInChildren<LaneCaptionButton>().FitTo(this, LayoutDirection.Horizontal);
+            autoSize = false;
+            width = parent.width - (parent as UIPanel).padding.horizontal;
+
+            var caption = GetComponentInChildren<LaneCaptionButton>();
+            caption.autoSize = false;
+            caption.width = width;
         }
     }
 }

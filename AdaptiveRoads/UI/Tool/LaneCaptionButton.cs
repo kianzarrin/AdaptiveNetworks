@@ -24,11 +24,8 @@ namespace AdaptiveRoads.UI.Tool {
 
         public void SetTarget(UIPanel panel) => panel_ = panel;
 
-        public override void Awake() {
-            base.Awake();
-            this.ParentWith = false;
-        }
         void Init() {
+            this.ParentWith = false;
             var laneType = lane_.LaneInfo.m_laneType;
             var vehicleTypes = lane_.LaneInfo.m_vehicleType;
             text = $"▲ [{laneType}] : {vehicleTypes}";
