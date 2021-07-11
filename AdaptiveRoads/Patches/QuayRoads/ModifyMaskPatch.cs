@@ -11,14 +11,17 @@ using AdaptiveRoads.Data.QuayRoads;
 namespace AdaptiveRoads.Patches {
 
     [HarmonyPatch]
-    [InGamePatch]
+    [PreloadPatch]
 
     static class ModifyMaskPatch {
         [HarmonyPrefix]
         [HarmonyPatch(typeof(NetAI), "SegmentModifyMask")]
         static bool SegmentModifyMaskPrefix(ushort segmentID, ref NetSegment data, int index, ref TerrainModify.Surface surface, ref TerrainModify.Heights heights, ref TerrainModify.Edges edges, ref float left, ref float right, ref float leftStartY, ref float rightStartY, ref float leftEndY, ref float rightEndY, ref bool __result, NetAI __instance) {
             var net = __instance.m_info.GetMetaData();
-            if (net is null) return true;
+            if (net is null) {
+                Log.Debug("No AR data found for: \n segmentId: " + segmentID + "name: " + data.Info.name);
+                return true;
+            }
 
             ProfileSection[] profile = net.quayRoadsProfile;
             if (profile is null) return true;
