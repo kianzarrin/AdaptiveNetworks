@@ -26,9 +26,9 @@ namespace AdaptiveRoads.UI.QuayRoads {
 
         private NetInfo netInfo_;
         private RoadEditorPanel parentPanel_;
-        private static Dictionary<NetInfo, QuayRoadsPanel> instances_ = new();
+        private static readonly Dictionary<NetInfo, QuayRoadsPanel> instances_ = new();
 
-        private ProfileSection[] profile_ {
+        private ProfileSection[] Profile {
             get => netInfo_.GetMetaData().QuayRoadsProfile;
             set {
                 netInfo_.GetMetaData().QuayRoadsProfile = value;
@@ -52,7 +52,7 @@ namespace AdaptiveRoads.UI.QuayRoads {
             var flipButton = buttonsPanel.AddUIComponent<UIButtonExt>();
             flipButton.text = "flip";
             flipButton.eventClicked += (_,_) => {
-                profile_ = profile_.Inverse();
+                Profile = Profile.Inverse();
                 Refresh();
             };
 
@@ -61,7 +61,7 @@ namespace AdaptiveRoads.UI.QuayRoads {
             presetDropDown.selectedIndex = 0;
             presetDropDown.eventSelectedIndexChanged += (_, selectedIndex) => {
                 if (selectedIndex != 0) {
-                    profile_ = Profiles.presets[presetDropDown.selectedValue];
+                    Profile = Profiles.presets[presetDropDown.selectedValue];
                     presetDropDown.selectedIndex = 0;
                     Refresh();
                 }
@@ -71,26 +71,26 @@ namespace AdaptiveRoads.UI.QuayRoads {
             var addSectionButton = buttonsPanel.AddUIComponent<UIButtonExt>();
             addSectionButton.text = "add section";
             addSectionButton.eventClicked += (_, _) => {
-                profile_ = profile_.Expand(profile_.Length + 1, (_) => ProfileSection.Default());
+                Profile = Profile.Expand(Profile.Length + 1, (_) => ProfileSection.Default());
                 Refresh();
             };
 
             var removeSectionButton = buttonsPanel.AddUIComponent<UIButtonExt>();
             removeSectionButton.text = "remove section";
             removeSectionButton.eventClicked += (_, _) => {
-                profile_ = profile_.Shrink(profile_.Length - 1, (_, _) => { });
+                Profile = Profile.Shrink(Profile.Length - 1, (_, _) => { });
                 Refresh();
             };
 
             var deleteButton = buttonsPanel.AddUIComponent<UIButtonExt>();
             deleteButton.text = "delete";
             deleteButton.eventClicked += (_, _) => {
-                profile_ = null;
+                Profile = null;
                 Close();
             };
 
-            if(profile_ is null) {
-                profile_ = new ProfileSection[] { };
+            if(Profile is null) {
+                Profile = new ProfileSection[] { };
             }
 
             
@@ -103,9 +103,9 @@ namespace AdaptiveRoads.UI.QuayRoads {
             }
 
             propertiesTable_ = AddUIComponent<UITable>();
-            makeFirstColumn_();
-            for (int sectionIndex = 0; sectionIndex < profile_.Length; sectionIndex++) {
-                makeEditableColumn_(sectionIndex);
+            MakeFirstColumn();
+            for (int sectionIndex = 0; sectionIndex < Profile.Length; sectionIndex++) {
+                MakeEditableColumn(sectionIndex);
             }
         }
         public override void Close() {
@@ -147,16 +147,16 @@ namespace AdaptiveRoads.UI.QuayRoads {
         }
         private struct Property {
             public FieldInfo fieldInfo;
-            public IConvertible? flag;
+            public IConvertible flag; // treated as nullable, this is okay, as flag = 0 doen't make sense
 
-            public Property(FieldInfo fieldInfo, IConvertible? flag = null) {
+            public Property(FieldInfo fieldInfo, IConvertible flag = null) {
                 this.fieldInfo = fieldInfo;
                 this.flag = flag;
             }
         }
 
         // TODO: precompute this. When?
-        private List<PropertyGroup> makeGroups_() {
+        private List<PropertyGroup> MakeGroups() {
             List<PropertyGroup> groups = new();
             foreach (var property in
                 typeof(ProfileSection)
@@ -182,10 +182,10 @@ namespace AdaptiveRoads.UI.QuayRoads {
             }
             return groups;
         }
-        private void makeFirstColumn_() {
-            var groups = makeGroups_();
+        private void MakeFirstColumn() {
+            var groups = MakeGroups();
             int row = 1;
-            propertiesTable_.Expand(1 + groups.Count + groups.Sum(group => group.Properties.Count), 1 + profile_.Length);
+            propertiesTable_.Expand(1 + groups.Count + groups.Sum(group => group.Properties.Count), 1 + Profile.Length);
             foreach (var group in groups) {
                 var groupLabel = propertiesTable_.GetCell(row, 0).AddUIComponent<UILabel>();
                 row++;
@@ -209,8 +209,8 @@ namespace AdaptiveRoads.UI.QuayRoads {
                 }
             }
         }
-        private void makeEditableColumn_(int sectionIndex) {
-            var groups = makeGroups_();
+        private void MakeEditableColumn(int sectionIndex) {
+            var groups = MakeGroups();
             int row = 0;
             propertiesTable_.Expand(1, sectionIndex + 1);
             var header = propertiesTable_.GetCell(0, sectionIndex + 1).AddUIComponent<UILabel>();

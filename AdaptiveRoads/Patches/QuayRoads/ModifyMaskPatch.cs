@@ -8,19 +8,17 @@ using System;
 using AdaptiveRoads.Data.QuayRoads;
 using System.Collections.Generic;
 using static KianCommons.ReflectionHelpers;
-
+using JetBrains.Annotations;
 
 namespace AdaptiveRoads.Patches {
 
     [HarmonyPatch]
     [PreloadPatch]
     static class SegmentModifyMaskPatch {
-
         static IEnumerable<MethodBase> TargetMethods() {
             yield return GetMethod(typeof(NetAI), "SegmentModifyMask");
             yield return GetMethod(typeof(PedestrianWayAI), "SegmentModifyMask");
         }
-
         internal static bool Prefix(ushort segmentID, ref NetSegment data, int index, ref TerrainModify.Surface surface, ref TerrainModify.Heights heights, ref TerrainModify.Edges edges, ref float left, ref float right, ref float leftStartY, ref float rightStartY, ref float leftEndY, ref float rightEndY, ref bool __result, NetAI __instance) {
             var net = __instance.m_info.GetMetaData();
             if (net is null) {
@@ -35,7 +33,6 @@ namespace AdaptiveRoads.Patches {
             Log.Debug("modifying mask for segment " + segmentID.ToString() + ", section " + index);
             bool invert = (data.m_flags & NetSegment.Flags.Invert) != 0;
             return ModifyMaskCommon.ModifyMask(profile, invert, index, ref surface, ref heights, ref edges, ref left, ref right, ref leftStartY, ref rightStartY, ref leftEndY, ref rightEndY, ref __result);
-
         }
     }
 

@@ -19,11 +19,11 @@ using AdaptiveRoads.Util;
 
 namespace AdaptiveRoads.UI.QuayRoads {
     class QuayRoadsPanelField {
-        private NetInfo netInfo_;
-        private int sectionIndex_;
-        private FieldInfo fieldInfo_;
-        private IConvertible? flag_;
-        private RoadEditorPanel parentPanel_;
+        private readonly NetInfo netInfo_;
+        private readonly int sectionIndex_;
+        private readonly FieldInfo fieldInfo_;
+        private readonly IConvertible flag_;
+        private readonly RoadEditorPanel parentPanel_;
 
         public QuayRoadsPanelField(NetInfo netInfo, int sectionIndex, FieldInfo fieldInfo, IConvertible flag, UIPanel parent, RoadEditorPanel parentPanel) {
             netInfo_ = netInfo;
@@ -38,20 +38,20 @@ namespace AdaptiveRoads.UI.QuayRoads {
                 var propertyCheckbox = parent.AddUIComponent<UICheckBoxExt>();
                 propertyCheckbox.Label = "";
                 propertyCheckbox.width = 20f;
-                propertyCheckbox.isChecked = (assetValue_ as IConvertible).IsFlagSet(flag);
+                propertyCheckbox.isChecked = (AssetValue as IConvertible).IsFlagSet(flag);
                 propertyCheckbox.eventCheckChanged += (_, _isChecked) => {
                     //TODO: find a better / more robust way to do this.
                     if (_isChecked) {
                         if (Enum.GetUnderlyingType(fieldInfo_.FieldType) == typeof(Int32)) {
-                            assetValue_ = (assetValue_ as IConvertible).ToInt32(CultureInfo.InvariantCulture) | flag.ToInt32(CultureInfo.InvariantCulture);
+                            AssetValue = (AssetValue as IConvertible).ToInt32(CultureInfo.InvariantCulture) | flag.ToInt32(CultureInfo.InvariantCulture);
                         } else {
-                            assetValue_ = (assetValue_ as IConvertible).ToInt64() | flag.ToInt64();
+                            AssetValue = (AssetValue as IConvertible).ToInt64() | flag.ToInt64();
                         }
                     } else {
                         if (Enum.GetUnderlyingType(fieldInfo_.FieldType) == typeof(Int32)) {
-                            assetValue_ = (assetValue_ as IConvertible).ToInt32(CultureInfo.InvariantCulture) & ~flag.ToInt32(CultureInfo.InvariantCulture);
+                            AssetValue = (AssetValue as IConvertible).ToInt32(CultureInfo.InvariantCulture) & ~flag.ToInt32(CultureInfo.InvariantCulture);
                         } else {
-                            assetValue_ = (assetValue_ as IConvertible).ToInt64() &~flag.ToInt64();
+                            AssetValue = (AssetValue as IConvertible).ToInt64() &~flag.ToInt64();
                         }
                     }
                 };
@@ -59,7 +59,7 @@ namespace AdaptiveRoads.UI.QuayRoads {
                 // TODO: right now, this assumes everything that is not a flags enum is a float
                 // TODO: find a better way to create a text field - maybe something similar to UICheckBoxExt from KianCommons?
                 var propertyHelper = new UIHelper(parent);
-                var propertyTextField = propertyHelper.AddTextfield("wawa", (assetValue_ as float?).ToString(), (_) => { }, (_) => { }) as UITextField;
+                var propertyTextField = propertyHelper.AddTextfield("wawa", (AssetValue as float?).ToString(), (_) => { }, (_) => { }) as UITextField;
                 var labelObject = parent.Find<UILabel>("Label");
                 labelObject.parent.RemoveUIComponent(labelObject);
                 Destroy(labelObject.gameObject);
@@ -69,25 +69,25 @@ namespace AdaptiveRoads.UI.QuayRoads {
                 propertyTextField.allowFloats = true;
                 propertyTextField.allowNegative = true;
                 propertyTextField.eventTextSubmitted += (_, value) => {
-                    float newValue = (float)LenientStringToDouble(value, (double)(float)assetValue_);
+                    float newValue = (float)LenientStringToDouble(value, (double)(float)AssetValue);
                     propertyTextField.text = newValue.ToString();
-                    if (newValue != (float)assetValue_) {
-                        assetValue_ = newValue;
+                    if (newValue != (float)AssetValue) {
+                        AssetValue = newValue;
                     }
                 };
             }
         }
-        private ProfileSection profileSection_ {
+        private ProfileSection ProfileSection {
             get => netInfo_.GetMetaData().QuayRoadsProfile[sectionIndex_];
             set => netInfo_.GetMetaData().QuayRoadsProfile[sectionIndex_] = value;
         }
-        private object assetValue_ {
-            get => fieldInfo_.GetValue(profileSection_);
+        private object AssetValue {
+            get => fieldInfo_.GetValue(ProfileSection);
             set {
-                object tmp = profileSection_;
+                object tmp = ProfileSection;
                 fieldInfo_.SetValue(tmp, value);
-                profileSection_ = (ProfileSection) tmp;
-                Log.Debug(fieldInfo_.Name + " set to " + assetValue_ + " should new value: " + value);
+                ProfileSection = (ProfileSection) tmp;
+                Log.Debug(fieldInfo_.Name + " set to " + AssetValue + " should new value: " + value);
                 parentPanel_.OnObjectModified();
             }
         }
