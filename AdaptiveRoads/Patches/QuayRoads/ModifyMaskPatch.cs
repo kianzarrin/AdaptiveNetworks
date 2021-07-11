@@ -23,7 +23,7 @@ namespace AdaptiveRoads.Patches {
                 return true;
             }
 
-            ProfileSection[] profile = net.quayRoadsProfile;
+            ProfileSection[] profile = net.QuayRoadsProfile;
             if (profile is null) return true;
             Log.Debug("modifying mask for segment " + segmentID.ToString() + ", section " + index);
             bool invert = (data.m_flags & NetSegment.Flags.Invert) != 0;
@@ -60,7 +60,7 @@ namespace AdaptiveRoads.Patches {
             var net = __instance.m_info.GetMetaData();
             if (net is null) return true;
 
-            ProfileSection[] profile = net.quayRoadsProfile;
+            ProfileSection[] profile = net.QuayRoadsProfile;
             if (profile is null) return true;
 
             Log.Debug("modifying mask for node " + nodeID.ToString() + ", section " + index);

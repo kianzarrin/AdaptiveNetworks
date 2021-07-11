@@ -25,7 +25,7 @@ namespace AdaptiveRoads.UI.QuayRoads {
         private UILabel lblCaption_;
         private UIDragHandle dragHandle_;
         private UIButton closeButton_;
-        public static T Instance = null;
+        public static T Instance { get; private set; } = null;
 
         public bool IsOpen => Instance is not null;
 

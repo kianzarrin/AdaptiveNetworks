@@ -29,9 +29,9 @@ namespace AdaptiveRoads.UI.QuayRoads {
         private static Dictionary<NetInfo, QuayRoadsPanel> instances_ = new();
 
         private ProfileSection[] profile_ {
-            get => netInfo_.GetMetaData().quayRoadsProfile;
+            get => netInfo_.GetMetaData().QuayRoadsProfile;
             set {
-                netInfo_.GetMetaData().quayRoadsProfile = value;
+                netInfo_.GetMetaData().QuayRoadsProfile = value;
                 parentPanel_.OnObjectModified();
             }
         }

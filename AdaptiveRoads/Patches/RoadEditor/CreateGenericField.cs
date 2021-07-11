@@ -158,9 +158,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             container: __instance.GetGroupPanel("Properties").m_Panel,
                             label: "Edit QuayRoads profile",
                             hint: "",
-                            action: () => {
-                                QuayRoadsPanel.GetOrOpen(netInfo, __instance);
-                            });
+                            action: () => QuayRoadsPanel.GetOrOpen(netInfo, __instance));
                             qrButtonPanel.EventDestroy += (_, _) => { QuayRoadsPanel.CloseIfOpen(netInfo); };
                         }
                     }
