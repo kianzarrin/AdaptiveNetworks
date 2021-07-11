@@ -34,6 +34,8 @@ namespace AdaptiveRoads.Manager {
         public NetSegmentEnd.Flags SegmentEnd;
         public NetLaneExt.Flags Lane;
 
+        public static CustomFlags None = default;
+
         public static CustomFlags operator |(CustomFlags lhs, CustomFlags rhs) {
             return new CustomFlags {
                 Node = lhs.Node | rhs.Node,

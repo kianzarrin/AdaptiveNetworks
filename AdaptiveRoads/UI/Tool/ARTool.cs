@@ -86,11 +86,11 @@ namespace AdaptiveRoads.UI.Tool {
         }
 
         public static CustomFlags GetUsedFlagsSegment(ushort segmentID) {
-            CustomFlags ret = segmentID.ToSegment().Info.GetMetaData()?.UsedCustomFlags ?? new CustomFlags();
+            CustomFlags ret = segmentID.ToSegment().Info.GetMetaData()?.UsedCustomFlags ?? CustomFlags.None;
             ushort startNodeID = segmentID.ToSegment().m_startNode;
             ushort endNodeID = segmentID.ToSegment().m_endNode;
-            ret |= startNodeID.ToNode().Info.GetMetaData()?.UsedCustomFlags ?? new CustomFlags();
-            ret |= endNodeID.ToNode().Info.GetMetaData()?.UsedCustomFlags ?? new CustomFlags();
+            ret |= startNodeID.ToNode().Info.GetMetaData()?.UsedCustomFlags ?? CustomFlags.None;
+            ret |= endNodeID.ToNode().Info.GetMetaData()?.UsedCustomFlags ?? CustomFlags.None;
             return ret;
         }
 

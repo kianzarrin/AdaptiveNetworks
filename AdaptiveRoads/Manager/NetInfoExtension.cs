@@ -14,6 +14,7 @@ using static AdaptiveRoads.Manager.NetInfoExtionsion;
 using static AdaptiveRoads.UI.ModSettings;
 using static KianCommons.ReflectionHelpers;
 using AdaptiveRoads.UI.RoadEditor.Bitmask;
+using System.Collections;
 
 namespace AdaptiveRoads.Manager {
     using static HintExtension;
@@ -273,6 +274,8 @@ namespace AdaptiveRoads.Manager {
             [NonSerialized]
             public CustomFlags UsedCustomFlags;
 
+            public Dictionary<Enum, string> CustomFlagNames = new Dictionary<Enum, string>();
+
             public void Update(NetInfo netInfo) {
                 try {
                     UsedCustomFlags = GetUsedCustomFlags(netInfo);
@@ -329,7 +332,7 @@ namespace AdaptiveRoads.Manager {
             }
 
             static CustomFlags GetUsedCustomFlags(NetInfo info) {
-                var ret = new CustomFlags();
+                var ret = CustomFlags.None;
                 foreach (var item in info.m_nodes) {
                     if (item.GetMetaData() is Node metaData)
                         ret |= metaData.UsedCustomFlags;
