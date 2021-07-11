@@ -263,9 +263,7 @@ namespace AdaptiveRoads.Manager {
             [NonSerialized]
             public float OneOverSinOfParkingAngle = 1;
 
-#if QUAY_ROADS_SHOW
             public Data.QuayRoads.ProfileSection[] QuayRoadsProfile = null;
-#endif
 
             [NonSerialized]
             public CustomFlags UsedCustomFlags;

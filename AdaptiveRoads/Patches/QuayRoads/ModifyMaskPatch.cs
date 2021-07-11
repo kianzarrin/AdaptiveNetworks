@@ -1,4 +1,3 @@
-#if QUAY_ROADS_SHOW
 using ColossalFramework;
 using HarmonyLib;
 using UnityEngine;
@@ -164,4 +163,3 @@ namespace AdaptiveRoads.Patches {
         }
     }
 }
-#endif
