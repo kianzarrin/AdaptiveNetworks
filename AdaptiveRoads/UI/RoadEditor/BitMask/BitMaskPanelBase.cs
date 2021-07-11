@@ -64,6 +64,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
         public event REPropertySet.PropertyChangedHandler EventPropertyChanged;
 
         public override void OnDestroy() {
+            NetInfoExtionsion.OnCustomFlagRenamed -= Refresh;
             ReflectionHelpers.SetAllDeclaredFieldsToNull(this);
             base.OnDestroy();
         }
@@ -82,10 +83,31 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
                 EditorMultiSelectDropDown.Init(DropDown);
                 DropDown.relativePosition = new Vector2(width - DropDown.width, 28);
                 DropDown.eventAfterDropdownClose += OnAfterDropdownClose;
+                DropDown.eventCheckedChanged += DropDown_eventCheckedChanged;
+                NetInfoExtionsion.OnCustomFlagRenamed += Refresh;
+
                 isInteractive = true;
             } catch (Exception ex) {
                 ex.Log();
             }
+        }
+
+        private void DropDown_eventCheckedChanged(UIComponent component, int value) {
+            try {
+                // handle control click on custom flag:
+                if (Helpers.ControlIsPressed) {
+                    Enum flag = DropDown.GetItemUserData(value) as Enum;
+                    var cfa = flag.GetEnumMemberAttributes<CustomFlagAttribute>();
+                    if (!cfa.IsNullorEmpty()) {
+                        var panel = MiniPanel.Display();
+                        var field = panel.AddTextField();
+                        field.width = 200;
+                        string flagName = CustomFlagAttribute.GetName(flag, NetInfoExtionsion.EditedNetInfo);
+                        field.text = flagName ?? "";
+                        panel.AddButton("Rename", null, () => NetInfoExtionsion.RenameCustomFlag(flag, field.text));
+                    }
+                }
+            } catch (Exception ex) { ex.Log(); }
         }
 
         public override void Start() {

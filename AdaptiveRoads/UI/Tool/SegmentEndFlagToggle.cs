@@ -2,6 +2,7 @@ namespace AdaptiveRoads.UI.Tool {
     using ColossalFramework;
     using ColossalFramework.UI;
     using KianCommons.UI;
+    using KianCommons;
     using AdaptiveRoads.Manager;
 
     public class SegmentEndFlagToggle : UICheckBoxExt {
@@ -21,7 +22,9 @@ namespace AdaptiveRoads.UI.Tool {
 
         public override void Start() {
             base.Start();
-            this.Label = flag_.ToString();
+            string name = CustomFlagAttribute.GetName(flag_, segmentID_.ToSegment().Info);
+            this.Label = name ?? flag_.ToString();
+            this.tooltip = flag_.ToString();
         }
 
         public override void OnCheckChanged(UIComponent component, bool value) {

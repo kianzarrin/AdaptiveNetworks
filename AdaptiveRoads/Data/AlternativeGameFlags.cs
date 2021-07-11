@@ -17,10 +17,17 @@ namespace AdaptiveRoads.Manager {
 
     public static class HintExtension {
         public static List<string> GetHints(this MemberInfo info) {
-            return info
+            var ret = info
                 .GetCustomAttributes(typeof(HintAttribute), true)
                 .Select(_item => (_item as HintAttribute).Text)
                 .ToList();
+
+            if (info.HasAttribute<CustomFlagAttribute>()) {
+                string ret2 = CustomFlagAttribute.GetName(info, NetInfoExtionsion.EditedNetInfo);
+                if (ret2 != null) ret.Add(ret2);
+            }
+
+            return ret;
         }
 
         public const string LANE_HEAD_TAIL =

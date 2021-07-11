@@ -21,7 +21,10 @@ namespace AdaptiveRoads.UI.Tool {
 
         public override void Start() {
             base.Start();
-            this.Label = flag_.ToString();
+            var segment = laneID_.ToLane().m_segment;
+            string name = CustomFlagAttribute.GetName(flag_, segment.ToSegment().Info);
+            this.Label = name ?? flag_.ToString();
+            this.tooltip = flag_.ToString();
         }
 
         public override void OnCheckChanged(UIComponent component, bool value) {

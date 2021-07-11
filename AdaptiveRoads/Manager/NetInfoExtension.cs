@@ -659,9 +659,24 @@ namespace AdaptiveRoads.Manager {
             };
         }
 
-#endregion
+        #endregion
 
-#region static
+        #region static
+        public static event Action OnCustomFlagRenamed;
+        public static void RenameCustomFlag(Enum flag, string name) {
+            try {
+                foreach (var netInfo in NetInfoExtionsion.EditedNetInfos) {
+                    var customFlagNames = netInfo.GetMetaData()?.CustomFlagNames;
+                    Assertion.NotNull(customFlagNames);
+                    if (name.IsNullOrWhiteSpace())
+                        customFlagNames.Remove(flag);
+                    else
+                        customFlagNames[flag] = name;
+                    OnCustomFlagRenamed?.Invoke();
+                }
+            } catch(Exception ex) { ex.Log(); }
+        }
+
         private static IEnumerable<NetLaneProps.Prop> IterateProps(NetInfo.Lane lane)
             => lane?.m_laneProps?.m_props ?? Enumerable.Empty<NetLaneProps.Prop>();
 
@@ -885,6 +900,6 @@ namespace AdaptiveRoads.Manager {
                 }
             }
         }
-#endregion
+        #endregion
     }
 }
