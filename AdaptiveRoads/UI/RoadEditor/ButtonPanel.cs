@@ -10,12 +10,11 @@ namespace AdaptiveRoads.UI.RoadEditor {
     public class ButtonPanel : UIPanel, IHint {
         public UIButton Button;
         string hint_;
+        // used by QuayRoads to destroy its popups when the button is destroyed
         public event EventHandler EventDestroy;
 
         public override void OnDestroy() {
-            if(EventDestroy != null) {
-                EventDestroy(this,null);
-            }
+            EventDestroy?.Invoke(this, null);
             SetAllDeclaredFieldsToNull(this);
             base.OnDestroy();
         }
