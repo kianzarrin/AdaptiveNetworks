@@ -5,12 +5,16 @@ namespace AdaptiveRoads.Patches.Corner {
     using KianCommons.Patches;
     using System.Reflection;
 
+    public static class ShiftData {
+        public static float Shift;
+        public static ushort TargetSegmentID;
+    }
 
     [InGamePatch]
     [UsedImplicitly]
-    [HarmonyPatch2(typeof(NetNode), typeof(RefreshJunctionData))]
+    [HarmonyPatch2(typeof(NetNode), typeof(RefreshJunctionData), instance:true)]
     static class RefreshJunctionDataDCPatch {
-        delegate void RefreshJunctionData(
+        delegate void RefreshJunctionData( NetNode instance,
             ushort nodeID, int segmentIndex, int segmentIndex2,
             NetInfo info, NetInfo info2,
             ushort nodeSegment, ushort nodeSegment2,
@@ -19,16 +23,13 @@ namespace AdaptiveRoads.Patches.Corner {
         static MethodInfo mCaclculateCorner = typeof(NetSegment)
             .GetMethod(nameof(NetSegment.CalculateCorner), BindingFlags.Public | BindingFlags.Instance, throwOnError: true);
 
-        public static float Shift { get; private set; }
-        public static ushort TargetSegmentID;
-
         static void Prefix(ushort nodeSegment, ushort nodeSegment2) {
-            Shift = nodeSegment.ToSegment().Info.GetMetaData()?.Shift ?? 0; // target segment uses source shift.
-            TargetSegmentID = nodeSegment2;
+            ShiftData.Shift = nodeSegment.ToSegment().Info.GetMetaData()?.Shift ?? 0; // target segment uses source shift.
+            ShiftData.TargetSegmentID = nodeSegment2;
         }
 
         static void Postfix() {
-            TargetSegmentID = 0;
+            ShiftData.TargetSegmentID = 0;
         }
 
     }
