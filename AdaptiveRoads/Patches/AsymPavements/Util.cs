@@ -1,6 +1,6 @@
-using System;
-
 namespace AdaptiveRoads.Patches.AsymPavements {
+    using System;
+
     public static class Util {
         public enum Operation {
             Vanilla, //return input width
