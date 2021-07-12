@@ -14,6 +14,7 @@ using static AdaptiveRoads.Manager.NetInfoExtionsion;
 using static AdaptiveRoads.UI.ModSettings;
 using static KianCommons.ReflectionHelpers;
 using AdaptiveRoads.UI.RoadEditor.Bitmask;
+using AdaptiveRoads.Util;
 using System.Collections;
 
 namespace AdaptiveRoads.Manager {
@@ -224,17 +225,23 @@ namespace AdaptiveRoads.Manager {
             public Net(NetInfo template) {
                 PavementWidthRight = template.m_pavementWidth;
                 UsedCustomFlags = GetUsedCustomFlags(template);
+                Template = template;
             }
 
             #region serialization
             //serialization
-            public void GetObjectData(SerializationInfo info, StreamingContext context) =>
+            public void GetObjectData(SerializationInfo info, StreamingContext context) {
+                FillCustomLaneFlagNames();
                 SerializationUtil.GetObjectFields(info, this);
+            }
 
             // deserialization
             public Net(SerializationInfo info, StreamingContext context) =>
                 SerializationUtil.SetObjectFields(info, this);
             #endregion
+
+            [NonSerialized]
+            public NetInfo Template;
 
             public string[] ConnectGroups;
 
@@ -271,10 +278,142 @@ namespace AdaptiveRoads.Manager {
             [Hint("only affect the terrain on one side")]
             public bool UseOneSidedTerrainModification = false;
 
+            #region Custom Flags
             [NonSerialized]
             public CustomFlags UsedCustomFlags;
 
             public Dictionary<Enum, string> CustomFlagNames = new Dictionary<Enum, string>();
+
+            [NonSerialized]
+            public Dictionary<NetInfo.Lane, Dictionary<NetLaneExt.Flags, string>> CustomLaneFlagNames0;
+
+            public Dictionary<NetLaneExt.Flags, string>[] CustomLaneFlagNames;
+
+            static CustomFlags GetUsedCustomFlags(NetInfo info) {
+                var ret = CustomFlags.None;
+                foreach (var item in info.m_nodes) {
+                    if (item.GetMetaData() is Node metaData)
+                        ret |= metaData.UsedCustomFlags;
+                }
+
+                foreach (var item in info.m_segments) {
+                    if (item.GetMetaData() is Segment metaData)
+                        ret |= metaData.UsedCustomFlags;
+                }
+
+                foreach (var lane in info.m_lanes) {
+                    var props = lane.m_laneProps?.m_props;
+                    if (props.IsNullorEmpty()) continue;
+                    foreach (var item in props) {
+                        if (item.GetMetaData() is LaneProp metaData)
+                            ret |= metaData.UsedCustomFlags;
+                    }
+                }
+
+                return ret;
+            }
+
+            private void FillCustomLaneFlagNames() {
+                try {
+                    CustomLaneFlagNames = null;
+                    if (CustomLaneFlagNames.IsNullorEmpty()) return;
+                    CustomLaneFlagNames = new Dictionary<NetLaneExt.Flags, string>[Template.m_lanes.Length];
+                    for (int laneIndex = 0; laneIndex < CustomLaneFlagNames.Length; ++laneIndex) {
+                        var lane = Template.m_lanes[laneIndex];
+                        if (CustomLaneFlagNames0.TryGetValue(lane, out var dict)) {
+                            CustomLaneFlagNames[laneIndex] = dict;
+                        }
+                    }
+                } catch (Exception ex) { ex.Log(); }
+            }
+
+            public string GetCustomLaneFlagName(NetLaneExt.Flags flag, int laneIndex) {
+                try {
+                    if (CustomLaneFlagNames0 is not null) {
+                        // edit prefab
+                        var lane = Template.m_lanes[laneIndex];
+                        if (CustomLaneFlagNames0.TryGetValue(lane, out var dict) &&
+                            dict.TryGetValue(flag, out string name)) {
+                            return name;
+                        }
+
+                    } else if (CustomLaneFlagNames is not null) {
+                        // normal
+                        Assertion.InRange(CustomLaneFlagNames, laneIndex);
+                        var dict = CustomLaneFlagNames[laneIndex];
+                        if (dict != null && dict.TryGetValue(flag, out string name)) {
+                            return name;
+                        }
+                    }
+                } catch(Exception ex) { ex.Log(); }
+
+                return null;
+            }
+
+            public static string GetCustomFlagName(Enum flag, object target) {
+                try {
+                    if (target is NetLaneProps.Prop prop) {
+                        var netInfo = prop.GetParent(laneIndex: out int laneIndex, out _);
+                        return netInfo?.GetMetaData()?.GetCustomLaneFlagName((NetLaneExt.Flags)flag, laneIndex);
+                    } else {
+                        var netInfo =
+                            (target as NetInfo.Node)?.GetParent(out _) ??
+                            (target as NetInfo.Segment)?.GetParent(out _);
+                        var dict = netInfo?.GetMetaData()?.CustomFlagNames;
+                        if (dict != null && dict.TryGetValue(flag, out string name)) {
+                            return name;
+                        }
+                    }
+                } catch(Exception ex) { ex.Log(); }
+                return null;
+            }
+
+            public static event Action OnCustomFlagRenamed;
+            public void RenameCustomFlag(Enum flag, string name) {
+                try {
+                    CustomFlagNames ??= new Dictionary<Enum, string>();
+                    if (name.IsNullOrWhiteSpace() || name == flag.ToString())
+                        CustomFlagNames.Remove(flag);
+                    else
+                        CustomFlagNames[flag] = name;
+                    OnCustomFlagRenamed?.Invoke();
+                } catch (Exception ex) { ex.Log(); }
+            }
+
+            public void RenameCustomFlag(int laneIndex, NetLaneExt.Flags flag, string name) {
+                try {
+                    Assertion.NotNull(Template);
+                    var lane = Template.m_lanes[laneIndex];
+                    Dictionary<NetLaneExt.Flags, string> dict = null;
+
+                    CustomLaneFlagNames0 ??= new Dictionary<NetInfo.Lane, Dictionary<NetLaneExt.Flags, string>>();
+                    if (!CustomLaneFlagNames0.TryGetValue(lane, out dict)) {
+                        dict = CustomLaneFlagNames0[lane] = new Dictionary<NetLaneExt.Flags, string>();
+                    }
+
+                    if (name.IsNullOrWhiteSpace() || name == flag.ToString())
+                        dict.Remove(flag);
+                    else
+                        dict[flag] = name;
+
+                    OnCustomFlagRenamed?.Invoke();
+                } catch (Exception ex) { ex.Log(); }
+            }
+
+            public static void RenameCustomFlag(Enum flag, object target, string name) {
+                try {
+                    if (target is NetLaneProps.Prop prop) {
+                        var netInfo = prop.GetParent(laneIndex: out int laneIndex, out _);
+                        netInfo.GetMetaData().RenameCustomFlag(laneIndex: laneIndex, flag:(NetLaneExt.Flags)flag, name: name);
+                    } else {
+                        var netInfo =
+                            (target as NetInfo.Node)?.GetParent(out _) ??
+                            (target as NetInfo.Segment)?.GetParent(out _);
+                        netInfo.GetMetaData().RenameCustomFlag(flag: flag, name: name);
+                    }
+                } catch (Exception ex) { ex.Log(); }
+            }
+            #endregion
 
             public void Update(NetInfo netInfo) {
                 try {
@@ -329,30 +468,6 @@ namespace AdaptiveRoads.Manager {
                     foreach (var cg in connectGroups)
                         yield return cg;
                 }
-            }
-
-            static CustomFlags GetUsedCustomFlags(NetInfo info) {
-                var ret = CustomFlags.None;
-                foreach (var item in info.m_nodes) {
-                    if (item.GetMetaData() is Node metaData)
-                        ret |= metaData.UsedCustomFlags;
-                }
-
-                foreach (var item in info.m_segments) {
-                    if (item.GetMetaData() is Segment metaData)
-                        ret |= metaData.UsedCustomFlags;
-                }
-
-                foreach (var lane in info.m_lanes) {
-                    var props = lane.m_laneProps?.m_props;
-                    if (props.IsNullorEmpty()) continue;
-                    foreach (var item in props) {
-                        if (item.GetMetaData() is LaneProp metaData)
-                            ret |= metaData.UsedCustomFlags;
-                    }
-                }
-
-                return ret;
             }
         }
 
@@ -662,21 +777,6 @@ namespace AdaptiveRoads.Manager {
         #endregion
 
         #region static
-        public static event Action OnCustomFlagRenamed;
-        public static void RenameCustomFlag(Enum flag, string name) {
-            try {
-                foreach (var netInfo in NetInfoExtionsion.EditedNetInfos) {
-                    var customFlagNames = netInfo.GetMetaData()?.CustomFlagNames;
-                    Assertion.NotNull(customFlagNames);
-                    if (name.IsNullOrWhiteSpace() || name == flag.ToString())
-                        customFlagNames.Remove(flag);
-                    else
-                        customFlagNames[flag] = name;
-                    OnCustomFlagRenamed?.Invoke();
-                }
-            } catch(Exception ex) { ex.Log(); }
-        }
-
         private static IEnumerable<NetLaneProps.Prop> IterateProps(NetInfo.Lane lane)
             => lane?.m_laneProps?.m_props ?? Enumerable.Empty<NetLaneProps.Prop>();
 

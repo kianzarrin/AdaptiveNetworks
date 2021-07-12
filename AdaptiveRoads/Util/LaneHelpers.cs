@@ -73,7 +73,7 @@ namespace AdaptiveRoads.Util {
                 ushort segmentID2 = transition.segmentId;
                 arrows |= ArrowDirectionUtil.GetArrowExt(segmentID, segmentID2);
             }
-            return arrows.LogRet($"GetArrowsExt(lane:{lane.LaneID} segment:{lane.SegmentID})");
+            return arrows;//.LogRet($"GetArrowsExt(lane:{lane.LaneID} segment:{lane.SegmentID})");
         }
 
 

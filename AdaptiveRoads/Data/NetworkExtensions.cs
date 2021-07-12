@@ -54,15 +54,9 @@ namespace AdaptiveRoads.Manager {
     public class CustomFlagAttribute : Attribute {
         public static string GetName(Enum flag, NetInfo netInfo) {
             var cfn = netInfo?.GetMetaData()?.CustomFlagNames;
-            if (cfn !=null && cfn.TryGetValue(flag, out string ret))
+            if (cfn != null && cfn.TryGetValue(flag, out string ret))
                 return ret;
             return null;
-        }
-
-        public static string GetName(MemberInfo enumMember, NetInfo netInfo) {
-            Assertion.Assert(enumMember.HasAttribute<CustomFlagAttribute>());
-            Enum flag = Enum.Parse(enumMember.DeclaringType, enumMember.Name, true) as Enum;
-            return GetName(flag, netInfo);
         }
     }
 

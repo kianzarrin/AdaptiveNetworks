@@ -16,17 +16,11 @@ namespace AdaptiveRoads.Manager {
     }
 
     public static class HintExtension {
-        public static List<string> GetHints(this MemberInfo info) {
-            var ret = info
+        public static List<string> GetHints(this MemberInfo memberInfo) {
+            var ret = memberInfo
                 .GetCustomAttributes(typeof(HintAttribute), true)
                 .Select(_item => (_item as HintAttribute).Text)
                 .ToList();
-
-            if (info.HasAttribute<CustomFlagAttribute>()) {
-                string ret2 = CustomFlagAttribute.GetName(info, NetInfoExtionsion.EditedNetInfo);
-                if (ret2 != null) ret.Add(ret2);
-            }
-
             return ret;
         }
 

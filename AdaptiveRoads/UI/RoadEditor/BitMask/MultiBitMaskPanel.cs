@@ -22,9 +22,10 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             Log.Debug($"BitMaskPanel.Add(container:{container}, label:{label})");
             var subPanel = UIView.GetAView().AddUIComponent(typeof(MultiBitMaskPanel)) as MultiBitMaskPanel;
             subPanel.FlagDatas = flagDatas;
-            subPanel.Initialize();
             subPanel.Label.text = label + ":";
             subPanel.Hint = hint;
+            subPanel.Target = roadEditorPanel.GetTarget();
+            subPanel.Initialize();
 
             container.AttachUIComponent(subPanel.gameObject);
             roadEditorPanel.FitToContainer(subPanel);

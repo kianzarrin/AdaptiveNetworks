@@ -87,7 +87,7 @@ namespace AdaptiveRoads.UI.Tool {
                     hints.Add("CTRL + Click => modify node flags");
                 if (GetUsedFlagsSegmentEnd(segmentID: HoveredSegmentID, nodeID: HoveredNodeID) != 0)
                     hints.Add("CTRL + Click => modify segmentEnd flags");
-                if(!hints.Any())
+                if(hints.Count == 0)
                     hints.Add("no custom AR flags to modify");
                 ShowToolInfo(true, hints.JoinLines(), HitPos);
             } else {
@@ -121,18 +121,19 @@ namespace AdaptiveRoads.UI.Tool {
             // ret |= nodeID.ToNode().Info.GetMetaData()?.UsedCustomFlags.SegmentEnd ?? 0;
             return ret;
         }
-        public static NetLaneExt.Flags GetUsedCustomFlagsLane(LaneData lane) {
-            NetLaneExt.Flags ret = lane.Segment.Info.GetMetaData()?.UsedCustomFlags.Lane ?? 0;
-            return ret;
 
-            //NetLaneExt.Flags mask = 0;
-            //var props = (lane.LaneInfo.m_laneProps?.m_props).EmptyIfNull();
-            //foreach (var prop in props) {
-            //    var metadata = prop.GetMetaData();
-            //    if (metadata != null)
-            //        mask |= (metadata.LaneFlags.Required | metadata.LaneFlags.Forbidden);
-            //}
-            //return mask & NetLaneExt.Flags.CustomsMask;
+        /// <summary>
+        /// Gets the used lane flags for the input lane (not all the lanes of the NetInfo)
+        /// </summary>
+        public static NetLaneExt.Flags GetUsedCustomFlagsLane(LaneData lane) {
+            NetLaneExt.Flags mask = 0;
+            var props = (lane.LaneInfo.m_laneProps?.m_props).EmptyIfNull();
+            foreach (var prop in props) {
+                var metadata = prop.GetMetaData();
+                if (metadata != null)
+                    mask |= (metadata.LaneFlags.Required | metadata.LaneFlags.Forbidden);
+            }
+            return mask & NetLaneExt.Flags.CustomsMask;
         }
 
         public bool HoverHasFlags() {

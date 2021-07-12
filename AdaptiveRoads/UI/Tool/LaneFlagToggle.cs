@@ -22,7 +22,8 @@ namespace AdaptiveRoads.UI.Tool {
         public override void Start() {
             base.Start();
             var segment = laneID_.ToLane().m_segment;
-            string name = CustomFlagAttribute.GetName(flag_, segment.ToSegment().Info);
+            var metadata = segment.ToSegment().Info?.GetMetaData();
+            string name = metadata.GetCustomLaneFlagName(flag_, NetUtil.GetLaneIndex(laneID_));
             this.Label = name ?? flag_.ToString();
             this.tooltip = flag_.ToString();
         }
