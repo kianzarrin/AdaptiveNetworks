@@ -24,17 +24,15 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
                 Log.Debug($"BitMaskPanel.Add(container:{container}, label:{label}, enumType:{flagData.EnumType})");
                 var subPanel = UIView.GetAView().AddUIComponent(typeof(BitMaskPanel)) as BitMaskPanel;
                 subPanel.FlagData = flagData;
-                subPanel.Initialize();
+                subPanel.Target = roadEditorPanel.GetTarget();
                 subPanel.Label.text = label + ":";
                 subPanel.Hint = hint;
-                //if (dark)
-                //    subPanel.opacity = 0.1f;
-                //else
-                //    subPanel.opacity = 0.3f;
+                subPanel.Initialize();
 
                 container.AttachUIComponent(subPanel.gameObject);
                 roadEditorPanel.FitToContainer(subPanel);
                 subPanel.EventPropertyChanged += roadEditorPanel.OnObjectModified;
+                
 
                 return subPanel;
             } catch (Exception ex) {

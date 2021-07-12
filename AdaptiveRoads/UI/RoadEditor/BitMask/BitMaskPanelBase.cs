@@ -8,9 +8,12 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
     using System.Linq;
     using KianCommons.UI.Helpers;
     using AdaptiveRoads.Manager;
+    using AdaptiveRoads.Util;
     using static KianCommons.ReflectionHelpers;
     using KianCommons.Plugins;
     using System.Collections.Generic;
+    using PrefabMetadata.API;
+    using PrefabMetadata.Helpers;
 
     internal struct FlagDataT {
         public delegate void SetHandlerD(IConvertible flag);
@@ -19,6 +22,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
         public readonly SetHandlerD SetValue;
         public readonly GetHandlerD GetValue;
         public readonly TypeCode UnderlyingType;
+
         public FlagDataT(SetHandlerD setValue, GetHandlerD getValue, Type enumType) {
             SetValue = setValue;
             GetValue = getValue;
@@ -59,11 +63,13 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
     public abstract class BitMaskPanelBase : UIPanel, IDataUI {
         public UILabel Label;
         public UICheckboxDropDown DropDown;
+        public object Target;
 
         public string Hint;
         public event REPropertySet.PropertyChangedHandler EventPropertyChanged;
 
         public override void OnDestroy() {
+            NetInfoExtionsion.Net.OnCustomFlagRenamed -= Refresh;
             ReflectionHelpers.SetAllDeclaredFieldsToNull(this);
             base.OnDestroy();
         }
@@ -82,10 +88,40 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
                 EditorMultiSelectDropDown.Init(DropDown);
                 DropDown.relativePosition = new Vector2(width - DropDown.width, 28);
                 DropDown.eventAfterDropdownClose += OnAfterDropdownClose;
+                DropDown.eventCheckedChanged += DropDown_eventCheckedChanged;
+                NetInfoExtionsion.Net.OnCustomFlagRenamed += Refresh;
+
                 isInteractive = true;
             } catch (Exception ex) {
                 ex.Log();
             }
+        }
+
+        private void DropDown_eventCheckedChanged(UIComponent component, int index) {
+            try {
+                // handle control click on custom flag:
+                if (Helpers.ControlIsPressed) {
+                    Enum flag = DropDown.GetItemUserData(index) as Enum;
+                    var cfa = flag.GetEnumMemberAttributes<CustomFlagAttribute>();
+                    if (!cfa.IsNullorEmpty()) {
+                        if(!DropDown.GetChecked(index)) // gaurd for stack overflow.
+                            DropDown.SetChecked(index, true);
+                        var panel = MiniPanel.Display();
+                        panel.AddUIComponent<UILabel>().text = "Rename " + flag.ToString();
+
+                        var field = panel.AddTextField();
+                        field.width = 200;
+                        Assertion.NotNull(Target);
+                        string flagName = NetInfoExtionsion.Net.GetCustomFlagName(flag: flag, target: Target);
+                        field.text = flagName ?? "";
+
+                        panel.AddButton("Rename", null, () => {
+                            NetInfoExtionsion.Net.RenameCustomFlag(flag: flag, target: Target, name: field.text);
+                            DropDown.triggerButton.Invoke(nameof(SimulateClick), 0);
+                        });
+                    }
+                }
+            } catch (Exception ex) { ex.Log(); }
         }
 
         public override void Start() {
@@ -233,10 +269,18 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
                 if (i >= 0) {
                     var userData = DropDown.GetItemUserData(i);
                     List<string> hints = new List<string>();
-                    if (userData is Enum flag)
+                    if (userData is Enum flag) {
                         hints = flag.GetEnumMemberInfo().GetHints();
-                    else if(userData != null)
+                        bool isCustomFlag = !flag.GetEnumMemberAttributes<CustomFlagAttribute>().IsNullorEmpty();
+                        if (isCustomFlag) {
+                            string cfName = NetInfoExtionsion.Net.GetCustomFlagName(flag, Target);
+                            if(!cfName.IsNullorEmpty())
+                                hints.Insert(0, "display name : " + cfName);
+                            hints.Add("CTRL+Click => Rename custom flag");
+                        }
+                    } else if (userData != null) {
                         hints.Add(userData.ToString());
+                    }
                     hints.Add("right-click => close drop down");
                     return hints.JoinLines();
                 } else if (containsMouse) {

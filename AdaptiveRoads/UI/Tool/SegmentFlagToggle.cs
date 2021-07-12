@@ -3,6 +3,7 @@ namespace AdaptiveRoads.UI.Tool {
     using ColossalFramework.UI;
     using KianCommons.UI;
     using AdaptiveRoads.Manager;
+    using KianCommons;
 
     public class SegmentFlagToggle : UICheckBoxExt {
         static NetworkExtensionManager man_ => NetworkExtensionManager.Instance;
@@ -20,7 +21,9 @@ namespace AdaptiveRoads.UI.Tool {
 
         public override void Start() {
             base.Start();
-            this.Label = flag_.ToString();
+            string name = CustomFlagAttribute.GetName(flag_, segmentID_.ToSegment().Info);
+            this.Label = name ?? flag_.ToString();
+            this.tooltip = flag_.ToString();
         }
 
         public override void OnCheckChanged(UIComponent component, bool value) {
@@ -32,7 +35,7 @@ namespace AdaptiveRoads.UI.Tool {
                     segment.m_flags = newFlags;
                     man_.UpdateSegment(segmentID_);
                 }
-            });
+            }); 
         }
     }
 }

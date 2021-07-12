@@ -1,0 +1,1 @@
+CalculateGroupData does not Calculate corner so no need to patch that.

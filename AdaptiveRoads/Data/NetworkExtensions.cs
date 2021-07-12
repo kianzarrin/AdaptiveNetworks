@@ -16,6 +16,7 @@ namespace AdaptiveRoads.Manager {
     using AdaptiveRoads.Util;
     using KianCommons.Serialization;
     using KianCommons.Plugins;
+    using System.Reflection;
 
     public static class AdvanedFlagsExtensions {
         public static bool CheckFlags(this NetLaneExt.Flags value, NetLaneExt.Flags required, NetLaneExt.Flags forbidden) =>
@@ -34,6 +35,8 @@ namespace AdaptiveRoads.Manager {
         public NetSegmentEnd.Flags SegmentEnd;
         public NetLaneExt.Flags Lane;
 
+        public static CustomFlags None = default;
+
         public static CustomFlags operator |(CustomFlags lhs, CustomFlags rhs) {
             return new CustomFlags {
                 Node = lhs.Node | rhs.Node,
@@ -41,6 +44,19 @@ namespace AdaptiveRoads.Manager {
                 SegmentEnd = lhs.SegmentEnd | rhs.SegmentEnd,
                 Lane = lhs.Lane | rhs.Lane,
             };
+        }
+
+        public static bool operator ==(CustomFlags lhs, CustomFlags rhs) => lhs.Equals(rhs);
+        public static bool operator !=(CustomFlags lhs, CustomFlags rhs) => !lhs.Equals(rhs);
+
+    }
+
+    public class CustomFlagAttribute : Attribute {
+        public static string GetName(Enum flag, NetInfo netInfo) {
+            var cfn = netInfo?.GetMetaData()?.CustomFlagNames;
+            if (cfn != null && cfn.TryGetValue(flag, out string ret))
+                return ret;
+            return null;
         }
     }
 
@@ -85,14 +101,14 @@ namespace AdaptiveRoads.Manager {
                   "use this in conjunction with TwoSegment node flag to put split arrow road marking")]
             SplitUnique = 1 << 17,
 
-            Custom0 = 1 << 24,
-            Custom1 = 1 << 25,
-            Custom2 = 1 << 26,
-            Custom3 = 1 << 27,
-            Custom4 = 1 << 28,
-            Custom5 = 1 << 29,
-            Custom6 = 1 << 30,
-            Custom7 = 1 << 31,
+            [CustomFlag] Custom0 = 1 << 24,
+            [CustomFlag] Custom1 = 1 << 25,
+            [CustomFlag] Custom2 = 1 << 26,
+            [CustomFlag] Custom3 = 1 << 27,
+            [CustomFlag] Custom4 = 1 << 28,
+            [CustomFlag] Custom5 = 1 << 29,
+            [CustomFlag] Custom6 = 1 << 30,
+            [CustomFlag] Custom7 = 1L << 31,
             CustomsMask = Custom0 | Custom1 | Custom2 | Custom3 | Custom4 | Custom5 | Custom6 | Custom7,
 
             LeftSlight = 1L << 32,
@@ -173,14 +189,7 @@ namespace AdaptiveRoads.Manager {
                 m_flags = m_flags.SetFlags(Flags.MergeUnique, lane.IsMergesUnique());
                 m_flags = (m_flags & ~Flags.AllDirections) | lane.GetArrowsExt();
 
-                if (SLMan != null)
-                    SpeedLimit = (SLMan as SpeedLimitManager).GetGameSpeedLimit(LaneData.LaneID);
-                else
-                    SpeedLimit = lane.LaneInfo.m_speedLimit;
-
-
-
-                
+                SpeedLimit = lane.GetLaneSpeedLimit();
 
                 //Log.Debug("NetLaneExt.UpdateLane() result: " + this);
             } catch (Exception ex) {
@@ -234,14 +243,14 @@ namespace AdaptiveRoads.Manager {
             [Hint("the junction has segments with different speed limits.")]
             SpeedChange = 1 << 12,
 
-            Custom0 = 1 << 24,
-            Custom1 = 1 << 25,
-            Custom2 = 1 << 26,
-            Custom3 = 1 << 27,
-            Custom4 = 1 << 28,
-            Custom5 = 1 << 29,
-            Custom6 = 1 << 30,
-            Custom7 = 1 << 31,
+            [CustomFlag] Custom0 = 1 << 24,
+            [CustomFlag] Custom1 = 1 << 25,
+            [CustomFlag] Custom2 = 1 << 26,
+            [CustomFlag] Custom3 = 1 << 27,
+            [CustomFlag] Custom4 = 1 << 28,
+            [CustomFlag] Custom5 = 1 << 29,
+            [CustomFlag] Custom6 = 1 << 30,
+            [CustomFlag] Custom7 = 1 << 31,
             CustomsMask = Custom0 | Custom1 | Custom2 | Custom3 | Custom4 | Custom5 | Custom6 | Custom7,
         }
 
@@ -313,14 +322,14 @@ namespace AdaptiveRoads.Manager {
             [Hint("similar to lane inverted flag but for segment. tests if traffic drives on left (right hand drive).")]
             LeftHandTraffic = 1 << 7,
 
-            Custom0 = 1 << 24,
-            Custom1 = 1 << 25,
-            Custom2 = 1 << 26,
-            Custom3 = 1 << 27,
-            Custom4 = 1 << 28,
-            Custom5 = 1 << 29,
-            Custom6 = 1 << 30,
-            Custom7 = 1 << 31,
+            [CustomFlag] Custom0 = 1 << 24,
+            [CustomFlag] Custom1 = 1 << 25,
+            [CustomFlag] Custom2 = 1 << 26,
+            [CustomFlag] Custom3 = 1 << 27,
+            [CustomFlag] Custom4 = 1 << 28,
+            [CustomFlag] Custom5 = 1 << 29,
+            [CustomFlag] Custom6 = 1 << 30,
+            [CustomFlag] Custom7 = 1 << 31,
             CustomsMask = Custom0 | Custom1 | Custom2 | Custom3 | Custom4 | Custom5 | Custom6 | Custom7,
         }
 
@@ -346,7 +355,7 @@ namespace AdaptiveRoads.Manager {
                     Log.Debug("Skip updating invalid segment:" + SegmentID);
                 return;
             }
-            Log.Debug($"NetSegmentExt.UpdateAllFlags() called. SegmentID={SegmentID}" /*Environment.StackTrace*/, false);
+            if(Log.VERBOSE) Log.Debug($"NetSegmentExt.UpdateAllFlags() called. SegmentID={SegmentID}" /*Environment.StackTrace*/, false);
             try {
                 bool parkingLeft = false;
                 bool parkingRight = false;
@@ -387,8 +396,7 @@ namespace AdaptiveRoads.Manager {
                 End.UpdateFlags();
                 End.UpdateDirections();
 
-
-                Log.Debug($"NetSegmentExt.UpdateAllFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
+                if (Log.VERBOSE) Log.Debug($"NetSegmentExt.UpdateAllFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
             } catch (Exception ex) {
                 Log.Exception(
                     ex,
@@ -503,14 +511,14 @@ namespace AdaptiveRoads.Manager {
             [Hint("next segment has more lanes (only valid when there are two segments)")]
             LanesDecrease = 1L << 33,
 
-            Custom0 = 1 << 24,
-            Custom1 = 1 << 25,
-            Custom2 = 1 << 26,
-            Custom3 = 1 << 27,
-            Custom4 = 1 << 28,
-            Custom5 = 1 << 29,
-            Custom6 = 1 << 30,
-            Custom7 = 1 << 31,
+            [CustomFlag] Custom0 = 1 << 24,
+            [CustomFlag] Custom1 = 1 << 25,
+            [CustomFlag] Custom2 = 1 << 26,
+            [CustomFlag] Custom3 = 1 << 27,
+            [CustomFlag] Custom4 = 1 << 28,
+            [CustomFlag] Custom5 = 1 << 29,
+            [CustomFlag] Custom6 = 1 << 30,
+            [CustomFlag] Custom7 = 1L << 31,
             CustomsMask = Custom0 | Custom1 | Custom2 | Custom3 | Custom4 | Custom5 | Custom6 | Custom7,
         }
 

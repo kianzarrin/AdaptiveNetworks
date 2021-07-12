@@ -355,11 +355,11 @@ namespace AdaptiveRoads.Util {
         }
 #pragma warning restore
 
-        public static string MergeFlagText(params object[] flags) {
+        public static string MergeFlagText(params IConvertible[] flags) {
             string ret = "";
-            foreach (object item in flags) {
+            foreach (IConvertible item in flags) {
                 try {
-                    if (item is null || (int)item == 0)
+                    if (item is null || item.ToInt64() == 0)
                         continue;
                     if (ret != "") ret += ", ";
                     ret += item.ToString();

@@ -108,63 +108,54 @@ namespace AdaptiveRoads.UI.Tool {
             } catch (Exception ex) { ex.Log(); }
         }
 
-        public void AddSegmentFlags(UIPanel parent) {
+        public void AddSegmentFlags(UIPanel container) {
             LogCalled();
-            AssertNotNull(parent,"parent");
+            AssertNotNull(container, "container");
             NetUtil.AssertSegmentValid(segmentID_);
             var mask = ARTool.GetUsedFlagsSegment(segmentID_).Segment;
             foreach (var flag in mask.ExtractPow2Flags()) {
-                SegmentFlagToggle.Add(parent, segmentID_, flag);
+                SegmentFlagToggle.Add(container, segmentID_, flag);
             }
 
             foreach (var lane in NetUtil.GetSortedLanes(segmentID_)) {
                 var laneMask = ARTool.GetUsedCustomFlagsLane(lane);
                 //Log.Info($"lane:{lane} laneMask:" + laneMask);
                 if (laneMask != 0)
-                    AddLaneFlags(parent, lane, laneMask);
+                    AddLaneFlags(container, lane, laneMask);
             }
         }
 
-        public void AddLaneFlags(UIPanel parent, LaneData lane, NetLaneExt.Flags mask) {
+        public void AddLaneFlags(UIPanel container, LaneData lane, NetLaneExt.Flags mask) {
             try {
-                LogCalled("parent", lane.LaneID, mask);
-                AddSpacePanel(parent, 6);
-                var laneContainer = AddPanel(parent);
-                laneContainer.padding = laneContainer.autoLayoutPadding = new RectOffset();
+                LogCalled(container, lane.LaneID, mask);
+                AddSpacePanel(container, 6);
+                var laneContainer = LanePanelCollapsable.Add(container, lane, mask);
 
-                var caption = LaneCaptionButton.Add(laneContainer, lane);
-
-                var lanePanel = AddPanel(laneContainer);
-                caption.SetTarget(lanePanel);
-
-                foreach (var flag in mask.ExtractPow2Flags()) {
-                    LaneFlagToggle.Add(lanePanel, lane.LaneID, flag);
-                }
                 laneContainer.eventMouseEnter += (_, __) => HighlighLaneID = lane.LaneID;
                 laneContainer.eventMouseLeave += (_, __) => {
                     if (HighlighLaneID == lane.LaneID)
                         HighlighLaneID = 0;
                 };
-                laneContainer.atlas = TextureUtil.Ingame;
-                laneContainer.backgroundSprite = "MenuPanelInfo";
             } catch (Exception ex) {
                 Log.Exception(ex);
             }
         }
 
-        public void AddSegmentEndFlags(UIPanel parent) {
-            AssertNotNull(parent, "parent");
+
+        public void AddSegmentEndFlags(UIPanel container) {
+            AssertNotNull(container, "container");
             NetUtil.AssertSegmentValid(segmentID_);
+            Assertion.Assert(NetUtil.IsNodeValid(nodeID_), $"IsNodeValid({nodeID_})");
 
             var mask = ARTool.GetUsedFlagsSegmentEnd(segmentID: segmentID_, nodeID: nodeID_);
             foreach (var flag in mask.ExtractPow2Flags()) {
-                SegmentEndFlagToggle.Add(parent, segmentID: segmentID_, nodeID: nodeID_, flag: flag);
+                SegmentEndFlagToggle.Add(container, segmentID: segmentID_, nodeID: nodeID_, flag: flag);
             }
         }
 
         public void AddNodeFlags(UIPanel parent) {
             AssertNotNull(parent, "parent");
-            NetUtil.AssertSegmentValid(segmentID_);
+            Assertion.Assert(NetUtil.IsNodeValid(nodeID_), $"IsNodeValid({nodeID_})");
 
             var mask = ARTool.GetUsedFlagsNode(nodeID_);
             foreach (var flag in mask.ExtractPow2Flags()) {
@@ -192,23 +183,10 @@ namespace AdaptiveRoads.UI.Tool {
             dragHandle_.height = 32;
             lblCaption_.anchor = UIAnchorStyle.CenterHorizontal |  UIAnchorStyle.CenterVertical;
             FitChildren();
+            foreach (var lpc in GetComponentsInChildren<LanePanelCollapsable>()) {
+                lpc.FitParent();
+            }
             Invalidate();
-        }
-
-        static UIPanel AddPanel(UIPanel parent) {
-            Assertion.AssertNotNull(parent, "parent");
-            int padX = 0;
-            int padY = 3;
-            UIPanel newPanel = parent.AddUIComponent<UIPanel>();
-            Assertion.AssertNotNull(newPanel, "newPanel");
-            newPanel.autoLayout = true;
-            newPanel.autoLayoutDirection = LayoutDirection.Vertical;
-            newPanel.autoFitChildrenHorizontally = true;
-            newPanel.autoFitChildrenVertically = true;
-            newPanel.autoLayoutPadding = new RectOffset(padX, padX, padY, padY);
-            newPanel.padding = new RectOffset(padX, padX, padY, padY);
-
-            return newPanel;
         }
 
         static UIPanel AddSpacePanel(UIPanel parent, int space) {

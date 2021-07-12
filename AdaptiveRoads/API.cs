@@ -28,8 +28,8 @@ namespace AdaptiveRoads {
         public static object GetARLaneFlags(uint id) => man.LaneBuffer[id].m_flags;
 
         public static float GetShift(ushort segmentId, ushort nodeId) {
-            if (segmentId == RefreshJunctionDataDCPatch.TargetSegmentID)
-                return RefreshJunctionDataDCPatch.Shift;
+            if (segmentId == ShiftData.TargetSegmentID)
+                return ShiftData.Shift;
             else
                 return segmentId.ToSegment().Info.GetMetaData()?.Shift ?? 0;
         }

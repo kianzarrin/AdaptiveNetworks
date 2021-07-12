@@ -16,11 +16,12 @@ namespace AdaptiveRoads.Manager {
     }
 
     public static class HintExtension {
-        public static List<string> GetHints(this MemberInfo info) {
-            return info
+        public static List<string> GetHints(this MemberInfo memberInfo) {
+            var ret = memberInfo
                 .GetCustomAttributes(typeof(HintAttribute), true)
                 .Select(_item => (_item as HintAttribute).Text)
                 .ToList();
+            return ret;
         }
 
         public const string LANE_HEAD_TAIL =

@@ -48,23 +48,21 @@ namespace AdaptiveRoads.LifeCycle {
                     Process.GetCurrentProcess().Kill();
                 });
 #endif
-#if DEBUG
                 Test();
-#endif
             } catch (Exception ex) {
                 Log.Exception(ex);
             }
         }
 
-#if DEBUG
+        [Conditional("DEBUG")]
         static void Test() {
             return;
             LogCalled();
             byte[] data;
             {
                 var man = NetworkExtensionManager.CreateNew();
-                man.SegmentBuffer[1].m_flags = NetSegmentExt.Flags.Custom0;
-                Log.Debug("Serialize segment flags:" + man.SegmentBuffer[1].m_flags);
+                man.LaneBuffer[1].m_flags = NetLaneExt.Flags.Custom0;
+                Log.Debug("Serialize lane flags:" + man.LaneBuffer[1].m_flags);
                 var s = SimpleDataSerializer.Writer(new Version(1, 1), 100);
                 man.Serialize(s);
                 data = s.GetBytes();
@@ -72,13 +70,12 @@ namespace AdaptiveRoads.LifeCycle {
 
             {
                 var man = NetworkExtensionManager.CreateNew();
-                Log.Debug("Before Deserialize segment flags :" + man.SegmentBuffer[1].m_flags);
+                Log.Debug("Before Deserialize lane flags :" + man.LaneBuffer[1].m_flags);
                 var s = SimpleDataSerializer.Reader(data);
                 man.DeserializeImp(s);
-                Log.Debug("After Deserialize segment flags :" + man.SegmentBuffer[1].m_flags);
+                Log.Debug("After Deserialize lane flags :" + man.LaneBuffer[1].m_flags);
             }
         }
-#endif
 
         public static void HotReload() {
             LogCalled();

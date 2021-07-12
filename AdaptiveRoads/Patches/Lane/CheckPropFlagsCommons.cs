@@ -84,7 +84,7 @@ namespace AdaptiveRoads.Patches.Lane {
             ref NetSegment segment = ref segmentID.ToSegment();
             ref NetLane netLane= ref laneID.ToLane();
 
-            bool reverse = segment.IsInvert() == laneInfo.IsGoingBackward(); // xor
+            bool reverse = segment.IsInvert() != laneInfo.IsGoingBackward(); // xor
 
             ushort startNodeID =  !reverse ? segment.m_startNode : segment.m_endNode; // tail
             ushort endNodeID = reverse ? segment.m_startNode : segment.m_endNode; // head

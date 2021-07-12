@@ -2,7 +2,9 @@ namespace AdaptiveRoads.UI.Tool {
     using ColossalFramework;
     using ColossalFramework.UI;
     using KianCommons.UI;
+    using KianCommons;
     using AdaptiveRoads.Manager;
+    using System.Collections.Generic;
 
     public class NodeFlagToggle : UICheckBoxExt {
         static NetworkExtensionManager man_ => NetworkExtensionManager.Instance;
@@ -20,7 +22,23 @@ namespace AdaptiveRoads.UI.Tool {
 
         public override void Start() {
             base.Start();
-            this.Label = flag_.ToString();
+
+            // this should appear first
+            string name = CustomFlagAttribute.GetName(flag_, nodeID_.ToNode().Info);
+            List<string> names = new List<string>();
+            if(name!=null)
+            foreach (ushort segmentID in nodeID_.ToNode().IterateSegments()) {
+                string name0 = CustomFlagAttribute.GetName(flag_, segmentID.ToSegment().Info);
+                if(name0!=null && !names.Contains(name0))
+                    names.Add(name0);
+            }
+
+            if (names.Count == 0)
+                this.Label = flag_.ToString();
+            else
+                this.Label = names.Join(" | ");
+
+            this.tooltip = flag_.ToString();
         }
 
         public override void OnCheckChanged(UIComponent component, bool value) {
