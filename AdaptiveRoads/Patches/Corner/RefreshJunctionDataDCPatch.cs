@@ -5,11 +5,6 @@ namespace AdaptiveRoads.Patches.Corner {
     using KianCommons.Patches;
     using System.Reflection;
 
-    public static class ShiftData {
-        public static float Shift;
-        public static ushort TargetSegmentID;
-    }
-
     [InGamePatch]
     [UsedImplicitly]
     [HarmonyPatch2(typeof(NetNode), typeof(RefreshJunctionData), instance:true)]
