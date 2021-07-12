@@ -1,47 +1,23 @@
 namespace AdaptiveRoads.Patches.AsymPavements {
+    using AdaptiveRoads.Manager;
     using HarmonyLib;
-    using JetBrains.Annotations;
     using KianCommons;
     using KianCommons.Patches;
-    using System;
     using System.Collections.Generic;
     using System.Reflection;
     using System.Reflection.Emit;
     using UnityEngine;
     using static KianCommons.Patches.TranspilerUtils;
-    using AdaptiveRoads.Manager;
-    using System.Diagnostics;
 
-    // non-dc node
-    // private void NetNode.RefreshJunctionData(
-    //      ushort nodeID, int segmentIndex, ushort nodeSegment, Vector3 centerPos, ref uint instanceIndex, ref RenderManager.Instance data
-    [UsedImplicitly]
-    [InGamePatch]
-    [HarmonyPatch]
-    static class RefreshJunctionDataPatch {
-        [UsedImplicitly]
+    public static class Commons {
         static FieldInfo f_pavementWidth = typeof(NetInfo).GetField("m_pavementWidth");
+        static MethodInfo mModifyPavement = GetMethod(typeof(RefreshJunctionDataPatch), nameof(ModifyPavement));
 
-        static MethodBase TargetMethod() {
-            return AccessTools.Method(
-            typeof(NetNode),
-            "RefreshJunctionData",
-            new Type[] {
-                typeof(ushort),
-                typeof(int),
-                typeof(ushort),
-                typeof(Vector3),
-                typeof(uint).MakeByRefType(),
-                typeof(RenderManager.Instance).MakeByRefType()
-            });
-        }
-
-        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, MethodBase original) {
-            var codes = instructions.ToCodeList();
-
-            var ldSegmentID = GetLDArg(original, "nodeSegment");
-            var ldSegmentIDA = new CodeInstruction(OpCodes.Ldloc_S, 20); // TODO aquire dynamically
-            var ldSegmentIDB = new CodeInstruction(OpCodes.Ldloc_S, 21); // TODO aquire dynamically
+        public static List<CodeInstruction> ApplyPatch(
+            List<CodeInstruction> codes,
+            CodeInstruction ldSegmentID,
+            CodeInstruction ldSegmentIDA,
+            CodeInstruction ldSegmentIDB) {
             int index;
 
             /****************************************************
@@ -106,7 +82,6 @@ namespace AdaptiveRoads.Patches.AsymPavements {
             return codes;
         }
 
-        static MethodInfo mModifyPavement = GetMethod(typeof(RefreshJunctionDataPatch), nameof(ModifyPavement));
         public static float ModifyPavement(float width, ushort segmentID, ushort segmentID2, int occurance) {
             ref var segment = ref segmentID.ToSegment();
             NetInfo info = segment.Info;
@@ -150,7 +125,7 @@ namespace AdaptiveRoads.Patches.AsymPavements {
                     return Util.GetForced(occurance: occurance, reverse: reverse, biggerLeft: pwLeft < pwRight);
                 default:
                     return width;
-            } 
+            }
         }
     }
 }

@@ -14,8 +14,6 @@ namespace AdaptiveRoads.UI.Tool {
     using System.Collections.Generic;
 
     internal class ARTool : KianToolBase<ARTool> {
-        // for mod tools:
-        RefreshJunctionDataPatch.Util.Operation [,] Operations => RefreshJunctionDataPatch.Util.Operations;
         NetworkExtensionManager man_ => NetworkExtensionManager.Instance;
 
         public ushort SelectedSegmentID;
