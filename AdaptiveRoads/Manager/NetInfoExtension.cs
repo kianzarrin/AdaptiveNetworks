@@ -263,12 +263,7 @@ namespace AdaptiveRoads.Manager {
             [NonSerialized]
             public float OneOverSinOfParkingAngle = 1;
 
-#if QUAY_ROADS_SHOW
-            [CustomizableProperty("Quay Road", "Properties")]
-#endif
-            [AfterField(nameof(NetInfo.m_flattenTerrain))]
-            [Hint("only affect the terrain on one side")]
-            public bool UseOneSidedTerrainModification = false;
+            public Data.QuayRoads.ProfileSection[] QuayRoadsProfile = null;
 
             [NonSerialized]
             public CustomFlags UsedCustomFlags;

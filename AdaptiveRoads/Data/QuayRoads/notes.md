@@ -1,4 +1,4 @@
-﻿### modifications after ModifySegmentMask
+### modifications after ModifySegmentMask
 - start/end at netAI.GetTerrainModifyRange (fraction of total lenght)
 - height:
   - += interpolate(m_terrainStartOffset, m_terrainEndOffset)
@@ -22,10 +22,11 @@
     - edge flags:
       - limited to AB and CD (long edges)
       - DA allowed on first quad
----> recommended: set m_flattenTerrain and m_createPavement for maximum control
----> if you want pavement only near nodes with onGround flag, set m_lowerTerrain and set m_terrainStart/EndOffset to -netAI.GetTerrainLowerOffset()
----> maybe do that automatically?
----> maybe pre-invert Edges.BC and DA so that they behave the same as AB and CD?
+
+---> recommended: set m_flattenTerrain and m_createPavement for maximum control  
+---> if you want pavement only near nodes with onGround flag, set m_lowerTerrain and set m_terrainStart/EndOffset to -netAI.GetTerrainLowerOffset()  
+---> maybe do that automatically?  
+---> maybe pre-invert Edges.BC and DA so that they behave the same as AB and CD?  
 ### netAI-specific:
 - RaiseTerrain()
   - default: false
@@ -45,9 +46,10 @@
 - CD: right edge
 - DA: start edge
 - Expand: ??? (not used afaik) --> won't survive anyway
+
 function:
 - for height modification:
-  - overextend over that edge
+  - overextend over that edge (?)
     - by 5.656854m with DetailMapping (inside purchased area)
     - by 22.6274166m without ""
     - by 0m for DigHeight or (SecondaryLevel without PrimaryLevel)
@@ -79,9 +81,10 @@ basically Surface Painter mod
 - SecondaryMax
 
 First combined per channel (...Max: lowest contribution wins, if none: 1024f, ..Min: highest contribution wins, if none 0f), then the channels are combined
-Priority (most to least powerful):
-finalHeight (visual?): PrimaryMax > PrimaryMin > SecondaryMax > SecondaryMin > weighted average of *level
-blockHeightTargets (probably water): PrimaryMax > DigHeight (Max) > BlockHeight > finalHeight
 
-(thus, a dam that goes over a ground road won't block water (?))
+Priority (most to least powerful):
+- finalHeight (visual?): PrimaryMax > PrimaryMin > SecondaryMax > SecondaryMin > weighted average of \*level
+- blockHeightTargets (probably water): PrimaryMax > DigHeight (Max) > BlockHeight > finalHeight
+
+(thus, a dam that goes over a ground road won't block water (?))  
 (thus, an invisible dam without clipping would/could set BlockHeight and a (lower) SecondaryMax)
