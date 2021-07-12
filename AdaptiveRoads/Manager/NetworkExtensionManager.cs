@@ -157,7 +157,7 @@ namespace AdaptiveRoads.Manager {
                             for (int bitIndex = 0; bitIndex < 64; bitIndex++) {
                                 if ((bitmask & 1UL << bitIndex) != 0UL) {
                                     ushort segmentID = (ushort)(maskIndex << 6 | bitIndex);
-                                    Log.Debug($"updating {segmentID} ...");
+                                    if(Log.VERBOSE) Log.Debug($"updating {segmentID} ...");
                                     SegmentBuffer[segmentID].UpdateAllFlags();
                                 }
                             }
