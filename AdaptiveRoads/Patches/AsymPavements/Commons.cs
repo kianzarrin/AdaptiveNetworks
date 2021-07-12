@@ -11,7 +11,7 @@ namespace AdaptiveRoads.Patches.AsymPavements {
 
     public static class Commons {
         static FieldInfo f_pavementWidth = typeof(NetInfo).GetField("m_pavementWidth");
-        static MethodInfo mModifyPavement = GetMethod(typeof(RefreshJunctionDataPatch), nameof(ModifyPavement));
+        static MethodInfo mModifyPavement = GetMethod(typeof(Commons), nameof(ModifyPavement));
 
         public static List<CodeInstruction> ApplyPatch(
             List<CodeInstruction> codes,
