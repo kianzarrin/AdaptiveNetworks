@@ -11,6 +11,7 @@ namespace AdaptiveRoads.UI.Tool {
     using System.Linq;
     using static KianCommons.ReflectionHelpers;
     using Patches.AsymPavements;
+    using System.Collections.Generic;
 
     internal class ARTool : KianToolBase<ARTool> {
         // for mod tools:
@@ -43,7 +44,7 @@ namespace AdaptiveRoads.UI.Tool {
 
         protected override void OnPrimaryMouseClicked() {
             LogCalled();
-            if (!Hoverable())
+            if (!HoverHasFlags())
                 return;
             if (SegmentMode) {
                 SelectedSegmentID = HoveredSegmentID;
@@ -71,10 +72,27 @@ namespace AdaptiveRoads.UI.Tool {
 
         protected override void OnToolUpdate() {
             base.OnToolUpdate();
-            if (Hoverable())
+            if (HoverHasFlags()) {
                 ToolCursor = ToolsModifierControl.toolController.Tools.OfType<NetTool>().FirstOrDefault()?.m_upgradeCursor;
-            else
+            } else {
                 ToolCursor = null;
+            }
+
+            if (HoverValid) {
+                var hints = new List<string>();
+                var usedCustomFlags = GetUsedFlagsSegment(HoveredSegmentID);
+                if (usedCustomFlags.Segment != 0 || usedCustomFlags.Lane != 0)
+                    hints.Add("Click => modify custom segment/lane flags");
+                if (GetUsedFlagsNode(HoveredNodeID) != 0)
+                    hints.Add("CTRL + Click => modify node flags");
+                if (GetUsedFlagsSegmentEnd(segmentID: HoveredSegmentID, nodeID: HoveredNodeID) != 0)
+                    hints.Add("CTRL + Click => modify segmentEnd flags");
+                if(!hints.Any())
+                    hints.Add("no custom AR flags to modify");
+                ShowToolInfo(true, hints.JoinLines(), HitPos);
+            } else {
+                ShowToolInfo(false, "", default);
+            }
         }
 
         public static NetNodeExt.Flags GetUsedFlagsNode(ushort nodeID) {
@@ -87,30 +105,37 @@ namespace AdaptiveRoads.UI.Tool {
 
         public static CustomFlags GetUsedFlagsSegment(ushort segmentID) {
             CustomFlags ret = segmentID.ToSegment().Info.GetMetaData()?.UsedCustomFlags ?? CustomFlags.None;
-            ushort startNodeID = segmentID.ToSegment().m_startNode;
-            ushort endNodeID = segmentID.ToSegment().m_endNode;
-            ret |= startNodeID.ToNode().Info.GetMetaData()?.UsedCustomFlags ?? CustomFlags.None;
-            ret |= endNodeID.ToNode().Info.GetMetaData()?.UsedCustomFlags ?? CustomFlags.None;
+
+            // Considering that nodes are segment ends we don't need to take their flags into account.
+            //ushort startNodeID = segmentID.ToSegment().m_startNode;
+            //ushort endNodeID = segmentID.ToSegment().m_endNode;
+            //ret |= startNodeID.ToNode().Info.GetMetaData()?.UsedCustomFlags ?? CustomFlags.None;
+            //ret |= endNodeID.ToNode().Info.GetMetaData()?.UsedCustomFlags ?? CustomFlags.None;
             return ret;
         }
 
         public static NetSegmentEnd.Flags GetUsedFlagsSegmentEnd(ushort segmentID, ushort nodeID) {
             NetSegmentEnd.Flags ret = segmentID.ToSegment().Info.GetMetaData()?.UsedCustomFlags.SegmentEnd ?? 0;
-            ret |= nodeID.ToNode().Info.GetMetaData()?.UsedCustomFlags.SegmentEnd ?? 0;
+
+            // Considering that nodes are segment ends we don't need to take their flags into account.
+            // ret |= nodeID.ToNode().Info.GetMetaData()?.UsedCustomFlags.SegmentEnd ?? 0;
             return ret;
         }
         public static NetLaneExt.Flags GetUsedCustomFlagsLane(LaneData lane) {
-            NetLaneExt.Flags mask = 0;
-            var props = (lane.LaneInfo.m_laneProps?.m_props).EmptyIfNull();
-            foreach (var prop in props) {
-                var metadata = prop.GetMetaData();
-                if (metadata != null)
-                    mask |= (metadata.LaneFlags.Required | metadata.LaneFlags.Forbidden);
-            }
-            return mask & NetLaneExt.Flags.CustomsMask;
+            NetLaneExt.Flags ret = lane.Segment.Info.GetMetaData()?.UsedCustomFlags.Lane ?? 0;
+            return ret;
+
+            //NetLaneExt.Flags mask = 0;
+            //var props = (lane.LaneInfo.m_laneProps?.m_props).EmptyIfNull();
+            //foreach (var prop in props) {
+            //    var metadata = prop.GetMetaData();
+            //    if (metadata != null)
+            //        mask |= (metadata.LaneFlags.Required | metadata.LaneFlags.Forbidden);
+            //}
+            //return mask & NetLaneExt.Flags.CustomsMask;
         }
 
-        public bool Hoverable() {
+        public bool HoverHasFlags() {
             if (NodeMode) {
                 return GetUsedFlagsNode(HoveredNodeID) != 0;
             } else if (SegmentMode) {
@@ -148,7 +173,7 @@ namespace AdaptiveRoads.UI.Tool {
             Color color;
             if (Input.GetMouseButton(0))
                 color = GetToolColor(true, false);
-            else if (Hoverable())
+            else if (HoverHasFlags())
                 color = GetToolColor(false, false);
             else
                 color = GetToolColor(false, true);

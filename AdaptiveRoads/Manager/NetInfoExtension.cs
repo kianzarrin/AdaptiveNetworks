@@ -668,7 +668,7 @@ namespace AdaptiveRoads.Manager {
                 foreach (var netInfo in NetInfoExtionsion.EditedNetInfos) {
                     var customFlagNames = netInfo.GetMetaData()?.CustomFlagNames;
                     Assertion.NotNull(customFlagNames);
-                    if (name.IsNullOrWhiteSpace())
+                    if (name.IsNullOrWhiteSpace() || name == flag.ToString())
                         customFlagNames.Remove(flag);
                     else
                         customFlagNames[flag] = name;

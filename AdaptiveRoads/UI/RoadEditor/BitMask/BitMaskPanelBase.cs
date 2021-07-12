@@ -92,13 +92,14 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             }
         }
 
-        private void DropDown_eventCheckedChanged(UIComponent component, int value) {
+        private void DropDown_eventCheckedChanged(UIComponent component, int index) {
             try {
                 // handle control click on custom flag:
                 if (Helpers.ControlIsPressed) {
-                    Enum flag = DropDown.GetItemUserData(value) as Enum;
+                    Enum flag = DropDown.GetItemUserData(index) as Enum;
                     var cfa = flag.GetEnumMemberAttributes<CustomFlagAttribute>();
                     if (!cfa.IsNullorEmpty()) {
+                        DropDown.SetChecked(index, true);
                         var panel = MiniPanel.Display();
                         var field = panel.AddTextField();
                         field.width = 200;
@@ -255,10 +256,14 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
                 if (i >= 0) {
                     var userData = DropDown.GetItemUserData(i);
                     List<string> hints = new List<string>();
-                    if (userData is Enum flag)
+                    if (userData is Enum flag) {
                         hints = flag.GetEnumMemberInfo().GetHints();
-                    else if(userData != null)
+                        bool isCustomFlag = !flag.GetEnumMemberAttributes<CustomFlagAttribute>().IsNullorEmpty();
+                        if (isCustomFlag)
+                            hints.Add("CTRL+Click => Rename custom flag");
+                    } else if (userData != null) {
                         hints.Add(userData.ToString());
+                    }
                     hints.Add("right-click => close drop down");
                     return hints.JoinLines();
                 } else if (containsMouse) {

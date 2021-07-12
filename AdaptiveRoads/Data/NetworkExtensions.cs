@@ -45,6 +45,10 @@ namespace AdaptiveRoads.Manager {
                 Lane = lhs.Lane | rhs.Lane,
             };
         }
+
+        public static bool operator ==(CustomFlags lhs, CustomFlags rhs) => lhs.Equals(rhs);
+        public static bool operator !=(CustomFlags lhs, CustomFlags rhs) => !lhs.Equals(rhs);
+
     }
 
     public class CustomFlagAttribute : Attribute {
