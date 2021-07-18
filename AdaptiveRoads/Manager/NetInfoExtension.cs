@@ -262,6 +262,11 @@ namespace AdaptiveRoads.Manager {
             public float Shift = 0;
 
             [AfterField(nameof(NetInfo.m_minCornerOffset))]
+            [CustomizableProperty("Sharp Corners", "Properties")]
+            [Hint("only works when corner is 90deg")]
+            public bool SharpCorners;
+
+            [AfterField(nameof(NetInfo.m_minCornerOffset))]
             [CustomizableProperty("Parking Angle °", "Properties")]
             public float ParkingAngleDegrees = 0;
 

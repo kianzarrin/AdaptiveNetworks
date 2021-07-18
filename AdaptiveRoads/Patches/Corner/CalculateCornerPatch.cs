@@ -5,6 +5,8 @@ namespace AdaptiveRoads.Patches.Corner {
     using KianCommons;
     using System.Reflection;
     using UnityEngine;
+    using AdaptiveRoads.Manager;
+    using KianCommons.Math;
 
     [InGamePatch]
     [UsedImplicitly]
@@ -30,6 +32,10 @@ namespace AdaptiveRoads.Patches.Corner {
             Shift(
                 segmentID: segmentID, start: start, leftSide: leftSide,
                 cornerPos: ref cornerPos, cornerDirection: ref cornerDirection);
+            Sharpen(
+                segmentID: segmentID, start: start, leftSide: leftSide,
+                cornerPos: ref cornerPos, cornerDirection: ref cornerDirection);
+
         }
 
         public static void Shift(
@@ -46,5 +52,46 @@ namespace AdaptiveRoads.Patches.Corner {
                 shift = -shift;
             cornerPos += shift * outward;
         }
+
+        /// <param name="segmentID">segment to calculate corner</param>
+        /// <param name="start">true for start node</param>
+        /// <param name="leftSide">going away from the node</param>
+        public static void Sharpen(
+        ushort segmentID, bool start, bool leftSide,
+        ref Vector3 cornerPos, ref Vector3 cornerDirection) {
+            ref NetSegment segment = ref segmentID.ToSegment();
+            ushort nodeID = segment.GetNode(start);
+            bool sharp = segment.Info?.GetMetaData()?.SharpCorners ?? false;
+            if (!sharp)
+                return;
+
+            ushort otherSegmentID;
+            if (leftSide /*right going toward junction*/) {
+                otherSegmentID = segment.GetRightSegment(nodeID);
+            } else {
+                otherSegmentID = segment.GetLeftSegment(nodeID);
+            }
+            ref NetSegment otherSegment = ref otherSegmentID.ToSegment();
+
+            var angleDegree = VectorUtil.SignedAngleRadCCW(
+                segment.GetDirection(nodeID).ToCS2D(), // from
+                otherSegment.GetDirection(nodeID).ToCS2D()) * Mathf.Rad2Deg; // to
+
+            if (!leftSide)
+                angleDegree = -angleDegree;
+
+            Log.Debug($"p3: node:{nodeID}, segment:{segmentID} otherSegment:{otherSegmentID} leftSide={leftSide} angle={angleDegree}", false);
+            float backward;
+            if (MathUtil.EqualAprox(angleDegree, 90)) {
+                backward = 2;
+            } else if (MathUtil.EqualAprox(angleDegree, -90)) {
+                float w = 2 * otherSegment.Info.m_halfWidth;
+                backward = w + 2;
+            } else {
+                return;// TODO support more angles.
+            }
+            cornerPos -= backward * cornerDirection;
+        }
+
     }
 }
