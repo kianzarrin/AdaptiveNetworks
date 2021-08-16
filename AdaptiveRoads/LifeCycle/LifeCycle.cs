@@ -48,13 +48,13 @@ namespace AdaptiveRoads.LifeCycle {
                     Process.GetCurrentProcess().Kill();
                 });
 #endif
-                Test();
+                //Test();
             } catch (Exception ex) {
                 Log.Exception(ex);
             }
         }
 
-        [Conditional("DEBUG")]
+#if DEBUG
         static void Test() {
             return;
             LogCalled();
@@ -76,6 +76,7 @@ namespace AdaptiveRoads.LifeCycle {
                 Log.Debug("After Deserialize lane flags :" + man.LaneBuffer[1].m_flags);
             }
         }
+#endif
 
         public static void HotReload() {
             LogCalled();
