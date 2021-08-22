@@ -7,7 +7,7 @@ namespace AdaptiveRoads.Patches.Segment {
     using System.Reflection;
 
     [InGamePatch]
-    [HarmonyPatch()]
+    [HarmonyPatch]
     public static class RenderInstance {
         // private void NetSegment.RenderInstance(RenderManager.CameraInfo cameraInfo, ushort segmentID, int layerMask, NetInfo info, ref RenderManager.Instance data)
         public static MethodBase TargetMethod() =>

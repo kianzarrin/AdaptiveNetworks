@@ -7,7 +7,7 @@ namespace AdaptiveRoads.Patches.Segment {
     using AdaptiveRoads.Manager;
     using KianCommons;
     using System;
-    using static KianCommons.Patches.TranspilerUtils;
+    using KianCommons.Patches;
 
     public static class CheckSegmentFlagsCommons {
         static NetworkExtensionManager man_ => NetworkExtensionManager.Instance;
@@ -79,13 +79,13 @@ namespace AdaptiveRoads.Patches.Segment {
         // returns the position of First DrawMesh after index.
         public static void PatchCheckFlags(List<CodeInstruction> codes, MethodBase method, int occurance = 1) {
             // callvirt NetInfo+Segment.CheckFlags(valuetype NetSegment+Flags, bool&)
-            var index = SearchInstruction(codes, new CodeInstruction(OpCodes.Callvirt, mCheckFlags), 0, counter: occurance);
+            var index = codes.Search(c => c.Calls(mCheckFlags), count: occurance);
             Assertion.Assert(index != 0, "index!=0");
 
-            CodeInstruction LDLoc_SegmentInfo = Build_LDLoc_SegmentInfo_FromSTLoc(codes, index);
+            CodeInstruction LDLoc_SegmentInfo = GetPrevLdLocSegmentInfo(method, codes, index);
             CodeInstruction LDLoca_turnAround = new CodeInstruction(codes[index - 1]);
             Assertion.Assert(LDLoca_turnAround.opcode == OpCodes.Ldloca_S);
-            CodeInstruction LDArg_SegmenteID = GetLDArg(method, "segmentID");
+            CodeInstruction LDArg_SegmenteID = TranspilerUtils.GetLDArg(method, "segmentID");
 
             { // insert our checkflags after base checkflags
                 var newInstructions = new[]{
@@ -95,21 +95,15 @@ namespace AdaptiveRoads.Patches.Segment {
                     new CodeInstruction(OpCodes.Call, mCheckFlagsExt),
                     new CodeInstruction(OpCodes.And),
                 };
-                InsertInstructions(codes, newInstructions, index + 1);
+                codes.InsertInstructions(index + 1, newInstructions);
             } // end block
         }
 
         static FieldInfo fSegments => typeof(NetInfo).GetField("m_segments") ?? throw new Exception("fSegments is null");
 
-        public static CodeInstruction Build_LDLoc_SegmentInfo_FromSTLoc(List<CodeInstruction> codes, int index, int counter = 1, int dir = -1) {
-            /* IL_0568: ldarg.s      info 
-             * IL_056a: ldfld        class NetInfo/Segment[] NetInfo::m_segments <- find this
-             * IL_056f: ldloc.s      index_V_39
-             * IL_0571: ldelem.ref
-             * IL_0572: stloc.s      segment <- seek to this then build ldloc from this*/
-            index = SearchInstruction(codes, new CodeInstruction(OpCodes.Ldfld, fSegments), index, counter: counter, dir: dir);
-            index = SearchGeneric(codes, i => codes[i].IsStloc(), index, counter: 1, dir: 1);
-            return codes[index].BuildLdLocFromStLoc();
+        public static CodeInstruction GetPrevLdLocSegmentInfo(MethodBase method, List<CodeInstruction> codes, int index) {
+            index = codes.Search(c => c.IsLdLoc(typeof(NetInfo.Segment), method), index, count: -1);
+            return codes[index].Clone(); // duplicated without lables and blocks
         }
 
     }
