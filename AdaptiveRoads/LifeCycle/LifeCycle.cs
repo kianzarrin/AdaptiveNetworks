@@ -132,7 +132,6 @@ namespace AdaptiveRoads.LifeCycle {
 
                 ObserverDisposable = GeometryManager.Instance.Subscribe(new ARTMPEObsever());
 
-#if DEBUG
                 ARTool.Create();
 
                 const bool testPWValues = false;
@@ -140,7 +139,6 @@ namespace AdaptiveRoads.LifeCycle {
                     UI.Debug.PWSelector.Create();
                     UI.Debug.PWModifier.Create();
                 }   
-#endif
 
                 Log.Info("LifeCycle.Load() successfull!");
                 Log.Flush();
