@@ -59,28 +59,30 @@ namespace AdaptiveRoads.Manager {
             }
 
             public static void CopyMetadata(NetInfo source, NetInfo target) {
-                NetInfoExtionsion.EnsureExtended(target);
+                try {
+                    NetInfoExtionsion.EnsureExtended(target);
 
-                for (int i = 0; i < source.m_nodes.Length; ++i) {
-                    var metadata = source.m_nodes[i].GetMetaData()?.Clone();
-                    (target.m_nodes[i] as IInfoExtended).SetMetaData(metadata);
-                }
-                for (int i = 0; i < source.m_segments.Length; ++i) {
-                    var metadata = source.m_segments[i].GetMetaData()?.Clone();
-                    (target.m_segments[i] as IInfoExtended).SetMetaData(metadata);
-                }
-
-                for (int laneIndex = 0; laneIndex < source.m_lanes.Length; ++laneIndex) {
-                    var m_propsTarget = target.m_lanes[laneIndex]?.m_laneProps?.m_props;
-                    var m_propsTemplate = source.m_lanes[laneIndex]?.m_laneProps?.m_props;
-                    if (m_propsTemplate == null) continue;
-                    for (int i = 0; i < m_propsTemplate.Length; ++i) {
-                        var metadata = m_propsTemplate[i].GetMetaData()?.Clone();
-                        (m_propsTarget[i] as IInfoExtended).SetMetaData(metadata);
+                    for(int i = 0; i < source.m_nodes.Length; ++i) {
+                        var metadata = source.m_nodes[i].GetMetaData()?.Clone();
+                        (target.m_nodes[i] as IInfoExtended).SetMetaData(metadata);
                     }
-                }
+                    for(int i = 0; i < source.m_segments.Length; ++i) {
+                        var metadata = source.m_segments[i].GetMetaData()?.Clone();
+                        (target.m_segments[i] as IInfoExtended).SetMetaData(metadata);
+                    }
 
-                source.SetMetedata(target.GetMetaData()?.Clone());
+                    for(int laneIndex = 0; laneIndex < source.m_lanes.Length; ++laneIndex) {
+                        var m_propsTarget = target.m_lanes[laneIndex]?.m_laneProps?.m_props;
+                        var m_propsTemplate = source.m_lanes[laneIndex]?.m_laneProps?.m_props;
+                        if(m_propsTemplate == null) continue;
+                        for(int i = 0; i < m_propsTemplate.Length; ++i) {
+                            var metadata = m_propsTemplate[i].GetMetaData()?.Clone();
+                            (m_propsTarget[i] as IInfoExtended).SetMetaData(metadata);
+                        }
+                    }
+
+                    source.SetMetedata(target.GetMetaData()?.Clone());
+                } catch (Exception ex) { ex.Log(); }
             }
 
             void ApplyProps(NetInfo info) {

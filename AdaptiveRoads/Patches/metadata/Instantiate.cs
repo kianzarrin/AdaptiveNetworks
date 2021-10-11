@@ -15,7 +15,7 @@ namespace AdaptiveRoads.Patches.AssetPatches {
         }
         public static void LogExtended(NetInfo info) {
             Log.Debug($"LogExtended({info}) was called");
-            Log.Info("info.GetMetaData()->" + info.GetMetaData());
+            Log.Info("info.GetMetaData()->" + info.GetMetaData().ToSTR());
             Log.Info("any node is IInfoExtended ->" + info.m_nodes.Any(item => item is IInfoExtended));
             Log.Info("any segment is IInfoExtended ->" + info.m_segments.Any(item => item is IInfoExtended));
             Log.Info("any prop is IInfoExtended ->" + info.m_lanes
@@ -29,15 +29,19 @@ namespace AdaptiveRoads.Patches.AssetPatches {
         /// we clone the template instead of the return value.
         /// </summary>
         public static void Postfix(NetInfo __result, NetInfo template) {
-            Log.Debug($"Instantiate.PostFix({template})->{__result} was called");
-            //LogExtended(template);
-            //LogExtended(__result);
-            if (!template.IsAdaptive()) {
-                Log.Debug("skip copying metadata because source is not adaptive");
-                return;
-            }
+            try {
+                Log.Debug($"Instantiate.PostFix({template})->{__result} was called");
+                //LogExtended(template);
+                //LogExtended(__result);
+                if(!template.IsAdaptive()) {
+                    Log.Debug("skip copying metadata because source is not adaptive");
+                    return;
+                }
 
-            AssetData.NetInfoMetaData.CopyMetadata(template, __result); // TODO move to helpers.
+                AssetData.NetInfoMetaData.CopyMetadata(template, __result);
+            } catch(Exception ex) {
+                ex.Log();
+            }
         }
     }
 }
