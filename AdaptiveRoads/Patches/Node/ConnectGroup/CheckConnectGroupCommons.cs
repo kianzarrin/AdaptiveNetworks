@@ -59,8 +59,6 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
     /// <summary> insert after the clause:'node.m_connectGroup & info.m_connectGroup'</summary>
     internal static class CheckNodeConnectGroup {
         public static bool CheckConnectGroup(bool flagsMatch, NetInfo.Node node, NetInfo info) {
-            if (flagsMatch)
-                return true;
             return DirectConnectUtil.ConnectGroupsMatch(
                 node.GetMetaData()?.ConnectGroupsHash,
                 info.GetMetaData()?.ConnectGroupsHash);
@@ -82,6 +80,12 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
             return -1;
         }
 
+        static bool IsLDArg(this CodeInstruction code, MethodBase method, string argName) {
+            return
+                TranspilerUtils.HasParameter(method, argName) &&
+                code.IsLdarg(TranspilerUtils.GetArgLoc(method, argName));
+        }
+
         public static void Patch(List<CodeInstruction> codes, MethodBase method) {
             TranspilerUtils.PeekBefore = 20;
             TranspilerUtils.PeekAfter = 20;
@@ -89,7 +93,7 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
                 int count = 0;
                 for (int index = GetNext(0, codes); index >= 0 && index < codes.Count; index = GetNext(index, codes)) {
                     var iLoadNode = codes.Search(c => c.IsLdLoc(typeof(NetInfo.Node), method), startIndex: index, count: -1);
-                    var iLoadNetInfo = codes.Search(c => c.IsLdLoc(typeof(NetInfo), method), startIndex: index, count: -1);
+                    var iLoadNetInfo = codes.Search(c => c.IsLdLoc(typeof(NetInfo), method) || c.IsLDArg(method, "info"), startIndex: index, count: -1);
                     codes.InsertInstructions(index, new[] {
                         codes[iLoadNode].Clone(),
                         codes[iLoadNetInfo].Clone(),
