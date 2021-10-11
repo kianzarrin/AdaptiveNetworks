@@ -220,7 +220,20 @@ namespace AdaptiveRoads.Manager {
         public class Net : ICloneable, ISerializable {
             [Obsolete("only useful for the purpose of shallow clone", error: true)]
             public Net() { }
-            public Net Clone() => this.ShalowClone();
+            public Net Clone() {
+                var ret = this.ShalowClone();
+                ret.ConnectGroups = ret.ConnectGroups?.ToArray();
+                ret.ConnectGroupsHash = ret.ConnectGroupsHash?.ToArray();
+                ret.NodeConnectGroupsHash = ret.NodeConnectGroupsHash?.ToArray();
+                ret.QuayRoadsProfile = QuayRoadsProfile?.ToArray();
+                ret.CustomFlagNames = ret.CustomFlagNames?.ToDictionary(entry => entry.Key, entry => entry.Value);
+                ret.CustomLaneFlagNames0 = ret.CustomLaneFlagNames0?.ToDictionary(entry => entry.Key, entry => entry.Value);
+                ret.CustomLaneFlagNames = ret.CustomLaneFlagNames
+                    ?.Select(item => item?.ToDictionary(entry => entry.Key, entry => entry.Value))
+                    ?.ToArray();
+                return ret;
+            }
+
             object ICloneable.Clone() => Clone();
             public Net(NetInfo template) {
                 PavementWidthRight = template.m_pavementWidth;
@@ -789,6 +802,8 @@ namespace AdaptiveRoads.Manager {
 
         public static bool IsAdaptive(this NetInfo info) {
             Assertion.AssertNotNull(info);
+            if(info.GetMetaData() != null)
+                return true;
             foreach (var item in info.m_nodes) {
                 if (item.GetMetaData() != null)
                     return true;
