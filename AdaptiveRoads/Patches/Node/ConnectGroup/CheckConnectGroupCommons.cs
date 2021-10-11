@@ -39,7 +39,6 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
         }
 
         public static void Patch(List<CodeInstruction> codes, MethodBase method) {
-            //return;
             try {
                 int count = 0;
                 for (int index = GetNext(0, codes); index >= 0 && index < codes.Count; index = GetNext(index, codes)) {
@@ -73,14 +72,14 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
 
         public static int GetNext(int startIndex, List<CodeInstruction> codes) {
             for (int i = startIndex; i < codes.Count - 1; ++i) {
-                //find the clause
+                // find the clause
                 bool b = codes[i].LoadsField(fNodeConnectGroup);
                 b = b && codes[i + 2].LoadsField(fNetConnectGroup);
                 b = b && codes[i + 3].opcode == OpCodes.And;
                 if (b)
                     return i + 4; // after the clause
             }
-            return -1;//re
+            return -1;
         }
 
         public static void Patch(List<CodeInstruction> codes, MethodBase method) {
@@ -134,7 +133,6 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
         }
 
         public static void Patch(List<CodeInstruction> codes, MethodBase method) {
-            //return;
             try {
                 int count = 0;
                 for (int index = GetNext(0, codes); index >= 0 && index < codes.Count; index = GetNext(index, codes)) {
@@ -180,7 +178,6 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
         }
 
         public static void Patch(List<CodeInstruction> codes, MethodBase method) {
-            //return;
             try {
                 int count = 0;
                 for (int index = GetNext(0, codes); index >= 0 && index < codes.Count; index = GetNext(index, codes)) {

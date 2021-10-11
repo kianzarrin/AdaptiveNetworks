@@ -1,4 +1,8 @@
 TODO: list scrollbars
+- bugfix: bend nodes to handle custom connect groups.
+    - patch refresh bend data
+    - make sure bend data is patched in lods
+- bugfix: custom connect group does not work when using new asset
 - TMPE event to update node/segments
 - group DC components.
 

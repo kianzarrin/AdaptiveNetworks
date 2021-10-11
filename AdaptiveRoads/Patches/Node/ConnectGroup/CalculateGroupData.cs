@@ -22,7 +22,7 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
                 // (node.m_connectGroup == NetInfo.ConnectGroup.None || (node.m_connectGroup & info3.m_connectGroup & NetInfo.ConnectGroup.AllGroups) != NetInfo.ConnectGroup.None)
                 // (node2.m_connectGroup == NetInfo.ConnectGroup.None || (node2.m_connectGroup & info2.m_connectGroup & NetInfo.ConnectGroup.AllGroups) != NetInfo.ConnectGroup.None)
                 // (node5.m_connectGroup == NetInfo.ConnectGroup.None || (node5.m_connectGroup & info.m_connectGroup & NetInfo.ConnectGroup.AllGroups) != NetInfo.ConnectGroup.None)
-                // (info2.m_nodeConnectGroups & info3.m_connectGroup) != NetInfo.ConnectGroup.None || (info3.m_nodeConnectGroups & info2.m_connectGroup) != NetInfo.ConnectGroup.None)                // (info2.m_nodeConnectGroups == NetInfo.ConnectGroup.None || (info2.m_nodeConnectGroups & info3.m_connectGroup) != NetInfo.ConnectGroup.None)
+                // (info2.m_nodeConnectGroups & info3.m_connectGroup) != NetInfo.ConnectGroup.None || (info3.m_nodeConnectGroups & info2.m_connectGroup) != NetInfo.ConnectGroup.None)
                 // (info2.m_nodeConnectGroups == NetInfo.ConnectGroup.None || (info2.m_nodeConnectGroups & info3.m_connectGroup) != NetInfo.ConnectGroup.None)
                 // (info3.m_nodeConnectGroups == NetInfo.ConnectGroup.None || (info3.m_nodeConnectGroups & info2.m_connectGroup) != NetInfo.ConnectGroup.None)
                 CheckNodeConnectGroupNone.Patch(codes, original); // 3
