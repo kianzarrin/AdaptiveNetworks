@@ -82,7 +82,7 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
             return -1;
         }
 
-        static bool IsLDArg(this CodeInstruction code, MethodBase method, string argName) {
+        public static bool IsLDArgSoft(this CodeInstruction code, MethodBase method, string argName) {
             return
                 TranspilerUtils.HasParameter(method, argName) &&
                 code.IsLdarg(TranspilerUtils.GetArgLoc(method, argName));
@@ -95,7 +95,7 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
                 int count = 0;
                 for (int index = GetNext(0, codes); index >= 0 && index < codes.Count; index = GetNext(index, codes)) {
                     var iLoadNode = codes.Search(c => c.IsLdLoc(typeof(NetInfo.Node), method), startIndex: index, count: -1);
-                    var iLoadNetInfo = codes.Search(c => c.IsLdLoc(typeof(NetInfo), method) || c.IsLDArg(method, "info"), startIndex: index, count: -1);
+                    var iLoadNetInfo = codes.Search(c => c.IsLdLoc(typeof(NetInfo), method) || c.IsLDArgSoft(method, "info"), startIndex: index, count: -1);
                     codes.InsertInstructions(index, new[] {
                         codes[iLoadNode].Clone(),
                         codes[iLoadNetInfo].Clone(),
@@ -142,8 +142,8 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
             try {
                 int count = 0;
                 for (int index = GetNext(0, codes); index >= 0 && index < codes.Count; index = GetNext(index, codes)) {
-                    var iLoadNetInfo1 = codes.Search(c => c.IsLdLoc(typeof(NetInfo), method), startIndex: index, count: -1);
-                        codes.InsertInstructions(index, new[] {
+                    var iLoadNetInfo1 = codes.Search(c => c.IsLdLoc(typeof(NetInfo), method) || c.IsLDArgSoft(method, "info"), startIndex: index, count: -1);
+                    codes.InsertInstructions(index, new[] {
                         codes[iLoadNetInfo1].Clone(),
                         new CodeInstruction(OpCodes.Call, mCheckConnectGroup),
                     });
