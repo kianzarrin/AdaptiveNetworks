@@ -59,6 +59,8 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
     /// <summary> insert after the clause:'node.m_connectGroup & info.m_connectGroup'</summary>
     internal static class CheckNodeConnectGroup {
         public static bool CheckConnectGroup(bool flagsMatch, NetInfo.Node node, NetInfo info) {
+            if(flagsMatch)
+                return true;
             return DirectConnectUtil.ConnectGroupsMatch(
                 node.GetMetaData()?.ConnectGroupsHash,
                 info.GetMetaData()?.ConnectGroupsHash);
