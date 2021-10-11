@@ -10,12 +10,13 @@ namespace AdaptiveRoads.Patches.AssetPatches {
     [HarmonyPatch(typeof(AssetEditorRoadUtils), "Instantiate")]
     public static class Instantiate {
         public static void Prefix(NetInfo template) {
-            Log.Debug($"Instantiate.Prefix({template}) was called" /*+ Environment.StackTrace*/);
+            Log.Debug($"Instantiate.Prefix({template}) was called." /*+ Environment.StackTrace*/,false);
             //LogExtended(template);
         }
         public static void LogExtended(NetInfo info) {
-            Log.Debug($"LogExtended({info}) was called");
-            Log.Info("info.GetMetaData()->" + info.GetMetaData().ToSTR());
+            Log.Debug($"LogExtended({info}) was called",false);
+            Log.Info("info.GetMetaData() ->" + info.GetMetaData().ToSTR());
+            //Log.Info("shift ->" + (info.GetMetaData()?.Shift).ToSTR());
             Log.Info("any node is IInfoExtended ->" + info.m_nodes.Any(item => item is IInfoExtended));
             Log.Info("any segment is IInfoExtended ->" + info.m_segments.Any(item => item is IInfoExtended));
             Log.Info("any prop is IInfoExtended ->" + info.m_lanes
@@ -31,8 +32,8 @@ namespace AdaptiveRoads.Patches.AssetPatches {
         public static void Postfix(NetInfo __result, NetInfo template) {
             try {
                 Log.Debug($"Instantiate.PostFix({template})->{__result} was called");
-                //LogExtended(template);
-                //LogExtended(__result);
+                // LogExtended(template);
+                // LogExtended(__result);
                 if(!template.IsAdaptive()) {
                     Log.Debug("skip copying metadata because source is not adaptive");
                     return;

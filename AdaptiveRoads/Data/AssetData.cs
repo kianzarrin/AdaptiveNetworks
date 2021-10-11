@@ -53,7 +53,7 @@ namespace AdaptiveRoads.Manager {
                     info.SetMetedata(NetData?.Clone());
                     info.UpdateMetaData();
                     Log.Debug("Net Metadata restored.");
-                }catch(Exception ex) {
+                } catch(Exception ex) {
                     Log.Exception(ex);
                 }
             }
@@ -81,7 +81,7 @@ namespace AdaptiveRoads.Manager {
                         }
                     }
 
-                    source.SetMetedata(target.GetMetaData()?.Clone());
+                    target.SetMetedata(source.GetMetaData()?.Clone());
                 } catch (Exception ex) { ex.Log(); }
             }
 
