@@ -206,7 +206,7 @@ namespace AdaptiveRoads.UI.Tool {
                 RenderUtil.RenderSegmnetOverlay(cameraInfo, HoveredSegmentID, color, true);
                 if(MultiSelectMode) {
                     foreach(var segmentID in GetHoveredSegmentIDs())
-                        RenderUtil.RenderSegmnetOverlay(cameraInfo, segmentID, Color.white, true);
+                        RenderUtil.RenderSegmnetOverlay(cameraInfo, segmentID, color, true);
                 }
             } else if (NodeMode) {
                 RenderUtil.DrawNodeCircle(cameraInfo, color, HoveredNodeID, true);
