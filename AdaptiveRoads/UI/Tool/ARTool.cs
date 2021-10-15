@@ -16,23 +16,30 @@ namespace AdaptiveRoads.UI.Tool {
     internal class ARTool : KianToolBase<ARTool> {
         NetworkExtensionManager man_ => NetworkExtensionManager.Instance;
 
+        private ushort[] selectedSegmentIDs_;
+        public ushort[] SelectedSegmentIDs {
+            get => selectedSegmentIDs_ ?? new ushort[0];
+            set => selectedSegmentIDs_ = value;
+        }
         public ushort SelectedSegmentID;
         public ushort SelectedNodeID;
         public bool SelectedStartNode => SelectedSegmentID.ToSegment().IsStartNode(SelectedNodeID);
+        public ushort[] GetHoveredSegmentIDs() => Util.GetSimilarSegmentsBetweenJunctions(HoveredSegmentID).ToArray();
+
 
         public static bool NodeMode => Helpers.ControlIsPressed;
         public static bool SegmentEndMode => Helpers.AltIsPressed;
 
         public static bool SegmentMode => !NodeMode && !SegmentEndMode;
 
-        public static bool MultiSelect => Helpers.ShiftIsPressed;
+        public static bool MultiSelectMode => Helpers.ShiftIsPressed;
 
         UIComponent button_;
         FlagsPanel flagsPanel_;
 
         void OpenPanel() {
             ClosePanel();
-            flagsPanel_ = FlagsPanel.Open(SelectedSegmentID, SelectedNodeID);
+            flagsPanel_ = FlagsPanel.Open(SelectedNodeID, SelectedSegmentID, SelectedSegmentIDs);
         }
 
         void ClosePanel() {
@@ -47,12 +54,19 @@ namespace AdaptiveRoads.UI.Tool {
             if (SegmentMode) {
                 SelectedSegmentID = HoveredSegmentID;
                 SelectedNodeID = 0;
+                if(MultiSelectMode) {
+                    SelectedSegmentIDs = GetHoveredSegmentIDs();
+                } else {
+                    SelectedSegmentIDs = null;
+                }
             } else if (NodeMode) {
                 SelectedNodeID = HoveredNodeID;
                 SelectedSegmentID = 0;
+                SelectedSegmentIDs = null;
             } else if (SegmentEndMode) {
                 SelectedSegmentID = HoveredSegmentID;
                 SelectedNodeID = HoveredNodeID;
+                SelectedSegmentIDs = null;
             }
             OpenPanel();
         }
@@ -60,6 +74,7 @@ namespace AdaptiveRoads.UI.Tool {
         protected override void OnSecondaryMouseClicked() {
             LogCalled();
             if(SelectedSegmentID != 0 || SelectedNodeID != 0) {
+                SelectedSegmentIDs = null;
                 SelectedSegmentID = 0;
                 SelectedNodeID = 0;
                 ClosePanel();
@@ -70,6 +85,7 @@ namespace AdaptiveRoads.UI.Tool {
 
         protected override void OnToolUpdate() {
             base.OnToolUpdate();
+
             if (HoverHasFlags()) {
                 ToolCursor = ToolsModifierControl.toolController.Tools.OfType<NetTool>().FirstOrDefault()?.m_upgradeCursor;
             } else {
@@ -79,9 +95,11 @@ namespace AdaptiveRoads.UI.Tool {
             if (HoverValid) {
                 var hints = new List<string>();
                 var usedCustomFlags = GetUsedFlagsSegment(HoveredSegmentID);
-                if (usedCustomFlags.Segment != 0 || usedCustomFlags.Lane != 0)
+                if(usedCustomFlags.Segment != 0 || usedCustomFlags.Lane != 0) {
                     hints.Add("Click => modify custom segment/lane flags");
-                if (GetUsedFlagsNode(HoveredNodeID) != 0)
+                    hints.Add("Shift + Click => Select all segments between two junctions.");
+                }
+                if(GetUsedFlagsNode(HoveredNodeID) != 0)
                     hints.Add("CTRL + Click => modify node flags");
                 if (GetUsedFlagsSegmentEnd(segmentID: HoveredSegmentID, nodeID: HoveredNodeID) != 0)
                     hints.Add("CTRL + Click => modify segmentEnd flags");
@@ -154,16 +172,23 @@ namespace AdaptiveRoads.UI.Tool {
         public override void RenderOverlay(RenderManager.CameraInfo cameraInfo) {
             base.RenderOverlay(cameraInfo);
 
-            if (SelectedSegmentID != 0 && SelectedNodeID != 0)
+            if(SelectedSegmentID != 0 && SelectedNodeID != 0)
                 HighlightSegmentEnd(cameraInfo, SelectedSegmentID, SelectedNodeID, Color.white);
-            else if (SelectedNodeID != 0)
+            else if(SelectedNodeID != 0)
                 RenderUtil.DrawNodeCircle(cameraInfo, Color.white, SelectedNodeID, true);
-            else if (SelectedSegmentID != 0)
+            else if(SelectedSegmentID != 0) {
                 RenderUtil.RenderSegmnetOverlay(cameraInfo, SelectedSegmentID, Color.white, true);
+                foreach(var segmentID in SelectedSegmentIDs)
+                    RenderUtil.RenderSegmnetOverlay(cameraInfo, segmentID, Color.white, true);
+            }
 
-            if (flagsPanel_ && flagsPanel_.HighlighLaneID != 0) {
+
+            if(flagsPanel_ && flagsPanel_.HighlighLaneID != 0) {
                 var laneData = new LaneData(flagsPanel_.HighlighLaneID);
                 RenderUtil.RenderLaneOverlay(cameraInfo, laneData, Color.yellow, false);
+                foreach(var laneData2 in Util.GetSimilarLanes(laneData, selectedSegmentIDs_)) {
+                    RenderUtil.RenderLaneOverlay(cameraInfo, laneData, Color.yellow, false);
+                }
             }
 
             if (!HoverValid)
@@ -179,6 +204,10 @@ namespace AdaptiveRoads.UI.Tool {
 
             if (SegmentMode) {
                 RenderUtil.RenderSegmnetOverlay(cameraInfo, HoveredSegmentID, color, true);
+                if(MultiSelectMode) {
+                    foreach(var segmentID in GetHoveredSegmentIDs())
+                        RenderUtil.RenderSegmnetOverlay(cameraInfo, segmentID, Color.white, true);
+                }
             } else if (NodeMode) {
                 RenderUtil.DrawNodeCircle(cameraInfo, color, HoveredNodeID, true);
             } else if (SegmentEndMode) {

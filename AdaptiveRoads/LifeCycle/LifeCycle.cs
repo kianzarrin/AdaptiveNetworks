@@ -85,7 +85,7 @@ namespace AdaptiveRoads.LifeCycle {
             AssetDataExtension.HotReload();
             //SimulationDataReady();
             Load();
-            Util.RoadEditorUtils.RefreshRoadEditor();
+            RoadEditorUtils.RefreshRoadEditor();
         }
 
         public static void Disable() {

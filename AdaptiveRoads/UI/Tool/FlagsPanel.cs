@@ -8,6 +8,7 @@ namespace AdaptiveRoads.UI.Tool {
     using static KianCommons.ReflectionHelpers;
     using AdaptiveRoads.Manager;
     using static KianCommons.Assertion;
+    using System.Linq;
 
     public class FlagsPanel : UIPanel {
         static string FileName => ModSettings.FILE_NAME;
@@ -22,6 +23,7 @@ namespace AdaptiveRoads.UI.Tool {
         private UILabel lblCaption_;
         private UIDragHandle dragHandle_;
 
+        ushort []segmentIDs_;
         ushort segmentID_;
         ushort nodeID_;
 
@@ -29,15 +31,18 @@ namespace AdaptiveRoads.UI.Tool {
 
         bool SegmentEndMode => segmentID_ != 0 && nodeID_ != 0;
         bool SegmentMode => segmentID_ != 0 && nodeID_ == 0;
+        bool MultiSegmentMode => SegmentMode && !segmentIDs_.IsNullorEmpty();
+
         bool NodeMode => segmentID_ == 0 && nodeID_ != 0;
 
 
         public static FlagsPanel Create() =>
             UIView.GetAView().AddUIComponent(typeof(FlagsPanel)) as FlagsPanel;
 
-        public static FlagsPanel Open(ushort segmentID, ushort nodeID) {
+        public static FlagsPanel Open(ushort nodeID, ushort segmentID, ushort []selectedSegmentIDs) {
             var panel = Create();
             panel.segmentID_ = segmentID;
+            panel.segmentIDs_ = selectedSegmentIDs;
             panel.nodeID_ = nodeID;
             return panel;
         }
@@ -94,7 +99,9 @@ namespace AdaptiveRoads.UI.Tool {
                     lblCaption_.name = "AR_caption";
                 }
 
-                if (SegmentMode)
+                if(MultiSegmentMode)
+                    AddSegmentFlags(this);
+                else if (SegmentMode)
                     AddSegmentFlags(this);
                 else if (SegmentEndMode)
                     AddSegmentEndFlags(this);
@@ -114,7 +121,7 @@ namespace AdaptiveRoads.UI.Tool {
             NetUtil.AssertSegmentValid(segmentID_);
             var mask = ARTool.GetUsedFlagsSegment(segmentID_).Segment;
             foreach (var flag in mask.ExtractPow2Flags()) {
-                SegmentFlagToggle.Add(container, segmentID_, flag);
+                SegmentFlagToggle.Add(container, segmentID_, segmentIDs_, flag);
             }
 
             foreach (var lane in NetUtil.GetSortedLanes(segmentID_)) {
@@ -128,8 +135,10 @@ namespace AdaptiveRoads.UI.Tool {
         public void AddLaneFlags(UIPanel container, LaneData lane, NetLaneExt.Flags mask) {
             try {
                 LogCalled(container, lane.LaneID, mask);
+                
                 AddSpacePanel(container, 6);
-                var laneContainer = LanePanelCollapsable.Add(container, lane, mask);
+                var lanes = Util.GetSimilarLanes(lane, segmentIDs_).ToArray();
+                var laneContainer = LanePanelCollapsable.Add(container, lane, lanes, mask);
 
                 laneContainer.eventMouseEnter += (_, __) => HighlighLaneID = lane.LaneID;
                 laneContainer.eventMouseLeave += (_, __) => {
