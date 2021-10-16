@@ -365,13 +365,14 @@ namespace AdaptiveRoads.Manager {
 
             public static string GetCustomFlagName(Enum flag, object target) {
                 try {
-                    if (target is NetLaneProps.Prop prop) {
+                    if (target is NetLaneProps.Prop prop && flag is NetLaneExt.Flags laneFlag) {
                         var netInfo = prop.GetParent(laneIndex: out int laneIndex, out _);
-                        return netInfo?.GetMetaData()?.GetCustomLaneFlagName((NetLaneExt.Flags)flag, laneIndex);
+                        return netInfo?.GetMetaData()?.GetCustomLaneFlagName(laneFlag, laneIndex);
                     } else {
                         var netInfo =
                             (target as NetInfo.Node)?.GetParent(out _) ??
-                            (target as NetInfo.Segment)?.GetParent(out _);
+                            (target as NetInfo.Segment)?.GetParent(out _) ??
+                            (target as NetLaneProps.Prop)?.GetParent(out _, out _);
                         var dict = netInfo?.GetMetaData()?.CustomFlagNames;
                         if (dict != null && dict.TryGetValue(flag, out string name)) {
                             return name;
@@ -415,13 +416,14 @@ namespace AdaptiveRoads.Manager {
 
             public static void RenameCustomFlag(Enum flag, object target, string name) {
                 try {
-                    if (target is NetLaneProps.Prop prop) {
+                    if (target is NetLaneProps.Prop prop && flag is NetLaneExt.Flags laneFlag) {
                         var netInfo = prop.GetParent(laneIndex: out int laneIndex, out _);
                         netInfo.GetMetaData().RenameCustomFlag(laneIndex: laneIndex, flag:(NetLaneExt.Flags)flag, name: name);
                     } else {
                         var netInfo =
                             (target as NetInfo.Node)?.GetParent(out _) ??
-                            (target as NetInfo.Segment)?.GetParent(out _);
+                            (target as NetInfo.Segment)?.GetParent(out _) ??
+                            (target as NetLaneProps.Prop)?.GetParent(out _, out _);
                         netInfo.GetMetaData().RenameCustomFlag(flag: flag, name: name);
                     }
                 } catch (Exception ex) { ex.Log(); }
