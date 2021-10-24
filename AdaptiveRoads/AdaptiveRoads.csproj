@@ -204,6 +204,9 @@
     <ProjectReference Include="..\PrefabMetaDataAPI\PrefabMetadataAPI.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="Resources\B1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\PreviewImage.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

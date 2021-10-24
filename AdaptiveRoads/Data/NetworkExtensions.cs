@@ -27,6 +27,15 @@ namespace AdaptiveRoads.Manager {
             (value & (required | forbidden)) == required;
         public static bool CheckFlags(this NetNodeExt.Flags value, NetNodeExt.Flags required, NetNodeExt.Flags forbidden) =>
             (value & (required | forbidden)) == required;
+
+        public static NetLaneExt.Flags SetMaskedFlags(this NetLaneExt.Flags flags, NetLaneExt.Flags value, NetLaneExt.Flags mask) =>
+            (flags & ~mask) | (value & mask);
+        public static NetSegmentEnd.Flags SetMaskedFlags(this NetSegmentEnd.Flags flags, NetSegmentEnd.Flags value, NetSegmentEnd.Flags mask) =>
+            (flags & ~mask) | (value & mask);
+        public static NetSegmentExt.Flags SetMaskedFlags(this NetSegmentExt.Flags flags, NetSegmentExt.Flags value, NetSegmentExt.Flags mask) =>
+            (flags & ~mask) | (value & mask);
+        public static NetNodeExt.Flags SetMaskedFlags(this NetNodeExt.Flags flags, NetNodeExt.Flags value, NetNodeExt.Flags mask) =>
+            (flags & ~mask) | (value & mask);
     }
 
     public struct CustomFlags {
@@ -136,8 +145,7 @@ namespace AdaptiveRoads.Manager {
         public void Serialize(SimpleDataSerializer s) => s.WriteInt32(
             ((int)(Flags.CustomsMask & m_flags)) >> CUSTOM_FLAG_SHIFT);
         public void Deserialize(SimpleDataSerializer s) => m_flags =
-            (m_flags & ~Flags.CustomsMask) |
-            (Flags)(s.ReadInt32() << CUSTOM_FLAG_SHIFT);
+            m_flags.SetMaskedFlags((Flags)(s.ReadInt32() << CUSTOM_FLAG_SHIFT), Flags.CustomsMask);
 
         public void Init(uint laneID) {
             LaneData.LaneID = laneID;
@@ -212,8 +220,7 @@ namespace AdaptiveRoads.Manager {
         public void Serialize(SimpleDataSerializer s) => s.WriteInt32(
             ((int)(Flags.CustomsMask & m_flags)) >> CUSTOM_FLAG_SHIFT);
         public void Deserialize(SimpleDataSerializer s) => m_flags =
-            (m_flags & ~Flags.CustomsMask) |
-            (Flags)(s.ReadInt32() << CUSTOM_FLAG_SHIFT);
+            m_flags.SetMaskedFlags((Flags)(s.ReadInt32() << CUSTOM_FLAG_SHIFT), Flags.CustomsMask);
 
         public void Init(ushort nodeID) => NodeID = nodeID;
 
@@ -299,9 +306,7 @@ namespace AdaptiveRoads.Manager {
         public void Serialize(SimpleDataSerializer s) => s.WriteInt32(
             ((int)(Flags.CustomsMask & m_flags)) >> CUSTOM_FLAG_SHIFT);
         public void Deserialize(SimpleDataSerializer s) => m_flags =
-            (m_flags & ~Flags.CustomsMask) |
-            (Flags)(s.ReadInt32() << CUSTOM_FLAG_SHIFT);
-
+            m_flags.SetMaskedFlags((Flags)(s.ReadInt32() << CUSTOM_FLAG_SHIFT), Flags.CustomsMask);
 
         public void Init(ushort segmentID) => SegmentID = segmentID;
 
@@ -535,8 +540,7 @@ namespace AdaptiveRoads.Manager {
         public void Serialize(SimpleDataSerializer s) => s.WriteInt32(
             ((int)(Flags.CustomsMask & m_flags)) >> CUSTOM_FLAG_SHIFT);
         public void Deserialize(SimpleDataSerializer s) => m_flags =
-            (m_flags & ~Flags.CustomsMask) |
-            (Flags)(s.ReadInt32() << CUSTOM_FLAG_SHIFT);
+            m_flags.SetMaskedFlags((Flags)(s.ReadInt32() << CUSTOM_FLAG_SHIFT), Flags.CustomsMask);
 
         public void Init(ushort segmentID, bool startNode) {
             m_flags = Flags.None;
