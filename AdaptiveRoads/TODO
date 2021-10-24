@@ -1,5 +1,6 @@
-TODO: list scrollbars
-- bugfix: custom connect group does not work when using new asset
+TODO:
+- remove custom flags when network is deleted.
+- list scrollbars
 - group DC components.
 
 

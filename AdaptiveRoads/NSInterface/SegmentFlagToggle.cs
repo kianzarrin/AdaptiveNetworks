@@ -5,6 +5,7 @@ namespace AdaptiveRoads.NSInterface {
     using AdaptiveRoads.Manager;
     using KianCommons;
     using NetworkSkins.Helpers;
+    using System;
 
     public class SegmentFlagToggle : UICheckBoxExt {
         public NetSegmentExt.Flags Flag;
@@ -15,7 +16,6 @@ namespace AdaptiveRoads.NSInterface {
             return toggle;
         }
 
-
         public override void Start() {
             base.Start();
             string name = CustomFlagAttribute.GetName(Flag, ARImplementation.Instance.Prefab);
@@ -24,9 +24,13 @@ namespace AdaptiveRoads.NSInterface {
         }
 
         public override void OnCheckChanged(UIComponent component, bool value) {
-            base.OnCheckChanged(component, value);
-            ARImplementation.Instance.CustomSegmentFlags.SetFlags(Flag, value);
-            ARImplementation.Instance.OnControllerChanged();
+            try {
+                Log.Called($"Flag={Flag}", "value="+value);
+                base.OnCheckChanged(component, value);
+                ARImplementation.Instance.CustomSegmentFlags = ARImplementation.Instance.CustomSegmentFlags.SetFlags(Flag, value);
+                Log.Info("CustomSegmentFlags became " + ARImplementation.Instance.CustomSegmentFlags);
+                ARImplementation.Instance.OnControllerChanged();
+            } catch(Exception ex) { ex.Log(); }
         }
 
         public void Refresh(NetSegmentExt.Flags flags) {

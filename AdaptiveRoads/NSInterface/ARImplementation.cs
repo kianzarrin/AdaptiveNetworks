@@ -165,27 +165,6 @@ namespace AdaptiveRoads.NSInterface {
             } catch(Exception ex) { ex.Log(); }
 
         }
-
-        public void Reset() {
-            try {
-                Log.Called();
-                CustomSegmentFlags = default;
-                SaveActiveSelection();
-            } catch(Exception ex) { ex.Log(); }
-        }
-
-        public Dictionary<NetInfo, ICloneable> BuildCustomData() {
-            try {
-                Log.Called();
-                var ret = new Dictionary<NetInfo, ICloneable>();
-                if(!IsDefault) {
-                    ret[Prefab] = new ARCustomData { SegmentExtFlags = CustomSegmentFlags };
-                }
-                return ret;
-            } catch(Exception ex) { ex.Log();}
-            return null;
-        }
-
         public void SaveActiveSelection() {
             try {
                 Log.Called();
@@ -198,6 +177,25 @@ namespace AdaptiveRoads.NSInterface {
             } catch(Exception ex) { ex.Log(); }
         }
 
+        public void Reset() {
+            try {
+                Log.Called();
+                CustomSegmentFlags = default;
+                SaveActiveSelection();
+            } catch(Exception ex) { ex.Log(); }
+        }
+
+        public Dictionary<NetInfo, ICloneable> BuildCustomData() {
+            try {
+                Log.Called("CustomSegmentFlags are " + CustomSegmentFlags);
+                var ret = new Dictionary<NetInfo, ICloneable>();
+                if(!IsDefault) {
+                    ret[Prefab] = new ARCustomData { SegmentExtFlags = CustomSegmentFlags };
+                }
+                return ret.LogRet();
+            } catch(Exception ex) { ex.Log();}
+            return null;
+        }
     #endregion
 
     }
