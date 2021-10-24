@@ -65,7 +65,7 @@ namespace AdaptiveRoads.NSInterface {
         }
 
         public void OnSkinApplied(ICloneable data, InstanceID instanceID) {
-            Log.Called();
+            Log.Called(data.ToSTR(), instanceID.ToSTR());
             if(instanceID.Type == InstanceType.NetSegment) {
                 ref var segmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[instanceID.NetSegment];
                 if(data is ARCustomData customData) {
@@ -73,6 +73,7 @@ namespace AdaptiveRoads.NSInterface {
                 } else if(data is null) {
                     segmentExt.m_flags = segmentExt.m_flags.SetMaskedFlags(NetSegmentExt.Flags.None, NetSegmentExt.Flags.CustomsMask);
                 }
+                Log.Info("OnSkinApplied: segmentExt.m_flags=" + segmentExt.m_flags);
             }
         }
 

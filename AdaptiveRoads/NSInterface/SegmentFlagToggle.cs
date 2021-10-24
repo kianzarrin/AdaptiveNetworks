@@ -4,8 +4,7 @@ namespace AdaptiveRoads.NSInterface {
     using KianCommons.UI;
     using AdaptiveRoads.Manager;
     using KianCommons;
-    using System.Linq;
-    using UnityEngine;
+    using NetworkSkins.Helpers;
 
     public class SegmentFlagToggle : UICheckBoxExt {
         public NetSegmentExt.Flags Flag;
@@ -27,6 +26,7 @@ namespace AdaptiveRoads.NSInterface {
         public override void OnCheckChanged(UIComponent component, bool value) {
             base.OnCheckChanged(component, value);
             ARImplementation.Instance.CustomSegmentFlags.SetFlags(Flag, value);
+            ARImplementation.Instance.OnControllerChanged();
         }
 
         public void Refresh(NetSegmentExt.Flags flags) {
