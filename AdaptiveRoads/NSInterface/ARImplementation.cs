@@ -60,10 +60,12 @@ namespace AdaptiveRoads.NSInterface {
 
         public void OnSkinApplied(ICloneable data, InstanceID instanceID) {
             Log.Called();
-            if(data is ARCustomData customData) {
-                if(instanceID.Type == InstanceType.NetSegment) {
-                    ref var segmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[instanceID.NetSegment];
+            if(instanceID.Type == InstanceType.NetSegment) {
+                ref var segmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[instanceID.NetSegment];
+                if(data is ARCustomData customData) {
                     segmentExt.m_flags = segmentExt.m_flags.SetMaskedFlags(customData.SegmentExtFlags, NetSegmentExt.Flags.CustomsMask);
+                } else if(data is null) {
+                    segmentExt.m_flags = segmentExt.m_flags.SetMaskedFlags(NetSegmentExt.Flags.None, NetSegmentExt.Flags.CustomsMask);
                 }
             }
         }
