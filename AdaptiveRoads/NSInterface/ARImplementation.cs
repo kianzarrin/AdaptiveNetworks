@@ -13,8 +13,8 @@ namespace AdaptiveRoads.NSInterface {
     using TextureUtil = KianCommons.UI.TextureUtil;
 
     public class ARImplementation : INSImplementation {
-        public static ARImplementation Instance;
-        public static void CreateOnReady() {
+        internal static ARImplementation Instance;
+        internal static void CreateOnReady() {
             try {
                 Log.Called();
                 Assertion.Assert(Instance == null, "instance should not exists");
@@ -24,14 +24,14 @@ namespace AdaptiveRoads.NSInterface {
             }
         }
 
-        public void Release() {
+        internal void Release() {
             Log.Called();
             this.Remove();
             Instance = null;
         }
 
 
-        public ARImplementation() {
+        internal ARImplementation() {
             try {
                 Log.Called();
                 Instance = this;
@@ -39,7 +39,13 @@ namespace AdaptiveRoads.NSInterface {
             }catch(Exception ex) { ex.Log(); }
         }
 
-        public string ID { get; }
+        public string ID {
+            get {
+                Log.Called();
+                return "Adaptive Roads";
+            }
+        }
+
         public int Index { get; set; }
 
         public void OnBeforeNSLoaded() {
@@ -86,30 +92,45 @@ namespace AdaptiveRoads.NSInterface {
 
         #region GUI
 
-        public Texture2D Icon => TextureUtil.GetTextureFromFile("B1.png");
-        public string Tooltip => "Adaptive Roads";
-
-        public void BuildPanel(UIPanel panel) {
-            Log.Called();
-            Assertion.NotNull(panel, "container");
-
-            foreach(var flag in UsedCustomSegmentFlags.ExtractPow2Flags()) {
-                SegmentFlagToggle.Add(panel, 0, null, flag);
+        public Texture2D Icon {
+            get {
+                Log.Called();
+                return TextureUtil.GetTextureFromFile("B1.png");
             }
-            RefreshUI();
+        }
+        public string Tooltip {
+            get {
+                Log.Called();
+                return "Adaptive Roads";
+            }
+        }
+
+        UIPanel container_;
+        public void BuildPanel(UIPanel panel) {
+            try {
+                Log.Called();
+                Assertion.NotNull(panel, "container");
+                container_ = panel;
+                foreach(var flag in UsedCustomSegmentFlags.ExtractPow2Flags())
+                    SegmentFlagToggle.Add(panel, flag);
+                RefreshUI();
+            } catch(Exception ex) { ex.Log(); }
         }
 
         public void RefreshUI() {
-            Log.Called();
-            throw new NotImplementedException();
+            try {
+                Log.Called();
+                foreach(var toggle in container_.GetComponentsInChildren<SegmentFlagToggle>())
+                    toggle.Refresh(CustomSegmentFlags);
+            } catch(Exception ex) { ex.Log(); }
         }
         #endregion
 
         #region controller
-        NetInfo Prefab => NetUtil.netTool.m_prefab;
+        internal NetInfo Prefab => NetUtil.netTool.m_prefab;
 
-        public NetSegmentExt.Flags CustomSegmentFlags;
-        private NetSegmentExt.Flags UsedCustomSegmentFlags => Prefab?.GetMetaData()?.UsedCustomFlags.Segment ?? default;
+        internal NetSegmentExt.Flags CustomSegmentFlags;
+        internal NetSegmentExt.Flags UsedCustomSegmentFlags => Prefab?.GetMetaData()?.UsedCustomFlags.Segment ?? default;
 
         private static string GetFlagKey(NetSegmentExt.Flags flag) {
             return "MOD_AR_SEGMENTEXT_" + flag;
@@ -117,54 +138,66 @@ namespace AdaptiveRoads.NSInterface {
 
         public bool IsDefault => CustomSegmentFlags == default;
 
-        public bool Enabled => UsedCustomSegmentFlags != default;
+        public bool Enabled => (UsedCustomSegmentFlags != default).LogRet();
 
         public void LoadWithData(ICloneable data) {
-            Log.Called();
-            if(data is ARCustomData customData) {
-                CustomSegmentFlags = customData.SegmentExtFlags;
-            } else {
-                CustomSegmentFlags = default;
-            }
+            try {
+                Log.Called();
+                if(data is ARCustomData customData) {
+                    CustomSegmentFlags = customData.SegmentExtFlags;
+                } else {
+                    CustomSegmentFlags = default;
+                }
+            } catch(Exception ex) { ex.Log(); }
         }
 
         public void LoadActiveSelection() {
-            Log.Called();
-            CustomSegmentFlags = default;
-            foreach(var usedFlag in UsedCustomSegmentFlags.ExtractPow2Flags()) {
-                var value = ActiveSelectionData.Instance.GetBoolValue(Prefab, GetFlagKey(usedFlag));
-                if(value.HasValue && value == true) {
-                    CustomSegmentFlags = CustomSegmentFlags.SetFlags(usedFlag);
+            try {
+                Log.Called();
+                CustomSegmentFlags = default;
+                foreach(var usedFlag in UsedCustomSegmentFlags.ExtractPow2Flags()) {
+                    var value = ActiveSelectionData.Instance.GetBoolValue(Prefab, GetFlagKey(usedFlag));
+                    if(value.HasValue && value == true) {
+                        CustomSegmentFlags = CustomSegmentFlags.SetFlags(usedFlag);
+                    }
                 }
-            }
+            } catch(Exception ex) { ex.Log(); }
+
         }
 
         public void Reset() {
-            Log.Called();
-            CustomSegmentFlags = default;
-            SaveActiveSelection();
+            try {
+                Log.Called();
+                CustomSegmentFlags = default;
+                SaveActiveSelection();
+            } catch(Exception ex) { ex.Log(); }
         }
 
         public Dictionary<NetInfo, ICloneable> BuildCustomData() {
-            Log.Called();
-            var ret = new Dictionary<NetInfo, ICloneable>();
-            if(!IsDefault) {
-                ret[Prefab] = new ARCustomData { SegmentExtFlags = CustomSegmentFlags };
-            }
-            return ret;
+            try {
+                Log.Called();
+                var ret = new Dictionary<NetInfo, ICloneable>();
+                if(!IsDefault) {
+                    ret[Prefab] = new ARCustomData { SegmentExtFlags = CustomSegmentFlags };
+                }
+                return ret;
+            } catch(Exception ex) { ex.Log();}
+            return null;
         }
 
         public void SaveActiveSelection() {
-            Log.Called();
-            foreach(var usedFlag in UsedCustomSegmentFlags.ExtractPow2Flags()) {
-                if(CustomSegmentFlags.IsFlagSet(usedFlag))
-                    ActiveSelectionData.Instance.SetBoolValue(Prefab, GetFlagKey(usedFlag), true);
-                else
-                    ActiveSelectionData.Instance.ClearValue(Prefab, GetFlagKey(usedFlag));
-            }
+            try {
+                Log.Called();
+                foreach(var usedFlag in UsedCustomSegmentFlags.ExtractPow2Flags()) {
+                    if(CustomSegmentFlags.IsFlagSet(usedFlag))
+                        ActiveSelectionData.Instance.SetBoolValue(Prefab, GetFlagKey(usedFlag), true);
+                    else
+                        ActiveSelectionData.Instance.ClearValue(Prefab, GetFlagKey(usedFlag));
+                }
+            } catch(Exception ex) { ex.Log(); }
         }
 
-        #endregion
+    #endregion
 
     }
 }
