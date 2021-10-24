@@ -15,38 +15,51 @@ namespace AdaptiveRoads.NSInterface {
     public class ARImplementation : INSImplementation {
         public static ARImplementation Instance;
         public static void CreateOnReady() {
-            Assertion.Assert(Instance == null, "instance should not exists");
-            NSHelpers.DoOnNSEnabled(() => new ARImplementation());
+            try {
+                Log.Called();
+                Assertion.Assert(Instance == null, "instance should not exists");
+                NSHelpers.DoOnNSEnabled(() => new ARImplementation());
+            }catch(Exception ex) {
+                ex.Log();
+            }
         }
 
         public void Release() {
+            Log.Called();
             this.Remove();
             Instance = null;
         }
 
 
         public ARImplementation() {
-            Instance = this;
-            this.Register();
+            try {
+                Log.Called();
+                Instance = this;
+                this.Register();
+            }catch(Exception ex) { ex.Log(); }
         }
 
         public string ID { get; }
         public int Index { get; set; }
 
         public void OnBeforeNSLoaded() {
-            
+            Log.Called();
+
         }
 
         public void OnAfterNSLoaded() {
-            
+            Log.Called();
+
         }
 
         public void OnNSDisabled() {
+            Log.Called();
             Release();
             CreateOnReady();
         }
 
-        public void OnSkinApplied(object data, InstanceID instanceID) {
+        public void OnSkinApplied(ICloneable data, InstanceID instanceID) {
+            Log.Called();
             if(data is ARCustomData customData) {
                 if(instanceID.Type == InstanceType.NetSegment) {
                     ref var segmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[instanceID.NetSegment];
@@ -58,10 +71,12 @@ namespace AdaptiveRoads.NSInterface {
         #region persistancy
         public Version DataVersion => this.VersionOf();
         public string Encode64(ICloneable data) {
+            Log.Called();
             return data is ARCustomData customData ? XMLSerializerUtil.Serialize(customData) : null;
         }
 
         public ICloneable Decode64(string base64Data, Version dataVersion) {
+            Log.Called();
             return base64Data != null ? XMLSerializerUtil.Deserialize<ARCustomData>(base64Data) : null;
         }
         #endregion
@@ -73,6 +88,7 @@ namespace AdaptiveRoads.NSInterface {
         public string Tooltip => "Adaptive Roads";
 
         public void BuildPanel(UIPanel panel) {
+            Log.Called();
             Assertion.NotNull(panel, "container");
 
             foreach(var flag in UsedCustomSegmentFlags.ExtractPow2Flags()) {
@@ -82,6 +98,7 @@ namespace AdaptiveRoads.NSInterface {
         }
 
         public void RefreshUI() {
+            Log.Called();
             throw new NotImplementedException();
         }
         #endregion
@@ -101,6 +118,7 @@ namespace AdaptiveRoads.NSInterface {
         public bool Enabled => UsedCustomSegmentFlags != default;
 
         public void LoadWithData(ICloneable data) {
+            Log.Called();
             if(data is ARCustomData customData) {
                 CustomSegmentFlags = customData.SegmentExtFlags;
             } else {
@@ -109,6 +127,7 @@ namespace AdaptiveRoads.NSInterface {
         }
 
         public void LoadActiveSelection() {
+            Log.Called();
             CustomSegmentFlags = default;
             foreach(var usedFlag in UsedCustomSegmentFlags.ExtractPow2Flags()) {
                 var value = ActiveSelectionData.Instance.GetBoolValue(Prefab, GetFlagKey(usedFlag));
@@ -119,11 +138,13 @@ namespace AdaptiveRoads.NSInterface {
         }
 
         public void Reset() {
+            Log.Called();
             CustomSegmentFlags = default;
             SaveActiveSelection();
         }
 
         public Dictionary<NetInfo, ICloneable> BuildCustomData() {
+            Log.Called();
             var ret = new Dictionary<NetInfo, ICloneable>();
             if(!IsDefault) {
                 ret[Prefab] = new ARCustomData { SegmentExtFlags = CustomSegmentFlags };
@@ -132,6 +153,7 @@ namespace AdaptiveRoads.NSInterface {
         }
 
         public void SaveActiveSelection() {
+            Log.Called();
             foreach(var usedFlag in UsedCustomSegmentFlags.ExtractPow2Flags()) {
                 if(CustomSegmentFlags.IsFlagSet(usedFlag))
                     ActiveSelectionData.Instance.SetBoolValue(Prefab, GetFlagKey(usedFlag), true);
@@ -140,9 +162,6 @@ namespace AdaptiveRoads.NSInterface {
             }
         }
 
-        public void OnSkinApplied(ICloneable data, InstanceID instanceID) {
-            throw new NotImplementedException();
-        }
         #endregion
 
     }

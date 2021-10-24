@@ -14,6 +14,7 @@ namespace AdaptiveRoads.LifeCycle {
     using TrafficManager.Manager.Impl;
     using AdaptiveRoads.UI.Tool;
     using KianCommons.Serialization;
+    using AdaptiveRoads.NSInterface;
 
     public static class LifeCycle {
         public static string HARMONY_ID = "CS.Kian.AdaptiveRoads";
@@ -32,13 +33,16 @@ namespace AdaptiveRoads.LifeCycle {
             try {
                 Log.Debug("Testing StackTrace:\n" + new StackTrace(true).ToString(), copyToGameLog: false);
                 KianCommons.UI.TextureUtil.EmbededResources = false;
-                HelpersExtensions.VERBOSE = false;
+                Log.VERBOSE = false;
                 Loaded = false;
                 Log.Buffered = true;
 
                 HarmonyHelper.EnsureHarmonyInstalled();
+                ARImplementation.CreateOnReady();
+
                 //LoadingManager.instance.m_simulationDataReady += SimulationDataReady; // load/update data
                 LoadingManager.instance.m_levelPreLoaded += Preload;
+
                 if (LoadingManager.instance.m_loadingComplete)
                     HotReload();
 
@@ -90,6 +94,8 @@ namespace AdaptiveRoads.LifeCycle {
 
         public static void Disable() {
             Log.Buffered = false;
+            ARImplementation.Instance?.Release();
+
             //LoadingManager.instance.m_simulationDataReady -= SimulationDataReady;
             LoadingManager.instance.m_levelPreLoaded -= Preload;
             Unload(); // in case of hot unload
