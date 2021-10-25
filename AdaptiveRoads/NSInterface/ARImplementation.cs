@@ -113,7 +113,7 @@ namespace AdaptiveRoads.NSInterface {
         public Texture2D Icon {
             get {
                 Log.Called();
-                return TextureUtil.GetTextureFromFile("B1.png");
+                return TextureUtil.GetTextureFromFile("NS.png");
             }
         }
         public string Tooltip {
