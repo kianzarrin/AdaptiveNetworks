@@ -72,9 +72,6 @@
       <Aliases>UnifedUILib</Aliases>
     </Reference>
     <Reference Include="NetworkSkins" />
-    <Reference Include="NetworkSkins.Implementation">
-      <Private>true</Private>
-    </Reference>
     <Reference Include="NetworkSkins.Helpers">
       <Private>true</Private>
     </Reference>
