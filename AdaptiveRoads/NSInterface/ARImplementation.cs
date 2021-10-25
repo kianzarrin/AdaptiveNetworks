@@ -9,8 +9,8 @@ namespace AdaptiveRoads.NSInterface {
     using ColossalFramework;
     using UnityEngine;
     using NetworkSkins.Persistence;
-    using AdaptiveRoads.UI.Tool;
     using TextureUtil = KianCommons.UI.TextureUtil;
+    using AdaptiveRoads.NSInterface.UI;
 
     public class ARImplementation : INSImplementation {
         internal static ARImplementation Instance;
@@ -67,13 +67,30 @@ namespace AdaptiveRoads.NSInterface {
         public void OnSkinApplied(ICloneable data, InstanceID instanceID) {
             Log.Called(data.ToSTR(), instanceID.ToSTR());
             if(instanceID.Type == InstanceType.NetSegment) {
-                ref var segmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[instanceID.NetSegment];
-                if(data is ARCustomData customData) {
-                    segmentExt.m_flags = segmentExt.m_flags.SetMaskedFlags(customData.SegmentExtFlags, NetSegmentExt.Flags.CustomsMask);
-                } else if(data is null) {
-                    segmentExt.m_flags = segmentExt.m_flags.SetMaskedFlags(NetSegmentExt.Flags.None, NetSegmentExt.Flags.CustomsMask);
+                ushort segmentID = instanceID.NetSegment;
+                var prefab = segmentID.ToSegment().Info;
+                var customFlags = data as ARCustomFlags ?? new ARCustomFlags(prefab);
+
+                ref var segmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
+                segmentExt.m_flags = segmentExt.m_flags.SetMaskedFlags(customFlags.Segment, NetSegmentExt.Flags.CustomsMask);
+
+                segmentExt.Start.m_flags = segmentExt.Start.m_flags.SetMaskedFlags(customFlags.SegmentEnd, NetSegmentEnd.Flags.CustomsMask);
+                segmentExt.End.m_flags = segmentExt.End.m_flags.SetMaskedFlags(customFlags.SegmentEnd, NetSegmentEnd.Flags.CustomsMask);
+
+                foreach(var lane in NetUtil.IterateLanes(segmentID)) {
+                    ref var laneExt = ref NetworkExtensionManager.Instance.LaneBuffer[lane.LaneIndex];
+                    laneExt.m_flags = laneExt.m_flags.SetMaskedFlags(customFlags.Lanes[lane.LaneIndex], NetLaneExt.Flags.CustomsMask);
                 }
-                Log.Info("OnSkinApplied: segmentExt.m_flags=" + segmentExt.m_flags);
+                Log.Info($"OnSkinApplied(segment:{segmentID}) : " + customFlags);
+
+            } else if(instanceID.Type == InstanceType.NetNode) {
+                ushort nodeID = instanceID.NetNode;
+                var prefab = nodeID.ToNode().Info;
+                var customFlags = data as ARCustomFlags ?? new ARCustomFlags(prefab);
+
+                ref var nodeExt = ref NetworkExtensionManager.Instance.NodeBuffer[nodeID];
+                nodeExt.m_flags = nodeExt.m_flags.SetMaskedFlags(customFlags.Node, NetNodeExt.Flags.CustomsMask);
+                Log.Info($"OnSkinApplied(node:{nodeID}) : " + customFlags);
             }
         }
 
@@ -81,12 +98,12 @@ namespace AdaptiveRoads.NSInterface {
         public Version DataVersion => this.VersionOf();
         public string Encode64(ICloneable data) {
             Log.Called();
-            return data is ARCustomData customData ? XMLSerializerUtil.Serialize(customData) : null;
+            return data is ARCustomFlags customData ? XMLSerializerUtil.Serialize(customData) : null;
         }
 
         public ICloneable Decode64(string base64Data, Version dataVersion) {
             Log.Called();
-            return base64Data != null ? XMLSerializerUtil.Deserialize<ARCustomData>(base64Data) : null;
+            return base64Data != null ? XMLSerializerUtil.Deserialize<ARCustomFlags>(base64Data) : null;
         }
         #endregion
 
@@ -107,22 +124,21 @@ namespace AdaptiveRoads.NSInterface {
         }
 
         UIPanel container_;
+        UIPanel subContainer_;
         public void BuildPanel(UIPanel panel) {
             try {
                 Log.Called();
                 Assertion.NotNull(panel, "container");
                 container_ = panel;
-                foreach(var flag in UsedCustomSegmentFlags.ExtractPow2Flags())
-                    SegmentFlagToggle.Add(panel, flag);
-                RefreshUI();
+                subContainer_ = container_.AddUIComponent<AR_NS_FlagsPanel>();
             } catch(Exception ex) { ex.Log(); }
         }
 
         public void RefreshUI() {
             try {
                 Log.Called();
-                foreach(var toggle in container_.GetComponentsInChildren<SegmentFlagToggle>())
-                    toggle.Refresh(CustomSegmentFlags);
+                GameObject.Destroy(subContainer_?.gameObject);
+                BuildPanel(container_);
             } catch(Exception ex) { ex.Log(); }
         }
         #endregion
@@ -130,24 +146,28 @@ namespace AdaptiveRoads.NSInterface {
         #region controller
         internal NetInfo Prefab => NetUtil.netTool.m_prefab;
 
-        internal NetSegmentExt.Flags CustomSegmentFlags;
-        internal NetSegmentExt.Flags UsedCustomSegmentFlags => Prefab?.GetMetaData()?.UsedCustomFlags.Segment ?? default;
+        internal ARCustomFlags ARCustomFlags;
+        internal CustomFlags PrefabCustomFlags => Prefab?.GetMetaData()?.UsedCustomFlags ?? default;
 
-        private static string GetFlagKey(NetSegmentExt.Flags flag) {
-            return "MOD_AR_SEGMENTEXT_" + flag;
-        }
+        private static string GetFlagKey(Enum flag) =>
+            $"MOD_AR_{flag.GetType().DeclaringType.Name}_{flag}";
+        
 
-        public bool IsDefault => CustomSegmentFlags == default;
+        private static string GetLaneFlagKey(int laneIndex, Enum flag) =>
+            $"MOD_AR_lanes[{laneIndex}]_{flag}";
+        
 
-        public bool Enabled => (UsedCustomSegmentFlags != default).LogRet();
+        public bool IsDefault => ARCustomFlags.IsDefault();
+
+        public bool Enabled => !PrefabCustomFlags.IsDefault();
 
         public void LoadWithData(ICloneable data) {
             try {
                 Log.Called();
-                if(data is ARCustomData customData) {
-                    CustomSegmentFlags = customData.SegmentExtFlags;
+                if(data is ARCustomFlags customData) {
+                    ARCustomFlags = customData;
                 } else {
-                    CustomSegmentFlags = default;
+                    ARCustomFlags = new ARCustomFlags(Prefab);
                 }
             } catch(Exception ex) { ex.Log(); }
         }
@@ -155,42 +175,90 @@ namespace AdaptiveRoads.NSInterface {
         public void LoadActiveSelection() {
             try {
                 Log.Called();
-                CustomSegmentFlags = default;
-                foreach(var usedFlag in UsedCustomSegmentFlags.ExtractPow2Flags()) {
+                ARCustomFlags = new ARCustomFlags(Prefab);
+                foreach(var usedFlag in PrefabCustomFlags.Segment.ExtractPow2Flags()) {
                     var value = ActiveSelectionData.Instance.GetBoolValue(Prefab, GetFlagKey(usedFlag));
                     if(value.HasValue && value == true) {
-                        CustomSegmentFlags = CustomSegmentFlags.SetFlags(usedFlag);
+                        ARCustomFlags.Segment = ARCustomFlags.Segment.SetFlags(usedFlag);
                     }
                 }
+                foreach(var usedFlag in PrefabCustomFlags.Node.ExtractPow2Flags()) {
+                    var value = ActiveSelectionData.Instance.GetBoolValue(Prefab, GetFlagKey(usedFlag));
+                    if(value.HasValue && value == true) {
+                        ARCustomFlags.Node = ARCustomFlags.Node.SetFlags(usedFlag);
+                    }
+                }
+                foreach(var usedFlag in PrefabCustomFlags.SegmentEnd.ExtractPow2Flags()) {
+                    var value = ActiveSelectionData.Instance.GetBoolValue(Prefab, GetFlagKey(usedFlag));
+                    if(value.HasValue && value == true) {
+                        ARCustomFlags.SegmentEnd = ARCustomFlags.SegmentEnd.SetFlags(usedFlag);
+                    }
+                }
+                if(PrefabCustomFlags.Lane != default) {
+                    foreach(var laneIndex in Prefab.m_sortedLanes) {
+                        var usedLaneFlags = Prefab.m_lanes[laneIndex].GetUsedCustomFlagsLane();
+                        foreach(var usedFlag in usedLaneFlags.ExtractPow2Flags()) {
+                            var value = ActiveSelectionData.Instance.GetBoolValue(Prefab, GetLaneFlagKey(laneIndex, usedFlag));
+                            if(value.HasValue && value == true) {
+                                ARCustomFlags.Lanes[laneIndex] = ARCustomFlags.Lanes[laneIndex].SetFlags(usedFlag);
+                            }
+                        }
+                    }
+                }
+
             } catch(Exception ex) { ex.Log(); }
 
         }
         public void SaveActiveSelection() {
             try {
                 Log.Called();
-                foreach(var usedFlag in UsedCustomSegmentFlags.ExtractPow2Flags()) {
-                    if(CustomSegmentFlags.IsFlagSet(usedFlag))
+                foreach(var usedFlag in PrefabCustomFlags.Segment.ExtractPow2Flags()) {
+                    if(ARCustomFlags.Segment.IsFlagSet(usedFlag))
                         ActiveSelectionData.Instance.SetBoolValue(Prefab, GetFlagKey(usedFlag), true);
                     else
                         ActiveSelectionData.Instance.ClearValue(Prefab, GetFlagKey(usedFlag));
                 }
+                foreach(var usedFlag in PrefabCustomFlags.Node.ExtractPow2Flags()) {
+                    if(ARCustomFlags.Node.IsFlagSet(usedFlag))
+                        ActiveSelectionData.Instance.SetBoolValue(Prefab, GetFlagKey(usedFlag), true);
+                    else
+                        ActiveSelectionData.Instance.ClearValue(Prefab, GetFlagKey(usedFlag));
+                }
+                foreach(var usedFlag in PrefabCustomFlags.SegmentEnd.ExtractPow2Flags()) {
+                    if(ARCustomFlags.SegmentEnd.IsFlagSet(usedFlag))
+                        ActiveSelectionData.Instance.SetBoolValue(Prefab, GetFlagKey(usedFlag), true);
+                    else
+                        ActiveSelectionData.Instance.ClearValue(Prefab, GetFlagKey(usedFlag));
+                }
+                if(PrefabCustomFlags.Lane != default) {
+                    foreach(var laneIndex in Prefab.m_sortedLanes) {
+                        var usedLaneFlags = Prefab.m_lanes[laneIndex].GetUsedCustomFlagsLane();
+                        foreach(var usedFlag in usedLaneFlags.ExtractPow2Flags()) {
+                            if(ARCustomFlags.Lanes[laneIndex].IsFlagSet(usedFlag))
+                                ActiveSelectionData.Instance.SetBoolValue(Prefab, GetLaneFlagKey(laneIndex, usedFlag), true);
+                            else
+                                ActiveSelectionData.Instance.ClearValue(Prefab, GetLaneFlagKey(laneIndex, usedFlag));
+                        }
+                    }
+                }
+
             } catch(Exception ex) { ex.Log(); }
         }
 
         public void Reset() {
             try {
                 Log.Called();
-                CustomSegmentFlags = default;
+                ARCustomFlags = new ARCustomFlags(Prefab);
                 SaveActiveSelection();
             } catch(Exception ex) { ex.Log(); }
         }
 
         public Dictionary<NetInfo, ICloneable> BuildCustomData() {
             try {
-                Log.Called("CustomSegmentFlags are " + CustomSegmentFlags);
+                Log.Called("CustomSegmentFlags are " + ARCustomFlags.Segment);
                 var ret = new Dictionary<NetInfo, ICloneable>();
                 if(!IsDefault) {
-                    ret[Prefab] = new ARCustomData { SegmentExtFlags = CustomSegmentFlags };
+                    ret[Prefab] = ARCustomFlags.Clone() as ARCustomFlags; 
                 }
                 return ret.LogRet();
             } catch(Exception ex) { ex.Log();}

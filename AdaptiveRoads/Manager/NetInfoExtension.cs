@@ -112,6 +112,12 @@ namespace AdaptiveRoads.Manager {
             else
                 return flags.CheckFlags(segmentInfo.m_backwardRequired, segmentInfo.m_backwardForbidden);
         }
+
+        /// <summary>
+        /// Gets the used lane flags for the input lane (not all the lanes of the NetInfo)
+        /// </summary>
+        public static NetLaneExt.Flags GetUsedCustomFlagsLane(this NetInfo.Lane laneInfo) =>
+            Net.GetUsedCustomFlagsLane(laneInfo);
     }
 
     public class NetMetadataContainer : MonoBehaviour {
@@ -427,6 +433,20 @@ namespace AdaptiveRoads.Manager {
                         netInfo.GetMetaData().RenameCustomFlag(flag: flag, name: name);
                     }
                 } catch (Exception ex) { ex.Log(); }
+            }
+
+            /// <summary>
+            /// Gets the used lane flags for the input lane (not all the lanes of the NetInfo)
+            /// </summary>
+            public static NetLaneExt.Flags GetUsedCustomFlagsLane(NetInfo.Lane laneInfo) {
+                NetLaneExt.Flags mask = 0;
+                var props = (laneInfo.m_laneProps?.m_props).EmptyIfNull();
+                foreach(var prop in props) {
+                    var metadata = prop.GetMetaData();
+                    if(metadata != null)
+                        mask |= (metadata.LaneFlags.Required | metadata.LaneFlags.Forbidden);
+                }
+                return mask & NetLaneExt.Flags.CustomsMask;
             }
             #endregion
 

@@ -54,6 +54,14 @@ namespace AdaptiveRoads.Manager {
                 Lane = lhs.Lane | rhs.Lane,
             };
         }
+
+        public bool IsDefault() {
+            return
+                Node == default &&
+                Segment == default &&
+                SegmentEnd == default &&
+                Lane == default;
+        }
     }
 
     public class CustomFlagAttribute : Attribute {

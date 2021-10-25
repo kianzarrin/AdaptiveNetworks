@@ -1,10 +1,7 @@
 namespace AdaptiveRoads.UI.Tool {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
+    using AdaptiveRoads.Util;
     using KianCommons;
-
+    using System.Collections.Generic;
 
     public static class Util {
         public static IEnumerable<ushort> GetSimilarSegmentsBetweenJunctions(ushort segmentID) {
@@ -26,15 +23,7 @@ namespace AdaptiveRoads.UI.Tool {
             }
         }
 
-        public static IEnumerable<LaneData> GetSimilarLanes(LaneData lane, IEnumerable<ushort> segmentIDs_) {
-            foreach(var segmentID in segmentIDs_ ?? new ushort[0]) {
-                foreach(var lane2 in NetUtil.IterateSegmentLanes(segmentID)) {
-                    if(lane2.LaneIndex == lane.LaneIndex) {
-                        yield return lane2;
-                        break; // optimisation.
-                    }
-                }
-            }
-        }
+        public static IEnumerable<LaneData> GetSimilarLanes(LaneData lane, IEnumerable<ushort> segmentIDs_) =>
+            LaneHelpers.GetSimilarLanes(lane.LaneIndex, segmentIDs_);
     }
 }

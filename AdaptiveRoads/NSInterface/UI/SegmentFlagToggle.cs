@@ -1,4 +1,4 @@
-namespace AdaptiveRoads.NSInterface {
+namespace AdaptiveRoads.NSInterface.UI {
     using ColossalFramework;
     using ColossalFramework.UI;
     using KianCommons.UI;
@@ -8,33 +8,35 @@ namespace AdaptiveRoads.NSInterface {
     using System;
 
     public class SegmentFlagToggle : UICheckBoxExt {
-        public NetSegmentExt.Flags Flag;
+        private NetSegmentExt.Flags flag_;
+        ARImplementation Impl => ARImplementation.Instance;
+        ARCustomFlags ARCustomFlags => Impl.ARCustomFlags;
 
         public static SegmentFlagToggle Add(UIPanel parent, NetSegmentExt.Flags flag) {
             var toggle = parent.AddUIComponent<SegmentFlagToggle>();
-            toggle.Flag = flag;
+            toggle.flag_ = flag;
             return toggle;
         }
 
         public override void Start() {
             base.Start();
-            string name = CustomFlagAttribute.GetName(Flag, ARImplementation.Instance.Prefab);
-            this.Label = name ?? Flag.ToString();
-            this.tooltip = Flag.ToString();
+            string name = CustomFlagAttribute.GetName(flag_, Impl.Prefab);
+            this.Label = name ?? flag_.ToString();
+            this.tooltip = flag_.ToString();
         }
 
         public override void OnCheckChanged(UIComponent component, bool value) {
             try {
-                Log.Called($"Flag={Flag}", "value="+value);
+                Log.Called($"Flag={flag_}", "value="+value);
                 base.OnCheckChanged(component, value);
-                ARImplementation.Instance.CustomSegmentFlags = ARImplementation.Instance.CustomSegmentFlags.SetFlags(Flag, value);
-                Log.Info("CustomSegmentFlags became " + ARImplementation.Instance.CustomSegmentFlags);
-                ARImplementation.Instance.OnControllerChanged();
+                ARCustomFlags.Segment = ARCustomFlags.Segment.SetFlags(flag_, value);
+                Log.Info("ARCustomFlags.Segment became " + ARCustomFlags.Segment);
+                Impl.OnControllerChanged();
             } catch(Exception ex) { ex.Log(); }
         }
 
         public void Refresh(NetSegmentExt.Flags flags) {
-            isChecked = flags.IsFlagSet(Flag);
+            isChecked = flags.IsFlagSet(flag_);
             FitChildrenHorizontally(0);
         }
     }

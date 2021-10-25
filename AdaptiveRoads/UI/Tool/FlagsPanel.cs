@@ -9,6 +9,7 @@ namespace AdaptiveRoads.UI.Tool {
     using AdaptiveRoads.Manager;
     using static KianCommons.Assertion;
     using System.Linq;
+    using AdaptiveRoads.Util;
 
     public class FlagsPanel : UIPanel {
         static string FileName => ModSettings.FILE_NAME;
@@ -125,7 +126,7 @@ namespace AdaptiveRoads.UI.Tool {
             }
 
             foreach (var lane in NetUtil.GetSortedLanes(segmentID_)) {
-                var laneMask = ARTool.GetUsedCustomFlagsLane(lane);
+                var laneMask = lane.LaneInfo.GetUsedCustomFlagsLane();
                 //Log.Info($"lane:{lane} laneMask:" + laneMask);
                 if (laneMask != 0)
                     AddLaneFlags(container, lane, laneMask);

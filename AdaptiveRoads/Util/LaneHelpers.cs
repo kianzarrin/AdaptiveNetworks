@@ -95,6 +95,28 @@ namespace AdaptiveRoads.Util {
             return curve;
         }
 
+        public static IEnumerable<LaneData> GetSimilarLanes(int laneIndex, IEnumerable<ushort> segmentIDs_) {
+            foreach(var segmentID in segmentIDs_ ?? new ushort[0]) {
+                foreach(var lane2 in NetUtil.IterateSegmentLanes(segmentID)) {
+                    if(lane2.LaneIndex == laneIndex) {
+                        yield return lane2;
+                        break; // optimisation.
+                    }
+                }
+            }
+        }
 
+        public static IEnumerable<LaneData> GetSimilarLanes(int laneIndex, NetInfo prefab) {
+            for(ushort segmentID = 1; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
+                if(segmentID.ToSegment().IsValid() && segmentID.ToSegment().Info == prefab) {
+                    foreach(var lane2 in NetUtil.IterateSegmentLanes(segmentID)) {
+                        if(lane2.LaneIndex == laneIndex) {
+                            yield return lane2;
+                            break; // optimisation.
+                        }
+                    }
+                }
+            }
+        }
     }
 }

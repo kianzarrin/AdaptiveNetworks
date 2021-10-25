@@ -2,6 +2,7 @@ TODO:
 - remove custom flags when network is deleted.
 - list scrollbars
 - group DC components.
+- what if somebody changed the number of lanes in the asset and then AR NS data is deserialized with different lane count?
 
 
 ----------------------------

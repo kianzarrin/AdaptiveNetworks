@@ -138,20 +138,6 @@ namespace AdaptiveRoads.UI.Tool {
             return ret;
         }
 
-        /// <summary>
-        /// Gets the used lane flags for the input lane (not all the lanes of the NetInfo)
-        /// </summary>
-        public static NetLaneExt.Flags GetUsedCustomFlagsLane(LaneData lane) {
-            NetLaneExt.Flags mask = 0;
-            var props = (lane.LaneInfo.m_laneProps?.m_props).EmptyIfNull();
-            foreach (var prop in props) {
-                var metadata = prop.GetMetaData();
-                if (metadata != null)
-                    mask |= (metadata.LaneFlags.Required | metadata.LaneFlags.Forbidden);
-            }
-            return mask & NetLaneExt.Flags.CustomsMask;
-        }
-
         public bool HoverHasFlags() {
             if (NodeMode) {
                 return GetUsedFlagsNode(HoveredNodeID) != 0;
