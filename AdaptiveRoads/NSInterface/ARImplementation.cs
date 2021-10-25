@@ -36,7 +36,7 @@ namespace AdaptiveRoads.NSInterface {
                 Log.Called();
                 Instance = this;
                 this.Register();
-            }catch(Exception ex) { ex.Log(); }
+            } catch(Exception ex) { ex.Log("NS version too old?"); }
         }
 
         public string ID {
