@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>net35</TargetFramework>
     <Deterministic>false</Deterministic>
-    <AssemblyVersion>2.3.10.*</AssemblyVersion>
+    <AssemblyVersion>2.4.0.*</AssemblyVersion>
     <LangVersion>latest</LangVersion>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
@@ -118,6 +118,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="Resources\B.png" />
+    <None Remove="Resources\B1.png" />
     <None Remove="Resources\back.png" />
     <None Remove="Resources\close.png" />
   </ItemGroup>
@@ -203,8 +204,8 @@
     <ProjectReference Include="..\PrefabMetaDataAPI\PrefabMetadataAPI.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="Resources\B1.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <None Update="Resources\NS.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Resources\PreviewImage.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
