@@ -27,7 +27,8 @@ namespace AdaptiveRoads.NSInterface.UI{
                 autoLayoutDirection = LayoutDirection.Vertical;
                 autoFitChildrenHorizontally = true;
                 autoFitChildrenVertically = true;
-                autoLayoutPadding = new RectOffset(0, 0, 3, 3);
+                autoLayoutPadding = new RectOffset(0, 0, 1, 1);
+                padding = new RectOffset(0, 0, 6, 0);
             } catch (Exception ex) {
                 ex.Log();
             }
@@ -38,12 +39,18 @@ namespace AdaptiveRoads.NSInterface.UI{
                 base.Start();
                 LogCalled();
 
-                AddSegmentFlags(this);
-                AddSpacePanel(this, 6);
-                AddSegmentEndFlags(this);
-                AddSpacePanel(this, 6);
-                AddNodeFlags(this);
-
+                if(Impl.PrefabCustomFlags.Segment != default) {
+                    AddSegmentFlags(this);
+                    AddSpacePanel(this, 6);
+                }
+                if(Impl.PrefabCustomFlags.SegmentEnd != default) {
+                    AddSegmentEndFlags(this);
+                    AddSpacePanel(this, 6);
+                }
+                if(Impl.PrefabCustomFlags.Node != default) {
+                    AddNodeFlags(this);
+                    AddSpacePanel(this, 6);
+                }
                 RefreshLayout();
             } catch (Exception ex) { ex.Log(); }
         }
@@ -113,7 +120,7 @@ namespace AdaptiveRoads.NSInterface.UI{
         static UIPanel AddSpacePanel(UIPanel parent, int space) {
             var panel = parent.AddUIComponent<UIPanel>();
             panel.height = space;
-            panel.width = 1;
+            panel.width = 220;
             return panel;
         }
     }

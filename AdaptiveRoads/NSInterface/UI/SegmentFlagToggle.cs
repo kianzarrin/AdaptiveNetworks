@@ -23,6 +23,7 @@ namespace AdaptiveRoads.NSInterface.UI {
             string name = CustomFlagAttribute.GetName(flag_, Impl.Prefab);
             this.Label = name ?? flag_.ToString();
             this.tooltip = flag_.ToString();
+            FitChildrenHorizontally();
         }
 
         public override void OnCheckChanged(UIComponent component, bool value) {

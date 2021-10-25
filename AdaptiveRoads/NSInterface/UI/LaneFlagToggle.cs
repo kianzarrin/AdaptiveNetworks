@@ -24,13 +24,13 @@ namespace AdaptiveRoads.NSInterface.UI {
             isChecked = flags.IsFlagSet(flag_);
             FitChildrenHorizontally(0);
         }
-
         public override void Start() {
             base.Start();
             var metadata = Prefab?.GetMetaData();
             string name = metadata.GetCustomLaneFlagName(flag_, laneIndex_);
             this.Label = name ?? flag_.ToString();
             this.tooltip = flag_.ToString();
+            FitChildrenHorizontally();
         }
 
         public override void OnCheckChanged(UIComponent component, bool value) {
