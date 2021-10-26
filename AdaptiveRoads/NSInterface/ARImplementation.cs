@@ -39,12 +39,7 @@ namespace AdaptiveRoads.NSInterface {
             } catch(Exception ex) { ex.Log("NS version too old?"); }
         }
 
-        public string ID {
-            get {
-                Log.Called();
-                return "Adaptive Roads";
-            }
-        }
+        public string ID => "Adaptive Roads";
 
         public int Index { get; set; }
 
@@ -116,12 +111,7 @@ namespace AdaptiveRoads.NSInterface {
                 return TextureUtil.GetTextureFromFile("NS.png");
             }
         }
-        public string Tooltip {
-            get {
-                Log.Called();
-                return "Adaptive Roads";
-            }
-        }
+        public string Tooltip => "Adaptive Roads";
 
         UIPanel container_;
         UIPanel subContainer_;
