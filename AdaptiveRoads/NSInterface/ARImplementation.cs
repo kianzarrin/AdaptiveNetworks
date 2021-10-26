@@ -118,6 +118,8 @@ namespace AdaptiveRoads.NSInterface {
         public void BuildPanel(UIPanel panel) {
             try {
                 Log.Called();
+                if(!Enabled) return;
+                Assertion.Assert(panel, "panel");
                 Assertion.NotNull(panel, "container");
                 container_ = panel;
                 subContainer_ = container_.AddUIComponent<AR_NS_FlagsPanel>();
@@ -127,6 +129,7 @@ namespace AdaptiveRoads.NSInterface {
         public void RefreshUI() {
             try {
                 Log.Called();
+                if(!Enabled) return;
                 GameObject.Destroy(subContainer_?.gameObject);
                 BuildPanel(container_);
             } catch(Exception ex) { ex.Log(); }
