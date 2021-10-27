@@ -4,7 +4,6 @@ namespace AdaptiveRoads.NSInterface.UI {
     using KianCommons.UI;
     using AdaptiveRoads.Manager;
     using KianCommons;
-    using NetworkSkins.Helpers;
     using System;
 
     public class SegmentFlagToggle : UICheckBoxExt {
@@ -23,7 +22,7 @@ namespace AdaptiveRoads.NSInterface.UI {
             string name = CustomFlagAttribute.GetName(flag_, Impl.Prefab);
             this.Label = name ?? flag_.ToString();
             this.tooltip = flag_.ToString();
-            FitChildrenHorizontally();
+            Refresh();
         }
 
         public override void OnCheckChanged(UIComponent component, bool value) {
@@ -32,12 +31,12 @@ namespace AdaptiveRoads.NSInterface.UI {
                 base.OnCheckChanged(component, value);
                 ARCustomFlags.Segment = ARCustomFlags.Segment.SetFlags(flag_, value);
                 Log.Info("ARCustomFlags.Segment became " + ARCustomFlags.Segment);
-                Impl.OnControllerChanged();
+                Impl.Change();
             } catch(Exception ex) { ex.Log(); }
         }
 
-        public void Refresh(NetSegmentExt.Flags flags) {
-            isChecked = flags.IsFlagSet(flag_);
+        public void Refresh() {
+            isChecked = ARCustomFlags.Segment.IsFlagSet(flag_);
             FitChildrenHorizontally(0);
         }
     }

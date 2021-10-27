@@ -162,6 +162,7 @@ namespace AdaptiveRoads.NSInterface {
                 } else {
                     ARCustomFlags = new ARCustomFlags(Prefab);
                 }
+                SaveActiveSelection();
             } catch(Exception ex) { ex.Log(); }
         }
 
@@ -244,6 +245,11 @@ namespace AdaptiveRoads.NSInterface {
                 ARCustomFlags = new ARCustomFlags(Prefab);
                 SaveActiveSelection();
             } catch(Exception ex) { ex.Log(); }
+        }
+
+        public void Change() {
+            SaveActiveSelection();
+            this.OnControllerChanged();
         }
 
         public Dictionary<NetInfo, ICloneable> BuildCustomData() {

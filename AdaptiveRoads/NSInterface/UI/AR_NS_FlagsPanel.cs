@@ -27,8 +27,8 @@ namespace AdaptiveRoads.NSInterface.UI{
                 autoLayoutDirection = LayoutDirection.Vertical;
                 autoFitChildrenHorizontally = true;
                 autoFitChildrenVertically = true;
-                autoLayoutPadding = new RectOffset(0, 0, 1, 1);
-                padding = new RectOffset(0, 0, 6, 0);
+                autoLayoutPadding = new RectOffset(0, 0, 0, 5);
+                padding = default;
             } catch (Exception ex) {
                 ex.Log();
             }
@@ -41,26 +41,25 @@ namespace AdaptiveRoads.NSInterface.UI{
 
                 if(Impl.PrefabCustomFlags.Segment != default) {
                     AddSegmentFlags(this);
-                    AddSpacePanel(this, 6);
                 }
                 if(Impl.PrefabCustomFlags.SegmentEnd != default) {
                     AddSegmentEndFlags(this);
-                    AddSpacePanel(this, 6);
                 }
                 if(Impl.PrefabCustomFlags.Node != default) {
                     AddNodeFlags(this);
-                    AddSpacePanel(this, 6);
                 }
-                RefreshLayout();
+                SizeChanged(default,default);
             } catch (Exception ex) { ex.Log(); }
         }
 
         public void AddSegmentFlags(UIPanel container) {
             LogCalled();
             AssertNotNull(container, "container");
+
+            var subPanel = AddPanel(container, 1);
             var mask = Impl.PrefabCustomFlags.Segment;
             foreach (var flag in mask.ExtractPow2Flags()) {
-                SegmentFlagToggle.Add(container, flag);
+                SegmentFlagToggle.Add(subPanel, flag);
             }
 
             foreach(int laneIndex in Prefab.m_sortedLanes) {
@@ -76,7 +75,6 @@ namespace AdaptiveRoads.NSInterface.UI{
             try {
                 LogCalled(container, laneIndex, mask);
                 
-                AddSpacePanel(container, 6);
                 var lanes = LaneHelpers.GetSimilarLanes(laneIndex, Prefab).ToArray();
                 var laneContainer = LanePanelCollapsable.Add(container, laneIndex, mask);
 
@@ -93,28 +91,45 @@ namespace AdaptiveRoads.NSInterface.UI{
 
         public void AddSegmentEndFlags(UIPanel container) {
             AssertNotNull(container, "container");
+            var subPanel = AddPanel(container, 1);
 
             var mask = Impl.PrefabCustomFlags.SegmentEnd;
             foreach (var flag in mask.ExtractPow2Flags()) {
-                SegmentEndFlagToggle.Add(container, flag: flag);
+                SegmentEndFlagToggle.Add(subPanel, flag: flag);
             }
         }
 
-        public void AddNodeFlags(UIPanel parent) {
-            AssertNotNull(parent, "parent");
+        public void AddNodeFlags(UIPanel container) {
+            AssertNotNull(container, "container");
+            var subPanel = AddPanel(container, 1);
 
             var mask = Impl.PrefabCustomFlags.Node;
             foreach (var flag in mask.ExtractPow2Flags()) {
-                NodeFlagToggle.Add(parent, flag);
+                NodeFlagToggle.Add(subPanel, flag);
             }
         }
 
-        void RefreshLayout() {
-            FitChildren();
-            foreach (var lpc in GetComponentsInChildren<LanePanelCollapsable>()) {
-                lpc.FitParent();
+        private void SizeChanged(UIComponent _, Vector2 __) {
+            eventSizeChanged -= SizeChanged;
+            var lpcs = GetComponentsInChildren<LanePanelCollapsable>();
+            if(lpcs.Length > 0) {
+                foreach(var lpc in lpcs) lpc.Shrink();
+                FitChildren();
+                foreach(var lpc in lpcs) lpc.FitParent();
             }
-            Invalidate();
+            autoFitChildrenHorizontally = true;
+            autoFitChildrenVertically = true;
+            eventSizeChanged += SizeChanged;
+        }
+
+        public static UIPanel AddPanel(UIPanel parent, int layoutPadding) {
+            UIPanel panel = parent.AddUIComponent<UIPanel>();
+            panel.autoLayout = true;
+            panel.autoFitChildrenHorizontally = panel.autoFitChildrenVertically = true;
+            panel.autoLayoutDirection = LayoutDirection.Vertical;
+            panel.autoLayoutPadding = new RectOffset(0, 0, 0, 0);
+            panel.padding = default;
+            return panel;
         }
 
         static UIPanel AddSpacePanel(UIPanel parent, int space) {

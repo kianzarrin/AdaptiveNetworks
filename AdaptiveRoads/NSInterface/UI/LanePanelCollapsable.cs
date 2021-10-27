@@ -52,13 +52,19 @@ namespace AdaptiveRoads.NSInterface.UI {
             return ret;
         }
 
+        public void Shrink() {
+            var caption = GetComponentInChildren<LaneCaptionButton>();
+            autoSize = caption.autoSize = true;
+        }
+
         public void FitParent() {
             autoFitChildrenHorizontally = false;
             autoSize = false;
-            width = parent.width - (parent as UIPanel).padding.horizontal;
+            var p = parent as UIPanel;
 
             var caption = GetComponentInChildren<LaneCaptionButton>();
             caption.autoSize = false;
+            width = p.width - p.padding.horizontal - p.autoLayoutPadding.horizontal;
             caption.width = width;
         }
     }
