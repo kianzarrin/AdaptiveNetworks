@@ -12,7 +12,7 @@ namespace AdaptiveRoads.NSInterface {
     using TextureUtil = KianCommons.UI.TextureUtil;
     using AdaptiveRoads.NSInterface.UI;
 
-    public class ARImplementation : INSImplementation {
+    public class ARImplementation : INSIntegration{
         internal static ARImplementation Instance;
         internal static void CreateOnReady() {
             try {
@@ -36,7 +36,9 @@ namespace AdaptiveRoads.NSInterface {
                 Log.Called();
                 Instance = this;
                 this.Register();
-            } catch(Exception ex) { ex.Log("NS version too old?"); }
+            } catch(Exception ex) {
+                ex.Log();
+            }
         }
 
         public string ID => "Adaptive Roads";
@@ -162,7 +164,6 @@ namespace AdaptiveRoads.NSInterface {
                 } else {
                     ARCustomFlags = new ARCustomFlags(Prefab);
                 }
-                SaveActiveSelection();
             } catch(Exception ex) { ex.Log(); }
         }
 
@@ -243,12 +244,10 @@ namespace AdaptiveRoads.NSInterface {
             try {
                 Log.Called();
                 ARCustomFlags = new ARCustomFlags(Prefab);
-                SaveActiveSelection();
             } catch(Exception ex) { ex.Log(); }
         }
 
         public void Change() {
-            SaveActiveSelection();
             this.OnControllerChanged();
         }
 
