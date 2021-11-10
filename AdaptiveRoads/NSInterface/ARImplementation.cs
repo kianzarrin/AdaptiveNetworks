@@ -12,56 +12,12 @@ namespace AdaptiveRoads.NSInterface {
     using TextureUtil = KianCommons.UI.TextureUtil;
     using AdaptiveRoads.NSInterface.UI;
 
-    public class ARImplementation : INSIntegration{
-        internal static ARImplementation Instance;
-        internal static void CreateOnReady() {
-            try {
-                Log.Called();
-                Assertion.Assert(Instance == null, "instance should not exists");
-                NSHelpers.DoOnNSEnabled(() => new ARImplementation());
-            }catch(Exception ex) {
-                ex.Log();
-            }
-        }
+    public class ARImplementation : NSIntegrationBase<ARImplementation> {
+        public override string ID => "Adaptive Roads";
 
-        internal void Release() {
-            Log.Called();
-            this.Remove();
-            Instance = null;
-        }
+        public override int Index { get; set; }
 
-
-        internal ARImplementation() {
-            try {
-                Log.Called();
-                Instance = this;
-                this.Register();
-            } catch(Exception ex) {
-                ex.Log();
-            }
-        }
-
-        public string ID => "Adaptive Roads";
-
-        public int Index { get; set; }
-
-        public void OnBeforeNSLoaded() {
-            Log.Called();
-
-        }
-
-        public void OnAfterNSLoaded() {
-            Log.Called();
-
-        }
-
-        public void OnNSDisabled() {
-            Log.Called();
-            Release();
-            CreateOnReady();
-        }
-
-        public void OnSkinApplied(ICloneable data, InstanceID instanceID) {
+        public override void OnSkinApplied(ICloneable data, InstanceID instanceID) {
             Log.Called(data.ToSTR(), instanceID.ToSTR());
             if(instanceID.Type == InstanceType.NetSegment) {
                 ushort segmentID = instanceID.NetSegment;
@@ -91,14 +47,14 @@ namespace AdaptiveRoads.NSInterface {
             }
         }
 
-        #region persistancy
-        public Version DataVersion => this.VersionOf();
-        public string Encode64(ICloneable data) {
+        #region persistency
+        public override Version DataVersion => this.VersionOf();
+        public override string Encode64(ICloneable data) {
             Log.Called();
             return data is ARCustomFlags customData ? XMLSerializerUtil.Serialize(customData) : null;
         }
 
-        public ICloneable Decode64(string base64Data, Version dataVersion) {
+        public override ICloneable Decode64(string base64Data, Version dataVersion) {
             Log.Called();
             return base64Data != null ? XMLSerializerUtil.Deserialize<ARCustomFlags>(base64Data) : null;
         }
@@ -107,17 +63,17 @@ namespace AdaptiveRoads.NSInterface {
 
         #region GUI
 
-        public Texture2D Icon {
+        public override Texture2D Icon {
             get {
                 Log.Called();
                 return TextureUtil.GetTextureFromFile("NS.png");
             }
         }
-        public string Tooltip => "Adaptive Roads";
+        public override string Tooltip => "Adaptive Roads";
 
         UIPanel container_;
         UIPanel subContainer_;
-        public void BuildPanel(UIPanel panel) {
+        public override void BuildPanel(UIPanel panel) {
             try {
                 Log.Called();
                 if(!Enabled) return;
@@ -128,7 +84,7 @@ namespace AdaptiveRoads.NSInterface {
             } catch(Exception ex) { ex.Log(); }
         }
 
-        public void RefreshUI() {
+        public override void RefreshUI() {
             try {
                 Log.Called();
                 if(!Enabled) return;
@@ -154,9 +110,9 @@ namespace AdaptiveRoads.NSInterface {
 
         public bool IsDefault => ARCustomFlags.IsDefault();
 
-        public bool Enabled => !PrefabCustomFlags.IsDefault();
+        public override bool Enabled => !PrefabCustomFlags.IsDefault();
 
-        public void LoadWithData(ICloneable data) {
+        public override void LoadWithData(ICloneable data) {
             try {
                 Log.Called();
                 if(data is ARCustomFlags customData) {
@@ -167,7 +123,7 @@ namespace AdaptiveRoads.NSInterface {
             } catch(Exception ex) { ex.Log(); }
         }
 
-        public void LoadActiveSelection() {
+        public override void LoadActiveSelection() {
             try {
                 Log.Called();
                 ARCustomFlags = new ARCustomFlags(Prefab);
@@ -204,7 +160,7 @@ namespace AdaptiveRoads.NSInterface {
             } catch(Exception ex) { ex.Log(); }
 
         }
-        public void SaveActiveSelection() {
+        public override void SaveActiveSelection() {
             try {
                 Log.Called();
                 foreach(var usedFlag in PrefabCustomFlags.Segment.ExtractPow2Flags()) {
@@ -240,18 +196,16 @@ namespace AdaptiveRoads.NSInterface {
             } catch(Exception ex) { ex.Log(); }
         }
 
-        public void Reset() {
+        public override void Reset() {
             try {
                 Log.Called();
                 ARCustomFlags = new ARCustomFlags(Prefab);
             } catch(Exception ex) { ex.Log(); }
         }
 
-        public void Change() {
-            this.OnControllerChanged();
-        }
+        public void Change() => this.OnControllerChanged();
 
-        public Dictionary<NetInfo, ICloneable> BuildCustomData() {
+        public override Dictionary<NetInfo, ICloneable> BuildCustomData() {
             try {
                 Log.Called("CustomSegmentFlags are " + ARCustomFlags.Segment);
                 var ret = new Dictionary<NetInfo, ICloneable>();
