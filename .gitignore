@@ -340,7 +340,10 @@ ASALocalRun/
 healthchecksdb
 /experiments/0Harmony.dll
 *.dll
-/libs/Newtonsoft.Json.xml
+
 
 # dependencies symlink to Cities_Data/Managed folder (only necessary when steam library is moved)
 /dependencies
+
+# include libs
+!/libs
