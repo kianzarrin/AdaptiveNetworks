@@ -14,6 +14,7 @@ namespace AdaptiveRoads.LifeCycle {
     using TrafficManager.Manager.Impl;
     using AdaptiveRoads.UI.Tool;
     using AdaptiveRoads.NSInterface;
+    using KianCommons.Serialization;
 
     public static class LifeCycle {
         public static string HARMONY_ID = "CS.Kian.AdaptiveRoads";
