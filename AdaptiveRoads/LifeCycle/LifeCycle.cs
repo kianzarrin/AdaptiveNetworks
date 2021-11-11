@@ -146,7 +146,7 @@ namespace AdaptiveRoads.LifeCycle {
                     UI.Debug.PWModifier.Create();
                 }   
 
-                Log.Info("LifeCycle.Load() successfull!");
+                Log.Info("LifeCycle.Load() successful!");
                 Log.Flush();
             } catch (Exception ex) {
                 Log.Exception(ex);
