@@ -4,10 +4,19 @@ namespace AdaptiveRoads.Data {
     using System.Linq;
     using System.Text;
     using AdaptiveRoads.Manager;
+    using KianCommons;
     using UnityEngine;
 
     [Serializable]
     public struct Track {
+        public const VehicleInfo.VehicleType TRACK_VEHICLE_TYPES =
+            VehicleInfo.VehicleType.Tram |
+            VehicleInfo.VehicleType.Metro |
+            VehicleInfo.VehicleType.Train |
+            VehicleInfo.VehicleType.Monorail |
+            VehicleInfo.VehicleType.Trolleybus | VehicleInfo.VehicleType.TrolleybusLeftPole | VehicleInfo.VehicleType.TrolleybusRightPole;
+
+
         [NonSerialized]
         public NetInfo ParentInfo;
 
@@ -43,33 +52,42 @@ namespace AdaptiveRoads.Data {
 
         public Material m_lodMaterial;
 
-        public Mesh m_segmentMesh;
-
-        [NonSerialized]
-        public Material m_segmentMaterial;
-
-        [Hint("render this track at nodes")]
-        [CustomizableProperty("Node")]
-        public bool RenderNode;
-
-        [Hint("used by other mods to decide how hide tracks/medians")]
-        [CustomizableProperty("Segment/Bend")]
-        public bool RenderSegment;
-
         [NonSerialized]
         public NetInfo.LodValue m_combinedLod;
 
-        public static int [] LaneIndeces;
+        [NonSerialized]
+        public Mesh m_trackMesh;
 
+        [NonSerialized]
+        public Material m_trackMaterial;
 
-        public Track CreateDefaultTrack() {
+        [CustomizableProperty("Render On Segments")]
+        public bool RenderSegment;
+
+        [CustomizableProperty("Render On Bend Nodes")]
+        public bool RenderBend;
+
+        [CustomizableProperty("Render On Nodes")]
+        public bool RenderNode;
+
+        public int [] LaneIndeces;
+
+        public Track CreateDefaultTrack(NetInfo netInfo) {
+            var laneIndeces = new List<int>();
+            for(int i = 0; i < netInfo.m_lanes.Length; ++i) {
+                var laneInfo = netInfo.m_lanes[i];
+                if(laneInfo.m_vehicleType.IsFlagSet(TRACK_VEHICLE_TYPES)) {
+                    laneIndeces.Add(i);
+                }
+            }
+
             return new Track {
                 RenderNode = true,
                 RenderSegment = true,
+                RenderBend = true,
+                LaneIndeces = laneIndeces.ToArray(),
             };
+
         }
-
-
-
     }
 }
