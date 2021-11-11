@@ -269,7 +269,7 @@ namespace AdaptiveRoads.Manager {
 
 
             [NonSerialized]
-            public int [] ConnectGroupsHash;
+            public int[] ConnectGroupsHash;
 
             [AfterField(nameof(NetInfo.m_pavementWidth))]
             [CustomizableProperty("Pavement Width Right", "Properties")]
@@ -308,23 +308,25 @@ namespace AdaptiveRoads.Manager {
 
             public Dictionary<NetLaneExt.Flags, string>[] CustomLaneFlagNames;
 
+            public Track[] Tracks = new Track[0];
+
             static CustomFlags GetUsedCustomFlags(NetInfo info) {
                 var ret = CustomFlags.None;
-                foreach (var item in info.m_nodes) {
-                    if (item.GetMetaData() is Node metaData)
+                foreach(var item in info.m_nodes) {
+                    if(item.GetMetaData() is Node metaData)
                         ret |= metaData.UsedCustomFlags;
                 }
 
-                foreach (var item in info.m_segments) {
-                    if (item.GetMetaData() is Segment metaData)
+                foreach(var item in info.m_segments) {
+                    if(item.GetMetaData() is Segment metaData)
                         ret |= metaData.UsedCustomFlags;
                 }
 
-                foreach (var lane in info.m_lanes) {
+                foreach(var lane in info.m_lanes) {
                     var props = lane.m_laneProps?.m_props;
-                    if (props.IsNullorEmpty()) continue;
-                    foreach (var item in props) {
-                        if (item.GetMetaData() is LaneProp metaData)
+                    if(props.IsNullorEmpty()) continue;
+                    foreach(var item in props) {
+                        if(item.GetMetaData() is LaneProp metaData)
                             ret |= metaData.UsedCustomFlags;
                     }
                 }
@@ -335,32 +337,32 @@ namespace AdaptiveRoads.Manager {
             private void FillCustomLaneFlagNames() {
                 try {
                     CustomLaneFlagNames = null;
-                    if (CustomLaneFlagNames.IsNullorEmpty()) return;
+                    if(CustomLaneFlagNames.IsNullorEmpty()) return;
                     CustomLaneFlagNames = new Dictionary<NetLaneExt.Flags, string>[Template.m_lanes.Length];
-                    for (int laneIndex = 0; laneIndex < CustomLaneFlagNames.Length; ++laneIndex) {
+                    for(int laneIndex = 0; laneIndex < CustomLaneFlagNames.Length; ++laneIndex) {
                         var lane = Template.m_lanes[laneIndex];
-                        if (CustomLaneFlagNames0.TryGetValue(lane, out var dict)) {
+                        if(CustomLaneFlagNames0.TryGetValue(lane, out var dict)) {
                             CustomLaneFlagNames[laneIndex] = dict;
                         }
                     }
-                } catch (Exception ex) { ex.Log(); }
+                } catch(Exception ex) { ex.Log(); }
             }
 
             public string GetCustomLaneFlagName(NetLaneExt.Flags flag, int laneIndex) {
                 try {
-                    if (CustomLaneFlagNames0 is not null) {
+                    if(CustomLaneFlagNames0 is not null) {
                         // edit prefab
                         var lane = Template.m_lanes[laneIndex];
-                        if (CustomLaneFlagNames0.TryGetValue(lane, out var dict) &&
+                        if(CustomLaneFlagNames0.TryGetValue(lane, out var dict) &&
                             dict.TryGetValue(flag, out string name)) {
                             return name;
                         }
 
-                    } else if (CustomLaneFlagNames is not null) {
+                    } else if(CustomLaneFlagNames is not null) {
                         // normal
                         Assertion.InRange(CustomLaneFlagNames, laneIndex);
                         var dict = CustomLaneFlagNames[laneIndex];
-                        if (dict != null && dict.TryGetValue(flag, out string name)) {
+                        if(dict != null && dict.TryGetValue(flag, out string name)) {
                             return name;
                         }
                     }
@@ -371,7 +373,7 @@ namespace AdaptiveRoads.Manager {
 
             public static string GetCustomFlagName(Enum flag, object target) {
                 try {
-                    if (target is NetLaneProps.Prop prop && flag is NetLaneExt.Flags laneFlag) {
+                    if(target is NetLaneProps.Prop prop && flag is NetLaneExt.Flags laneFlag) {
                         var netInfo = prop.GetParent(laneIndex: out int laneIndex, out _);
                         return netInfo?.GetMetaData()?.GetCustomLaneFlagName(laneFlag, laneIndex);
                     } else {
@@ -380,7 +382,7 @@ namespace AdaptiveRoads.Manager {
                             (target as NetInfo.Segment)?.GetParent(out _) ??
                             (target as NetLaneProps.Prop)?.GetParent(out _, out _);
                         var dict = netInfo?.GetMetaData()?.CustomFlagNames;
-                        if (dict != null && dict.TryGetValue(flag, out string name)) {
+                        if(dict != null && dict.TryGetValue(flag, out string name)) {
                             return name;
                         }
                     }
@@ -392,12 +394,12 @@ namespace AdaptiveRoads.Manager {
             public void RenameCustomFlag(Enum flag, string name) {
                 try {
                     CustomFlagNames ??= new Dictionary<Enum, string>();
-                    if (name.IsNullOrWhiteSpace() || name == flag.ToString())
+                    if(name.IsNullOrWhiteSpace() || name == flag.ToString())
                         CustomFlagNames.Remove(flag);
                     else
                         CustomFlagNames[flag] = name;
                     OnCustomFlagRenamed?.Invoke();
-                } catch (Exception ex) { ex.Log(); }
+                } catch(Exception ex) { ex.Log(); }
             }
 
             public void RenameCustomFlag(int laneIndex, NetLaneExt.Flags flag, string name) {
@@ -407,24 +409,24 @@ namespace AdaptiveRoads.Manager {
                     Dictionary<NetLaneExt.Flags, string> dict = null;
 
                     CustomLaneFlagNames0 ??= new Dictionary<NetInfo.Lane, Dictionary<NetLaneExt.Flags, string>>();
-                    if (!CustomLaneFlagNames0.TryGetValue(lane, out dict)) {
+                    if(!CustomLaneFlagNames0.TryGetValue(lane, out dict)) {
                         dict = CustomLaneFlagNames0[lane] = new Dictionary<NetLaneExt.Flags, string>();
                     }
 
-                    if (name.IsNullOrWhiteSpace() || name == flag.ToString())
+                    if(name.IsNullOrWhiteSpace() || name == flag.ToString())
                         dict.Remove(flag);
                     else
                         dict[flag] = name;
 
                     OnCustomFlagRenamed?.Invoke();
-                } catch (Exception ex) { ex.Log(); }
+                } catch(Exception ex) { ex.Log(); }
             }
 
             public static void RenameCustomFlag(Enum flag, object target, string name) {
                 try {
-                    if (target is NetLaneProps.Prop prop && flag is NetLaneExt.Flags laneFlag) {
+                    if(target is NetLaneProps.Prop prop && flag is NetLaneExt.Flags laneFlag) {
                         var netInfo = prop.GetParent(laneIndex: out int laneIndex, out _);
-                        netInfo.GetMetaData().RenameCustomFlag(laneIndex: laneIndex, flag:(NetLaneExt.Flags)flag, name: name);
+                        netInfo.GetMetaData().RenameCustomFlag(laneIndex: laneIndex, flag: (NetLaneExt.Flags)flag, name: name);
                     } else {
                         var netInfo =
                             (target as NetInfo.Node)?.GetParent(out _) ??
@@ -432,7 +434,7 @@ namespace AdaptiveRoads.Manager {
                             (target as NetLaneProps.Prop)?.GetParent(out _, out _);
                         netInfo.GetMetaData().RenameCustomFlag(flag: flag, name: name);
                     }
-                } catch (Exception ex) { ex.Log(); }
+                } catch(Exception ex) { ex.Log(); }
             }
 
             /// <summary>
@@ -455,12 +457,12 @@ namespace AdaptiveRoads.Manager {
                     UsedCustomFlags = GetUsedCustomFlags(netInfo);
                     UpdateParkingAngle();
                     UpdateConnectGroups(netInfo);
-                } catch (Exception ex) { ex.Log(); }
+                } catch(Exception ex) { ex.Log(); }
             }
 
             void UpdateParkingAngle() {
                 float sin = Mathf.Abs(Mathf.Sin(Mathf.Deg2Rad * ParkingAngleDegrees));
-                if (sin >= Mathf.Sin(30))
+                if(sin >= Mathf.Sin(30))
                     OneOverSinOfParkingAngle = 1 / sin;
                 else
                     OneOverSinOfParkingAngle = 1;
@@ -469,38 +471,38 @@ namespace AdaptiveRoads.Manager {
             void UpdateConnectGroups(NetInfo netInfo) {
                 LogCalled();
                 ConnectGroupsHash = ConnectGroups?.Select(item => item.GetHashCode()).ToArray();
-                if (ConnectGroupsHash.IsNullorEmpty()) ConnectGroupsHash = null;
+                if(ConnectGroupsHash.IsNullorEmpty()) ConnectGroupsHash = null;
 
-                foreach (var node in netInfo.m_nodes)
+                foreach(var node in netInfo.m_nodes)
                     node.GetMetaData()?.Update();
 
                 NodeConnectGroupsHash = GetNodeConnectGroupsHash(netInfo).ToArray();
-                if (NodeConnectGroupsHash.IsNullorEmpty()) NodeConnectGroupsHash = null;
+                if(NodeConnectGroupsHash.IsNullorEmpty()) NodeConnectGroupsHash = null;
 
                 var itemSource = ItemSource.GetOrCreate(typeof(NetInfo.ConnectGroup));
-                foreach (var connectGroup in GetAllConnectGroups(netInfo))
+                foreach(var connectGroup in GetAllConnectGroups(netInfo))
                     itemSource.Add(connectGroup);
             }
 
             IEnumerable<int> GetNodeConnectGroupsHash(NetInfo netInfo) {
                 foreach(var node in netInfo.m_nodes) {
                     var hashes = node.GetMetaData()?.ConnectGroupsHash;
-                    if (hashes == null) continue;
-                    foreach (int hash in hashes)
+                    if(hashes == null) continue;
+                    foreach(int hash in hashes)
                         yield return hash;
                 }
             }
 
             IEnumerable<string> GetAllConnectGroups(NetInfo netInfo) {
                 if(ConnectGroups != null) {
-                    foreach (var cg in ConnectGroups)
+                    foreach(var cg in ConnectGroups)
                         yield return cg;
                 }
 
-                foreach (var node in netInfo.m_nodes) {
+                foreach(var node in netInfo.m_nodes) {
                     var connectGroups = node.GetMetaData()?.ConnectGroups;
-                    if (connectGroups == null) continue;
-                    foreach (var cg in connectGroups)
+                    if(connectGroups == null) continue;
+                    foreach(var cg in connectGroups)
                         yield return cg;
                 }
             }
@@ -568,7 +570,7 @@ namespace AdaptiveRoads.Manager {
                     NetNodeExt.Flags tailNodeExtFlags,
                     NetNodeExt.Flags headNodeExtFlags,
                     bool turnAround) {
-                if (!turnAround) {
+                if(!turnAround) {
                     return Forward.CheckFlags(flags) && CheckEndFlags(
                         tailFlags: tailFlags,
                         headFlags: headFlags,
@@ -636,7 +638,7 @@ namespace AdaptiveRoads.Manager {
             [AfterField(nameof(NetInfo.Node.m_directConnect))]
             public bool CheckTargetFlags;
 
-            public string []ConnectGroups;
+            public string[] ConnectGroups;
 
             [NonSerialized]
             public int[] ConnectGroupsHash;
@@ -655,7 +657,7 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Hide Broken Medians", DC_GROUP_NAME)]
             [AfterField(nameof(NetInfo.Node.m_directConnect))]
             public bool HideBrokenMedians = true;
-    
+
             public bool CheckFlags(
                 NetNodeExt.Flags nodeFlags, NetSegmentEnd.Flags segmentEndFlags,
                 NetSegmentExt.Flags segmentFlags, NetSegment.Flags vanillaSegmentFlags) =>
@@ -692,7 +694,7 @@ namespace AdaptiveRoads.Manager {
         [Serializable]
         [Optional(AR_MODE)]
         public class LaneProp : ICloneable, ISerializable {
-#region serialization
+            #region serialization
             [Obsolete("only useful for the purpose of shallow clone and serialization", error: true)]
             public LaneProp() { }
             public LaneProp Clone() {
@@ -730,7 +732,7 @@ namespace AdaptiveRoads.Manager {
                 set => ForwardSpeedLimit = BackwardSpeedLimit = value;
             }
 
-#endregion
+            #endregion
 
             [CustomizableProperty("Lane")]
             public LaneInfoFlags LaneFlags = new LaneInfoFlags();
@@ -773,7 +775,7 @@ namespace AdaptiveRoads.Manager {
             public Range BackwardSpeedLimit; // null => N/A
 
             [CustomizableProperty("Lane Curve")]
-            public Range LaneCurve; 
+            public Range LaneCurve;
 
             [CustomizableProperty("Segment Curve")]
             public Range SegmentCurve; // TODO: minimum |curve| with same sign
@@ -809,15 +811,137 @@ namespace AdaptiveRoads.Manager {
             };
         }
 
+        // TODO: extract used flags.
+        [Serializable]
+        public class Track : ICloneable, ISerializable {
+            [Obsolete("only useful for the purpose of shallow clone", error: true)]
+            public Track() { }
+            public Track Clone() => this.ShalowClone();
+            object ICloneable.Clone() => this.Clone();
+            public Track(NetInfo template) {
+                RenderNode = true;
+                RenderSegment = true;
+                RenderBend = true;
+                var lanes = template.m_lanes;
+                for(int laneIndex = 0; laneIndex < lanes.Length; ++laneIndex) {
+                    if(lanes[laneIndex].m_vehicleType.IsFlagSet(TRACK_VEHICLE_TYPES))
+                        LaneIndeces |= 1ul << laneIndex;
+                }
+            }
+
+            #region serialization
+            //serialization
+            public void GetObjectData(SerializationInfo info, StreamingContext context) =>
+                SerializationUtil.GetObjectFields(info, this);
+
+            // de-serialization
+            public Track(SerializationInfo info, StreamingContext context) {
+                SerializationUtil.SetObjectFields(info, this);
+                m_trackMaterial = m_material;
+                m_trackMesh = m_mesh;
+            }
+            #endregion
+
+
+            public const VehicleInfo.VehicleType TRACK_VEHICLE_TYPES =
+                VehicleInfo.VehicleType.Tram |
+                VehicleInfo.VehicleType.Metro |
+                VehicleInfo.VehicleType.Train |
+                VehicleInfo.VehicleType.Monorail |
+                VehicleInfo.VehicleType.Trolleybus | VehicleInfo.VehicleType.TrolleybusLeftPole | VehicleInfo.VehicleType.TrolleybusRightPole;
+
+
+            [NonSerialized]
+            public NetInfo ParentInfo;
+
+            [NonSerialized]
+            public int ArrayIndex;
+
+            [NonSerialized]
+            public float m_lodRenderDistance;
+
+            [NonSerialized]
+            public bool m_requireSurfaceMaps;
+
+            [NonSerialized]
+            public bool m_requireHeightMap;
+
+            [NonSerialized]
+            public bool m_requireWindSpeed;
+
+            [NonSerialized]
+            public bool m_preserveUVs;
+
+            [NonSerialized]
+            public bool m_generateTangents;
+
+            [NonSerialized]
+            public int m_layer;
+
+            public Mesh m_mesh;
+
+            public Mesh m_lodMesh;
+
+            public Material m_material;
+
+            public Material m_lodMaterial;
+
+            [NonSerialized]
+            public NetInfo.LodValue m_combinedLod;
+
+            [NonSerialized]
+            public Mesh m_trackMesh;
+
+            [NonSerialized]
+            public Material m_trackMaterial;
+
+            [CustomizableProperty("Render On Segments")]
+            public bool RenderSegment;
+
+            [CustomizableProperty("Render On Bend Nodes")]
+            public bool RenderBend;
+
+            [CustomizableProperty("Render On Nodes")]
+            public bool RenderNode;
+
+            // TODO create drop down
+            [CustomizableProperty("Lanes to apply to")]
+            public UInt64 LaneIndeces;
+
+            #region flags
+            [CustomizableProperty("Segment")]
+            public VanillaSegmentInfoFlags VanillaSegmentFlags;
+
+            [CustomizableProperty("Segment Extension")]
+            public SegmentInfoFlags SegmentFlags;
+
+            [CustomizableProperty("Node")]
+            public VanillaNodeInfoFlags VanillaNodeFlags;
+
+            [CustomizableProperty("Node Extension")]
+            public NodeInfoFlags NodeFlags;
+            #endregion
+
+            public bool CheckNodeFlags(NetNodeExt.Flags nodeFlags, NetNode.Flags vanillaNodeFlags) => 
+                NodeFlags.CheckFlags(nodeFlags) && VanillaNodeFlags.CheckFlags(vanillaNodeFlags);
+
+            public bool CheckSegmentFlags(NetSegmentExt.Flags segmentFlags, NetSegment.Flags vanillaSegmentFlags) =>
+                SegmentFlags.CheckFlags(segmentFlags) && VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags);
+
+            public CustomFlags UsedCustomFlags => new CustomFlags {
+                Segment = SegmentFlags.UsedCustomFlags,
+                Node = NodeFlags.UsedCustomFlags,
+            };
+        }
         #endregion
 
         #region static
         private static IEnumerable<NetLaneProps.Prop> IterateProps(NetInfo.Lane lane)
-            => lane?.m_laneProps?.m_props ?? Enumerable.Empty<NetLaneProps.Prop>();
+        => lane?.m_laneProps?.m_props ?? Enumerable.Empty<NetLaneProps.Prop>();
 
         private static IEnumerable<NetLaneProps.Prop> IterateProps(NetInfo info) {
-            foreach (var lane in info?.m_lanes ?? Enumerable.Empty<NetInfo.Lane>()) {
-                foreach (var prop in IterateProps(lane))
+            foreach(var lane in info?.m_lanes ?? Enumerable.Empty<NetInfo.Lane>()) {
+                foreach(var prop in IterateProps(lane))
                     yield return prop;
             }
         }
@@ -826,16 +950,16 @@ namespace AdaptiveRoads.Manager {
             Assertion.AssertNotNull(info);
             if(info.GetMetaData() != null)
                 return true;
-            foreach (var item in info.m_nodes) {
-                if (item.GetMetaData() != null)
+            foreach(var item in info.m_nodes) {
+                if(item.GetMetaData() != null)
                     return true;
             }
-            foreach (var item in info.m_segments) {
-                if (item.GetMetaData() != null)
+            foreach(var item in info.m_segments) {
+                if(item.GetMetaData() != null)
                     return true;
             }
-            foreach (var item in IterateProps(info)) {
-                if (item.GetMetaData() != null)
+            foreach(var item in IterateProps(info)) {
+                if(item.GetMetaData() != null)
                     return true;
             }
             return false;
@@ -848,7 +972,7 @@ namespace AdaptiveRoads.Manager {
             AllElevations(EditedNetInfo);
 
         public static IEnumerable<NetInfo> AllElevations(this NetInfo ground) {
-            if (ground == null) yield break;
+            if(ground == null) yield break;
 
             NetInfo elevated = AssetEditorRoadUtils.TryGetElevated(ground);
             NetInfo bridge = AssetEditorRoadUtils.TryGetBridge(ground);
@@ -856,10 +980,10 @@ namespace AdaptiveRoads.Manager {
             NetInfo tunnel = AssetEditorRoadUtils.TryGetTunnel(ground);
 
             yield return ground;
-            if (elevated != null) yield return elevated;
-            if (bridge != null) yield return bridge;
-            if (slope != null) yield return slope;
-            if (tunnel != null) yield return tunnel;
+            if(elevated != null) yield return elevated;
+            if(bridge != null) yield return bridge;
+            if(slope != null) yield return slope;
+            if(tunnel != null) yield return tunnel;
         }
 
         public static void InvokeEditPrefabChanged() {
@@ -878,17 +1002,17 @@ namespace AdaptiveRoads.Manager {
         const NetLane.Flags vanillaLane = NetLane.Flags.Created | NetLane.Flags.Deleted;
 
         public static void ApplyVanillaForbidden(this NetInfo info) {
-            foreach (var node in info.m_nodes) {
-                if (node.GetMetaData() is Node metadata) {
+            foreach(var node in info.m_nodes) {
+                if(node.GetMetaData() is Node metadata) {
                     bool vanillaForbidden = metadata.SegmentFlags.Forbidden.IsFlagSet(NetSegmentExt.Flags.Vanilla);
                     vanillaForbidden |= metadata.NodeFlags.Forbidden.IsFlagSet(NetNodeExt.Flags.Vanilla);
                     vanillaForbidden |= metadata.SegmentEndFlags.Forbidden.IsFlagSet(NetSegmentEnd.Flags.Vanilla);
-                    if (vanillaForbidden)
+                    if(vanillaForbidden)
                         node.m_flagsRequired |= vanillaNode;
                 }
             }
-            foreach (var segment in info.m_segments) {
-                if (segment.GetMetaData() is Segment metadata) {
+            foreach(var segment in info.m_segments) {
+                if(segment.GetMetaData() is Segment metadata) {
                     bool forwardVanillaForbidden = metadata.Forward.Forbidden.IsFlagSet(NetSegmentExt.Flags.Vanilla);
                     bool backwardVanillaForbidden = metadata.Backward.Forbidden.IsFlagSet(NetSegmentExt.Flags.Vanilla);
                     bool vanillaForbidden = metadata.Head.Forbidden.IsFlagSet(NetSegmentEnd.Flags.Vanilla);
@@ -896,14 +1020,14 @@ namespace AdaptiveRoads.Manager {
                     forwardVanillaForbidden |= vanillaForbidden;
                     backwardVanillaForbidden |= vanillaForbidden;
 
-                    if (forwardVanillaForbidden)
+                    if(forwardVanillaForbidden)
                         segment.m_forwardRequired |= vanillaSegment;
-                    if (backwardVanillaForbidden)
+                    if(backwardVanillaForbidden)
                         segment.m_backwardRequired |= vanillaSegment;
                 }
             }
-            foreach (var prop in IterateProps(info)) {
-                if (prop.GetMetaData() is LaneProp metadata) {
+            foreach(var prop in IterateProps(info)) {
+                if(prop.GetMetaData() is LaneProp metadata) {
                     bool vanillaForbidden = metadata.SegmentFlags.Forbidden.IsFlagSet(NetSegmentExt.Flags.Vanilla);
                     vanillaForbidden |= metadata.LaneFlags.Forbidden.IsFlagSet(NetLaneExt.Flags.Vanilla);
                     vanillaForbidden |= metadata.StartNodeFlags.Forbidden.IsFlagSet(NetNodeExt.Flags.Vanilla);
@@ -911,25 +1035,25 @@ namespace AdaptiveRoads.Manager {
                     vanillaForbidden |= metadata.SegmentStartFlags.Forbidden.IsFlagSet(NetSegmentEnd.Flags.Vanilla);
                     vanillaForbidden |= metadata.SegmentEndFlags.Forbidden.IsFlagSet(NetSegmentEnd.Flags.Vanilla);
 
-                    if (vanillaForbidden)
+                    if(vanillaForbidden)
                         prop.m_flagsRequired |= vanillaLane;
                 }
             }
         }
 
         public static void UndoVanillaForbidden(this NetInfo info) {
-            foreach (var node in info.m_nodes) {
-                if (node.m_flagsRequired.CheckFlags(vanillaNode))
+            foreach(var node in info.m_nodes) {
+                if(node.m_flagsRequired.CheckFlags(vanillaNode))
                     node.m_flagsRequired &= ~vanillaNode;
             }
-            foreach (var segment in info.m_segments) {
-                if (segment.m_forwardRequired.CheckFlags(vanillaSegment))
+            foreach(var segment in info.m_segments) {
+                if(segment.m_forwardRequired.CheckFlags(vanillaSegment))
                     segment.m_forwardRequired &= ~vanillaSegment;
-                if (segment.m_backwardRequired.CheckFlags(vanillaSegment))
+                if(segment.m_backwardRequired.CheckFlags(vanillaSegment))
                     segment.m_backwardRequired &= ~vanillaSegment;
             }
-            foreach (var prop in IterateProps(info)) {
-                if (prop.m_flagsRequired.CheckFlags(vanillaLane))
+            foreach(var prop in IterateProps(info)) {
+                if(prop.m_flagsRequired.CheckFlags(vanillaLane))
                     prop.m_flagsRequired &= ~vanillaLane;
             }
         }
@@ -938,26 +1062,26 @@ namespace AdaptiveRoads.Manager {
             try {
                 Assertion.Assert(netInfo);
                 Log.Debug($"EnsureExtended({netInfo}): called "/* + Environment.StackTrace*/);
-                for (int i = 0; i < netInfo.m_nodes.Length; ++i) {
-                    if (!(netInfo.m_nodes[i] is IInfoExtended))
+                for(int i = 0; i < netInfo.m_nodes.Length; ++i) {
+                    if(!(netInfo.m_nodes[i] is IInfoExtended))
                         netInfo.m_nodes[i] = netInfo.m_nodes[i].Extend() as NetInfo.Node;
                 }
-                for (int i = 0; i < netInfo.m_segments.Length; ++i) {
-                    if (!(netInfo.m_segments[i] is IInfoExtended))
+                for(int i = 0; i < netInfo.m_segments.Length; ++i) {
+                    if(!(netInfo.m_segments[i] is IInfoExtended))
                         netInfo.m_segments[i] = netInfo.m_segments[i].Extend() as NetInfo.Segment;
                 }
-                foreach (var lane in netInfo.m_lanes) {
+                foreach(var lane in netInfo.m_lanes) {
                     var props = lane.m_laneProps?.m_props;
                     int n = props?.Length ?? 0;
-                    for (int i = 0; i < n; ++i) {
-                        if (!(props[i] is IInfoExtended))
+                    for(int i = 0; i < n; ++i) {
+                        if(!(props[i] is IInfoExtended))
                             props[i] = props[i].Extend() as NetLaneProps.Prop;
                     }
                 }
                 netInfo.GetOrCreateMetaData();
 
                 Log.Debug($"EnsureExtended({netInfo}): successful");
-            } catch (Exception e) {
+            } catch(Exception e) {
                 Log.Exception(e);
             }
         }
@@ -965,32 +1089,32 @@ namespace AdaptiveRoads.Manager {
         public static void UndoExtend(this NetInfo netInfo) {
             try {
                 Log.Debug($"UndoExtend({netInfo}): called");
-                for (int i = 0; i < netInfo.m_nodes.Length; ++i) {
-                    if (netInfo.m_nodes[i] is IInfoExtended<NetInfo.Node> ext)
+                for(int i = 0; i < netInfo.m_nodes.Length; ++i) {
+                    if(netInfo.m_nodes[i] is IInfoExtended<NetInfo.Node> ext)
                         netInfo.m_nodes[i] = ext.UndoExtend();
                 }
-                for (int i = 0; i < netInfo.m_segments.Length; ++i) {
-                    if (netInfo.m_segments[i] is IInfoExtended<NetInfo.Segment> ext)
+                for(int i = 0; i < netInfo.m_segments.Length; ++i) {
+                    if(netInfo.m_segments[i] is IInfoExtended<NetInfo.Segment> ext)
                         netInfo.m_segments[i] = ext.UndoExtend();
                 }
-                foreach (var lane in netInfo.m_lanes) {
+                foreach(var lane in netInfo.m_lanes) {
                     var props = lane.m_laneProps.m_props;
                     int n = props?.Length ?? 0;
-                    for (int i = 0; i < n; ++i) {
-                        if (props[i] is IInfoExtended<NetLaneProps.Prop> ext)
+                    for(int i = 0; i < n; ++i) {
+                        if(props[i] is IInfoExtended<NetLaneProps.Prop> ext)
                             props[i] = ext.UndoExtend();
                     }
                 }
                 netInfo.RemoveMetadataContainer();
 
-            } catch (Exception e) {
+            } catch(Exception e) {
                 Log.Exception(e);
             }
         }
 
         public static void Ensure_EditedNetInfos() {
             LogCalled();
-            if (VanillaMode) {
+            if(VanillaMode) {
                 UndoExtend_EditedNetInfos();
             } else {
                 EnsureExtended_EditedNetInfos();
@@ -998,19 +1122,19 @@ namespace AdaptiveRoads.Manager {
         }
 
         public static void EnsureExtended_EditedNetInfos() {
-            if (VanillaMode) {
+            if(VanillaMode) {
                 Log.Debug($"EnsureExtended_EditedNetInfos() because we are in vanilla mode");
                 return;
             }
             Log.Debug($"EnsureExtended_EditedNetInfos() was called");
-            foreach (var info in EditedNetInfos)
+            foreach(var info in EditedNetInfos)
                 EnsureExtended(info);
             Log.Debug($"EnsureExtended_EditedNetInfos() was successful");
         }
 
         public static void UndoExtend_EditedNetInfos() {
             Log.Debug($"UndoExtend_EditedNetInfos() was called");
-            foreach (var info in EditedNetInfos)
+            foreach(var info in EditedNetInfos)
                 UndoExtend(info);
             Verify_UndoExtend();
             Log.Debug($"UndoExtend_EditedNetInfos() was successful");
@@ -1018,20 +1142,20 @@ namespace AdaptiveRoads.Manager {
 
         public static void Verify_UndoExtend() {
             //test if UndoExtend_EditedNetInfos was successful.
-            foreach (var netInfo in NetInfoExtionsion.EditedNetInfos) {
-                for (int i = 0; i < netInfo.m_nodes.Length; ++i) {
-                    if (!(netInfo.m_nodes[i].GetType() == typeof(NetInfo.Node)))
+            foreach(var netInfo in NetInfoExtionsion.EditedNetInfos) {
+                for(int i = 0; i < netInfo.m_nodes.Length; ++i) {
+                    if(!(netInfo.m_nodes[i].GetType() == typeof(NetInfo.Node)))
                         throw new Exception($"reversal unsuccessfull. nodes[{i}]={netInfo.m_nodes[i]}");
                 }
-                for (int i = 0; i < netInfo.m_segments.Length; ++i) {
-                    if (!(netInfo.m_segments[i].GetType() == typeof(NetInfo.Segment)))
+                for(int i = 0; i < netInfo.m_segments.Length; ++i) {
+                    if(!(netInfo.m_segments[i].GetType() == typeof(NetInfo.Segment)))
                         throw new Exception($"reversal unsuccessfull. segments[{i}]={netInfo.m_segments[i]}");
                 }
-                foreach (var lane in netInfo.m_lanes) {
+                foreach(var lane in netInfo.m_lanes) {
                     var props = lane.m_laneProps?.m_props;
                     int n = props?.Length ?? 0;
-                    for (int i = 0; i < n; ++i) {
-                        if (!(props[i].GetType() == typeof(NetLaneProps.Prop)))
+                    for(int i = 0; i < n; ++i) {
+                        if(!(props[i].GetType() == typeof(NetLaneProps.Prop)))
                             throw new Exception($"reversal unsuccessfull. props[{i}]={props[i]}");
                     }
                 }
