@@ -13,8 +13,8 @@ namespace AdaptiveRoads.LifeCycle {
     using AdaptiveRoads.Util;
     using TrafficManager.Manager.Impl;
     using AdaptiveRoads.UI.Tool;
-    using KianCommons.Serialization;
     using AdaptiveRoads.NSInterface;
+    using KianCommons.Serialization;
 
     public static class LifeCycle {
         public static string HARMONY_ID = "CS.Kian.AdaptiveRoads";
@@ -38,7 +38,7 @@ namespace AdaptiveRoads.LifeCycle {
                 Log.Buffered = true;
 
                 HarmonyHelper.EnsureHarmonyInstalled();
-                ARImplementation.CreateOnReady();
+                ARImplementation.Install();
 
                 //LoadingManager.instance.m_simulationDataReady += SimulationDataReady; // load/update data
                 LoadingManager.instance.m_levelPreLoaded += Preload;
@@ -94,7 +94,7 @@ namespace AdaptiveRoads.LifeCycle {
 
         public static void Disable() {
             Log.Buffered = false;
-            ARImplementation.Instance?.Release();
+            ARImplementation.Uninstall();
 
             //LoadingManager.instance.m_simulationDataReady -= SimulationDataReady;
             LoadingManager.instance.m_levelPreLoaded -= Preload;
@@ -146,8 +146,8 @@ namespace AdaptiveRoads.LifeCycle {
                     UI.Debug.PWModifier.Create();
                 }   
 
-                Log.Info("LifeCycle.Load() successful!");
                 Log.Flush();
+                Log.Succeeded();
             } catch (Exception ex) {
                 Log.Exception(ex);
             }
