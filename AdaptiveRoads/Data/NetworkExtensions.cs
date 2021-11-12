@@ -90,7 +90,7 @@ namespace AdaptiveRoads.Manager {
             Car = 1 << 5,
 
             [Hint("Emergencies (active sirens)\n" +
-                "when siren is off, they act as Serive vehicles.")]
+                "when siren is off, they act as Service vehicles.")]
             SOS = 1 << 6,
 
             Taxi = 1 << 7,
@@ -101,17 +101,17 @@ namespace AdaptiveRoads.Manager {
             [Hint("all types of industry trucks and vans")]
             CargoTruck = 1 << 9,
 
-            [Hint("all services including emergency services whithout active siren")]
+            [Hint("all services including emergency services without active siren")]
             Service = 1 << 10,
 
             CargoTrain = 1 << 14,
             PassengerTrain = 1 << 15,
 
-            [Hint("this lane has a single merging transion\n" +
+            [Hint("this lane has a single merging transition\n" +
                   "use this in conjunction with TwoSegment node flag to put merge arrow road marking")]
             MergeUnique = 1 << 16 ,
 
-            [Hint("cars can go to multiple lanes from this lane at least one of which is non-merging transion.\n" +
+            [Hint("cars can go to multiple lanes from this lane at least one of which is non-merging transition.\n" +
                   "use this in conjunction with TwoSegment node flag to put split arrow road marking")]
             SplitUnique = 1 << 17,
 
@@ -138,7 +138,7 @@ namespace AdaptiveRoads.Manager {
 
         public Flags m_flags;
 
-        public float SpeedLimit; // game speed limit 1=50kph 20=unlimitted
+        public float SpeedLimit; // game speed limit 1=50kph 20=unlimited
 
         //public object OuterMarking;
         //public object InnerMarking;
@@ -490,11 +490,11 @@ namespace AdaptiveRoads.Manager {
         static bool showErrorOnce_ = true;
 
         /// <summary>
-        /// Calculates Raduis of a curved segment assuming it is part of a circle.
+        /// Calculates Radius of a curved segment assuming it is part of a circle.
         /// </summary>
         public float CalculateRadius() {
-            // TDOO: to calculate maximum curviture for eleptical road, cut the bezier in 10 portions
-            // and then find the bezier with minimum raduis.
+            // TDOO: to calculate maximum curvature for elliptical road, cut the bezier in 10 portions
+            // and then find the bezier with minimum radius.
             ref NetSegment segment = ref SegmentID.ToSegment();
             Vector2 startDir = VectorUtils.XZ(segment.m_startDirection);
             Vector2 endDir = VectorUtils.XZ(segment.m_endDirection);
@@ -564,12 +564,12 @@ namespace AdaptiveRoads.Manager {
             [Hide]
             [Hint("[Obsolete] " + HintExtension.VANILLA)]
             Vanilla = 1 << 0,            // priority signs
-            [Hint("checks if TMPE rules requires vehicles to yield to upcomming traffic\n" +
-                "differet than the vanilla YieldStart/YieldEnd (Stop) flag.")]
+            [Hint("checks if TMPE rules requires vehicles to yield to upcoming traffic\n" +
+                "different than the vanilla YieldStart/YieldEnd (Stop) flag.")]
             Yield = 1 << 4,
 
             [Hint("checks if TMPE rules requires vehicles to Stop at junctions\n" +
-                "differet than the vanilla YieldStart/YieldEnd (Stop) flag.")]
+                "different than the vanilla YieldStart/YieldEnd (Stop) flag.")]
             Stop = 1 << 5,
 
             [Hint("checks if TMPE rules gives priority to vehicles on this segment-end")]
@@ -585,7 +585,7 @@ namespace AdaptiveRoads.Manager {
             [Hint("vehicles can take near turn (right turn with Right Hand Traffic) even when traffic light is red")]
             NearTurnAtRed = 1 << 9,
 
-            [Hint("in a oneway road vehicles can take far turn even when traffic light is red\n" +
+            [Hint("in a one-way road vehicles can take far turn even when traffic light is red\n" +
                 "far turn is left turn with right hand traffic")]
             FarTurnAtRed = 1 << 10,
 
