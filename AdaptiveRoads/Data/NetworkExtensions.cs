@@ -17,6 +17,7 @@ namespace AdaptiveRoads.Manager {
     using KianCommons.Serialization;
     using KianCommons.Plugins;
     using System.Reflection;
+    using AdaptiveRoads.Data;
 
     public static class AdvanedFlagsExtensions {
         public static bool CheckFlags(this NetLaneExt.Flags value, NetLaneExt.Flags required, NetLaneExt.Flags forbidden) =>
@@ -145,6 +146,7 @@ namespace AdaptiveRoads.Manager {
         public LaneData LaneData;
 
         const int CUSTOM_FLAG_SHIFT = 24;
+
         public bool IsEmpty => (m_flags & Flags.CustomsMask) == Flags.None;
         public void Serialize(SimpleDataSerializer s) => s.WriteInt32(
             ((int)(Flags.CustomsMask & m_flags)) >> CUSTOM_FLAG_SHIFT);
@@ -203,6 +205,7 @@ namespace AdaptiveRoads.Manager {
 
                 SpeedLimit = lane.GetLaneSpeedLimit();
 
+                UpdateCorners();
                 //Log.Debug("NetLaneExt.UpdateLane() result: " + this);
             } catch (Exception ex) {
                 Log.Exception(ex, this.ToString(), false);
@@ -213,6 +216,56 @@ namespace AdaptiveRoads.Manager {
         public override string ToString() {
             return $"NetLaneExt({LaneData} flags={m_flags} speed={SpeedLimit})";
         }
+
+        #region corner
+        CornerTripleData A, D;
+        Bezier3 Left;
+        Bezier3 Right;
+        public void UpdateCorners() {
+            ushort segmentID = LaneData.SegmentID;
+            ref var segment = ref LaneData.Segment;
+            ref var segmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
+
+            var posStartLeft = segmentExt.Start.Corner.Left.Position;
+            var posStartRight = segmentExt.Start.Corner.Right.Position;
+            var posEndLeft = segmentExt.End.Corner.Left.Position;
+            var posEndRight = segmentExt.End.Corner.Right.Position;
+
+            var DirectionStartLeft = segmentExt.Start.Corner.Left.Direction;
+            var DirectionStartRight = segmentExt.Start.Corner.Right.Direction;
+            var DirectionEndLeft = segmentExt.End.Corner.Left.Direction;
+            var DirectionEndRight = segmentExt.End.Corner.Right.Direction;
+
+            var smoothStart = segmentExt.Start.Corner.smooth;
+            var smoothEnd = segmentExt.End.Corner.smooth;
+
+            var laneInfo = LaneData.LaneInfo;
+            float posNormalized = laneInfo.m_position / (segment.Info.m_halfWidth * 2f) + 0.5f;
+            if(segment.IsInvert()) {
+                posNormalized = 1f - posNormalized;
+            }
+            Vector3 a = posStartLeft + (posStartRight - posStartLeft) * posNormalized;
+            Vector3 startDir = Vector3.Lerp(DirectionStartLeft, DirectionStartRight, posNormalized);
+            Vector3 d = posEndRight + (posEndLeft - posEndRight) * posNormalized;
+            Vector3 endDir = Vector3.Lerp(DirectionEndRight, DirectionEndLeft, posNormalized);
+            a.y += laneInfo.m_verticalOffset;
+            d.y += laneInfo.m_verticalOffset;
+            NetSegment.CalculateMiddlePoints(a, startDir, d, endDir, smoothStart, smoothEnd, out var b, out var c);
+            //var bezier = new Bezier3(a, b, c, d);
+
+            float laneWidth = laneInfo.m_width;
+            A.Set(a, startDir, laneWidth, start: true);
+            D.Set(d, endDir, laneWidth, start: false);
+
+            Left.a = A.Left;
+            Left.d = D.Left;
+            NetSegment.CalculateMiddlePoints(A.Left, A.Direction, D.Left, D.Direction, smoothStart, smoothEnd, out Left.b, out Left.c);
+
+            Right.a = A.Right;
+            Right.d = D.Right;
+            NetSegment.CalculateMiddlePoints(A.Right, A.Direction, D.Right, D.Direction, smoothStart, smoothEnd, out Right.b, out Right.c);
+        }
+        #endregion
     }
 
     public struct NetNodeExt {
@@ -401,9 +454,11 @@ namespace AdaptiveRoads.Manager {
 
                 Start.UpdateFlags();
                 Start.UpdateDirections();
+                Start.UpdateCorners();
 
                 End.UpdateFlags();
                 End.UpdateDirections();
+                End.UpdateCorners();
 
                 if (Log.VERBOSE) Log.Debug($"NetSegmentExt.UpdateAllFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
             } catch (Exception ex) {
@@ -438,7 +493,6 @@ namespace AdaptiveRoads.Manager {
             var bezier = SegmentID.ToSegment().CalculateSegmentBezier3();
             return bezier.CalculateCurve();
         }
-
     }
 
     public struct NetSegmentEnd {
@@ -668,6 +722,16 @@ namespace AdaptiveRoads.Manager {
                 } //end switch
             } // end for
         } // end method
+
+        #region cache corners
+        public CornerPairData Corner;
+        public void UpdateCorners() {
+            ref var segment = ref SegmentID.ToSegment();
+            segment.CalculateCorner(SegmentID, heightOffset: true, start: StartNode, leftSide: true, out Corner.Left.Position, out Corner.Left.Direction, out Corner.smooth);
+            segment.CalculateCorner(SegmentID, heightOffset: true, start: StartNode, leftSide: false, out Corner.Right.Position, out Corner.Right.Direction, out Corner.smooth);
+        }
+
+        #endregion
 
     }
 }

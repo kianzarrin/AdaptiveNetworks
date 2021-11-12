@@ -310,6 +310,9 @@ namespace AdaptiveRoads.Manager {
 
             public Track[] Tracks = new Track[0];
 
+            [NonSerialized]
+            public int TrackCount;
+
             static CustomFlags GetUsedCustomFlags(NetInfo info) {
                 var ret = CustomFlags.None;
                 foreach(var item in info.m_nodes) {
@@ -907,6 +910,9 @@ namespace AdaptiveRoads.Manager {
             // TODO create drop down
             [CustomizableProperty("Lanes to apply to")]
             public UInt64 LaneIndeces;
+
+            [NonSerialized]
+            public int LaneCount;
 
             #region flags
             [CustomizableProperty("Segment")]
