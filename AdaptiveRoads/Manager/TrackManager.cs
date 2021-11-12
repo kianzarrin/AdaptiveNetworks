@@ -43,13 +43,15 @@ namespace AdaptiveRoads.Manager {
         public const uint NODE_HOLDER = SEGMENT_HOLDER + NetManager.MAX_SEGMENT_COUNT;
         public const uint TRACK_HOLDER_SEGMNET = NODE_HOLDER + NetManager.MAX_NODE_COUNT;
         public const uint TRACK_HOLDER_NODE = TRACK_HOLDER_SEGMNET + NetManager.MAX_SEGMENT_COUNT;
+        public const int INVALID_RENDER_INDEX = ushort.MaxValue;
 
         public void EndRendering(RenderManager.CameraInfo cameraInfo) {
             try {
                 FastList<RenderGroup> renderedGroups = Singleton<RenderManager>.instance.m_renderedGroups;
                 for(int groupIndex = 0; groupIndex < renderedGroups.m_size; groupIndex++) {
                     RenderGroup renderGroup = renderedGroups.m_buffer[groupIndex];
-                    if(renderGroup.m_instanceMask != 0) {
+                    int layerMask = renderGroup.m_instanceMask;
+                    if(layerMask != 0) {
                         const int resolutionRatio = NetManager.NODEGRID_RESOLUTION / RenderManager.GROUP_RESOLUTION; // = 270/45 = 6
                         int net_x0 = renderGroup.m_x * resolutionRatio;
                         int net_z0 = renderGroup.m_z * resolutionRatio;
@@ -61,7 +63,7 @@ namespace AdaptiveRoads.Manager {
                                 ushort nodeID = NetManager.instance.m_nodeGrid[gridIndex];
                                 int watchdog = 0;
                                 while(nodeID != 0) {
-                                    nodeID.ToNode().RenderInstance(cameraInfo, nodeID, renderGroup.m_instanceMask);
+                                    nodeID.ToNode().RenderInstance(cameraInfo, nodeID, layerMask);
                                     nodeID = nodeID.ToNode().m_nextGridNode;
                                     if(++watchdog >= 32768) {
                                         CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
@@ -76,7 +78,8 @@ namespace AdaptiveRoads.Manager {
                                 ushort segmentID = NetManager.instance.m_segmentGrid[gridIndex];
                                 int watchdog = 0;
                                 while(segmentID != 0) {
-                                    segmentID.ToSegment().RenderInstance(cameraInfo, segmentID, renderGroup.m_instanceMask);
+                                    ref var segExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
+                                    segExt.RenderTrackInstance(cameraInfo, layerMask);
                                     segmentID = segmentID.ToSegment().m_nextGridSegment;
                                     if(++watchdog >= 36864) {
                                         CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
@@ -90,28 +93,12 @@ namespace AdaptiveRoads.Manager {
                 int nPrefabs = PrefabCollection<NetInfo>.PrefabCount();
                 for(int n = 0; n < nPrefabs; n++) {
                     NetInfo prefab = PrefabCollection<NetInfo>.GetPrefab((uint)n);
-                    if(prefab != null) {
-                        if(prefab.m_segments != null) {
-                            for(int i = 0; i < prefab.m_segments.Length; i++) {
-                                NetInfo.Segment segment = prefab.m_segments[i];
-                                NetInfo.LodValue combinedLod = segment.m_combinedLod;
-                                if(combinedLod != null && combinedLod.m_lodCount != 0) {
-                                    //NetSegment.RenderLod(cameraInfo, combinedLod);
-                                }
-                            }
-                        }
-                        if(prefab.m_nodes != null) {
-                            for(int i = 0; i < prefab.m_nodes.Length; i++) {
-                                NetInfo.Node node = prefab.m_nodes[i];
-                                NetInfo.LodValue combinedLod2 = node.m_combinedLod;
-                                if(combinedLod2 != null && combinedLod2.m_lodCount != 0) {
-                                    if(node.m_directConnect) {
-                                        //NetSegment.RenderLod(cameraInfo, combinedLod2);
-                                    } else {
-                                        //NetNode.RenderLod(cameraInfo, combinedLod2);
-                                    }
-                                }
-                            }
+                    var tracks = prefab?.GetMetaData()?.Tracks;
+                    if(tracks != null) {
+                        for(int i = 0; i < tracks.Length; i++) {
+                            var track = tracks[i];
+                            NetInfo.LodValue combinedLod = track.m_combinedLod;
+                            track.RenderLod(cameraInfo);
                         }
                     }
                 }

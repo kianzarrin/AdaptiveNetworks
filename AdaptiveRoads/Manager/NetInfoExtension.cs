@@ -311,7 +311,10 @@ namespace AdaptiveRoads.Manager {
             public Track[] Tracks = new Track[0];
 
             [NonSerialized]
-            public int TrackCount;
+            public ulong TrackLanes;
+
+            [NonSerialized]
+            public int TrackLaneCount;
 
             static CustomFlags GetUsedCustomFlags(NetInfo info) {
                 var ret = CustomFlags.None;

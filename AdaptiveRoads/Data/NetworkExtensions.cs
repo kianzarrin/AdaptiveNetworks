@@ -266,6 +266,19 @@ namespace AdaptiveRoads.Manager {
             NetSegment.CalculateMiddlePoints(A.Right, A.Direction, D.Right, D.Direction, smoothStart, smoothEnd, out Right.b, out Right.c);
         }
         #endregion
+
+        #region track
+        public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo, int layerMask, uint renderInstanceIndex) {
+            UInt64 laneMask = 1ul << LaneData.LaneIndex;
+            var tracks = LaneData.Segment.Info.GetMetaData().Tracks;
+            foreach(var track in tracks) {
+                if((track.LaneIndeces & laneMask) != 0) {
+                    // render track on lane
+                }
+            }
+
+        }
+        #endregion
     }
 
     public struct NetNodeExt {
@@ -360,6 +373,8 @@ namespace AdaptiveRoads.Manager {
 
         const int CUSTOM_FLAG_SHIFT = 24;
         public bool IsEmpty => (m_flags & Flags.CustomsMask) == Flags.None;
+        public ref NetSegment Segment => ref SegmentID.ToSegment();
+
         public void Serialize(SimpleDataSerializer s) => s.WriteInt32(
             ((int)(Flags.CustomsMask & m_flags)) >> CUSTOM_FLAG_SHIFT);
         public void Deserialize(SimpleDataSerializer s) => m_flags =
@@ -412,6 +427,7 @@ namespace AdaptiveRoads.Manager {
         }
 
         public void UpdateAllFlags() {
+             NetInfoExt = Segment.Info?.GetMetaData();
             if(!NetUtil.IsSegmentValid(SegmentID)) {
                 if(SegmentID.ToSegment().m_flags.IsFlagSet(NetSegment.Flags.Created))
                     Log.Debug("Skip updating invalid segment:" + SegmentID);
@@ -493,6 +509,51 @@ namespace AdaptiveRoads.Manager {
             var bezier = SegmentID.ToSegment().CalculateSegmentBezier3();
             return bezier.CalculateCurve();
         }
+
+        #region Track
+        public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo, int layerMask) {
+            if(!SegmentID.ToSegment().IsValid()) {
+                return;
+            }
+            NetInfo info = SegmentID.ToSegment().Info;
+            if(!cameraInfo.Intersect(Segment.m_bounds)) {
+                return;
+            }
+            if((layerMask & (info.m_netLayers | info.m_propLayers)) == 0) {
+                return;
+            }
+            uint count = CalculateTrackRenderCount();
+            if(count == 0) {
+                return;
+            }
+            if(RequireTrackInstance(count, out var instanceIndex)) {
+                RenderTrackInstance(cameraInfo, layerMask, instanceIndex);
+            }
+
+        }
+
+        public NetInfoExtionsion.Net NetInfoExt;
+        public uint CalculateTrackRenderCount() => (uint)(NetInfoExt?.TrackLaneCount ?? 0);
+
+        public bool RequireTrackInstance(uint count, out uint instanceIndex) =>
+            Singleton<RenderManager>.instance.RequireInstance(TrackManager.TRACK_HOLDER_SEGMNET + SegmentID, count, out instanceIndex);
+
+        private void RenderTrackInstance(RenderManager.CameraInfo cameraInfo, int layerMask, uint renderInstanceIndex) {
+            // TODO: if dirty, calculate
+            
+            
+            do {
+                var renderData = RenderManager.instance.m_instances[renderInstanceIndex];
+
+                int laneIndex = renderData.m_dataInt0;
+                var laneID = NetUtil.GetlaneID(SegmentID, laneIndex);
+                ref var laneExt = ref NetworkExtensionManager.Instance.LaneBuffer[laneID];
+                laneExt.RenderTrackInstance(cameraInfo, layerMask, renderInstanceIndex);
+
+                renderInstanceIndex = renderData.m_nextInstance;
+            } while(renderInstanceIndex != TrackManager.INVALID_RENDER_INDEX);
+        }
+        #endregion
     }
 
     public struct NetSegmentEnd {
