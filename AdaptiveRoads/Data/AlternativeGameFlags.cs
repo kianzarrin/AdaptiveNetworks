@@ -36,9 +36,9 @@ namespace AdaptiveRoads.Manager {
         const string YIELD_TAIL = nameof(NetLaneFlags.YieldTail); // former start
         public const string LANE_YIELD_HEAD_TAIL =
             YIELD_HEAD + " and " + YIELD_TAIL + "swap when segment is inverted\n" +
-            "adidtionally if lane.final_direction is forward, " + YIELD_HEAD + " is removed\n" +
+            "additionally if lane.final_direction is forward, " + YIELD_HEAD + " is removed\n" +
             "and if lane.final_direction is backward, " + YIELD_TAIL + " is removed\n" +
-            "pavement/median lanes arn't uni-directional so no yield flags is removed on them.\n" +
+            "pavement/median lanes aren't uni-directional so no yield flags is removed on them.\n" +
             "lane.final_direction is like lane.direction but considers LHT(Left Hand Traffic)\n" +
             "this is different than TMPE's yield/stop flags";
 
@@ -99,8 +99,8 @@ namespace AdaptiveRoads.Manager {
         [Hide]
         Deleted = 2, // 1 >> 1
         [Hide]
-        [Hint("This segment has not been touched yet since the map was loeded.\n" +
-              "Therefore there is no maintanace cost.")]
+        [Hint("This segment has not been touched yet since the map was loaded.\n" +
+              "Therefore there is no maintenance cost.")]
         Original = 4, // 1 >> 2
         [Hint("Segment has been destroyed due to a disaster")]
         Collapsed = 8, // 1 >> 3
@@ -221,7 +221,7 @@ namespace AdaptiveRoads.Manager {
         Middle = 32,
 
         [Hint("this node is used where two compatible* roads are connected at a bent angle\n" +
-              "also when asymmeterical road changes direction(see also AsymForward and AsymBackward)\n" +
+              "also when asymmetrical road changes direction(see also AsymForward and AsymBackward)\n" +
               "bend nodes use bend segment texture\n" + COMPATIBLE_SEGMENT)]
         Bend = 64,
 
@@ -232,7 +232,7 @@ namespace AdaptiveRoads.Manager {
         Outside = 1024,
 
         [Hint("`middle` node of a double length network.\n" +
-               "eg: node where the big pillar for highway suspension bridges.")]
+               "e.g.: node where the big pillar for highway suspension bridges.")]
         Double = 4096,
 
         [Hint("nodes between networks which have different `levels`.\n" +
@@ -277,13 +277,13 @@ namespace AdaptiveRoads.Manager {
         Temporary = 2048,
 
         [Hide]
-        [Hint("This node has not been touched yet since the map was loeded.\n" +
-              "Therefore there is no maintanace cost.")]
+        [Hint("This node has not been touched yet since the map was loaded.\n" +
+              "Therefore there is no maintenance cost.")]
         Original = 4,
 
         [Hint("node that is placed on the ground and is not elevated or underground.\n" +
               "such nodes can create dirt on ground.\n" +
-              "also paths can connect to roads pavement at such ndoes")]
+              "also paths can connect to roads pavement at such nodes")]
         OnGround = 16384,
 
         [Hint("node is underground.")]
@@ -340,7 +340,7 @@ namespace AdaptiveRoads.Manager {
         [Hint("lane arrow")] Left = 32,
         [Hint("lane arrow")] Right = 64,
         [Hint("2+ lanes merge together.\n"+
-              "use in conjuction with TwoSegments extension flag to place merge arrows")]
+              "use in conjunction with TwoSegments extension flag to place merge arrows")]
         Merge = 128,
 
         LeftForward = 48,
@@ -363,25 +363,25 @@ namespace AdaptiveRoads.Manager {
 
         [Hint("useful for no left/right turn signs\n" + 
               "on tail* node,\n" +
-              "left (when facting the node) segment is oneway toward the node" +
+              "left (when facing the node) segment is one-way toward the node" +
               HEAD_TAIL_DIRECTION)]
         TailOneWayLeft = 4096, // StartOneWayLeft
 
         [Hint("useful for no left/right turn signs\n" +
               "on tail* node,\n" +
-              "right (when facting the node) segment is oneway toward the node" +
+              "right (when facing the node) segment is one-way toward the node" +
               HEAD_TAIL_DIRECTION)]
         TailtOneWayRight = 8192, // StartOneWayRight
 
         [Hint("useful for no left/right turn signs\n" +
               "on head* node,\n" +
-              "left (when facting the node) segment is oneway toward the node" +
+              "left (when facing the node) segment is one-way toward the node" +
               HEAD_TAIL_DIRECTION)]
         HeadOneWayLeft = 16384, //EndOneWayLeft
 
         [Hint("useful for no left/right turn signs\n" +
               "on head* node,\n" +
-              "right (when facting the node) segment is oneway toward the node" +
+              "right (when facing the node) segment is one-way toward the node" +
               HEAD_TAIL_DIRECTION)]
         HeadOneWayRight = 32768, //EndOneWayRight
 
@@ -393,7 +393,7 @@ namespace AdaptiveRoads.Manager {
 
     [Flags]
     [Hint("determines vehicle direction\n" +
-          "on stations determines stop driection and bypass direction")]
+          "on stations determines stop direction and bypass direction")]
     public enum Direction : byte {
         None = 0,
         Forward = 0b01,
@@ -413,7 +413,7 @@ namespace AdaptiveRoads.Manager {
     [Flags]
     public enum VehicleType {
         None = 0,
-        [Hint("Road vehicle (eg: private car, bus, taxi, SOS, Services)")]
+        [Hint("Road vehicle (e.g.: private car, bus, taxi, SOS, Services)")]
         Car = 1,
         Metro = 2,
         Train = 4,
