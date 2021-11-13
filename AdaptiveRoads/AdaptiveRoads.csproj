@@ -94,6 +94,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="KianCommons\KianCommons\StockCode\**" />
+    <Compile Remove="Manager\Track.cs" />
     <Compile Remove="Patches\AssetPatches\InitializePrefabImpl.cs" />
     <Compile Remove="Patches\AsymPavements\GetPathTargetPosition.cs" />
     <Compile Remove="Patches\HarmonyExtension.cs" />
@@ -198,7 +199,7 @@
     <None Include="KianCommons\KianCommons\StockCode\NetAI.cs" />
     <None Include="KianCommons\KianCommons\StockCode\NetLane.cs" />
     <None Include="KianCommons\KianCommons\StockCode\NetNode.cs" />
-    <Compile Include="KianCommons\KianCommons\StockCode\NetSegment.cs" />
+    <None Include="KianCommons\KianCommons\StockCode\NetSegment.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\prefab-metadata\PrefabMetadata.csproj" />

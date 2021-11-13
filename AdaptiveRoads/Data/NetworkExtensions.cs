@@ -109,7 +109,7 @@ namespace AdaptiveRoads.Manager {
 
             [Hint("this lane has a single merging transition\n" +
                   "use this in conjunction with TwoSegment node flag to put merge arrow road marking")]
-            MergeUnique = 1 << 16 ,
+            MergeUnique = 1 << 16,
 
             [Hint("cars can go to multiple lanes from this lane at least one of which is non-merging transition.\n" +
                   "use this in conjunction with TwoSegment node flag to put split arrow road marking")]
@@ -169,7 +169,7 @@ namespace AdaptiveRoads.Manager {
         // pass in segmentID for the sake of MOM lane problem.
         public void UpdateLane(LaneData lane, ushort segmentID) {
             Assertion.AssertEqual(LaneData.LaneID, lane.LaneID, "lane id");
-            if(lane.Lane.m_segment != 0 && lane.Lane.m_segment != segmentID) 
+            if(lane.Lane.m_segment != 0 && lane.Lane.m_segment != segmentID)
                 Log.Error($"lane segment mismatch: {LaneData} parentSegment:{segmentID}");
             lane.Lane.m_segment = segmentID; // fix MOM lane issue
 
@@ -207,7 +207,7 @@ namespace AdaptiveRoads.Manager {
 
                 UpdateCorners();
                 //Log.Debug("NetLaneExt.UpdateLane() result: " + this);
-            } catch (Exception ex) {
+            } catch(Exception ex) {
                 Log.Exception(ex, this.ToString(), false);
                 throw ex;
             }
@@ -218,9 +218,8 @@ namespace AdaptiveRoads.Manager {
         }
 
         #region corner
-        CornerTripleData A, D;
-        Bezier3 Left;
-        Bezier3 Right;
+        CornerTripleData A, D; // A is always at segment's start node.
+        Bezier3 Left, Right; // matches segment's left/right corners
         public void UpdateCorners() {
             ushort segmentID = LaneData.SegmentID;
             ref var segment = ref LaneData.Segment;
@@ -268,15 +267,159 @@ namespace AdaptiveRoads.Manager {
         #endregion
 
         #region track
-        public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo, int layerMask, uint renderInstanceIndex) {
-            UInt64 laneMask = 1ul << LaneData.LaneIndex;
-            var tracks = LaneData.Segment.Info.GetMetaData().Tracks;
-            foreach(var track in tracks) {
-                if((track.LaneIndeces & laneMask) != 0) {
-                    // render track on lane
+        public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo, int layerMask, ref RenderManager.Instance renderData) {
+            var info = LaneData.Segment.Info;
+            if((layerMask & info.m_netLayers) == 0)
+                return;
+            UInt64 laneBit = 1ul << LaneData.LaneIndex;
+            var infoExt = info.GetMetaData();
+            var netManager = Singleton<NetManager>.instance;
+            ref var segment = ref LaneData.Segment;
+            ref var segmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[LaneData.SegmentID];
+            foreach(var track in infoExt.Tracks) {
+                if((track.LaneIndeces & laneBit) != 0 && track.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags)) {
+                    Vector4 dataVector3 = renderData.m_dataVector3;
+                    if(track.m_requireWindSpeed) 
+                        dataVector3.w = renderData.m_dataFloat0;
+
+                    Vector4 dataVector0 = renderData.m_dataVector0;
+                    bool turnAround = LaneData.LaneInfo.IsGoingBackward(); // TODO is this logic sufficient? is this line even necessary?
+                    if(turnAround) {
+                        dataVector0.x = - dataVector0.x;
+                        dataVector0.y = - dataVector0.y;
+                    }
+                    if(cameraInfo.CheckRenderDistance(renderData.m_position, track.m_lodRenderDistance)) {
+                        netManager.m_materialBlock.Clear();
+                        netManager.m_materialBlock.SetMatrix(netManager.ID_LeftMatrix, renderData.m_dataMatrix0);
+                        netManager.m_materialBlock.SetMatrix(netManager.ID_RightMatrix, renderData.m_dataMatrix1);
+                        netManager.m_materialBlock.SetVector(netManager.ID_MeshScale, dataVector0);
+                        netManager.m_materialBlock.SetVector(netManager.ID_ObjectIndex, dataVector3);
+                        netManager.m_materialBlock.SetColor(netManager.ID_Color, renderData.m_dataColor0);
+                        netManager.m_drawCallData.m_defaultCalls++;
+                        Graphics.DrawMesh(track.m_trackMesh, renderData.m_position, renderData.m_rotation, track.m_trackMaterial, track.m_layer, null, 0, netManager.m_materialBlock);
+                    } else {
+                        NetInfo.LodValue combinedLod = track.m_combinedLod;
+                        if(combinedLod == null) continue;
+
+                        ref Matrix4x4 reference = ref combinedLod.m_leftMatrices[combinedLod.m_lodCount];
+                        reference = renderData.m_dataMatrix0;
+                        ref Matrix4x4 reference2 = ref combinedLod.m_rightMatrices[combinedLod.m_lodCount];
+                        reference2 = renderData.m_dataMatrix1;
+                        combinedLod.m_meshScales[combinedLod.m_lodCount] = dataVector0;
+                        combinedLod.m_objectIndices[combinedLod.m_lodCount] = dataVector3;
+                        ref Vector4 reference3 = ref combinedLod.m_meshLocations[combinedLod.m_lodCount];
+                        reference3 = renderData.m_position;
+                        combinedLod.m_lodMin = Vector3.Min(combinedLod.m_lodMin, renderData.m_position);
+                        combinedLod.m_lodMax = Vector3.Max(combinedLod.m_lodMax, renderData.m_position);
+                        if(++combinedLod.m_lodCount == combinedLod.m_leftMatrices.Length) {
+                            NetInfoExtionsion.Track.RenderLod(cameraInfo, combinedLod);
+                        }
+                    }
                 }
             }
+        }
 
+#if true //DUMMY_CODE
+        private void RenderSegmentInstance(ref NetSegment This, RenderManager.CameraInfo cameraInfo, ushort segmentID, int layerMask, NetInfo info, ref RenderManager.Instance renderData) {
+            var netManager = Singleton<NetManager>.instance;
+            if(info.m_segments != null && (layerMask & info.m_netLayers) != 0) {
+                for(int j = 0; j < info.m_segments.Length; j++) {
+                    NetInfo.Segment segment = info.m_segments[j];
+                    if(!segment.CheckFlags(This.m_flags, out var turnAround)) {
+                        continue;
+                    }
+                    Vector4 dataVector3 = renderData.m_dataVector3;
+                    Vector4 dataVector0 = renderData.m_dataVector0;
+                    if(segment.m_requireWindSpeed) {
+                        dataVector3.w = renderData.m_dataFloat0;
+                    }
+                    if(turnAround) {
+                        dataVector0.x = 0f - dataVector0.x;
+                        dataVector0.y = 0f - dataVector0.y;
+                    }
+                    if(cameraInfo.CheckRenderDistance(renderData.m_position, segment.m_lodRenderDistance)) {
+                        netManager.m_materialBlock.Clear();
+                        netManager.m_materialBlock.SetMatrix(netManager.ID_LeftMatrix, renderData.m_dataMatrix0);
+                        netManager.m_materialBlock.SetMatrix(netManager.ID_RightMatrix, renderData.m_dataMatrix1);
+                        netManager.m_materialBlock.SetVector(netManager.ID_MeshScale, dataVector0);
+                        netManager.m_materialBlock.SetVector(netManager.ID_ObjectIndex, dataVector3);
+                        netManager.m_materialBlock.SetColor(netManager.ID_Color, renderData.m_dataColor0);
+                        if(segment.m_requireSurfaceMaps && renderData.m_dataTexture0 != null) {
+                            netManager.m_materialBlock.SetTexture(netManager.ID_SurfaceTexA, renderData.m_dataTexture0);
+                            netManager.m_materialBlock.SetTexture(netManager.ID_SurfaceTexB, renderData.m_dataTexture1);
+                            netManager.m_materialBlock.SetVector(netManager.ID_SurfaceMapping, renderData.m_dataVector1);
+                        } else if(segment.m_requireHeightMap && renderData.m_dataTexture0 != null) {
+                            netManager.m_materialBlock.SetTexture(netManager.ID_HeightMap, renderData.m_dataTexture0);
+                            netManager.m_materialBlock.SetVector(netManager.ID_HeightMapping, renderData.m_dataVector1);
+                            netManager.m_materialBlock.SetVector(netManager.ID_SurfaceMapping, renderData.m_dataVector2);
+                        }
+                        netManager.m_drawCallData.m_defaultCalls++;
+                        Graphics.DrawMesh(segment.m_segmentMesh, renderData.m_position, renderData.m_rotation, segment.m_segmentMaterial, segment.m_layer, null, 0, netManager.m_materialBlock);
+
+                    } else {
+                        NetInfo.LodValue combinedLod = segment.m_combinedLod;
+                        if(combinedLod == null) continue;
+
+                        ref Matrix4x4 reference = ref combinedLod.m_leftMatrices[combinedLod.m_lodCount];
+                        reference = renderData.m_dataMatrix0;
+                        ref Matrix4x4 reference2 = ref combinedLod.m_rightMatrices[combinedLod.m_lodCount];
+                        reference2 = renderData.m_dataMatrix1;
+                        combinedLod.m_meshScales[combinedLod.m_lodCount] = dataVector0;
+                        combinedLod.m_objectIndices[combinedLod.m_lodCount] = dataVector3;
+                        ref Vector4 reference3 = ref combinedLod.m_meshLocations[combinedLod.m_lodCount];
+                        reference3 = renderData.m_position;
+                        combinedLod.m_lodMin = Vector3.Min(combinedLod.m_lodMin, renderData.m_position);
+                        combinedLod.m_lodMax = Vector3.Max(combinedLod.m_lodMax, renderData.m_position);
+                        if(++combinedLod.m_lodCount == combinedLod.m_leftMatrices.Length) {
+                            NetSegment.RenderLod(cameraInfo, combinedLod);
+                        }
+                    }
+                }
+            }
+        }
+#endif
+
+        public  void RefreshRenderData(ref RenderManager.Instance renderData) {
+            ref var segment = ref LaneData.Segment;
+            var info = segment.Info;
+            ref NetNode startNode = ref segment.m_startNode.ToNode();
+            ref NetNode endNode = ref segment.m_endNode.ToNode();
+            ref var bezier = ref LaneData.Lane.m_bezier;
+            ref var lane = ref LaneData.Lane;
+            var laneInfo = LaneData.LaneInfo;
+            Vector3 startPos = bezier.a;
+            Vector3 endPos = bezier.d;
+
+            renderData.m_dataInt0 = LaneData.LaneIndex;
+            renderData.m_position = (startPos + endPos) * 0.5f;
+            renderData.m_rotation = Quaternion.identity;
+            renderData.m_dataColor0 = info.m_color;
+            renderData.m_dataColor0.a = 0f;
+            renderData.m_dataFloat0 = Singleton<WeatherManager>.instance.GetWindSpeed(renderData.m_position);
+            renderData.m_dataVector0 = new Vector4(1f / laneInfo.m_width, 1f / info.m_segmentLength, 1f, 1f);
+            Vector4 colorLocationStart = RenderManager.GetColorLocation(TrackManager.SEGMENT_HOLDER + LaneData.SegmentID);
+            Vector4 colorLocationEnd = colorLocationStart;
+            if(NetNode.BlendJunction(segment.m_startNode)) {
+                colorLocationStart = RenderManager.GetColorLocation(TrackManager.SEGMENT_HOLDER + segment.m_startNode);
+            }
+            if(NetNode.BlendJunction(segment.m_endNode)) {
+                colorLocationEnd = RenderManager.GetColorLocation(TrackManager.SEGMENT_HOLDER + segment.m_endNode);
+            }
+            renderData.m_dataVector3 = new Vector4(colorLocationStart.x, colorLocationStart.y, colorLocationEnd.x, colorLocationEnd.y);
+            {
+                float vScale = info.m_netAI.GetVScale();
+                ref var segmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[LaneData.SegmentID];
+                bool smoothStart = segmentExt.Start.Corner.smooth;
+                bool smoothEnd = segmentExt.End.Corner.smooth;
+                NetSegment.CalculateMiddlePoints(A.Left, A.Direction, D.Right, D.Direction, smoothStart, smoothEnd, out var b1, out var c1);
+                NetSegment.CalculateMiddlePoints(A.Right, A.Direction, D.Left, D.Direction, smoothStart, smoothEnd, out var b2, out var c2);
+                renderData.m_dataMatrix0 = NetSegment.CalculateControlMatrix(
+                    A.Left, b1, c1, D.Right,
+                    A.Right, b2, c2, D.Left, renderData.m_position, vScale);
+                renderData.m_dataMatrix1 = NetSegment.CalculateControlMatrix(
+                    A.Right, b2, c2, D.Left,
+                    A.Left, b1, c1, D.Right, renderData.m_position, vScale);
+            }
         }
         #endregion
     }
@@ -375,6 +518,9 @@ namespace AdaptiveRoads.Manager {
         public bool IsEmpty => (m_flags & Flags.CustomsMask) == Flags.None;
         public ref NetSegment Segment => ref SegmentID.ToSegment();
 
+        public uint[] LaneIDs;
+
+
         public void Serialize(SimpleDataSerializer s) => s.WriteInt32(
             ((int)(Flags.CustomsMask & m_flags)) >> CUSTOM_FLAG_SHIFT);
         public void Deserialize(SimpleDataSerializer s) => m_flags =
@@ -427,7 +573,8 @@ namespace AdaptiveRoads.Manager {
         }
 
         public void UpdateAllFlags() {
-             NetInfoExt = Segment.Info?.GetMetaData();
+            NetInfoExt = Segment.Info?.GetMetaData();
+            LaneIDs = new LaneIDIterator(SegmentID).ToArray();
             if(!NetUtil.IsSegmentValid(SegmentID)) {
                 if(SegmentID.ToSegment().m_flags.IsFlagSet(NetSegment.Flags.Created))
                     Log.Debug("Skip updating invalid segment:" + SegmentID);
@@ -526,8 +673,13 @@ namespace AdaptiveRoads.Manager {
             if(count == 0) {
                 return;
             }
-            if(RequireTrackInstance(count, out var instanceIndex)) {
-                RenderTrackInstance(cameraInfo, layerMask, instanceIndex);
+            if(RequireTrackInstance(count, out var renderInstanceIndex)) {
+                var renderData = RenderManager.instance.m_instances[renderInstanceIndex];
+                if(renderData.m_dirty) {
+                    renderData.m_dirty = false;
+                    RefreshRenderData(renderInstanceIndex);
+                }
+                RenderTrackInstance(cameraInfo, layerMask, renderInstanceIndex);
             }
 
         }
@@ -538,22 +690,96 @@ namespace AdaptiveRoads.Manager {
         public bool RequireTrackInstance(uint count, out uint instanceIndex) =>
             Singleton<RenderManager>.instance.RequireInstance(TrackManager.TRACK_HOLDER_SEGMNET + SegmentID, count, out instanceIndex);
 
+#if DUMMY_CODE
+        // copied from NetSegmnet.RenderInstance where render data is dirty
+        // used as if I want to refresh segment data here.
+        // will be modified for track code.
+        private void RefreshSegmentData(uint renderInstanceIndex) {
+            ref var renderData = ref RenderManager.instance.m_instances[renderInstanceIndex];
+            var info = Segment.Info;
+            ref NetNode startNode = ref Segment.m_startNode.ToNode();
+            ref NetNode endNode = ref Segment.m_endNode.ToNode();
+            Vector3 startPos = startNode.m_position;
+            Vector3 endPos = endNode.m_position;
+            renderData.m_position = (startPos + endPos) * 0.5f;
+            renderData.m_rotation = Quaternion.identity;
+            renderData.m_dataColor0 = info.m_color;
+            renderData.m_dataColor0.a = 0f;
+            renderData.m_dataFloat0 = Singleton<WeatherManager>.instance.GetWindSpeed(renderData.m_position);
+            renderData.m_dataVector0 = new Vector4(0.5f / info.m_halfWidth, 1f / info.m_segmentLength, 1f, 1f);
+            Vector4 colorLocationStart = RenderManager.GetColorLocation(TrackManager.SEGMENT_HOLDER + SegmentID);
+            Vector4 colorLocationEnd = colorLocationStart;
+            if(NetNode.BlendJunction(Segment.m_startNode)) {
+                colorLocationStart = RenderManager.GetColorLocation(TrackManager.SEGMENT_HOLDER + Segment.m_startNode);
+            }
+            if(NetNode.BlendJunction(Segment.m_endNode)) {
+                colorLocationEnd = RenderManager.GetColorLocation(TrackManager.SEGMENT_HOLDER + Segment.m_endNode);
+            }
+            renderData.m_dataVector3 = new Vector4(colorLocationStart.x, colorLocationStart.y, colorLocationEnd.x, colorLocationEnd.y);
+            if(info.m_segments == null || info.m_segments.Length == 0) {
+                if(info.m_lanes != null) {
+                    bool invert = Segment.IsInvert();
+                    float startAngle = Segment.m_cornerAngleStart * (Mathf.PI / 128f);
+                    float endAngle = Segment.m_cornerAngleEnd * (Mathf.PI / 128f);
+                    int propIndex = 0;
+                    uint laneID = Segment.m_lanes;
+                    for(int laneIndex = 0; laneIndex < info.m_lanes.Length; laneIndex++) {
+                        if(laneID == 0) 
+                            break;
+                        laneID.ToLane().RefreshInstance(laneID, info.m_lanes[laneIndex], startAngle, endAngle, invert, ref renderData, ref propIndex);
+                        laneID = laneID.ToLane().m_nextLane;
+                    }
+                }
+            } else {
+                float vScale = SegmentID.ToSegment().Info.m_netAI.GetVScale();
+                ref var StartLeft = ref Start.Corner.Left;
+                ref var StartRight = ref Start.Corner.Right;
+                ref var EndLeft = ref End.Corner.Left;
+                ref var EndRight = ref End.Corner.Right;
+                bool smoothStart = Start.Corner.smooth;
+                bool smoothEnd = End.Corner.smooth;
+                NetSegment.CalculateMiddlePoints(StartLeft.Position, StartLeft.Direction, EndRight.Position, EndRight.Direction, smoothStart, smoothEnd, out var b1, out var c1);
+                NetSegment.CalculateMiddlePoints(StartRight.Position, StartRight.Direction, EndLeft.Position, EndLeft.Direction, smoothStart, smoothEnd, out var b2, out var c2);
+                renderData.m_dataMatrix0 = NetSegment.CalculateControlMatrix(
+                    StartLeft.Position, b1, c1, EndRight.Position,
+                    StartRight.Position, b2, c2, EndLeft.Position, renderData.m_position, vScale);
+                renderData.m_dataMatrix1 = NetSegment.CalculateControlMatrix(
+                    StartRight.Position, b2, c2, EndLeft.Position,
+                    StartLeft.Position, b1, c1, EndRight.Position, renderData.m_position, vScale);
+            }
+        }
+#endif
+        private void RefreshRenderData(uint renderInstanceIndex) {
+            var renderInstances = RenderManager.instance.m_instances;
+            var laneMask = NetInfoExt.TrackLanes;
+            for(int laneIndex = 0; laneIndex < LaneIDs.Length; ++laneIndex) {
+                var laneBit = 1ul << laneIndex;
+                if((laneBit & laneMask) != 0) {
+                    var laneID = LaneIDs[laneIndex];
+                    ref var laneExt = ref NetworkExtensionManager.Instance.LaneBuffer[laneID];
+                    ref var renderData = ref renderInstances[renderInstanceIndex];
+                    laneExt.RefreshRenderData(ref renderData);
+                    renderInstanceIndex = renderData.m_nextInstance;
+                }
+            }
+        }
+
+
+
         private void RenderTrackInstance(RenderManager.CameraInfo cameraInfo, int layerMask, uint renderInstanceIndex) {
-            // TODO: if dirty, calculate
-            
-            
+            var renderInstances = RenderManager.instance.m_instances;
             do {
-                var renderData = RenderManager.instance.m_instances[renderInstanceIndex];
+                ref var renderData = ref renderInstances[renderInstanceIndex];
 
                 int laneIndex = renderData.m_dataInt0;
-                var laneID = NetUtil.GetlaneID(SegmentID, laneIndex);
+                var laneID = LaneIDs[laneIndex];
                 ref var laneExt = ref NetworkExtensionManager.Instance.LaneBuffer[laneID];
-                laneExt.RenderTrackInstance(cameraInfo, layerMask, renderInstanceIndex);
+                laneExt.RenderTrackInstance(cameraInfo, layerMask, ref renderData);
 
                 renderInstanceIndex = renderData.m_nextInstance;
             } while(renderInstanceIndex != TrackManager.INVALID_RENDER_INDEX);
         }
-        #endregion
+#endregion
     }
 
     public struct NetSegmentEnd {
@@ -784,7 +1010,7 @@ namespace AdaptiveRoads.Manager {
             } // end for
         } // end method
 
-        #region cache corners
+#region cache corners
         public CornerPairData Corner;
         public void UpdateCorners() {
             ref var segment = ref SegmentID.ToSegment();
@@ -792,7 +1018,7 @@ namespace AdaptiveRoads.Manager {
             segment.CalculateCorner(SegmentID, heightOffset: true, start: StartNode, leftSide: false, out Corner.Right.Position, out Corner.Right.Direction, out Corner.smooth);
         }
 
-        #endregion
+#endregion
 
     }
 }
