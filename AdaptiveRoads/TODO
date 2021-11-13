@@ -1,3 +1,14 @@
+Tracks:
+    - segment/node
+        - serialize/deserialize
+        - Asset editor UI
+        - destroy
+        - clear lod values
+        - rebuild lods
+    - node
+        - render
+
+
 TODO:
 - remove custom flags when network is deleted.
 - list scrollbars

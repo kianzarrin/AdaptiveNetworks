@@ -16,9 +16,11 @@ using static KianCommons.ReflectionHelpers;
 using AdaptiveRoads.UI.RoadEditor.Bitmask;
 using AdaptiveRoads.Util;
 using System.Collections;
+using System.Reflection;
 
 namespace AdaptiveRoads.Manager {
     using static HintExtension;
+    using Vector3Serializable = KianCommons.Serialization.Vector3Serializable;
 
     [AttributeUsage(AttributeTargets.Struct, AllowMultiple = true)]
     public class FlagPairAttribute : Attribute {
@@ -64,8 +66,8 @@ namespace AdaptiveRoads.Manager {
         public static void SetMetedata(this NetInfo netInfo, Net value) =>
             NetMetadataContainer.SetMetadata(netInfo, value);
 
-        public static void UpdateMetaData(this NetInfo netInfo) {
-            netInfo.GetMetaData()?.Update(netInfo);
+        public static void RecalculateMetaData(this NetInfo netInfo) {
+            netInfo.GetMetaData()?.Recalculate(netInfo);
         }
 
         public static void RemoveMetadataContainer(this NetInfo netInfo) =>
@@ -243,7 +245,7 @@ namespace AdaptiveRoads.Manager {
             object ICloneable.Clone() => Clone();
             public Net(NetInfo template) {
                 PavementWidthRight = template.m_pavementWidth;
-                UsedCustomFlags = GetUsedCustomFlags(template);
+                UsedCustomFlags = GatherUsedCustomFlags(template);
                 Template = template;
             }
 
@@ -316,7 +318,7 @@ namespace AdaptiveRoads.Manager {
             [NonSerialized]
             public int TrackLaneCount;
 
-            static CustomFlags GetUsedCustomFlags(NetInfo info) {
+            static CustomFlags GatherUsedCustomFlags(NetInfo info) {
                 var ret = CustomFlags.None;
                 foreach(var item in info.m_nodes) {
                     if(item.GetMetaData() is Node metaData)
@@ -335,6 +337,10 @@ namespace AdaptiveRoads.Manager {
                         if(item.GetMetaData() is LaneProp metaData)
                             ret |= metaData.UsedCustomFlags;
                     }
+                }
+
+                foreach(var track in info.GetMetaData()?.Tracks ?? Enumerable.Empty<Track>()) {
+                    ret |= track.UsedCustomFlags;
                 }
 
                 return ret;
@@ -458,15 +464,62 @@ namespace AdaptiveRoads.Manager {
             }
             #endregion
 
-            public void Update(NetInfo netInfo) {
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="netInfo"></param>
+            public void Recalculate(NetInfo netInfo) {
                 try {
-                    UsedCustomFlags = GetUsedCustomFlags(netInfo);
-                    UpdateParkingAngle();
-                    UpdateConnectGroups(netInfo);
+                    RecalculateTracks(netInfo);
+                    UsedCustomFlags = GatherUsedCustomFlags(netInfo);
+                    RecalculateParkingAngle();
+                    RecalculateConnectGroups(netInfo);
                 } catch(Exception ex) { ex.Log(); }
             }
 
-            void UpdateParkingAngle() {
+            void RecalculateTracks(NetInfo netInfo) {
+                float lodRenderDistance;
+                if(!netInfo.m_segments.IsNullorEmpty()) {
+                    lodRenderDistance = netInfo.m_segments[0].m_lodRenderDistance;
+                } else {
+                    var max = Mathf.Max(netInfo.m_halfWidth * 50f, (netInfo.m_maxHeight - netInfo.m_minHeight) * 80f);
+                    lodRenderDistance = Mathf.Clamp(100f + RenderManager.LevelOfDetailFactor * max, 100f, 1000f);
+                }
+
+                // has color been already assigned in NetInfo.InitializePrefab() ?
+                bool hasColor = netInfo.m_segments?.Any(item => item.m_material) ?? false;
+                hasColor = hasColor || (netInfo.m_nodes?.Any(item => item.m_material) ?? false);
+                bool lodMissing =false;
+                TrackLanes = 0;
+                if(Tracks != null) {
+                    for(int i = 0; i < Tracks.Length; i++) {
+                        var track = Tracks[i];
+                        track.Recalculate(netInfo);
+                        track.CachedArrayIndex = i;
+                        bool hasLod = track.m_mesh;
+                        if(hasLod) {
+                            track.m_lodRenderDistance = lodRenderDistance;
+                        } else {
+                            track.m_lodRenderDistance = 100000f;
+                            lodMissing = true;
+                        }
+                        if(!hasColor && track.m_material != null) {
+                            netInfo.m_color = track.m_material.color;
+                            hasColor = true;
+                        }
+                        netInfo.m_netLayers |= 1 << track.m_layer;
+                        this.TrackLanes |= track.LaneIndeces;
+                    }
+                }
+                TrackLaneCount = EnumBitMaskExtensions.CountOnes(TrackLanes);
+                if(lodMissing) {
+                    CODebugBase<LogChannel>.Warn(LogChannel.Core, "LOD missing: " + netInfo.gameObject.name, netInfo.gameObject);
+                }
+
+                
+            }
+
+            void RecalculateParkingAngle() {
                 float sin = Mathf.Abs(Mathf.Sin(Mathf.Deg2Rad * ParkingAngleDegrees));
                 if(sin >= Mathf.Sin(30))
                     OneOverSinOfParkingAngle = 1 / sin;
@@ -474,7 +527,7 @@ namespace AdaptiveRoads.Manager {
                     OneOverSinOfParkingAngle = 1;
             }
 
-            void UpdateConnectGroups(NetInfo netInfo) {
+            void RecalculateConnectGroups(NetInfo netInfo) {
                 LogCalled();
                 ConnectGroupsHash = ConnectGroups?.Select(item => item.GetHashCode()).ToArray();
                 if(ConnectGroupsHash.IsNullorEmpty()) ConnectGroupsHash = null;
@@ -825,9 +878,6 @@ namespace AdaptiveRoads.Manager {
             public Track Clone() => this.ShalowClone();
             object ICloneable.Clone() => this.Clone();
             public Track(NetInfo template) {
-                RenderNode = true;
-                RenderSegment = true;
-                RenderBend = true;
                 var lanes = template.m_lanes;
                 for(int laneIndex = 0; laneIndex < lanes.Length; ++laneIndex) {
                     if(lanes[laneIndex].m_vehicleType.IsFlagSet(TRACK_VEHICLE_TYPES))
@@ -835,16 +885,62 @@ namespace AdaptiveRoads.Manager {
                 }
             }
 
+            public void Recalculate(NetInfo netInfo) {
+                this.ParentInfo = netInfo;
+                float num = netInfo.m_minHeight - netInfo.m_maxSlope * 64f - 10f;
+                float num2 = netInfo.m_maxHeight + netInfo.m_maxSlope * 64f + 10f;
+                this.m_mesh.bounds = new Bounds(new Vector3(0f, (num + num2) * 0.5f, 0f), new Vector3(128f, num2 - num, 128f));
+                this.m_trackMesh = this.m_mesh;
+                this.m_trackMaterial = new Material(this.m_material);
+                string text = this.m_material.GetTag("NetType", searchFallbacks: false);
+                if(text == "PowerLine") {
+                    this.m_requireWindSpeed = true;
+                    this.m_preserveUVs = true;
+                    this.m_generateTangents = false;
+                    this.m_layer = LayerMask.NameToLayer("PowerLines");
+                } else if(text == "MetroTunnel") {
+                    this.m_requireWindSpeed = false;
+                    this.m_preserveUVs = false;
+                    this.m_generateTangents = false;
+                    this.m_layer = LayerMask.NameToLayer("MetroTunnels");
+                } else {
+                    this.m_requireWindSpeed = false;
+                    this.m_preserveUVs = false;
+                    this.m_generateTangents = false;
+                    this.m_layer = netInfo.m_prefabDataLayer;
+                }
+                this.m_trackMaterial.EnableKeyword("NET_SEGMENT");
+                Color color = this.m_material.color;
+                color.a = 0f;
+                this.m_trackMaterial.color = color;
+                Texture2D texture2D = this.m_material.mainTexture as Texture2D;
+                if(texture2D != null && texture2D.format == TextureFormat.DXT5) {
+                    CODebugBase<LogChannel>.Warn(LogChannel.Core, "Segment diffuse is DXT5: " + netInfo.gameObject.name, netInfo.gameObject);
+                }
+                LaneCount = EnumBitMaskExtensions.CountOnes(LaneIndeces);
+            }
+
             #region serialization
             //serialization
-            public void GetObjectData(SerializationInfo info, StreamingContext context) =>
-                SerializationUtil.GetObjectFields(info, this);
+            public void GetObjectData(SerializationInfo info, StreamingContext context) {
+                var fields = this.GetType().GetFields(ReflectionHelpers.COPYABLE).Where(field => !field.HasAttribute<NonSerializedAttribute>());
+                foreach(FieldInfo field in fields) {
+                    var type = field.GetType();
+                    object value = field.GetValue(this);
+                    if(type == typeof(Vector3)) {
+                        //Vector3Serializable v = (Vector3Serializable)field.GetValue(instance);
+                        info.AddValue(field.Name, value, typeof(Vector3Serializable));
+                    } else if(value is Mesh mesh) {
+                        throw new NotImplementedException();
+                    } else {
+                        info.AddValue(field.Name, value, field.FieldType);
+                    }
+                }
+            }
 
             // deserialization
             public Track(SerializationInfo info, StreamingContext context) {
                 SerializationUtil.SetObjectFields(info, this);
-                m_trackMaterial = m_material;
-                m_trackMesh = m_mesh;
             }
             #endregion
 
@@ -856,12 +952,30 @@ namespace AdaptiveRoads.Manager {
                 VehicleInfo.VehicleType.Monorail |
                 VehicleInfo.VehicleType.Trolleybus | VehicleInfo.VehicleType.TrolleybusLeftPole | VehicleInfo.VehicleType.TrolleybusRightPole;
 
+            #region materials
+            public Mesh m_mesh;
+
+            public Mesh m_lodMesh;
+
+            public Material m_material;
+
+            public Material m_lodMaterial;
+
+            [NonSerialized]
+            public NetInfo.LodValue m_combinedLod; // TODO: initialize
+
+            [NonSerialized]
+            public Mesh m_trackMesh;
+
+            [NonSerialized]
+            public Material m_trackMaterial;
+            #endregion
 
             [NonSerialized]
             public NetInfo ParentInfo;
 
             [NonSerialized]
-            public int ArrayIndex;
+            public int CachedArrayIndex;
 
             [NonSerialized]
             public float m_lodRenderDistance;
@@ -884,31 +998,14 @@ namespace AdaptiveRoads.Manager {
             [NonSerialized]
             public int m_layer;
 
-            public Mesh m_mesh;
-
-            public Mesh m_lodMesh;
-
-            public Material m_material;
-
-            public Material m_lodMaterial;
-
-            [NonSerialized]
-            public NetInfo.LodValue m_combinedLod;
-
-            [NonSerialized]
-            public Mesh m_trackMesh;
-
-            [NonSerialized]
-            public Material m_trackMaterial;
-
             [CustomizableProperty("Render On Segments")]
-            public bool RenderSegment;
+            public bool RenderSegment = true;
 
             [CustomizableProperty("Render On Bend Nodes")]
-            public bool RenderBend;
+            public bool RenderBend = true;
 
             [CustomizableProperty("Render On Nodes")]
-            public bool RenderNode;
+            public bool RenderNode = true;
 
             // TODO create drop down
             [CustomizableProperty("Lanes to apply to")]
