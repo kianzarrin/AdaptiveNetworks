@@ -6,8 +6,8 @@ namespace AdaptiveRoads.Patches.RoadEditor.Track {
     using UnityEngine;
 
     [HarmonyPatch(typeof(AssetEditorRoadUtils), "CustomCreateDummyInstance")]
-    class CustomCreateDummyInstance {
-        public void Postfix(Type type, ref object obj, ref bool __result) {
+    static class CustomCreateDummyInstance {
+        public static void Postfix(Type type, ref object obj, ref bool __result) {
             if(type == typeof(NetInfoExtionsion.Track)) {
                 Shader shader = Shader.Find("Custom/Net/Road");
                 var info = RoadEditorUtils.GetSelectedNetInfo(out var _);

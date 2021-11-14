@@ -5,6 +5,7 @@ namespace AdaptiveRoads.Manager {
     using KianCommons;
     using System.Collections;
     using KianCommons.IImplict;
+    using HarmonyLib;
 
     public class TrackManager : Singleton<TrackManager>, IRenderableManager, IAwakingObject, IDestroyableObject {
         [NonSerialized]
@@ -17,6 +18,11 @@ namespace AdaptiveRoads.Manager {
         #region Life-cycle
         public void Awake() {
             RenderManager.RegisterRenderableManager(this);
+            var oldInstances = RenderManager.instance.m_indices;
+            if(oldInstances.Length < MAX_HOLDER_COUNT) {
+                RenderManager.instance.m_indices = new ushort[MAX_HOLDER_COUNT];
+                Array.Copy(oldInstances, RenderManager.instance.m_indices, oldInstances.Length);
+            }
         }
 
         public void OnDestroy() {
@@ -39,10 +45,11 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
-        public const uint SEGMENT_HOLDER = BuildingManager.MAX_BUILDING_COUNT;
-        public const uint NODE_HOLDER = SEGMENT_HOLDER + NetManager.MAX_SEGMENT_COUNT;
-        public const uint TRACK_HOLDER_SEGMNET = NODE_HOLDER + NetManager.MAX_NODE_COUNT;
-        public const uint TRACK_HOLDER_NODE = TRACK_HOLDER_SEGMNET + NetManager.MAX_SEGMENT_COUNT;
+        public const uint SEGMENT_HOLDER = BuildingManager.MAX_BUILDING_COUNT; //49,152
+        public const uint NODE_HOLDER = SEGMENT_HOLDER + NetManager.MAX_SEGMENT_COUNT; // 86,016
+        public const uint TRACK_HOLDER_SEGMNET = NODE_HOLDER + NetManager.MAX_NODE_COUNT; // 118,784
+        public const uint TRACK_HOLDER_NODE = TRACK_HOLDER_SEGMNET + NetManager.MAX_SEGMENT_COUNT; //155,648
+        public const uint MAX_HOLDER_COUNT = TRACK_HOLDER_NODE + NetManager.MAX_NODE_COUNT; // 188,416
         public const int INVALID_RENDER_INDEX = ushort.MaxValue;
 
         public void EndRendering(RenderManager.CameraInfo cameraInfo) {

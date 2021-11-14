@@ -5,7 +5,7 @@ namespace AdaptiveRoads.Patches.RoadEditor.Track {
     using AdaptiveRoads.Manager;
     using UnityEngine;
 
-    [HarmonyPatch(typeof(AssetEditorRoadUtils), nameof(AssetEditorRoadUtils.GetShaderName))]
+    [HarmonyPatch(typeof(AssetEditorRoadUtils), nameof(AssetEditorRoadUtils.GetMaterial))]
     public static class GetMaterial {
         static void Postfix(object obj, ref Material __result) {
             try {

@@ -489,20 +489,20 @@ namespace AdaptiveRoads.Manager {
             }
 
             void RecalculateTracks(NetInfo netInfo) {
-                float lodRenderDistance;
-                if(!netInfo.m_segments.IsNullorEmpty()) {
-                    lodRenderDistance = netInfo.m_segments[0].m_lodRenderDistance;
-                } else {
-                    var max = Mathf.Max(netInfo.m_halfWidth * 50f, (netInfo.m_maxHeight - netInfo.m_minHeight) * 80f);
-                    lodRenderDistance = Mathf.Clamp(100f + RenderManager.LevelOfDetailFactor * max, 100f, 1000f);
-                }
-
-                // has color been already assigned in NetInfo.InitializePrefab() ?
-                bool hasColor = netInfo.m_segments?.Any(item => item.m_material) ?? false;
-                hasColor = hasColor || (netInfo.m_nodes?.Any(item => item.m_material) ?? false);
-                bool lodMissing =false;
-                TrackLanes = 0;
                 if(Tracks != null) {
+                    float lodRenderDistance;
+                    if(!netInfo.m_segments.IsNullorEmpty()) {
+                        lodRenderDistance = netInfo.m_segments[0].m_lodRenderDistance;
+                    } else {
+                        var max = Mathf.Max(netInfo.m_halfWidth * 50f, (netInfo.m_maxHeight - netInfo.m_minHeight) * 80f);
+                        lodRenderDistance = Mathf.Clamp(100f + RenderManager.LevelOfDetailFactor * max, 100f, 1000f);
+                    }
+
+                    // has color been already assigned in NetInfo.InitializePrefab() ?
+                    bool hasColor = netInfo.m_segments?.Any(item => item.m_material) ?? false;
+                    hasColor = hasColor || (netInfo.m_nodes?.Any(item => item.m_material) ?? false);
+                    bool lodMissing = false;
+                    TrackLanes = 0;
                     for(int i = 0; i < Tracks.Length; i++) {
                         var track = Tracks[i];
                         track.Recalculate(netInfo);
@@ -521,12 +521,12 @@ namespace AdaptiveRoads.Manager {
                         netInfo.m_netLayers |= 1 << track.m_layer;
                         this.TrackLanes |= track.LaneIndeces;
                     }
-                }
-                TrackLaneCount = EnumBitMaskExtensions.CountOnes(TrackLanes);
-                if(lodMissing) {
-                    CODebugBase<LogChannel>.Warn(LogChannel.Core, "LOD missing: " + netInfo.gameObject.name, netInfo.gameObject);
-                }
 
+                    TrackLaneCount = EnumBitMaskExtensions.CountOnes(TrackLanes);
+                    if(lodMissing) {
+                        CODebugBase<LogChannel>.Warn(LogChannel.Core, "LOD missing: " + netInfo.gameObject.name, netInfo.gameObject);
+                    }
+                }
                 
             }
 

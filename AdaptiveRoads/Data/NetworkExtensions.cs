@@ -685,11 +685,13 @@ namespace AdaptiveRoads.Manager {
         }
 
         public bool GetOrCalculateTrackInstance(out uint renderInstanceIndex) {
+            renderInstanceIndex = TrackManager.INVALID_RENDER_INDEX;
             var count = renderCount_;
-            if(count != 0 || !RequireTrackInstance(count, out renderInstanceIndex)) {
-                renderInstanceIndex = TrackManager.INVALID_RENDER_INDEX;
+            if(count == 0)
                 return false;
-            }
+            if(!RequireTrackInstance(count, out renderInstanceIndex))
+                return false;
+            
             var renderData = RenderManager.instance.m_instances[renderInstanceIndex];
             if(renderData.m_dirty) {
                 renderData.m_dirty = false;
