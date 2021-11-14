@@ -321,6 +321,7 @@ namespace AdaptiveRoads.Manager {
             public Dictionary<NetLaneExt.Flags, string>[] CustomLaneFlagNames;
 
             [CustomizableProperty("Tracks")]
+            [AfterField("m_nodes")]
             public Track[] Tracks = new Track[0];
 
             [NonSerialized]

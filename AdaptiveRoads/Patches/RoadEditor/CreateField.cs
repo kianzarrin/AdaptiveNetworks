@@ -21,14 +21,15 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     /// <summary>
     /// most of UI in road editor panels are managed here:
     /// </summary>
-    [HarmonyPatch(typeof(RoadEditorPanel), "CreateGenericField")]
-    public static class CreateGenericField {
+    [HarmonyPatch]
+    public static class CreateField {
         static bool Merge => true;
         static bool InRoadEditor => NetInfoExtionsion.EditedNetInfo != null;
 
         /// <summary>
         /// replace built-in fields
         /// </summary>
+        [HarmonyPatch(typeof(RoadEditorPanel), "CreateGenericField")]
         public static bool Prefix(RoadEditorPanel __instance,
             ref string groupName, FieldInfo field, object target) {
             try {
@@ -85,10 +86,13 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         /// Adds new custom fields after a built-in field.
         /// or modify the name of the built-in fields
         /// </summary>
-        public static void Postfix(string groupName, FieldInfo field, object target, RoadEditorPanel __instance) {
+        [HarmonyPatch(typeof(RoadEditorPanel), "CreateField")]
+        public static void Postfix(FieldInfo field, object target, RoadEditorPanel __instance) {
             try {
+                var cpt = field.GetAttribute<CustomizablePropertyAttribute>();
+                string groupName = cpt.group;
                 if (target is NetLaneProps.Prop prop) {
-                    Log.Debug($"{__instance.name}.CreateGenericField.Postfix({groupName},{field},{target})"/* + Environment.StackTrace*/);
+                    Log.Debug($"{__instance.name}.CreateField.Postfix({groupName},{field},{target})"/* + Environment.StackTrace*/);
                     if (ModSettings.ARMode) {
                         var metadata = prop.GetOrCreateMetaData();
                         foreach (var field2 in field.GetAfterFields(metadata)) {
@@ -134,7 +138,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     ReplaceLabel(__instance, "End Flags Required:", "Head  Node Flags Required:");
                     ReplaceLabel(__instance, "End Flags Forbidden:", "Head  Node Flags Forbidden:");
                 } else if (target is NetInfo.Node node) {
-                    Log.Debug($"{__instance.name}.CreateGenericField.Postfix({groupName},{field},{target})"/* + Environment.StackTrace*/);
+                    Log.Debug($"{__instance.name}.CreateField.Postfix({groupName},{field},{target})"/* + Environment.StackTrace*/);
                     if (ModSettings.ARMode) {
                         var metadata = node.GetOrCreateMetaData();
                         foreach (var field2 in field.GetAfterFields(metadata)) {
@@ -144,7 +148,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         }
                     }
                 } else if (target is NetInfo.Segment segment) {
-                    Log.Debug($"{__instance.name}.CreateGenericField.Postfix({groupName}, {field}, {target})"/* + Environment.StackTrace*/);
+                    Log.Debug($"{__instance.name}.CreateField.Postfix({groupName}, {field}, {target})"/* + Environment.StackTrace*/);
                     if (ModSettings.ARMode) {
                         var metadata = segment.GetOrCreateMetaData();
                         AssertNotNull(metadata, $"{segment}");
@@ -154,18 +158,16 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                                 target: target, metadata: metadata, extensionField: field2);
                         }
                     }
-                    else if(target is NetInfoExtionsion.Track track) {
-                        
-                    }
                 } else if (target is NetInfo netInfo) {
-                    if (ModSettings.ARMode) {
+                    Log.Debug($"{__instance.name}.CreateField.Postfix({groupName}, {field}, {target})"/* + Environment.StackTrace*/);
+                    if(ModSettings.ARMode) {
                         ReplaceLabel(__instance, "Pavement Width", "Pavement Width Left");
                         var net = netInfo.GetOrCreateMetaData();
                         AssertNotNull(net, $"{netInfo}");
-                        foreach (var field2 in net.GetFieldsWithAttribute<CustomizablePropertyAttribute>()) {
-                            if (field2.ComesAfter(field)) {
-                                Log.Debug($"calling {__instance.name}.CreateGenericField({groupName},{field2},{net}) ...");
-                                __instance.CreateGenericField(groupName, field2, net);
+                        foreach(var field2 in net.GetFieldsWithAttribute<CustomizablePropertyAttribute>()) {
+                            if(field2.ComesAfter(field)) {
+                                Log.Debug($"calling {__instance.name}.CreateField({field2},{net}) ...");
+                                __instance.CreateField(field2, net);
                             }
                         }
                         if (field.Name == nameof(NetInfo.m_surfaceLevel)) {
@@ -295,7 +297,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             fieldInfo: fieldInfo);
                     }
                 } else {
-                    roadEditorPanel.CreateGenericField(groupName, fieldInfo, metadata);
+                    roadEditorPanel.CreateField(fieldInfo, metadata);
                 }
             } catch (Exception ex) {
                 ex.Log();
@@ -319,7 +321,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 itemSource: ItemSource.GetOrCreate(fieldInfo.FieldType),
                 selected: Traverse.Create(metadata).Field("ConnectGroups"));
 
-            //Log.Info($"[P2] CreateGenericField.Prefix() : field:{field}, target:{target}, group:{groupName}");
             var bitMaskPanel = BitMaskPanelCustomisable.Add(
                 roadEditorPanel: roadEditorPanel,
                 container: container,

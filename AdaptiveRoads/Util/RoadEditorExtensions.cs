@@ -42,6 +42,11 @@ namespace AdaptiveRoads.Util {
             GetMethod("CreateGenericField").Invoke(instance, new object[] { groupName, field, target });
         }
 
+        public static void CreateField(this RoadEditorPanel instance,
+            FieldInfo field, object target) {
+            GetMethod("CreateField").Invoke(instance, new object[] { field, target });
+        }
+
         public static void AddLanePropFields(this RoadEditorPanel instance) =>
             GetMethod("AddLanePropFields").Invoke(instance, null);
 
