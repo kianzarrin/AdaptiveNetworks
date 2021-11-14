@@ -37,13 +37,27 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 else if (field == typeof(NetInfo.Node).GetField(nameof(NetInfo.Node.m_connectGroup)))
                     groupName = NetInfoExtionsion.Node.DC_GROUP_NAME;
 
-                if (ModSettings.ARMode &&
+                if(field.HasAttribute<BitMaskLanesAttribute>()) {
+                    NetInfo netInfo =
+                        target as NetInfo ??
+                        (target as NetInfoExtionsion.Track)?.ParentInfo ??
+                        RoadEditorUtils.GetSelectedNetInfo(out _);
+                    BitMaskLanesPanel.Add(
+                        roadEditorPanel: __instance,
+                        field: field,
+                        netInfo: netInfo,
+                        container: GetContainer(__instance, groupName),
+                        label: field.GetAttribute<CustomizablePropertyAttribute>().name,
+                        hint: field.GetHints().JoinLines());
+                    return false;
+                }
+
+                if(ModSettings.ARMode &&
                     field.FieldType == typeof(NetInfo.ConnectGroup)) {
                     CreateConnectGroupComponent(__instance, groupName, target, field);
                     return false;
-                } else {
-
                 }
+
                 if (IsUIReplaced(field)) {
                     if (VanillaCanMerge(field))
                         return false; // will be merged with AR dd later
@@ -139,6 +153,9 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                                 roadEditorPanel: __instance, groupName: groupName,
                                 target: target, metadata: metadata, extensionField: field2);
                         }
+                    }
+                    else if(target is NetInfoExtionsion.Track track) {
+                        
                     }
                 } else if (target is NetInfo netInfo) {
                     if (ModSettings.ARMode) {

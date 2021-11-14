@@ -1024,8 +1024,8 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Render On Nodes")]
             public bool RenderNode = true;
 
-            // TODO create drop down
             [CustomizableProperty("Lanes to apply to")]
+            [BitMaskLanes]
             public UInt64 LaneIndeces;
 
             [NonSerialized]
