@@ -1,13 +1,8 @@
 namespace AdaptiveRoads.Patches.RoadEditor.model {
-    using ColossalFramework.UI;
     using HarmonyLib;
     using KianCommons;
-    using KianCommons.Math;
-    using KianCommons.Serialization;
     using System;
-    using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
 
     /// <summary>
     /// RefreshAssetListpatch has files with relative paths.
