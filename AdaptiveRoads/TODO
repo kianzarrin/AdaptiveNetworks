@@ -1,7 +1,6 @@
 Tracks:
     - segment/node
         - serialize/deserialize
-            - see public static object CustomDeserialize(Package p, Type t, PackageReader r)
         - Asset editor UI
             - model
                 - cross import
@@ -10,6 +9,9 @@ Tracks:
             - clear lod values
             - rebuild lods
             - render far lods
+        - see also:
+            - Analyze NetInfo.Segment in decompiler
+            - public static object CustomDeserialize(Package p, Type t, PackageReader r)
     - node
         - refresh render data
         - render instance
