@@ -1,7 +1,10 @@
 Tracks:
     - segment/node
         - serialize/deserialize
+            - see public static object CustomDeserialize(Package p, Type t, PackageReader r)
         - Asset editor UI
+            - model
+                - cross import
         - destroy
         - lods
             - clear lod values
@@ -10,6 +13,10 @@ Tracks:
     - node
         - refresh render data
         - render instance
+    - embankment
+        - lane corners
+        - prop embankment
+        - AR tool UI
 
 
 TODO:
@@ -25,7 +32,7 @@ version 3:
     - patch AssetImporterAssetTemplate.RefreshCoroutine() to speed up prop model loading time
         micro-benchmark UIComponent.Find<T>(string) to see how much time they take up
     - m_clipSegmentEnds for segmentInfos. (this influences corners so its hard to do it per mesh)
-    - option to un-merge bitmask dropdowns
+    - option to unmerge bit-mask drop-downs
     - move DPT array elements up and down.
     - tracks
 

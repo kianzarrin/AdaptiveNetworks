@@ -239,6 +239,10 @@ namespace AdaptiveRoads.Manager {
                 ret.CustomLaneFlagNames = ret.CustomLaneFlagNames
                     ?.Select(item => item?.ToDictionary(entry => entry.Key, entry => entry.Value))
                     ?.ToArray();
+                for(int i = 0; i < ret.Tracks.Length; ++i) {
+                    ret.Tracks[i] = ret.Tracks[i].Clone();
+                }
+
                 return ret;
             }
 
@@ -247,6 +251,12 @@ namespace AdaptiveRoads.Manager {
                 PavementWidthRight = template.m_pavementWidth;
                 UsedCustomFlags = GatherUsedCustomFlags(template);
                 Template = template;
+            }
+
+            public void ReleaseModels() {
+                foreach(var track in Tracks) {
+                    track.ReleaseModel();
+                }
             }
 
             #region serialization
@@ -310,6 +320,7 @@ namespace AdaptiveRoads.Manager {
 
             public Dictionary<NetLaneExt.Flags, string>[] CustomLaneFlagNames;
 
+            [CustomizableProperty("Tracks")]
             public Track[] Tracks = new Track[0];
 
             [NonSerialized]
@@ -885,6 +896,37 @@ namespace AdaptiveRoads.Manager {
                 }
             }
 
+            public void ReleaseModel() {
+                UnityEngine.Object.Destroy(m_mesh);
+                UnityEngine.Object.Destroy(m_lodMesh);
+                AssetEditorRoadUtils.ReleaseMaterial(m_material);
+                AssetEditorRoadUtils.ReleaseMaterial(m_lodMaterial);
+            }
+
+            #region serialization
+            //serialization
+            public void GetObjectData(SerializationInfo info, StreamingContext context) {
+                var fields = this.GetType().GetFields(ReflectionHelpers.COPYABLE).Where(field => !field.HasAttribute<NonSerializedAttribute>());
+                foreach(FieldInfo field in fields) {
+                    var type = field.GetType();
+                    object value = field.GetValue(this);
+                    if(type == typeof(Vector3)) {
+                        //Vector3Serializable v = (Vector3Serializable)field.GetValue(instance);
+                        info.AddValue(field.Name, value, typeof(Vector3Serializable));
+                    } else if(value is Mesh mesh) {
+                        throw new NotImplementedException();
+                    } else {
+                        info.AddValue(field.Name, value, field.FieldType);
+                    }
+                }
+            }
+
+            // deserialization
+            public Track(SerializationInfo info, StreamingContext context) {
+                SerializationUtil.SetObjectFields(info, this);
+            }
+            #endregion
+
             public void Recalculate(NetInfo netInfo) {
                 this.ParentInfo = netInfo;
                 float num = netInfo.m_minHeight - netInfo.m_maxSlope * 64f - 10f;
@@ -919,31 +961,6 @@ namespace AdaptiveRoads.Manager {
                 }
                 LaneCount = EnumBitMaskExtensions.CountOnes(LaneIndeces);
             }
-
-            #region serialization
-            //serialization
-            public void GetObjectData(SerializationInfo info, StreamingContext context) {
-                var fields = this.GetType().GetFields(ReflectionHelpers.COPYABLE).Where(field => !field.HasAttribute<NonSerializedAttribute>());
-                foreach(FieldInfo field in fields) {
-                    var type = field.GetType();
-                    object value = field.GetValue(this);
-                    if(type == typeof(Vector3)) {
-                        //Vector3Serializable v = (Vector3Serializable)field.GetValue(instance);
-                        info.AddValue(field.Name, value, typeof(Vector3Serializable));
-                    } else if(value is Mesh mesh) {
-                        throw new NotImplementedException();
-                    } else {
-                        info.AddValue(field.Name, value, field.FieldType);
-                    }
-                }
-            }
-
-            // deserialization
-            public Track(SerializationInfo info, StreamingContext context) {
-                SerializationUtil.SetObjectFields(info, this);
-            }
-            #endregion
-
 
             public const VehicleInfo.VehicleType TRACK_VEHICLE_TYPES =
                 VehicleInfo.VehicleType.Tram |

@@ -151,6 +151,14 @@ namespace AdaptiveRoads.Util {
     }
 
     internal static class RoadEditorUtils {
+        public static NetInfo GetSelectedNetInfo(out RoadEditorPanel roadEditorPanel) {
+            var mainPanel = UIView.GetAView().GetComponentInChildren<RoadEditorMainPanel>();
+            var tabContainer = mainPanel.m_ElevationsTabstrip.tabContainer;
+            roadEditorPanel = tabContainer.GetComponents<RoadEditorPanel>().FirstOrDefault(item => item.component.isVisible);
+            var netInfo = roadEditorPanel?.GetTarget() as NetInfo;
+            return netInfo;
+        }
+
         public static Vector3 MouseGUIPosition() {
             var uiView = UIView.GetAView();
             return uiView.ScreenPointToGUI(Input.mousePosition / uiView.inputScale);
