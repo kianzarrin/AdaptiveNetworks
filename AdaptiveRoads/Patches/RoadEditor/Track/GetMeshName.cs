@@ -9,7 +9,9 @@ namespace AdaptiveRoads.Patches.RoadEditor.Track {
         static void Postfix(object obj, ref string __result) {
             try {
                 if(obj is NetInfoExtionsion.Track track) {
-                    __result = track.m_mesh?.name ?? "New Track";
+                    __result = track.m_mesh?.name;
+                    if(__result.IsNullorEmpty())
+                        __result = "New Track";
                 }
             } catch(Exception ex) {
                 Log.Exception(ex);

@@ -890,6 +890,7 @@ namespace AdaptiveRoads.Manager {
             public Track Clone() => this.ShalowClone();
             object ICloneable.Clone() => this.Clone();
             public Track(NetInfo template) {
+                Assertion.Assert(template, "template");
                 var lanes = template.m_lanes;
                 for(int laneIndex = 0; laneIndex < lanes.Length; ++laneIndex) {
                     if(lanes[laneIndex].m_vehicleType.IsFlagSet(TRACK_VEHICLE_TYPES))

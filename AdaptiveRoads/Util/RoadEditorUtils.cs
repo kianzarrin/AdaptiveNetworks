@@ -154,7 +154,7 @@ namespace AdaptiveRoads.Util {
         public static NetInfo GetSelectedNetInfo(out RoadEditorPanel roadEditorPanel) {
             var mainPanel = UIView.GetAView().GetComponentInChildren<RoadEditorMainPanel>();
             var tabContainer = mainPanel.m_ElevationsTabstrip.tabContainer;
-            roadEditorPanel = tabContainer.GetComponents<RoadEditorPanel>().FirstOrDefault(item => item.component.isVisible);
+            roadEditorPanel = tabContainer.GetComponentsInChildren<RoadEditorPanel>().FirstOrDefault(item => item.component.isVisible);
             var netInfo = roadEditorPanel?.GetTarget() as NetInfo;
             return netInfo;
         }

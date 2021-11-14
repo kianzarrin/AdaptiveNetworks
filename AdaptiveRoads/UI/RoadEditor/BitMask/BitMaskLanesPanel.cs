@@ -6,6 +6,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
     using KianCommons.UI;
     using KianCommons.UI.Helpers;
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
@@ -103,13 +104,13 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
 
         protected void OnAfterDropdownClose(UICheckboxDropDown checkboxdropdown) {
             try {
-                SetValue(GetCheckedFlags());
+                SetValue(GetCheckedIndexes());
                 UpdateText();
             } catch(Exception ex) {
                 ex.Log();
             }
         }
-        private ulong GetCheckedFlags() {
+        private ulong GetCheckedIndexes() {
             ulong ret = 0;
             for(int i = 0; i < DropDown.items.Length; i++) {
                 if(DropDown.GetChecked(i)) {
@@ -168,7 +169,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
                 ex.Log();
             }
             if(Input.GetMouseButtonDown(1))
-                DropDown.ClosePopup(); // close all popups on left click
+                DropDown.ClosePopup(); // close all pop-ups on left click
         }
 
         public bool IsHovered() {
@@ -203,12 +204,22 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
         }
 
         private string ToText(ulong mask) {
-            return BitConverter.GetBytes(mask).Select(item => item.ToString()).Join(",");
+            List<int> indexes = new List<int>();
+            int index = 0;
+            while(mask != 0) {
+                if((mask&1)!= 0) {
+                    indexes.Add(index);
+                }
+                index++;
+                mask >>= 1;
+            }
+
+            return indexes.Select(item => item.ToString()).Join(",");
         }
 
         private void UpdateText() {
-            var flags = GetValue();
-            string text = ToText(flags);
+            var mask = GetValue();
+            string text = ToText(mask);
             BitMaskPanelBase.ApplyText(DropDown, text);
         }
         public void Refresh() {
