@@ -108,11 +108,12 @@ namespace AdaptiveRoads.Manager {
         }
 
         public bool CalculateGroupData(int groupX, int groupZ, int layer, ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays) {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            return false;
         }
 
         public void PopulateGroupData(int groupX, int groupZ, int layer, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData data, ref Vector3 min, ref Vector3 max, ref float maxRenderDistance, ref float maxInstanceDistance, ref bool requireSurfaceMaps) {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         #endregion
@@ -144,7 +145,8 @@ namespace AdaptiveRoads.Manager {
             Singleton<LoadingManager>.instance.QueueLoadingAction(this.InitRenderDataImpl());
         }
         public IEnumerator InitRenderDataImpl() {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            yield break;
         }
     }
 }
