@@ -518,8 +518,11 @@ namespace AdaptiveRoads.Manager {
         public bool IsEmpty => (m_flags & Flags.CustomsMask) == Flags.None;
         public ref NetSegment Segment => ref SegmentID.ToSegment();
 
+        #region cache
         public uint[] LaneIDs;
-
+        public NetInfoExtionsion.Net NetInfoExt;
+        private uint renderCount_;
+        #endregion
 
         public void Serialize(SimpleDataSerializer s) => s.WriteInt32(
             ((int)(Flags.CustomsMask & m_flags)) >> CUSTOM_FLAG_SHIFT);
@@ -623,6 +626,8 @@ namespace AdaptiveRoads.Manager {
                 End.UpdateDirections();
                 End.UpdateCorners();
 
+                renderCount_ = CalculateTrackRenderCount();
+
                 if (Log.VERBOSE) Log.Debug($"NetSegmentExt.UpdateAllFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
             } catch (Exception ex) {
                 Log.Exception(
@@ -669,11 +674,7 @@ namespace AdaptiveRoads.Manager {
             if((layerMask & (info.m_netLayers | info.m_propLayers)) == 0) {
                 return;
             }
-            uint count = CalculateTrackRenderCount();
-            if(count == 0) {
-                return;
-            }
-            if(RequireTrackInstance(count, out var renderInstanceIndex)) {
+            if(GetOrCalculateTrackInstance(out var renderInstanceIndex)) {
                 var renderData = RenderManager.instance.m_instances[renderInstanceIndex];
                 if(renderData.m_dirty) {
                     renderData.m_dirty = false;
@@ -681,10 +682,22 @@ namespace AdaptiveRoads.Manager {
                 }
                 RenderTrackInstance(cameraInfo, layerMask, renderInstanceIndex);
             }
-
         }
 
-        public NetInfoExtionsion.Net NetInfoExt;
+        public bool GetOrCalculateTrackInstance(out uint renderInstanceIndex) {
+            var count = renderCount_;
+            if(count != 0 || !RequireTrackInstance(count, out renderInstanceIndex)) {
+                renderInstanceIndex = TrackManager.INVALID_RENDER_INDEX;
+                return false;
+            }
+            var renderData = RenderManager.instance.m_instances[renderInstanceIndex];
+            if(renderData.m_dirty) {
+                renderData.m_dirty = false;
+                RefreshRenderData(renderInstanceIndex);
+            }
+            return true;
+        }
+    
         public uint CalculateTrackRenderCount() => (uint)(NetInfoExt?.TrackLaneCount ?? 0);
 
         public bool RequireTrackInstance(uint count, out uint instanceIndex) =>

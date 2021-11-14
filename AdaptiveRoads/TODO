@@ -3,10 +3,13 @@ Tracks:
         - serialize/deserialize
         - Asset editor UI
         - destroy
-        - clear lod values
-        - rebuild lods
+        - lods
+            - clear lod values
+            - rebuild lods
+            - render far lods
     - node
-        - render
+        - refresh render data
+        - render instance
 
 
 TODO:
