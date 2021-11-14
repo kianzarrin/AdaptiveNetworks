@@ -7,10 +7,17 @@ namespace AdaptiveRoads.Patches.RoadEditor.Track {
 
     [HarmonyPatch(typeof(RoadEditorCrossImportPanel), "HasModels")]
     public static class HasModels {
-        static void Postfix(NetInfo info) {
+        static void Postfix(NetInfo info, ref bool __result) {
             try {
-                if(__instance.m_Target is NetInfoExtionsion.Track track)
-                    track.ReleaseModel();
+                var tracks = info.GetMetaData()?.Tracks;
+                if(tracks != null) {
+                    foreach(var track in tracks) {
+                        if(track.m_material.shader) {
+                            __result = true;
+                            return;
+                        }
+                    }
+                }
             } catch(Exception ex) {
                 Log.Exception(ex);
             }
