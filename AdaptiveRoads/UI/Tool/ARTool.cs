@@ -180,16 +180,6 @@ namespace AdaptiveRoads.UI.Tool {
                 ref var lane = ref laneId.ToLane();
                 laneExt.Right.Render(cameraInfo, Color.green, 0.1f);
                 laneExt.Left.Render(cameraInfo, Color.yellow, 0.1f);
-                RenderUtil.DrawOverlayCircle(cameraInfo, Color.green, laneExt.A.Right, 1, true);
-                RenderUtil.DrawOverlayCircle(cameraInfo, Color.yellow, laneExt.A.Left, 1, true);
-                RenderUtil.DrawOverlayCircle(cameraInfo, Color.green / 2, laneExt.D.Right, 1, true);
-                RenderUtil.DrawOverlayCircle(cameraInfo, Color.yellow / 2, laneExt.D.Left, 1, true);
-
-                RenderUtil.DrawOverlayCircle(cameraInfo, Color.green, laneExt.A.Right + laneExt.A.Direction*5, 1, true);
-                RenderUtil.DrawOverlayCircle(cameraInfo, Color.yellow, laneExt.A.Left + laneExt.A.Direction * 5, 1, true);
-                RenderUtil.DrawOverlayCircle(cameraInfo, Color.green / 2, laneExt.D.Right + laneExt.D.Direction * 5, 1, true);
-                RenderUtil.DrawOverlayCircle(cameraInfo, Color.yellow / 2, laneExt.D.Left + laneExt.D.Direction * 5, 1, true);
-
                 return;
             }
         }

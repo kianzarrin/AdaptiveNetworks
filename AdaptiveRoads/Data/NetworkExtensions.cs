@@ -218,9 +218,8 @@ namespace AdaptiveRoads.Manager {
         }
 
         #region corner
-        // left and right is WRT the direction of the bezier
-        public CornerTripleData A, D;
-        public Bezier3 Left, Right; 
+        //public CornerTripleData A, D;
+        public Bezier3 Left, Right; // left and right is WRT the direction of the bezier
         public void UpdateCorners() {
             ushort segmentID = LaneData.SegmentID;
             ref var segment = ref LaneData.Segment;
@@ -254,6 +253,7 @@ namespace AdaptiveRoads.Manager {
             //var bezier = new Bezier3(a, b, c, d);
 
             float laneWidth = laneInfo.m_width;
+            CornerTripleData A = default, D = default;
             A.Set(a, startDir, laneWidth, start: true);
             D.Set(d, endDir, laneWidth, start: false);
 
