@@ -789,7 +789,7 @@ namespace AdaptiveRoads.Manager {
             public LaneProp(SerializationInfo info, StreamingContext context) {
                 SerializationUtil.SetObjectFields(info, this);
 
-                // backward compatiblity: SpeedLimit, AverageSpeedLimit
+                // backward compatibility: SpeedLimit, AverageSpeedLimit
                 SerializationUtil.SetObjectProperties(info, this);
             }
 
@@ -830,7 +830,7 @@ namespace AdaptiveRoads.Manager {
             [Optional(LANE_SEGMENT)]
             public VanillaSegmentInfoFlags VanillaSegmentFlags = new VanillaSegmentInfoFlags();
 
-            [CustomizableProperty("Segment Extionsion")]
+            [CustomizableProperty("Segment Extension")]
             [Optional(LANE_SEGMENT)]
             public SegmentInfoFlags SegmentFlags = new SegmentInfoFlags();
 
@@ -1333,18 +1333,18 @@ namespace AdaptiveRoads.Manager {
             foreach(var netInfo in NetInfoExtionsion.EditedNetInfos) {
                 for(int i = 0; i < netInfo.m_nodes.Length; ++i) {
                     if(!(netInfo.m_nodes[i].GetType() == typeof(NetInfo.Node)))
-                        throw new Exception($"reversal unsuccessfull. nodes[{i}]={netInfo.m_nodes[i]}");
+                        throw new Exception($"reversal unsuccessful. nodes[{i}]={netInfo.m_nodes[i]}");
                 }
                 for(int i = 0; i < netInfo.m_segments.Length; ++i) {
                     if(!(netInfo.m_segments[i].GetType() == typeof(NetInfo.Segment)))
-                        throw new Exception($"reversal unsuccessfull. segments[{i}]={netInfo.m_segments[i]}");
+                        throw new Exception($"reversal unsuccessful. segments[{i}]={netInfo.m_segments[i]}");
                 }
                 foreach(var lane in netInfo.m_lanes) {
                     var props = lane.m_laneProps?.m_props;
                     int n = props?.Length ?? 0;
                     for(int i = 0; i < n; ++i) {
                         if(!(props[i].GetType() == typeof(NetLaneProps.Prop)))
-                            throw new Exception($"reversal unsuccessfull. props[{i}]={props[i]}");
+                            throw new Exception($"reversal unsuccessful. props[{i}]={props[i]}");
                     }
                 }
             }

@@ -38,18 +38,15 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 else if (field == typeof(NetInfo.Node).GetField(nameof(NetInfo.Node.m_connectGroup)))
                     groupName = NetInfoExtionsion.Node.DC_GROUP_NAME;
 
-                if(field.HasAttribute<BitMaskLanesAttribute>()) {
-                    NetInfo netInfo =
-                        target as NetInfo ??
-                        (target as NetInfoExtionsion.Track)?.ParentInfo ??
-                        RoadEditorUtils.GetSelectedNetInfo(out _);
-                    BitMaskLanesPanel.Add(
+                // handle special track case.
+                if(target is not IInfoExtended &&
+                    CreateGenericComponentExt0(
                         roadEditorPanel: __instance,
-                        field: field,
-                        netInfo: netInfo,
-                        container: GetContainer(__instance, groupName),
-                        label: field.GetAttribute<CustomizablePropertyAttribute>().name,
-                        hint: field.GetHints().JoinLines());
+                        groupName: groupName,
+                        target: target,
+                        metadata: target,
+                        field))
+                {
                     return false;
                 }
 
@@ -62,7 +59,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 if (IsUIReplaced(field)) {
                     if (VanillaCanMerge(field))
                         return false; // will be merged with AR dd later
-
                     var container = GetContainer(__instance, groupName);
                     var uidata = GetVanillaFlagUIData(field, target);
 
@@ -75,6 +71,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         flagData: uidata.FlagData);
                     return false;
                 }
+
+
                 return true;
             } catch (Exception ex) {
                 ex.Log();
@@ -91,6 +89,11 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             try {
                 var cpt = field.GetAttribute<CustomizablePropertyAttribute>();
                 string groupName = cpt.group;
+                if(field == typeof(NetInfo.Node).GetField(nameof(NetInfo.Node.m_directConnect)))
+                    groupName = NetInfoExtionsion.Node.DC_GROUP_NAME;
+                else if(field == typeof(NetInfo.Node).GetField(nameof(NetInfo.Node.m_connectGroup)))
+                    groupName = NetInfoExtionsion.Node.DC_GROUP_NAME;
+
                 if (target is NetLaneProps.Prop prop) {
                     Log.Debug($"{__instance.name}.CreateField.Postfix({groupName},{field},{target})"/* + Environment.StackTrace*/);
                     if (ModSettings.ARMode) {
@@ -221,38 +224,40 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 throw new Exception("could not find after field for " + field);
         }
 
-        public static void CreateGenericComponentExt(
+        /// <returns>false if this field is not special case and needs to be handled normally.</returns>
+        public static bool CreateGenericComponentExt0(
             RoadEditorPanel roadEditorPanel, string groupName,
             object target, object metadata, FieldInfo extensionField) {
-            if (TryGetMerge(extensionField, target, out var vanillaRequired, out var vanillaForbidden)) {
+            if(target != metadata && TryGetMerge(extensionField, target, out var vanillaRequired, out var vanillaForbidden)) {
                 CreateMergedComponent(
                     roadEditorPanel: roadEditorPanel, groupName: groupName,
                     fieldInfo: extensionField, metadata: metadata,
                     mergedFieldRequired: vanillaRequired,
                     mergedFieldForbidden: vanillaForbidden,
                     mergedTarget: target);
-            } else if (TryGetMerge(extensionField, metadata, out var vanilla)) {
+            } else if(TryGetMerge(extensionField, metadata, out var vanilla)) {
                 CreateMergedComponent(
                     roadEditorPanel: roadEditorPanel, groupName: groupName,
                     fieldInfo: extensionField, mergedField: vanilla, metadata: metadata);
-            } else if (ARCanMerge(extensionField)) {
+            } else if(ARCanMerge(extensionField)) {
                 // do not create because it will merge with something in future.
             } else {
-                CreateExtendedComponent(roadEditorPanel, groupName, extensionField, metadata);
+                return CreateExtendedComponent(roadEditorPanel, groupName, extensionField, metadata);
+            }
+            return true; // handled
+        }
+
+        public static void CreateGenericComponentExt(
+            RoadEditorPanel roadEditorPanel, string groupName,
+            object target, object metadata, FieldInfo extensionField) {
+            if(!CreateGenericComponentExt0(roadEditorPanel, groupName, target, metadata, extensionField)) {
+                roadEditorPanel.CreateField(extensionField, metadata);
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="groupName"></param>
-        /// <param name="fieldInfo"></param>
-        /// <param name="metadata"></param>
-        /// <param name="roadEditorPanel"></param>
-        /// <param name="prefix"></param>
-        public static void CreateExtendedComponent(
-             RoadEditorPanel roadEditorPanel, string groupName,
-             FieldInfo fieldInfo, object metadata) {
+        public static bool CreateExtendedComponent(
+            RoadEditorPanel roadEditorPanel, string groupName,
+            FieldInfo fieldInfo, object metadata) {
             try {
                 LogCalled(
                     $"instance={ roadEditorPanel?.name}",
@@ -264,9 +269,20 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 var container = GetContainer(roadEditorPanel, groupName);
                 var att = fieldInfo.GetAttribute<CustomizablePropertyAttribute>();
 
-                if (fieldInfo.FieldType.HasAttribute<FlagPairAttribute>()) {
+                if(fieldInfo.HasAttribute<BitMaskLanesAttribute>()) {
+                    NetInfo netInfo =
+                        (metadata as NetInfoExtionsion.Track)?.ParentInfo ??
+                        RoadEditorUtils.GetSelectedNetInfo(out _);
+                    BitMaskLanesPanel.Add(
+                        roadEditorPanel: roadEditorPanel,
+                        field: fieldInfo,
+                        netInfo: netInfo,
+                        container: container,
+                        label: att.name,
+                        hint: fieldInfo.GetHints().JoinLines());
+                } else if(fieldInfo.FieldType.HasAttribute<FlagPairAttribute>()) {
                     var uidatas = GetARFlagUIData(fieldInfo, metadata);
-                    if (uidatas != null) {
+                    if(uidatas != null) {
                         BitMaskPanel.Add(
                             roadEditorPanel: roadEditorPanel,
                             container: container,
@@ -280,8 +296,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             hint: uidatas[1].Hint,
                             flagData: uidatas[1].FlagData);
                     }
-                } else if (fieldInfo.FieldType == typeof(NetInfoExtionsion.Range)) {
-                    if (fieldInfo.Name.ToLower().Contains("speed")) {
+                } else if(fieldInfo.FieldType == typeof(NetInfoExtionsion.Range)) {
+                    if(fieldInfo.Name.ToLower().Contains("speed")) {
                         var panel = SpeedRangePanel.Add(
                             roadEditorPanel: roadEditorPanel,
                             container: container,
@@ -289,7 +305,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             target: metadata,
                             fieldInfo: fieldInfo);
                     } else {
-                        var panel =  RangePanel.Add(
+                        var panel = RangePanel.Add(
                             roadEditorPanel: roadEditorPanel,
                             container: container,
                             label: att.name,
@@ -297,10 +313,12 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             fieldInfo: fieldInfo);
                     }
                 } else {
-                    roadEditorPanel.CreateField(fieldInfo, metadata);
+                    return false;
                 }
-            } catch (Exception ex) {
+                return true;
+            } catch(Exception ex) {
                 ex.Log();
+                return false;
             }
         }
 
@@ -405,7 +423,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             flagData: arDatas[i].FlagData);
                     }
                 } else if (arDatas.IsNullorEmpty()) {
-                    // only ara data is optional and hidden
+                    // only AR data is optional and hidden
                     Assertion.Equal(vanillas.Length, 2, "vanillas.Length");
                     for (int i = 0; i < 2; ++i) {
                         BitMaskPanel.Add(
