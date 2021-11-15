@@ -11,11 +11,11 @@ namespace AdaptiveRoads.Data {
             Center = centerPos;
 
             dir = VectorUtils.NormalizeXZ(dir);
-            var normalLeft = new Vector3(dir.z, 0, -dir.x);
+            var normalLeft = new Vector3(-dir.z, 0, dir.x);
             if(!start) normalLeft = -normalLeft;
 
-            Left = centerPos + normalLeft * width;
-            Right = centerPos - normalLeft * width;
+            Left = centerPos + normalLeft * width * 0.5f;
+            Right = centerPos - normalLeft * width * 0.5f;
         }
     }
 

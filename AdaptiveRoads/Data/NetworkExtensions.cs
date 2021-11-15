@@ -218,8 +218,9 @@ namespace AdaptiveRoads.Manager {
         }
 
         #region corner
-        CornerTripleData A, D; // A is always at segment's start node.
-        Bezier3 Left, Right; // matches segment's left/right corners
+        // left and right is WRT the direction of the bezier
+        public CornerTripleData A, D;
+        public Bezier3 Left, Right; 
         public void UpdateCorners() {
             ushort segmentID = LaneData.SegmentID;
             ref var segment = ref LaneData.Segment;
@@ -257,11 +258,11 @@ namespace AdaptiveRoads.Manager {
             D.Set(d, endDir, laneWidth, start: false);
 
             Left.a = A.Left;
-            Left.d = D.Left;
+            Left.d = D.Left; 
             NetSegment.CalculateMiddlePoints(A.Left, A.Direction, D.Left, D.Direction, smoothStart, smoothEnd, out Left.b, out Left.c);
 
             Right.a = A.Right;
-            Right.d = D.Right;
+            Right.d = D.Right; 
             NetSegment.CalculateMiddlePoints(A.Right, A.Direction, D.Right, D.Direction, smoothStart, smoothEnd, out Right.b, out Right.c);
         }
         #endregion
@@ -408,17 +409,14 @@ namespace AdaptiveRoads.Manager {
             renderData.m_dataVector3 = new Vector4(colorLocationStart.x, colorLocationStart.y, colorLocationEnd.x, colorLocationEnd.y);
             {
                 float vScale = info.m_netAI.GetVScale();
-                ref var segmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[LaneData.SegmentID];
-                bool smoothStart = segmentExt.Start.Corner.smooth;
-                bool smoothEnd = segmentExt.End.Corner.smooth;
-                NetSegment.CalculateMiddlePoints(A.Left, A.Direction, D.Right, D.Direction, smoothStart, smoothEnd, out var b1, out var c1);
-                NetSegment.CalculateMiddlePoints(A.Right, A.Direction, D.Left, D.Direction, smoothStart, smoothEnd, out var b2, out var c2);
                 renderData.m_dataMatrix0 = NetSegment.CalculateControlMatrix(
-                    A.Left, b1, c1, D.Right,
-                    A.Right, b2, c2, D.Left, renderData.m_position, vScale);
+                    Left.a, Left.b, Left.c, Left.d,
+                    Right.a, Right.b, Right.c, Right.d,
+                    renderData.m_position, vScale);
                 renderData.m_dataMatrix1 = NetSegment.CalculateControlMatrix(
-                    A.Right, b2, c2, D.Left,
-                    A.Left, b1, c1, D.Right, renderData.m_position, vScale);
+                    Right.a, Right.b, Right.c, Right.d,
+                    Left.a, Left.b, Left.c, Left.d,
+                    renderData.m_position, vScale);
             }
         }
         #endregion

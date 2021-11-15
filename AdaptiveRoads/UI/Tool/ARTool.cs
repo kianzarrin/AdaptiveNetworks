@@ -12,6 +12,7 @@ namespace AdaptiveRoads.UI.Tool {
     using static KianCommons.ReflectionHelpers;
     using Patches.AsymPavements;
     using System.Collections.Generic;
+    using ColossalFramework;
 
     internal class ARTool : KianToolBase<ARTool> {
         NetworkExtensionManager man_ => NetworkExtensionManager.Instance;
@@ -155,8 +156,50 @@ namespace AdaptiveRoads.UI.Tool {
             Log.Info($"SegmentMode={SegmentMode} NodeMode={NodeMode} SegmentEndMode={SegmentEndMode}");
         }
 
+        public void RenderCornerOverlay(RenderManager.CameraInfo cameraInfo) {
+            if(HoverValid) {
+                ref var segEnd = ref NetworkExtensionManager.Instance.GetSegmentEnd(HoveredSegmentID, HoveredNodeID);
+                RenderUtil.DrawOverlayCircle(cameraInfo, Color.green, segEnd.Corner.Right.Position, 2);
+                RenderUtil.DrawOverlayCircle(cameraInfo, Color.yellow, segEnd.Corner.Left.Position, 2);
+            }
+        }
+
+        public void RenderLaneOverlay(RenderManager.CameraInfo cameraInfo) {
+            if(HoverValid) {
+                //TODO: delete test code:
+                HoveredSegmentID.ToSegment().GetClosestLanePosition(
+                    HitPos,
+                    NetInfo.LaneType.All,
+                    VehicleInfo.VehicleType.All,
+                    out Vector3 pos,
+                    out uint laneId,
+                    out int laneIndex,
+                    out float laneOffset);
+
+                ref var laneExt = ref NetworkExtensionManager.Instance.LaneBuffer[laneId];
+                ref var lane = ref laneId.ToLane();
+                laneExt.Right.Render(cameraInfo, Color.green, 0.1f);
+                laneExt.Left.Render(cameraInfo, Color.yellow, 0.1f);
+                RenderUtil.DrawOverlayCircle(cameraInfo, Color.green, laneExt.A.Right, 1, true);
+                RenderUtil.DrawOverlayCircle(cameraInfo, Color.yellow, laneExt.A.Left, 1, true);
+                RenderUtil.DrawOverlayCircle(cameraInfo, Color.green / 2, laneExt.D.Right, 1, true);
+                RenderUtil.DrawOverlayCircle(cameraInfo, Color.yellow / 2, laneExt.D.Left, 1, true);
+
+                RenderUtil.DrawOverlayCircle(cameraInfo, Color.green, laneExt.A.Right + laneExt.A.Direction*5, 1, true);
+                RenderUtil.DrawOverlayCircle(cameraInfo, Color.yellow, laneExt.A.Left + laneExt.A.Direction * 5, 1, true);
+                RenderUtil.DrawOverlayCircle(cameraInfo, Color.green / 2, laneExt.D.Right + laneExt.D.Direction * 5, 1, true);
+                RenderUtil.DrawOverlayCircle(cameraInfo, Color.yellow / 2, laneExt.D.Left + laneExt.D.Direction * 5, 1, true);
+
+                return;
+            }
+        }
         public override void RenderOverlay(RenderManager.CameraInfo cameraInfo) {
             base.RenderOverlay(cameraInfo);
+            // uncomment to test
+            //RenderCornerOverlay(cameraInfo);
+            //RenderLaneOverlay(cameraInfo);
+            //return;
+
 
             if(SelectedSegmentID != 0 && SelectedNodeID != 0)
                 HighlightSegmentEnd(cameraInfo, SelectedSegmentID, SelectedNodeID, Color.white);
