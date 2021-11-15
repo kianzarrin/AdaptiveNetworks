@@ -402,7 +402,7 @@ namespace AdaptiveRoads.Manager {
 
             public void RenameCustomFlag(int laneIndex, NetLaneExt.Flags flag, string name) {
                 try {
-                    Assertion.NotNull(Template);
+                    Assertion.NotNull(Template, "Template");
                     var lane = Template.m_lanes[laneIndex];
                     Dictionary<NetLaneExt.Flags, string> dict = null;
 
@@ -452,6 +452,7 @@ namespace AdaptiveRoads.Manager {
 
             public void Update(NetInfo netInfo) {
                 try {
+                    Template = netInfo;
                     UsedCustomFlags = GetUsedCustomFlags(netInfo);
                     UpdateParkingAngle();
                     UpdateConnectGroups(netInfo);
