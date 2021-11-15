@@ -273,10 +273,10 @@ namespace AdaptiveRoads.Manager {
             if((layerMask & info.m_netLayers) == 0)
                 return;
             UInt64 laneBit = 1ul << LaneData.LaneIndex;
-            var infoExt = info.GetMetaData();
+            ref var segmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[LaneData.SegmentID];
+            var infoExt = segmentExt.NetInfoExt;
             var netManager = Singleton<NetManager>.instance;
             ref var segment = ref LaneData.Segment;
-            ref var segmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[LaneData.SegmentID];
             foreach(var track in infoExt.Tracks) {
                 if((track.LaneIndeces & laneBit) != 0 && track.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags)) {
                     Vector4 dataVector3 = renderData.m_dataVector3;
@@ -320,7 +320,7 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
-#if true //DUMMY_CODE
+#if DUMMY_CODE
         private void RenderSegmentInstance(ref NetSegment This, RenderManager.CameraInfo cameraInfo, ushort segmentID, int layerMask, NetInfo info, ref RenderManager.Instance renderData) {
             var netManager = Singleton<NetManager>.instance;
             if(info.m_segments != null && (layerMask & info.m_netLayers) != 0) {
