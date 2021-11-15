@@ -65,7 +65,6 @@
     <Reference Include="UnityEngine.UI" />
     <Reference Include="TrafficManager" />
     <Reference Include="TMPE.API" />
-    <Reference Include="TMPE.CitiesGameBridge" />
     <Reference Include="CSUtil.Commons" />
     <Reference Include="UnifiedUILib">
       <Private>true</Private>
