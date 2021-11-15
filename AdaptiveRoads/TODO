@@ -19,6 +19,8 @@ Tracks:
         - AR tool UI
 
 TODO:
+    - bug fix: can't change custom flag name after loading AR road.
+TODO:
 - remove custom flags when network is deleted.
 - list scrollbars
 - group DC components.
