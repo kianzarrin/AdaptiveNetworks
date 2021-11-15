@@ -1,12 +1,9 @@
 Tracks:
-    - error:
-        laneID iterator bug
     - segment/node
         - serialize/deserialize
-        - Asset editor UI
-            - model
-                - import
-                - cross import
+            - cross import
+            - fix render
+            - render while drawing.
         - lods
             - clear lod values
             - rebuild lods
