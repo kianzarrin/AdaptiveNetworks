@@ -1,7 +1,7 @@
 start/end flags:
     lane Start/End Flags :
-        - it takes into consideration segment.invert, lane.direction, and LHT. ie segment.invert ^ lane.finalDirdection
-        - taking lane.direction is usually not useful because medians are non-directional and pavements are bi-drectional.
+        - it takes into consideration segment.invert, lane.direction, and LHT. i.e. segment.invert ^ lane.finalDirdection
+        - taking lane.direction is usually not useful because medians are non-directional and pavements are bi-directional.
         - my lane segment end start/end flags work in the exact same way (LHT only applicable to directional nodes)
     Segment YieldStart/YieldEnd flags:
         - means actual start and end node
@@ -9,7 +9,7 @@ start/end flags:
     Lane YieldStart/YieldEnd flags:
         - it takes into account invert flag
         - then forward lane removes YieldStart, and backward lane removes YieldEnd
-            - this usualy is of no help because medians are non-directional and pavements are bi-drectional.
+            - this usually is of no help because medians are non-directional and pavements are bi-directional.
             - this also on a backward lane cars can go toward YieldStart
 
 - prop requirements:

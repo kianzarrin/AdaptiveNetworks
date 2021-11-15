@@ -1,14 +1,12 @@
 Tracks:
     - error:
-        - increase render count
-        - find out why I am requesting render instance in the first place?
+        laneID iterator bug
     - segment/node
         - serialize/deserialize
         - Asset editor UI
             - model
                 - import
                 - cross import
-        - destroy
         - lods
             - clear lod values
             - rebuild lods
@@ -23,7 +21,6 @@ Tracks:
         - lane corners
         - prop embankment
         - AR tool UI
-
 
 TODO:
 - remove custom flags when network is deleted.

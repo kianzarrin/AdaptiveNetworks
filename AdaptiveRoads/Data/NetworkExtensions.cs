@@ -576,15 +576,18 @@ namespace AdaptiveRoads.Manager {
         }
 
         public void UpdateAllFlags() {
-            NetInfoExt = Segment.Info?.GetMetaData();
-            LaneIDs = new LaneIDIterator(SegmentID).ToArray();
-            if(!NetUtil.IsSegmentValid(SegmentID)) {
-                if(SegmentID.ToSegment().m_flags.IsFlagSet(NetSegment.Flags.Created))
-                    Log.Debug("Skip updating invalid segment:" + SegmentID);
-                return;
-            }
-            if(Log.VERBOSE) Log.Debug($"NetSegmentExt.UpdateAllFlags() called. SegmentID={SegmentID}" /*Environment.StackTrace*/, false);
             try {
+                NetInfoExt = null;
+                LaneIDs = new uint[0];
+                renderCount_ = 0;
+                if(!NetUtil.IsSegmentValid(SegmentID)) {
+                    if(SegmentID.ToSegment().m_flags.IsFlagSet(NetSegment.Flags.Created))
+                        Log.Debug("Skip updating invalid segment:" + SegmentID);
+                    return;
+                }
+                NetInfoExt = Segment.Info?.GetMetaData();
+                LaneIDs = new LaneIDIterator(SegmentID).ToArray();
+                if(Log.VERBOSE) Log.Debug($"NetSegmentExt.UpdateAllFlags() called. SegmentID={SegmentID}" /*Environment.StackTrace*/, false);
                 bool parkingLeft = false;
                 bool parkingRight = false;
                 float speed0 = -1;
@@ -628,8 +631,8 @@ namespace AdaptiveRoads.Manager {
 
                 renderCount_ = CalculateTrackRenderCount();
 
-                if (Log.VERBOSE) Log.Debug($"NetSegmentExt.UpdateAllFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
-            } catch (Exception ex) {
+                if(Log.VERBOSE) Log.Debug($"NetSegmentExt.UpdateAllFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
+            } catch(Exception ex) {
                 Log.Exception(
                     ex,
                     $"failed to update segment:{SegmentID} info:{SegmentID.ToSegment().Info} " +
@@ -782,17 +785,21 @@ namespace AdaptiveRoads.Manager {
 
 
         private void RenderTrackInstance(RenderManager.CameraInfo cameraInfo, int layerMask, uint renderInstanceIndex) {
-            var renderInstances = RenderManager.instance.m_instances;
-            do {
-                ref var renderData = ref renderInstances[renderInstanceIndex];
+            try {
+                var renderInstances = RenderManager.instance.m_instances;
+                do {
+                    ref var renderData = ref renderInstances[renderInstanceIndex];
 
-                int laneIndex = renderData.m_dataInt0;
-                var laneID = LaneIDs[laneIndex];
-                ref var laneExt = ref NetworkExtensionManager.Instance.LaneBuffer[laneID];
-                laneExt.RenderTrackInstance(cameraInfo, layerMask, ref renderData);
+                    int laneIndex = renderData.m_dataInt0;
+                    var laneID = LaneIDs[laneIndex];
+                    ref var laneExt = ref NetworkExtensionManager.Instance.LaneBuffer[laneID];
+                    laneExt.RenderTrackInstance(cameraInfo, layerMask, ref renderData);
 
-                renderInstanceIndex = renderData.m_nextInstance;
-            } while(renderInstanceIndex != TrackManager.INVALID_RENDER_INDEX);
+                    renderInstanceIndex = renderData.m_nextInstance;
+                } while(renderInstanceIndex != TrackManager.INVALID_RENDER_INDEX);
+            } catch(Exception ex) {
+                ex.Log($"failed to render {SegmentID}", false);
+            }
         }
 #endregion
     }

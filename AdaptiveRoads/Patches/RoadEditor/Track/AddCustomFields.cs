@@ -15,7 +15,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         public static void Postfix(RoadEditorPanel __instance, object ___m_Target) {
             if (___m_Target == null) throw new ArgumentNullException("___m_Target");
             if (___m_Target is NetInfoExtionsion.Track) {
-                __instance.AddCrossImportField();
+                // __instance.AddCrossImportField(); // TODO: add once this is supported
                 __instance.AddModelImportField(true);
             } 
         }
