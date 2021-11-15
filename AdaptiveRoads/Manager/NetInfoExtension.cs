@@ -1136,22 +1136,23 @@ namespace AdaptiveRoads.Manager {
         }
 
         public static bool IsAdaptive(this NetInfo info) {
-            Assertion.AssertNotNull(info);
-            if(info.GetMetaData() != null)
-                return true;
-            foreach(var item in info.m_nodes) {
-                if(item.GetMetaData() != null)
-                    return true;
-            }
-            foreach(var item in info.m_segments) {
-                if(item.GetMetaData() != null)
-                    return true;
-            }
-            foreach(var item in IterateProps(info)) {
-                if(item.GetMetaData() != null)
-                    return true;
-            }
-            return false;
+            return info?.GetMetaData() != null;
+            //Assertion.AssertNotNull(info);
+            //if(info.GetMetaData() != null)
+            //    return true;
+            //foreach(var item in info.m_nodes) {
+            //    if(item.GetMetaData() != null)
+            //        return true;
+            //}
+            //foreach(var item in info.m_segments) {
+            //    if(item.GetMetaData() != null)
+            //        return true;
+            //}
+            //foreach(var item in IterateProps(info)) {
+            //    if(item.GetMetaData() != null)
+            //        return true;
+            //}
+            //return false;
         }
 
         public static NetInfo EditedNetInfo =>
