@@ -16,10 +16,10 @@ namespace AdaptiveRoads.Manager {
         public void Awake() {
             try {
                 this.m_roadLayer = LayerMask.NameToLayer("Road");
-                var oldInstances = RenderManager.instance.m_indices;
-                if(oldInstances.Length < MAX_HOLDER_COUNT) {
+                var oldIndinces = RenderManager.instance.m_indices;
+                if(oldIndinces.Length < MAX_HOLDER_COUNT) {
                     RenderManager.instance.m_indices = new ushort[MAX_HOLDER_COUNT];
-                    Array.Copy(oldInstances, RenderManager.instance.m_indices, oldInstances.Length);
+                    Array.Copy(oldIndinces, RenderManager.instance.m_indices, oldIndinces.Length);
                 }
                 RenderManager.RegisterRenderableManager(this);
             }catch(Exception ex) {
@@ -122,12 +122,51 @@ namespace AdaptiveRoads.Manager {
         }
 
         public bool CalculateGroupData(int groupX, int groupZ, int layer, ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays) {
-            //throw new NotImplementedException();
-            return false;
+            bool ret = false;
+            const int resolutionRatio = NetManager.NODEGRID_RESOLUTION / RenderManager.GROUP_RESOLUTION; // = 270/45 = 6
+            int net_x0 = groupX * resolutionRatio;
+            int net_z0 = groupZ * resolutionRatio;
+            int net_x1 = (groupX + 1) * resolutionRatio - 1;
+            int net_z1 = (groupZ + 1) * resolutionRatio - 1;
+            for(int net_z = net_z0; net_z <= net_z1; net_z++) {
+                for(int net_x = net_x0; net_x <= net_x1; net_x++) {
+                    ushort segmentID = NetManager.instance.m_segmentGrid[net_z * NetManager.NODEGRID_RESOLUTION + net_x];
+                    int watchdog = 0;
+                    while(segmentID != 0) {
+                        ref var segExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
+                        ret |= segExt.CalculateGroupData(layer, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
+                        segmentID = segmentID.ToSegment().m_nextGridSegment;
+                        if(++watchdog >= 36864) {
+                            CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
+                            break;
+                        }
+                    }
+                }
+            }
+            return ret;
         }
 
         public void PopulateGroupData(int groupX, int groupZ, int layer, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData data, ref Vector3 min, ref Vector3 max, ref float maxRenderDistance, ref float maxInstanceDistance, ref bool requireSurfaceMaps) {
-            //throw new NotImplementedException();
+            const int resolutionRatio = NetManager.NODEGRID_RESOLUTION / RenderManager.GROUP_RESOLUTION; // = 270/45 = 6
+            int net_x0 = groupX * resolutionRatio;
+            int net_z0 = groupZ * resolutionRatio;
+            int net_x1 = (groupX + 1) * resolutionRatio - 1;
+            int net_z1 = (groupZ + 1) * resolutionRatio - 1;
+            for(int net_z = net_z0; net_z <= net_z1; net_z++) {
+                for(int net_x = net_x0; net_x <= net_x1; net_x++) {
+                    ushort segmentID = NetManager.instance.m_segmentGrid[net_z * NetManager.NODEGRID_RESOLUTION + net_x];
+                    int watchdog = 0;
+                    while(segmentID != 0) {
+                        ref var segExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
+                        segExt.PopulateGroupData(groupX, groupZ, layer, ref vertexIndex, ref triangleIndex, groupPosition, data, ref min, ref max, ref maxRenderDistance, ref maxInstanceDistance);
+                        segmentID = segmentID.ToSegment().m_nextGridSegment;
+                        if(++watchdog >= 36864) {
+                            CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
         #endregion
@@ -142,6 +181,6 @@ namespace AdaptiveRoads.Manager {
 
         public void CheckReferences() { }
 
-        public void InitRenderData() { } // TODO patch netmanager.InitRenderDataImpl
+        public void InitRenderData() { }
     }
 }

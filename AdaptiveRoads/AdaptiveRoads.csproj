@@ -154,6 +154,7 @@
     <Compile Include="KianCommons\KianCommons\Serialization\Vector3Serializable.cs" />
     <Compile Include="KianCommons\KianCommons\Patches\HarmonyUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Patches\TranspilerUtils.cs" />
+    <None Include="KianCommons\KianCommons\StockCode\NetSegment.cs" />
     <Compile Include="KianCommons\KianCommons\Util\DelegateUtil.cs" />
     <None Include="KianCommons\KianCommons\StockCode\NetManager.cs" />
     <Compile Include="KianCommons\KianCommons\UI\TextureExtensions.cs" />
@@ -199,7 +200,6 @@
     <None Include="KianCommons\KianCommons\StockCode\NetAI.cs" />
     <None Include="KianCommons\KianCommons\StockCode\NetLane.cs" />
     <None Include="KianCommons\KianCommons\StockCode\NetNode.cs" />
-    <None Include="KianCommons\KianCommons\StockCode\NetSegment.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\prefab-metadata\PrefabMetadata.csproj" />

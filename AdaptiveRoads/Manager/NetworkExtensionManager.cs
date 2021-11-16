@@ -7,6 +7,13 @@ namespace AdaptiveRoads.Manager {
     using static KianCommons.ReflectionHelpers;
     using KianCommons.Plugins;
 
+    public static class NetworkExtensionManagerExtensions{
+        static NetworkExtensionManager man = NetworkExtensionManager.Instance;
+        public static ref NetNodeExt ToNodeExt(this ushort id) => ref man.NodeBuffer[id];
+        public static ref NetSegmentExt ToSegmentExt(this ushort id) => ref man.SegmentBuffer[id];
+        public static ref NetLaneExt ToLaneExt(this uint id) => ref man.LaneBuffer[id];
+    }
+
     [Serializable]
     public class NetworkExtensionManager {
         #region LifeCycle

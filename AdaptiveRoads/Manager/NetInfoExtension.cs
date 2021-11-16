@@ -535,17 +535,21 @@ namespace AdaptiveRoads.Manager {
             // NetInfo
             // Token: 0x06004ED3 RID: 20179 RVA: 0x00246F24 File Offset: 0x00245324
             [NonSerialized]
-            static NetInfo.Segment tempSegment_ = new NetInfo.Segment();
+            public static NetInfo.Segment tempSegmentInfo_ = new NetInfo.Segment();
+            public static NetInfo.Segment TempSegmentInfo(Track trackInfo) {
+                tempSegmentInfo_.m_lodMesh = trackInfo.m_lodMesh;
+                tempSegmentInfo_.m_lodMaterial = trackInfo.m_lodMaterial;
+                tempSegmentInfo_.m_combinedLod = trackInfo.m_combinedLod;
+                tempSegmentInfo_.m_preserveUVs = trackInfo.m_preserveUVs;
+                tempSegmentInfo_.m_generateTangents = trackInfo.m_generateTangents;
+                tempSegmentInfo_.m_layer = trackInfo.m_layer;
+                return tempSegmentInfo_;
+            }
+
 
             public void InitMeshData(Track trackInfo, Rect atlasRect, Texture2D rgbAtlas, Texture2D xysAtlas, Texture2D aprAtlas) {
                 // work around private fields/methods.
-                tempSegment_.m_lodMesh = trackInfo.m_lodMesh;
-                tempSegment_.m_lodMaterial = trackInfo.m_lodMaterial;
-                tempSegment_.m_combinedLod = trackInfo.m_combinedLod;
-                tempSegment_.m_preserveUVs = trackInfo.m_preserveUVs;
-                tempSegment_.m_generateTangents = trackInfo.m_generateTangents;
-                tempSegment_.m_layer = trackInfo.m_layer;
-                Template.InitMeshData(tempSegment_, atlasRect, rgbAtlas, xysAtlas, aprAtlas); 
+                Template.InitMeshData(TempSegmentInfo(trackInfo), atlasRect, rgbAtlas, xysAtlas, aprAtlas); 
             }
 
             void RecalculateParkingAngle() {
