@@ -884,7 +884,6 @@ namespace AdaptiveRoads.Manager {
             };
         }
 
-        // TODO: extract used flags.
         [Serializable]
         public class Track : ICloneable, ISerializable {
             [Obsolete("only useful for the purpose of shallow clone", error: true)]
