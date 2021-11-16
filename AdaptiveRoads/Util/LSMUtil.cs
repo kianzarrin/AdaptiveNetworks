@@ -11,7 +11,6 @@ namespace AdaptiveRoads.Util {
     using static KianCommons.ReflectionHelpers;
     using ColossalFramework.Packaging;
 
-    // TODO: Init this on load/save for more speed (if many assets use AR.
     public static class LSMUtil {
         public const string LSM_TEST = "LoadingScreenModTest";
         public const string LSM = "LoadingScreenMod";
@@ -66,5 +65,56 @@ namespace AdaptiveRoads.Util {
                 return InvokeMethod(sharing, "GetMaterial", checksum, package, isMain) as Material;
             }
         }
+
+        #region optimization
+        public class Cache {
+            public static class Delegates {
+                public delegate Mesh GetMesh(string checksum, Package package, bool isMain);
+                public delegate Material GetMaterial(string checksum, Package package, bool isMain);
+            }
+            public Package LoadingPackage;
+            public static Delegates.GetMesh GetMeshDelagate;
+            public static Delegates.GetMaterial GetMaterialDelagate;
+
+            public Cache(object sharing, Package package) {
+                LoadingPackage = package;
+                GetMeshDelagate = DelegateUtil.CreateClosedDelegate<Delegates.GetMesh>(sharing);
+                GetMaterialDelagate = DelegateUtil.CreateClosedDelegate<Delegates.GetMaterial>(sharing);
+            }
+
+            public Mesh GetMesh(string checksum, bool isMain) => GetMeshDelagate(checksum, LoadingPackage, isMain);
+            public Material GetMaterial(string checksum, bool isMain) => GetMaterialDelagate(checksum, LoadingPackage, isMain);
+        }
+
+        public static Cache CacheInstance;
+        public static void Init() {
+            object sharing = GetSharing();
+            if(sharing != null) {
+                CacheInstance = new Cache(sharing, PackageManagerUtil.LoadingPackage);
+            } else {
+                CacheInstance = null;
+            }
+        }
+
+        public static Mesh GetMesh(string checksum, bool isLod) {
+            if(checksum.IsNullorEmpty())
+                return null;
+            if(CacheInstance == null) {
+                return PackageManagerUtil.LoadingPackage.FindByChecksum(checksum)?.Instantiate<Mesh>();
+            } else {
+                return CacheInstance.GetMesh(checksum, isLod);
+            }
+        }
+
+        public static Material GetMaterial(string checksum, bool isLod) {
+            if(checksum.IsNullorEmpty())
+                return null;
+            if(CacheInstance == null) {
+                return PackageManagerUtil.LoadingPackage.FindByChecksum(checksum)?.Instantiate<Material>();
+            } else {
+                return CacheInstance.GetMaterial(checksum, isLod);
+            }
+        }
+        #endregion
     }
 }

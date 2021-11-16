@@ -1,20 +1,16 @@
 namespace AdaptiveRoads.Util {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using ColossalFramework.Packaging;
-    using ColossalFramework;
-    using UnityEngine;
-    using KianCommons;
-    using static KianCommons.ReflectionHelpers;
     using AdaptiveRoads.LifeCycle;
+    using ColossalFramework.Packaging;
     using ColossalFramework.PlatformServices;
+    using KianCommons;
 
     public static class PackageManagerUtil {
-        public static Package GetPackage(string name) {
-            return InvokeMethod<PackageManager>("GetPackage", name) as Package;
+        static class Delegates {
+            public delegate Package GetPackage(string packageName);
+            public static GetPackage GetPackageDelegate = DelegateUtil.CreateDelegate<GetPackage>(typeof(PackageManager));
         }
+
+        public static Package GetPackage(string name) => Delegates.GetPackageDelegate(name);
 
         public static Package LoadingPackage => AssetDataExtension.AssetRef.package;
 
