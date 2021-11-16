@@ -19,7 +19,6 @@ using System.Collections;
 using System.Reflection;
 using ColossalFramework.Packaging;
 
-
 namespace AdaptiveRoads.Manager {
     using static HintExtension;
     using Vector3Serializable = KianCommons.Serialization.Vector3Serializable;

@@ -11,6 +11,7 @@ namespace AdaptiveRoads.Util {
     using static KianCommons.ReflectionHelpers;
     using ColossalFramework.Packaging;
 
+    // TODO: Init this on load/save for more speed (if many assets use AR.
     public static class LSMUtil {
         public const string LSM_TEST = "LoadingScreenModTest";
         public const string LSM = "LoadingScreenMod";
@@ -65,7 +66,5 @@ namespace AdaptiveRoads.Util {
                 return InvokeMethod(sharing, "GetMaterial", checksum, package, isMain) as Material;
             }
         }
-
-
     }
 }
