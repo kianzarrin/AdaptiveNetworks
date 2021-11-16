@@ -21,9 +21,11 @@ namespace AdaptiveRoads.Patches.AssetPatches {
         }
 
         public static void Finalizer(Exception __exception) {
-            SimulationManager.instance.ForcedSimulationPaused = false;
-            if (__exception != null)
+            if(__exception != null) {
+                SimulationManager.instance.ForcedSimulationPaused = false;
                 Log.Exception(__exception);
+            }
+
         }
     }
 }

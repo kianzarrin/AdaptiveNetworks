@@ -921,9 +921,11 @@ namespace AdaptiveRoads.Manager {
                             //Vector3Serializable v = (Vector3Serializable)field.GetValue(instance);
                             info.AddValue(field.Name, value, typeof(Vector3Serializable));
                         } else if(value is Mesh mesh) {
+                            Log.Debug($"package.AddAsset mesh : {mesh} InMainThread={Helpers.InMainThread()}" );
                             var asset = package.AddAsset(mesh.name, mesh, true);
                             info.AddValue(field.Name, asset.checksum);
                         } else if(value is Material material) {
+                            Log.Debug($"package.AddAsset material : {material} InMainThread={Helpers.InMainThread()}");
                             var asset = package.AddAsset(material.name, material, true);
                             info.AddValue(field.Name, asset.checksum);
                         } else {
@@ -966,6 +968,8 @@ namespace AdaptiveRoads.Manager {
             #endregion
 
             public void Recalculate(NetInfo netInfo) {
+                Assertion.Assert(Helpers.InMainThread(), "in main thread");
+                Log.Called(netInfo, $"inMainthread={Helpers.InMainThread()}");
                 this.ParentInfo = netInfo;
                 float num = netInfo.m_minHeight - netInfo.m_maxSlope * 64f - 10f;
                 float num2 = netInfo.m_maxHeight + netInfo.m_maxSlope * 64f + 10f;
@@ -1213,7 +1217,7 @@ namespace AdaptiveRoads.Manager {
 
         public static void InvokeEditPrefabChanged() {
             // invoke eventEditPrefabChanged
-            ThreadHelper.dispatcher.Dispatch(delegate () {
+            SimulationManager.instance.m_ThreadingWrapper.QueueMainThread(delegate () {
                 var tc = ToolsModifierControl.toolController;
                 ReflectionHelpers.EventToDelegate<ToolController.EditPrefabChanged>(
                     tc, nameof(tc.eventEditPrefabChanged))

@@ -149,6 +149,7 @@ namespace AdaptiveRoads.Manager {
         }
 
         public static void Load(AssetData assetData, NetInfo groundInfo) {
+            Log.Called(assetData, groundInfo);
             NetInfo elevated = AssetEditorRoadUtils.TryGetElevated(groundInfo);
             NetInfo bridge = AssetEditorRoadUtils.TryGetBridge(groundInfo);
             NetInfo slope = AssetEditorRoadUtils.TryGetSlope(groundInfo);

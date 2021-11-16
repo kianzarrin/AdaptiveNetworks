@@ -7,6 +7,7 @@ namespace AdaptiveRoads.Patches.AssetPatches {
     [HarmonyPatch(typeof(Package), nameof(Package.Save),
         new[] { typeof(string), typeof(bool) })]
     public static class SavePostfix {
-        public static void Postfix() => AssetDataExtension.AfterSave();
+        public static void Postfix() =>
+            SimulationManager.instance.m_ThreadingWrapper.QueueMainThread(AssetDataExtension.AfterSave);
     }
 }

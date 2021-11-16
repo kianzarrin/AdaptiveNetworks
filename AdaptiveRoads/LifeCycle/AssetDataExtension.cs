@@ -78,7 +78,7 @@ namespace AdaptiveRoads.LifeCycle {
         public static void BeforeSave(string saveName) {
             try {
                 SaveName = saveName;
-                if (ModSettings.VanillaMode || !InRoadEditor) return;
+                if(ModSettings.VanillaMode || !InRoadEditor) return;
                 AssetData.TakeSnapshot();
                 Log.Debug($"AssetDataExtension.BeforeSave(): reversing ...");
                 SimulationManager.instance.ForcedSimulationPaused = true;
@@ -89,23 +89,25 @@ namespace AdaptiveRoads.LifeCycle {
                 Log.Exception(e);
                 throw e;
             }
-            Log.Debug("AssetDataExtension.BeforeSave() was successfull");
+            Log.Debug("AssetDataExtension.BeforeSave() was successful");
         }
 
         public static void AfterSave() {
             try {
-                if (ModSettings.VanillaMode || !InRoadEditor) return;
-                Log.Debug($"SaveAssetPanel.SaveRoutine re extending ...");
-                foreach (var info in NetInfoExtionsion.EditedNetInfos) {
+                if(ModSettings.VanillaMode || !InRoadEditor) return;
+                Log.Debug($"AfterSave re extending ...");
+                foreach(var info in NetInfoExtionsion.EditedNetInfos) {
                     info.UndoVanillaForbidden();
                 }
                 AssetData.ApplySnapshot();
                 NetInfoExtionsion.InvokeEditPrefabChanged();
-            } catch (Exception e) {
+            } catch(Exception e) {
                 Log.Exception(e);
                 throw e;
+            } finally {
+                SaveName = null;
+                SimulationManager.instance.ForcedSimulationPaused = false;
             }
-            SaveName = null;
         }
 
         public static void HotReload() {
