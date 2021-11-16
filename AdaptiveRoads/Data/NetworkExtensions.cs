@@ -296,7 +296,7 @@ namespace AdaptiveRoads.Manager {
                         netManager.m_materialBlock.SetVector(netManager.ID_MeshScale, dataVector0);
                         netManager.m_materialBlock.SetVector(netManager.ID_ObjectIndex, dataVector3);
                         netManager.m_materialBlock.SetColor(netManager.ID_Color, renderData.m_dataColor0);
-                        netManager.m_drawCallData.m_defaultCalls++;
+                        TrackManager.instance.m_drawCallData.m_defaultCalls++;
                         Graphics.DrawMesh(track.m_trackMesh, renderData.m_position, renderData.m_rotation, track.m_trackMaterial, track.m_layer, null, 0, netManager.m_materialBlock);
                     } else {
                         NetInfo.LodValue combinedLod = track.m_combinedLod;

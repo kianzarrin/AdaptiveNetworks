@@ -17,6 +17,7 @@ Tracks:
         - lane corners
         - prop embankment
         - AR tool UI
+    - add vertical mesh offset
 
 TODO:
     - bug fix: can't change custom flag name after loading AR road.

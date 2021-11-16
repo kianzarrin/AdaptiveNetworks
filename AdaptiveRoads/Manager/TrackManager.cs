@@ -8,20 +8,22 @@ namespace AdaptiveRoads.Manager {
     using HarmonyLib;
 
     public class TrackManager : Singleton<TrackManager>, IRenderableManager, IAwakingObject, IDestroyableObject {
-        [NonSerialized]
-        public DrawCallData m_drawCallData;
-
         public string GetName() => gameObject?.name ?? "null";
-
-        public DrawCallData GetDrawCallData() => m_drawCallData;
+        private int m_roadLayer;
+        public DrawCallData GetDrawCallData() => NetManager.instance.GetDrawCallData();
 
         #region Life-cycle
         public void Awake() {
-            RenderManager.RegisterRenderableManager(this);
-            var oldInstances = RenderManager.instance.m_indices;
-            if(oldInstances.Length < MAX_HOLDER_COUNT) {
-                RenderManager.instance.m_indices = new ushort[MAX_HOLDER_COUNT];
-                Array.Copy(oldInstances, RenderManager.instance.m_indices, oldInstances.Length);
+            try {
+                this.m_roadLayer = LayerMask.NameToLayer("Road");
+                var oldInstances = RenderManager.instance.m_indices;
+                if(oldInstances.Length < MAX_HOLDER_COUNT) {
+                    RenderManager.instance.m_indices = new ushort[MAX_HOLDER_COUNT];
+                    Array.Copy(oldInstances, RenderManager.instance.m_indices, oldInstances.Length);
+                }
+                RenderManager.RegisterRenderableManager(this);
+            }catch(Exception ex) {
+                ex.Log();
             }
         }
 
@@ -34,14 +36,19 @@ namespace AdaptiveRoads.Manager {
 
 
         #region main rendering
-
         public void BeginRendering(RenderManager.CameraInfo cameraInfo) {
-            try {
-                this.m_drawCallData.m_defaultCalls = 0;
-                this.m_drawCallData.m_lodCalls = 0;
-                this.m_drawCallData.m_batchedCalls = 0;
-            } catch(Exception ex) {
-                ex.Log(false);
+            var netMan = NetManager.instance;
+            Material material = RenderManager.instance.m_groupLayerMaterials[m_roadLayer];
+            if(material != null) {
+                if(material.HasProperty(netMan.ID_MainTex)) {
+                    material.SetTexture(netMan.ID_MainTex, netMan.m_lodRgbAtlas);
+                }
+                if(material.HasProperty(netMan.ID_XYSMap)) {
+                    material.SetTexture(netMan.ID_XYSMap, netMan.m_lodXysAtlas);
+                }
+                if(material.HasProperty(netMan.ID_APRMap)) {
+                    material.SetTexture(netMan.ID_APRMap, netMan.m_lodAprAtlas);
+                }
             }
         }
 
@@ -126,34 +133,15 @@ namespace AdaptiveRoads.Manager {
         #endregion
 
         #region overlay
-        public void BeginOverlay(RenderManager.CameraInfo cameraInfo) {
-            try {
-                this.m_drawCallData.m_overlayCalls = 0;
-            } catch(Exception ex) {
-                ex.Log(false);
-            }
-        }
+        public void BeginOverlay(RenderManager.CameraInfo cameraInfo) { }
 
         public void EndOverlay(RenderManager.CameraInfo cameraInfo) { }
 
         public void UndergroundOverlay(RenderManager.CameraInfo cameraInfo) { }
-
         #endregion
 
         public void CheckReferences() { }
 
-        // TODO: NetManger.RebuildLods to call this
-        public Coroutine RebuildLods() {
-            NetInfo.ClearLodValues();
-            return base.StartCoroutine(this.InitRenderDataImpl());
-        }
-
-        public void InitRenderData() {
-            Singleton<LoadingManager>.instance.QueueLoadingAction(this.InitRenderDataImpl());
-        }
-        public IEnumerator InitRenderDataImpl() {
-            //throw new NotImplementedException();
-            yield break;
-        }
+        public void InitRenderData() { } // TODO patch netmanager.InitRenderDataImpl
     }
 }
