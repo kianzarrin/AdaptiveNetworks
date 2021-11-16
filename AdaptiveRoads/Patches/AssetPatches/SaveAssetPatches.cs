@@ -10,7 +10,7 @@ namespace AdaptiveRoads.Patches.AssetPatches {
     [HarmonyPatch(typeof(SaveAssetPanel), "SaveAsset")]
     public static class SaveAssetPatch {
         static void Prefix(string saveName, ref string assetName) {
-            AssetDataExtension.BeforeSave();
+            AssetDataExtension.BeforeSave(saveName);
             if (ToolsModifierControl.toolController.m_editPrefabInfo is NetInfo netInfo) {
                 Assertion.Assert(netInfo is not null);
                 Assertion.Assert(netInfo.name is not null);

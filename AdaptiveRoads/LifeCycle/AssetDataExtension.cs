@@ -9,6 +9,7 @@ namespace AdaptiveRoads.LifeCycle {
     using KianCommons.Serialization;
     using AdaptiveRoads.UI;
     using KianCommons.Plugins;
+    using ColossalFramework.Packaging;
 
     public class AssetDataExtension : IAssetDataExtension {
         public const string ID_NetInfo = "AdvancedRoadEditor_NetInfoExt";
@@ -71,9 +72,12 @@ namespace AdaptiveRoads.LifeCycle {
         }
 
         public static bool InRoadEditor => ToolsModifierControl.toolController.m_editPrefabInfo is NetInfo;
+        public static string SaveName;
+        public static Package.Asset AssetRef;
 
-        public static void BeforeSave() {
+        public static void BeforeSave(string saveName) {
             try {
+                SaveName = saveName;
                 if (ModSettings.VanillaMode || !InRoadEditor) return;
                 AssetData.TakeSnapshot();
                 Log.Debug($"AssetDataExtension.BeforeSave(): reversing ...");
@@ -101,6 +105,7 @@ namespace AdaptiveRoads.LifeCycle {
                 Log.Exception(e);
                 throw e;
             }
+            SaveName = null;
         }
 
         public static void HotReload() {

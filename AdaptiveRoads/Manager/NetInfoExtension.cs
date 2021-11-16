@@ -17,6 +17,8 @@ using AdaptiveRoads.UI.RoadEditor.Bitmask;
 using AdaptiveRoads.Util;
 using System.Collections;
 using System.Reflection;
+using ColossalFramework.Packaging;
+
 
 namespace AdaptiveRoads.Manager {
     using static HintExtension;
@@ -909,24 +911,58 @@ namespace AdaptiveRoads.Manager {
             #region serialization
             //serialization
             public void GetObjectData(SerializationInfo info, StreamingContext context) {
-                var fields = this.GetType().GetFields(ReflectionHelpers.COPYABLE).Where(field => !field.HasAttribute<NonSerializedAttribute>());
-                foreach(FieldInfo field in fields) {
-                    var type = field.GetType();
-                    object value = field.GetValue(this);
-                    if(type == typeof(Vector3)) {
-                        //Vector3Serializable v = (Vector3Serializable)field.GetValue(instance);
-                        info.AddValue(field.Name, value, typeof(Vector3Serializable));
-                    } else if(value is Mesh mesh) {
-                        throw new NotImplementedException();
-                    } else {
-                        info.AddValue(field.Name, value, field.FieldType);
+                try {
+                    var package = PackageUtil.SavingPackage;
+                    Assertion.NotNull(package, "package");
+                    var fields = this.GetType().GetFields(ReflectionHelpers.COPYABLE).Where(field => !field.HasAttribute<NonSerializedAttribute>());
+                    foreach(FieldInfo field in fields) {
+                        var type = field.GetType();
+                        object value = field.GetValue(this);
+                        if(type == typeof(Vector3)) {
+                            //Vector3Serializable v = (Vector3Serializable)field.GetValue(instance);
+                            info.AddValue(field.Name, value, typeof(Vector3Serializable));
+                        } else if(value is Mesh mesh) {
+                            var asset = package.AddAsset(mesh.name, mesh, true);
+                            info.AddValue(field.Name, asset.checksum);
+                        } else if(value is Material material) {
+                            var asset = package.AddAsset(material.name, material, true);
+                            info.AddValue(field.Name, asset.checksum);
+                        } else {
+                            info.AddValue(field.Name, value, field.FieldType);
+                        }
                     }
+                }catch(Exception ex) {
+                    ex.Log();
                 }
             }
 
             // deserialization
             public Track(SerializationInfo info, StreamingContext context) {
-                SerializationUtil.SetObjectFields(info, this);
+                try {
+                    var package = PackageUtil.LoadingPackage;
+                    var sharing = LSMUtil.GetSharing();
+                    Assertion.NotNull(package, "package");
+                    foreach(SerializationEntry item in info) {
+                        FieldInfo field = this.GetType().GetField(item.Name, ReflectionHelpers.COPYABLE);
+                        if(field != null) {
+                            object val;
+                            if(field.FieldType == typeof(Mesh)) {
+                                bool lod = field.Name.Contains("lod");
+                                string checksum = item.Value as string;
+                                val = LSMUtil.GetMesh(sharing, checksum , package, lod);
+                            } else if(field.FieldType == typeof(Material)) {
+                                bool lod = field.Name.Contains("lod");
+                                string checksum = item.Value as string;
+                                val = LSMUtil.GetMaterial(sharing, checksum, package, lod);
+                            } else {
+                                val = Convert.ChangeType(item.Value, field.FieldType);
+                            }
+                            field.SetValue(this, val);
+                        }
+                    }
+                } catch(Exception ex) {
+                    ex.Log();
+                }
             }
             #endregion
 

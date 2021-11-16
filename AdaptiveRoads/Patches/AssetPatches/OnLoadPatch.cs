@@ -36,6 +36,7 @@ namespace AdaptiveRoads.Patches.AssetPatches {
                 var selectedIndex = ___m_SaveList.selectedIndex;
                 var listingMetaData = (CustomAssetMetaData)mListingMetaData
                     .Invoke(__instance, new object[] { selectedIndex });
+                AssetDataExtension.AssetRef = listingMetaData.assetRef;
 
                 // Taken from LoadingManager.LoadCustomContent
                 if (listingMetaData.userDataRef != null) {
@@ -67,6 +68,7 @@ namespace AdaptiveRoads.Patches.AssetPatches {
             } catch (Exception ex) {
                 Log.Exception(ex);
             }
+            AssetDataExtension.AssetRef = null;
         }
 
         static NetInfo GetOriginalNetInfo(CustomAssetMetaData listingMetaData) {
