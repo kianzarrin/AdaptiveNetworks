@@ -11,9 +11,9 @@ namespace AdaptiveRoads.Util {
     using AdaptiveRoads.LifeCycle;
     using ColossalFramework.PlatformServices;
 
-    public static class PackageUtil {
-        public static Package PackageManagerGet(string name) {
-            return InvokeMethod<PackageManager>("Get", name) as Package;
+    public static class PackageManagerUtil {
+        public static Package GetPackage(string name) {
+            return InvokeMethod<PackageManager>("GetPackage", name) as Package;
         }
 
         public static Package LoadingPackage => AssetDataExtension.AssetRef.package;
@@ -26,7 +26,7 @@ namespace AdaptiveRoads.Util {
                 } else {
                     name = AssetDataExtension.SaveName;
                 }
-                return PackageManagerGet(name);
+                return GetPackage(name);
             }
         }
     }

@@ -911,7 +911,7 @@ namespace AdaptiveRoads.Manager {
             //serialization
             public void GetObjectData(SerializationInfo info, StreamingContext context) {
                 try {
-                    var package = PackageUtil.SavingPackage;
+                    var package = PackageManagerUtil.SavingPackage;
                     Assertion.NotNull(package, "package");
                     var fields = this.GetType().GetFields(ReflectionHelpers.COPYABLE).Where(field => !field.HasAttribute<NonSerializedAttribute>());
                     foreach(FieldInfo field in fields) {
@@ -938,7 +938,7 @@ namespace AdaptiveRoads.Manager {
             // deserialization
             public Track(SerializationInfo info, StreamingContext context) {
                 try {
-                    var package = PackageUtil.LoadingPackage;
+                    var package = PackageManagerUtil.LoadingPackage;
                     var sharing = LSMUtil.GetSharing();
                     Assertion.NotNull(package, "package");
                     foreach(SerializationEntry item in info) {
