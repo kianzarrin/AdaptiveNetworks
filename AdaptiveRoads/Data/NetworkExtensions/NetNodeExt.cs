@@ -75,28 +75,32 @@ namespace AdaptiveRoads.Manager {
             TrafficManager.Constants.ManagerFactory.JunctionRestrictionsManager;
 
         public void UpdateFlags() {
-            m_flags = m_flags.SetFlags(Flags.HC_Mod, NetworkExtensionManager.Instance.HTC);
-            m_flags = m_flags.SetFlags(Flags.DCR_Mod, NetworkExtensionManager.Instance.DCR);
-            m_flags = m_flags.SetFlags(Flags.HUT_Mod, NetworkExtensionManager.Instance.HUT);
+            try {
+                m_flags = m_flags.SetFlags(Flags.HC_Mod, NetworkExtensionManager.Instance.HTC);
+                m_flags = m_flags.SetFlags(Flags.DCR_Mod, NetworkExtensionManager.Instance.DCR);
+                m_flags = m_flags.SetFlags(Flags.HUT_Mod, NetworkExtensionManager.Instance.HUT);
 
-            if (JRMan != null) {
-                bool keepClearAll = true;
-                foreach(var segmentID in NetUtil.IterateNodeSegments(NodeID)) {
-                    bool startNode = NetUtil.IsStartNode(segmentId: segmentID, nodeId: NodeID);
-                    bool keppClear = JRMan.IsEnteringBlockedJunctionAllowed(segmentID, startNode);
-                    keepClearAll &= keppClear;
+                if(JRMan != null) {
+                    bool keepClearAll = true;
+                    foreach(var segmentID in NetUtil.IterateNodeSegments(NodeID)) {
+                        bool startNode = NetUtil.IsStartNode(segmentId: segmentID, nodeId: NodeID);
+                        bool keppClear = JRMan.IsEnteringBlockedJunctionAllowed(segmentID, startNode);
+                        keepClearAll &= keppClear;
 
+                    }
+                    m_flags = m_flags.SetFlags(Flags.KeepClearAll, keepClearAll);
+
+
+                    bool speedChange = TMPEHelpers.SpeedChanges(NodeID);
+                    bool twoSegments = NodeID.ToNode().CountSegments() == 2;
+
+                    m_flags = m_flags.SetFlags(Flags.SpeedChange, speedChange);
+                    m_flags = m_flags.SetFlags(Flags.TwoSegments, twoSegments);
+
+                    GetTrackConnections();
                 }
-                m_flags = m_flags.SetFlags(Flags.KeepClearAll, keepClearAll);
-
-
-                bool speedChange = TMPEHelpers.SpeedChanges(NodeID);
-                bool twoSegments = NodeID.ToNode().CountSegments() == 2;
-
-                m_flags = m_flags.SetFlags(Flags.SpeedChange, speedChange);
-                m_flags = m_flags.SetFlags(Flags.TwoSegments, twoSegments);
-
-                GetTrackConnections();
+            } catch(Exception ex) {
+                ex.Log("node=" + this);
             }
         }
 
@@ -127,15 +131,17 @@ namespace AdaptiveRoads.Manager {
         public static HashSet<Connection> tempConnections_ = new HashSet<Connection>();
         public LaneTransition[] Transitions;
         public void GetTrackConnections() {
+            return; //TODO delete
             if(!NodeID.ToNode().IsValid()) {
                 Transitions = null;
                 return;
             }
             tempConnections_.Clear();
             foreach(var segmentID in NodeID.ToNode().IterateSegments()) {
-                ref var segExt = ref segmentID.ToSegmentExt();
-                var infoExt = segExt.NetInfoExt;
-                var lanes = segExt.LaneIDs;
+                var infoExt = segmentID.ToSegment().Info?.GetMetaData();
+                if(infoExt == null)
+                    continue;
+                var lanes = new LaneIDIterator(segmentID).ToArray();
                 for(int laneIndex = 0; laneIndex < lanes.Length; ++laneIndex) {
                     uint laneID = lanes[laneIndex];
                     foreach(var transtion in TMPEHelpers.GetForwardRoutings(laneID, NodeID)) {

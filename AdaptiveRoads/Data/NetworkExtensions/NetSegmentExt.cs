@@ -35,8 +35,6 @@ namespace AdaptiveRoads.Manager {
 
         public void Init(ushort segmentID) {
             SegmentID = segmentID;
-            NetInfoExt = Segment.Info?.GetMetaData();
-            LaneIDs = new LaneIDIterator(SegmentID).ToArray();
         }
 
         [Flags]
@@ -85,12 +83,16 @@ namespace AdaptiveRoads.Manager {
 
         public void UpdateAllFlags() {
             try {
+                NetInfoExt = null;
+                LaneIDs = null;
                 renderCount_ = 0;
                 if(!NetUtil.IsSegmentValid(SegmentID)) {
                     if(SegmentID.ToSegment().m_flags.IsFlagSet(NetSegment.Flags.Created))
                         Log.Debug("Skip updating invalid segment:" + SegmentID);
                     return;
                 }
+                NetInfoExt = Segment.Info?.GetMetaData();
+                LaneIDs = new LaneIDIterator(SegmentID).ToArray();
 
                 if(Log.VERBOSE) Log.Debug($"NetSegmentExt.UpdateAllFlags() called. SegmentID={SegmentID}" /*Environment.StackTrace*/, false);
                 bool parkingLeft = false;
@@ -172,16 +174,13 @@ namespace AdaptiveRoads.Manager {
 
         #region Track
         public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo, int layerMask) {
-            if(!SegmentID.ToSegment().IsValid()) {
+            if(!SegmentID.ToSegment().IsValid()) 
                 return;
-            }
             NetInfo info = SegmentID.ToSegment().Info;
-            if(NetInfoExt == null || (layerMask & info.m_netLayers) == 0) {
+            if(NetInfoExt == null || (layerMask & info.m_netLayers) == 0) 
                 return;
-            }
-            if(!cameraInfo.Intersect(Segment.m_bounds)) {
+            if(!cameraInfo.Intersect(Segment.m_bounds)) 
                 return;
-            }
             if(GetOrCalculateTrackInstance(out var renderInstanceIndex)) {
                 var renderData = RenderManager.instance.m_instances[renderInstanceIndex];
                 if(renderData.m_dirty) {

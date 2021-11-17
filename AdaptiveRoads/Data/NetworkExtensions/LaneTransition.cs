@@ -98,8 +98,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         ref NetNodeExt NodeExt => ref NodeID.ToNodeExt();
         NetInfo Info => Node.Info;
         NetInfo InfoA => SegmentA.Info;
-        ref NetSegmentExt SegmentExtA => ref LaneA.m_segment.ToSegmentExt();
-        NetInfoExtionsion.Net InfoExtA => SegmentExtA.NetInfoExt;
+        NetInfoExtionsion.Net InfoExtA => segmentID_A.ToSegment().Info?.GetMetaData();
         NetInfo.Lane laneInfoA => LaneExtA.LaneData.LaneInfo;
         int laneIndexA => LaneExtA.LaneData.LaneIndex;
 
@@ -198,13 +197,14 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
 
 
         public bool CalculateGroupData(int layerMask, ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays) {
-            if(InfoA == null || InfoExtA == null || (layerMask & InfoA.m_netLayers) == 0)
+            var infoExtA = InfoExtA;
+            if(infoExtA == null || (layerMask & InfoA.m_netLayers) == 0)
                 return false;
-            if(InfoExtA.TrackLaneCount == 0)
+            if(infoExtA.TrackLaneCount == 0)
                 return false;
             bool result = false;
 
-            foreach(var trackInfo in InfoExtA.Tracks) {
+            foreach(var trackInfo in infoExtA.Tracks) {
                 if(trackInfo.HasTrackLane(LaneExtA.LaneData.LaneIndex) && trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags)) {
                     if(trackInfo.m_combinedLod != null) {
                         var tempSegmentInfo = NetInfoExtionsion.Net.TempSegmentInfo(trackInfo);

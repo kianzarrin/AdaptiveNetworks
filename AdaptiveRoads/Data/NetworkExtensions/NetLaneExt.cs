@@ -270,7 +270,7 @@ namespace AdaptiveRoads.Manager {
             renderData.m_dataColor0.a = 0f;
             renderData.m_dataFloat0 = Singleton<WeatherManager>.instance.GetWindSpeed(renderData.m_position); // wind speed
             renderData.m_dataVector0 = new Vector4(1f / laneInfo.m_width, 1f / info.m_segmentLength, 1f, 1f); // mesh scale
-            bool turnAround = LaneData.LaneInfo.IsGoingBackward(); // TODO is this logic sufficient? is this line even necessary?
+            bool turnAround = LaneData.LaneInfo.IsGoingBackward(); // TODO is this logic sufficient?
             if(turnAround) {
                 renderData.m_dataVector0.x *= -1;
                 renderData.m_dataVector0.y *= -1;
