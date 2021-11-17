@@ -363,13 +363,14 @@ namespace AdaptiveRoads.Manager {
             if((layer & info.m_netLayers) == 0)
                 return false;
             bool result = false;
-            UInt64 laneBit = 1ul << LaneData.LaneIndex;
-            ref var segmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[LaneData.SegmentID];
+            ref var segmentExt = ref LaneData.SegmentID.ToSegmentExt();
             var infoExt = segmentExt.NetInfoExt;
+            if(infoExt.TrackLaneCount == 0)
+                return false;
             ref var segment = ref LaneData.Segment;
 
             foreach(var trackInfo in infoExt.Tracks) {
-                if((trackInfo.LaneIndeces & laneBit) != 0 && trackInfo.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags)) {
+                if(trackInfo.HasTrackLane(LaneData.LaneIndex) && trackInfo.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags)) {
                     if(trackInfo.m_combinedLod != null) {
                         var tempSegmentInfo = NetInfoExtionsion.Net.TempSegmentInfo(trackInfo);
                         NetSegment.CalculateGroupData(tempSegmentInfo, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
@@ -392,18 +393,17 @@ namespace AdaptiveRoads.Manager {
             var info = LaneData.Segment.Info;
             if((layer & info.m_netLayers) == 0)
                 return;
-            ref var segmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[LaneData.SegmentID];
+            ref var segmentExt = ref LaneData.SegmentID.ToSegmentExt();
             var infoExt = segmentExt.NetInfoExt;
-            if(infoExt.Tracks.IsNullorEmpty())
+            if(infoExt.TrackLaneCount == 0)
                 return;
-            UInt64 laneBit = 1ul << LaneData.LaneIndex;
             ref var segment = ref LaneData.Segment;
 
             RenderManager.Instance renderData = default;
             RefreshRenderData(ref renderData);
 
             foreach(var trackInfo in infoExt.Tracks) {
-                if((trackInfo.LaneIndeces & laneBit) != 0 && trackInfo.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags)) {
+                if(trackInfo.HasTrackLane(LaneData.LaneIndex) && trackInfo.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags)) {
                     if(trackInfo.m_combinedLod != null) {
                         var tempSegmentInfo = NetInfoExtionsion.Net.TempSegmentInfo(trackInfo);
                         bool _ = false;
@@ -735,38 +735,35 @@ namespace AdaptiveRoads.Manager {
             }
         }
         public bool CalculateGroupData(int layer, ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays) {
+            if(NetInfoExt == null)
+                return false;
+            if((Segment.Info.m_netLayers & (1 << layer)) == 0)
+                return false;
+            if(NetInfoExt.TrackLaneCount == 0)
+                return false;
             bool result = false;
-            ref var segment = ref Segment;
-            if((segment.Info.m_netLayers & (1 << layer)) != 0) {
-                var laneMask = NetInfoExt.TrackLanes;
-                for(int laneIndex = 0; laneIndex < LaneIDs.Length; ++laneIndex) {
-                    var laneBit = 1ul << laneIndex;
-                    if((laneBit & laneMask) != 0) {
-                        var laneID = LaneIDs[laneIndex];
-                        ref var laneExt = ref laneID.ToLaneExt();
-                        result |= laneExt.CalculateGroupData(layer, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
-                    }
+            for(int laneIndex = 0; laneIndex < LaneIDs.Length; ++laneIndex) {
+                if(NetInfoExt.HasTrackLane(laneIndex)) {
+                    var laneID = LaneIDs[laneIndex];
+                    ref var laneExt = ref laneID.ToLaneExt();
+                    result |= laneExt.CalculateGroupData(layer, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
                 }
             }
             return result;
         }
         public void PopulateGroupData(int groupX, int groupZ, int layer, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData data, ref Vector3 min, ref Vector3 max, ref float maxRenderDistance, ref float maxInstanceDistance) {
-            bool hasProps = false;
-            NetInfo info = Segment.Info;
-            if((info.m_netLayers & (1 << layer)) == 0) {
+            if(NetInfoExt == null)
                 return;
-            }
-            if(NetInfoExt.Tracks.IsNullorEmpty()) {
+            if((Segment.Info.m_netLayers & (1 << layer)) == 0) 
                 return;
-            }
+            if(NetInfoExt.TrackLaneCount == 0)
+                return;
             min = Vector3.Min(min, Segment.m_bounds.min);
             max = Vector3.Max(max, Segment.m_bounds.max);
             maxRenderDistance = Mathf.Max(maxRenderDistance, 30000f);
             maxInstanceDistance = Mathf.Max(maxInstanceDistance, 1000f);
-            var laneMask = NetInfoExt.TrackLanes;
             for(int laneIndex = 0; laneIndex < LaneIDs.Length; ++laneIndex) {
-                var laneBit = 1ul << laneIndex;
-                if((laneBit & laneMask) != 0) {
+                if(NetInfoExt.HasTrackLane(laneIndex)) {
                     var laneID = LaneIDs[laneIndex];
                     ref var laneExt = ref laneID.ToLaneExt();
                     laneExt.PopulateGroupData(groupX, groupZ, layer, ref vertexIndex, ref triangleIndex, groupPosition, data);

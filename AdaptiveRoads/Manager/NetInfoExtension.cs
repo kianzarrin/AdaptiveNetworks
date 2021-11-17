@@ -331,6 +331,8 @@ namespace AdaptiveRoads.Manager {
             [NonSerialized]
             public int TrackLaneCount;
 
+            public bool HasTrackLane(int laneIndex) => ((1ul << laneIndex) & TrackLanes) != 0;
+
             static CustomFlags GatherUsedCustomFlags(NetInfo info) {
                 var ret = CustomFlags.None;
                 foreach(var item in info.m_nodes) {
@@ -1090,6 +1092,8 @@ namespace AdaptiveRoads.Manager {
 
             [NonSerialized]
             public int LaneCount;
+
+            public bool HasTrackLane(int laneIndex) => ((1ul << laneIndex) & LaneIndeces) != 0;
 
             #region flags
             [CustomizableProperty("Segment")]
