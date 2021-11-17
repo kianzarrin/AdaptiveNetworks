@@ -18,6 +18,8 @@ namespace AdaptiveRoads.Manager {
     using KianCommons.Plugins;
     using System.Reflection;
     using AdaptiveRoads.Data;
+    using System.Collections.Generic;
+    using AdaptiveRoads.Data.NetworkExtensions;
 
     public struct NetNodeExt {
         public ushort NodeID;
@@ -93,12 +95,74 @@ namespace AdaptiveRoads.Manager {
 
                 m_flags = m_flags.SetFlags(Flags.SpeedChange, speedChange);
                 m_flags = m_flags.SetFlags(Flags.TwoSegments, twoSegments);
+
+                GetTrackConnections();
             }
         }
 
         public override string ToString() {
             return $"NetNodeExt({NodeID} flags={m_flags})";
         }
+        #region track
+        /* terminology:
+         * - connection does not care about source/target.
+         * - transition/routing care
+         *    - transition is between two lanes.
+         *    - routing is a set of transitions.
+         */
+        public struct Connection {
+            public uint LaneID1;
+            public uint LaneID2;
+            public override bool Equals(object obj) {
+                if(obj is Connection rhs) {
+                    if(LaneID1 == rhs.LaneID1 && LaneID2 == rhs.LaneID2)
+                        return true;
+                    if(LaneID1 == rhs.LaneID2 && LaneID2 == rhs.LaneID1)
+                        return true;
+                }
+                return false;
+            }
+            public override int GetHashCode() => (int)(LaneID1 ^ LaneID2);
+        }
+        public static HashSet<Connection> tempConnections_ = new HashSet<Connection>();
+        public LaneTransition[] Transitions;
+        public void GetTrackConnections() {
+            if(!NodeID.ToNode().IsValid()) {
+                Transitions = null;
+                return;
+            }
+            tempConnections_.Clear();
+            foreach(var segmentID in NodeID.ToNode().IterateSegments()) {
+                ref var segExt = ref segmentID.ToSegmentExt();
+                var infoExt = segExt.NetInfoExt;
+                var lanes = segExt.LaneIDs;
+                for(int laneIndex = 0; laneIndex < lanes.Length; ++laneIndex) {
+                    uint laneID = lanes[laneIndex];
+                    foreach(var transtion in TMPEHelpers.GetForwardRoutings(laneID, NodeID)) {
+                        var infoExt2 = segmentID.ToSegmentExt().NetInfoExt;
+                        if(infoExt.HasTrackLane(laneIndex) || infoExt2.HasTrackLane(transtion.laneIndex)) {
+                            tempConnections_.Add(new Connection { LaneID1 = laneID, LaneID2 = transtion.laneId });
+                        }
+                    }
+                }
+            }
+            Transitions = new LaneTransition[tempConnections_.Count];
+            int index = 0;
+            foreach(var connection in tempConnections_) {
+                var transtion = Transitions[index++];
+                transtion.Init(connection.LaneID1, connection.LaneID2); // also calculates
+            }
+        }
+
+        public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo, int layerMask) {
+            if(!NodeID.ToNode().IsValid())
+                return;
+            if((layerMask & NodeID.ToNode().Info.m_netLayers) == 0)
+                return;
+            foreach(var transition in Transitions)
+                transition.RenderTrackInstance(cameraInfo, layerMask);
+        }
+        #endregion
     }
 }
 

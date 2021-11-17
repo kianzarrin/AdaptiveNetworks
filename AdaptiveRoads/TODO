@@ -5,6 +5,7 @@ Tracks:
     - node
         - render instance
         - render far lod
+        - patch netai get node info priority to favor tracks
     - embankment
         - lane corners
         - prop embankment

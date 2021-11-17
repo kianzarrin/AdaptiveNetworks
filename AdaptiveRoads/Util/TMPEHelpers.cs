@@ -17,7 +17,7 @@ namespace AdaptiveRoads.Util {
     internal static class TMPEHelpers {
         static IManagerFactory TMPE => Constants.ManagerFactory;
         static ISpeedLimitManager SLMan => TMPE?.SpeedLimitManager as SpeedLimitManager;
-
+        static IRoutingManager RMan = RoutingManager.Instance;
         public static float GetLaneSpeedLimit(this LaneData lane) {
             if(SLMan != null)
                 return (SLMan as SpeedLimitManager).GetGameSpeedLimit(lane.LaneID);
@@ -73,5 +73,11 @@ namespace AdaptiveRoads.Util {
             return speedChange;
         }
 
+
+        public static LaneTransitionData []GetForwardRoutings(uint laneID, ushort nodeID) {
+            bool startNode = laneID.ToLane().m_segment.ToSegment().IsStartNode(nodeID);
+            uint routingIndex = RMan.GetLaneEndRoutingIndex(laneID, startNode);
+            return RMan.LaneEndForwardRoutings[routingIndex].transitions;
+        }
     }
 }
