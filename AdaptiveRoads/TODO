@@ -1,18 +1,11 @@
 Tracks:
     - segment/node
-        - serialize/deserialize
-            - cross import
-            - render while drawing.
-        - lods
-            - clear lod values
-            - rebuild lods
-            - render far lods
-        - see also:
-            - Analyze NetInfo.Segment in decompiler
-            - public static object CustomDeserialize(Package p, Type t, PackageReader r)
+        - cross import
+        - render while drawing.
+        - debug lod
     - node
-        - refresh render data
         - render instance
+        - render far lod
     - embankment
         - lane corners
         - prop embankment

@@ -548,10 +548,11 @@ namespace AdaptiveRoads.Manager {
                 return tempSegmentInfo_;
             }
 
-
             public void InitMeshData(Track trackInfo, Rect atlasRect, Texture2D rgbAtlas, Texture2D xysAtlas, Texture2D aprAtlas) {
                 // work around private fields/methods.
-                Template.InitMeshData(TempSegmentInfo(trackInfo), atlasRect, rgbAtlas, xysAtlas, aprAtlas); 
+                var tempSegment = TempSegmentInfo(trackInfo);
+                Template.InitMeshData(TempSegmentInfo(trackInfo), atlasRect, rgbAtlas, xysAtlas, aprAtlas);
+                trackInfo.m_combinedLod = tempSegment.m_combinedLod;
             }
 
             void RecalculateParkingAngle() {
@@ -1119,69 +1120,6 @@ namespace AdaptiveRoads.Manager {
                 Segment = SegmentFlags.UsedCustomFlags,
                 Node = NodeFlags.UsedCustomFlags,
             };
-
-            #region render
-            public void RenderLod(RenderManager.CameraInfo cameraInfo) {
-                if(m_combinedLod != null && m_combinedLod.m_lodCount != 0) {
-                    RenderLod(cameraInfo, m_combinedLod);
-                }
-            }
-
-            public static void RenderLod(RenderManager.CameraInfo cameraInfo, NetInfo.LodValue lod) {
-                // copied from NetSegment.RenderLod 
-                NetManager instance = Singleton<NetManager>.instance;
-                MaterialPropertyBlock materialBlock = instance.m_materialBlock;
-                materialBlock.Clear();
-                Mesh mesh;
-                int upperLoadCount;
-                if(lod.m_lodCount <= 1) {
-                    mesh = lod.m_key.m_mesh.m_mesh1;
-                    upperLoadCount = 1;
-                } else if(lod.m_lodCount <= 4) {
-                    mesh = lod.m_key.m_mesh.m_mesh4;
-                    upperLoadCount = 4;
-                } else {
-                    mesh = lod.m_key.m_mesh.m_mesh8;
-                    upperLoadCount = 8;
-                }
-                for(int i = lod.m_lodCount; i < upperLoadCount; i++) {
-                    lod.m_leftMatrices[i] = default(Matrix4x4);
-                    lod.m_rightMatrices[i] = default(Matrix4x4);
-                    lod.m_meshScales[i] = default;
-                    lod.m_objectIndices[i] = default;
-                    lod.m_meshLocations[i] = cameraInfo.m_forward * -100000f;
-                }
-                materialBlock.SetMatrixArray(instance.ID_LeftMatrices, lod.m_leftMatrices);
-                materialBlock.SetMatrixArray(instance.ID_RightMatrices, lod.m_rightMatrices);
-                materialBlock.SetVectorArray(instance.ID_MeshScales, lod.m_meshScales);
-                materialBlock.SetVectorArray(instance.ID_ObjectIndices, lod.m_objectIndices);
-                materialBlock.SetVectorArray(instance.ID_MeshLocations, lod.m_meshLocations);
-                if(lod.m_surfaceTexA != null) {
-                    materialBlock.SetTexture(instance.ID_SurfaceTexA, lod.m_surfaceTexA);
-                    materialBlock.SetTexture(instance.ID_SurfaceTexB, lod.m_surfaceTexB);
-                    materialBlock.SetVector(instance.ID_SurfaceMapping, lod.m_surfaceMapping);
-                    lod.m_surfaceTexA = null;
-                    lod.m_surfaceTexB = null;
-                }
-                if(lod.m_heightMap != null) { // TODO: this is for fence. do I need this?
-                    materialBlock.SetTexture(instance.ID_HeightMap, lod.m_heightMap);
-                    materialBlock.SetVector(instance.ID_HeightMapping, lod.m_heightMapping);
-                    materialBlock.SetVector(instance.ID_SurfaceMapping, lod.m_surfaceMapping);
-                    lod.m_heightMap = null;
-                }
-                if(mesh != null) {
-                    Bounds bounds = default(Bounds);
-                    bounds.SetMinMax(lod.m_lodMin - new Vector3(100f, 100f, 100f), lod.m_lodMax + new Vector3(100f, 100f, 100f));
-                    mesh.bounds = bounds;
-                    lod.m_lodMin = new Vector3(100000f, 100000f, 100000f);
-                    lod.m_lodMax = new Vector3(-100000f, -100000f, -100000f);
-                    instance.m_drawCallData.m_lodCalls++;
-                    instance.m_drawCallData.m_batchedCalls += lod.m_lodCount - 1;
-                    Graphics.DrawMesh(mesh, Matrix4x4.identity, lod.m_material, lod.m_key.m_layer, null, 0, materialBlock);
-                }
-                lod.m_lodCount = 0;
-            }
-            #endregion
         }
         #endregion
 

@@ -110,9 +110,9 @@ namespace AdaptiveRoads.Manager {
                     var tracks = prefab?.GetMetaData()?.Tracks;
                     if(tracks != null) {
                         for(int i = 0; i < tracks.Length; i++) {
-                            var track = tracks[i];
-                            NetInfo.LodValue combinedLod = track.m_combinedLod;
-                            track.RenderLod(cameraInfo);
+                            NetInfo.LodValue combinedLod = tracks[i].m_combinedLod;
+                            if(combinedLod != null && combinedLod.m_lodCount != 0)
+                                NetSegment.RenderLod(cameraInfo,combinedLod);
                         }
                     }
                 }

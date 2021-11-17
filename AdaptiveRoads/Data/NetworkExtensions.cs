@@ -302,18 +302,17 @@ namespace AdaptiveRoads.Manager {
                         NetInfo.LodValue combinedLod = track.m_combinedLod;
                         if(combinedLod == null) continue;
 
-                        ref Matrix4x4 reference = ref combinedLod.m_leftMatrices[combinedLod.m_lodCount];
-                        reference = renderData.m_dataMatrix0;
-                        ref Matrix4x4 reference2 = ref combinedLod.m_rightMatrices[combinedLod.m_lodCount];
-                        reference2 = renderData.m_dataMatrix1;
+                        combinedLod.m_leftMatrices[combinedLod.m_lodCount] = renderData.m_dataMatrix0;
+                        combinedLod.m_rightMatrices[combinedLod.m_lodCount] = renderData.m_dataMatrix1;
                         combinedLod.m_meshScales[combinedLod.m_lodCount] = dataVector0;
                         combinedLod.m_objectIndices[combinedLod.m_lodCount] = dataVector3;
-                        ref Vector4 reference3 = ref combinedLod.m_meshLocations[combinedLod.m_lodCount];
-                        reference3 = renderData.m_position;
-                        combinedLod.m_lodMin = Vector3.Min(combinedLod.m_lodMin, renderData.m_position);
-                        combinedLod.m_lodMax = Vector3.Max(combinedLod.m_lodMax, renderData.m_position);
+                        combinedLod.m_meshLocations[combinedLod.m_lodCount] = renderData.m_position;
+                        combinedLod.m_lodMin = new Vector3(100000f, 100000f, 100000f);
+                        combinedLod.m_lodMax = new Vector3(-100000f, -100000f, -100000f);
+                        //combinedLod.m_lodMin = Vector3.Min(combinedLod.m_lodMin, renderData.m_position);
+                        //combinedLod.m_lodMax = Vector3.Max(combinedLod.m_lodMax, renderData.m_position);
                         if(++combinedLod.m_lodCount == combinedLod.m_leftMatrices.Length) {
-                            NetInfoExtionsion.Track.RenderLod(cameraInfo, combinedLod);
+                            NetSegment.RenderLod(cameraInfo, combinedLod);
                         }
                     }
                 }
