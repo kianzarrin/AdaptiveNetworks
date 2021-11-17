@@ -2,15 +2,11 @@ Tracks:
     - segment/node
         - cross import
         - render while drawing.
-    - node
-        - render instance
-        - render far lod
-        - patch netai get node info priority to favor tracks
+    - vertical mesh offset
     - embankment
         - lane corners
-        - prop embankment
         - AR tool UI
-    - add vertical mesh offset
+        - prop embankment
 
 TODO:
     - bug fix: can't change custom flag name after loading AR road.

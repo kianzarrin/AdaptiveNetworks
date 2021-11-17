@@ -159,8 +159,35 @@ namespace AdaptiveRoads.Manager {
                 return;
             if((layerMask & NodeID.ToNode().Info.m_netLayers) == 0)
                 return;
+            if(Transitions.IsNullorEmpty())
+                return;
             foreach(var transition in Transitions)
                 transition.RenderTrackInstance(cameraInfo, layerMask);
+        }
+
+        public bool CalculateGroupData(int layer, ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays) {
+            if(!NodeID.ToNode().IsValid())
+                return false;
+            if((layer & NodeID.ToNode().Info.m_netLayers) == 0)
+                return false;
+            if(Transitions.IsNullorEmpty())
+                return false;
+            bool result = false;
+            foreach(var transtion in Transitions) {
+                result |= transtion.CalculateGroupData(layer, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
+            }
+            return result;
+        }
+        public void PopulateGroupData(int groupX, int groupZ, int layer, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData data, ref Vector3 min, ref Vector3 max, ref float maxRenderDistance, ref float maxInstanceDistance) {
+            if(!NodeID.ToNode().IsValid())
+                return;
+            if((layer & NodeID.ToNode().Info.m_netLayers) == 0)
+                return;
+            if(Transitions.IsNullorEmpty())
+                return;
+            foreach(var transtion in Transitions) {
+                transtion.PopulateGroupData(groupX, groupZ, layer, ref vertexIndex, ref triangleIndex, groupPosition, data);
+            }
         }
         #endregion
     }

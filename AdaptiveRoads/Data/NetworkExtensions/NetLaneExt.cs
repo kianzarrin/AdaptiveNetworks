@@ -318,13 +318,6 @@ namespace AdaptiveRoads.Manager {
 
             return result;
         }
-        public static bool CalculateGroupData(RenderGroup.MeshData meshData, ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays) {
-            vertexCount += meshData.m_vertices.Length;
-            triangleCount += meshData.m_triangles.Length;
-            objectCount++;
-            vertexArrays |= meshData.VertexArrayMask() | RenderGroup.VertexArrays.Colors | RenderGroup.VertexArrays.Uvs2 | RenderGroup.VertexArrays.Uvs4;
-            return true;
-        }
 
         public void PopulateGroupData(int groupX, int groupZ, int layer, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData meshData) {
             var info = LaneData.Segment.Info;

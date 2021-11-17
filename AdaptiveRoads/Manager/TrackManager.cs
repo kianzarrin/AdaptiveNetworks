@@ -73,21 +73,6 @@ namespace AdaptiveRoads.Manager {
                         int net_z1 = (renderGroup.m_z + 1) * resolutionRatio - 1; // = net_z + 5
                         for(int net_z = net_z0; net_z <= net_z1; net_z++) {
                             for(int net_x = net_x0; net_x <= net_x1; net_x++) {
-                                int gridIndex = net_z * NetManager.NODEGRID_RESOLUTION + net_x;
-                                ushort nodeID = NetManager.instance.m_nodeGrid[gridIndex];
-                                int watchdog = 0;
-                                while(nodeID != 0) {
-                                    nodeID.ToNode().RenderInstance(cameraInfo, nodeID, layerMask);
-                                    nodeID = nodeID.ToNode().m_nextGridNode;
-                                    if(++watchdog >= 32768) {
-                                        CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        for(int net_z = net_z0; net_z <= net_z1; net_z++) {
-                            for(int net_x = net_x0; net_x <= net_x1; net_x++) {
                                 int gridIndex = net_z * 270 + net_x;
                                 ushort segmentID = NetManager.instance.m_segmentGrid[gridIndex];
                                 int watchdog = 0;
@@ -96,6 +81,21 @@ namespace AdaptiveRoads.Manager {
                                     segExt.RenderTrackInstance(cameraInfo, layerMask);
                                     segmentID = segmentID.ToSegment().m_nextGridSegment;
                                     if(++watchdog >= 36864) {
+                                        CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        for(int net_z = net_z0; net_z <= net_z1; net_z++) {
+                            for(int net_x = net_x0; net_x <= net_x1; net_x++) {
+                                int gridIndex = net_z * NetManager.NODEGRID_RESOLUTION + net_x;
+                                ushort nodeID = NetManager.instance.m_nodeGrid[gridIndex];
+                                int watchdog = 0;
+                                while(nodeID != 0) {
+                                    nodeID.ToNodeExt().RenderTrackInstance(cameraInfo, layerMask);
+                                    nodeID = nodeID.ToNode().m_nextGridNode;
+                                    if(++watchdog >= 32768) {
                                         CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
                                         break;
                                     }
@@ -143,6 +143,21 @@ namespace AdaptiveRoads.Manager {
                     }
                 }
             }
+            for(int net_z = net_z0; net_z <= net_z1; net_z++) {
+                for(int net_x = net_x0; net_x <= net_x1; net_x++) {
+                    int gridIndex = net_z * NetManager.NODEGRID_RESOLUTION + net_x;
+                    ushort nodeID = NetManager.instance.m_nodeGrid[gridIndex];
+                    int watchdog = 0;
+                    while(nodeID != 0) {
+                        ret |= nodeID.ToNodeExt().CalculateGroupData(layer, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
+                        nodeID = nodeID.ToNode().m_nextGridNode;
+                        if(++watchdog >= 32768) {
+                            CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
+                            break;
+                        }
+                    }
+                }
+            }
             return ret;
         }
 
@@ -161,6 +176,21 @@ namespace AdaptiveRoads.Manager {
                         segExt.PopulateGroupData(groupX, groupZ, layer, ref vertexIndex, ref triangleIndex, groupPosition, data, ref min, ref max, ref maxRenderDistance, ref maxInstanceDistance);
                         segmentID = segmentID.ToSegment().m_nextGridSegment;
                         if(++watchdog >= 36864) {
+                            CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
+                            break;
+                        }
+                    }
+                }
+            }
+            for(int net_z = net_z0; net_z <= net_z1; net_z++) {
+                for(int net_x = net_x0; net_x <= net_x1; net_x++) {
+                    int gridIndex = net_z * NetManager.NODEGRID_RESOLUTION + net_x;
+                    ushort nodeID = NetManager.instance.m_nodeGrid[gridIndex];
+                    int watchdog = 0;
+                    while(nodeID != 0) {
+                        nodeID.ToNodeExt().PopulateGroupData(groupX, groupZ, layer, ref vertexIndex, ref triangleIndex, groupPosition, data, ref min, ref max, ref maxRenderDistance, ref maxInstanceDistance);
+                        nodeID = nodeID.ToNode().m_nextGridNode;
+                        if(++watchdog >= 32768) {
                             CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
                             break;
                         }
