@@ -47,23 +47,32 @@ namespace AdaptiveRoads.Util {
         public static Mesh GetMesh(object sharing, string checksum, Package package, bool isLod) {
             if(checksum.IsNullorEmpty())
                 return null;
+            Mesh ret;
             if(sharing == null) {
-                return package.FindByChecksum(checksum)?.Instantiate<Mesh>();
+                ret = package.FindByChecksum(checksum)?.Instantiate<Mesh>();
             } else {
                 bool isMain = !isLod;
-                return InvokeMethod(sharing, "GetMesh", checksum, package, isMain) as Mesh;
+                ret = InvokeMethod(sharing, "GetMesh", checksum, package, isMain) as Mesh;
             }
+            if(ret) Log.Debug($"loaded {ret} with checksum:({checksum}) from {package}");
+            else Log.Error($"could not find mesh with checksum:({checksum}) from {package}");
+            return ret;
+
         }
 
         public static Material GetMaterial(object sharing, string checksum, Package package, bool isLod) {
             if(checksum.IsNullorEmpty())
                 return null;
+            Material ret;
             if(sharing == null) {
-                return package.FindByChecksum(checksum)?.Instantiate<Material>();
+                ret = package.FindByChecksum(checksum)?.Instantiate<Material>();
             } else {
                 bool isMain = !isLod;
-                return InvokeMethod(sharing, "GetMaterial", checksum, package, isMain) as Material;
+                ret = InvokeMethod(sharing, "GetMaterial", checksum, package, isMain) as Material;
             }
+            if(ret) Log.Debug($"loaded {ret} with checksum:({checksum}) from {package}");
+            else Log.Error($"could not find material with checksum:({checksum}) from {package}");
+            return ret;
         }
 
         #region optimization
@@ -90,7 +99,7 @@ namespace AdaptiveRoads.Util {
         public static void Init() {
             object sharing = GetSharing();
             if(sharing != null) {
-                CacheInstance = new Cache(sharing, PackageManagerUtil.LoadingPackage);
+                CacheInstance = new Cache(sharing, PackageManagerUtil.PersistancyPackage);
             } else {
                 CacheInstance = null;
             }
@@ -100,7 +109,7 @@ namespace AdaptiveRoads.Util {
             if(checksum.IsNullorEmpty())
                 return null;
             if(CacheInstance == null) {
-                return PackageManagerUtil.LoadingPackage.FindByChecksum(checksum)?.Instantiate<Mesh>();
+                return CacheInstance.LoadingPackage.FindByChecksum(checksum)?.Instantiate<Mesh>();
             } else {
                 return CacheInstance.GetMesh(checksum, isLod);
             }
@@ -110,7 +119,7 @@ namespace AdaptiveRoads.Util {
             if(checksum.IsNullorEmpty())
                 return null;
             if(CacheInstance == null) {
-                return PackageManagerUtil.LoadingPackage.FindByChecksum(checksum)?.Instantiate<Material>();
+                return CacheInstance.LoadingPackage.FindByChecksum(checksum)?.Instantiate<Material>();
             } else {
                 return CacheInstance.GetMaterial(checksum, isLod);
             }

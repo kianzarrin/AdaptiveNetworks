@@ -961,7 +961,7 @@ namespace AdaptiveRoads.Manager {
             // deserialization
             public Track(SerializationInfo info, StreamingContext context) {
                 try {
-                    var package = PackageManagerUtil.LoadingPackage;
+                    var package = PackageManagerUtil.PersistancyPackage;
                     var sharing = LSMUtil.GetSharing();
                     Assertion.NotNull(package, "package");
                     foreach(SerializationEntry item in info) {

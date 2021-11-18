@@ -27,6 +27,7 @@ namespace AdaptiveRoads.LifeCycle {
             try {
                 if (HelpersExtensions.InAssetEditor && ModSettings.VanillaMode)
                     return;
+                MetaDataName = name;
                 Log.Debug($"AssetDataExtension.OnAssetLoadedImpl({name}, {asset}, userData) called", false);
                 if (asset is NetInfo prefab) {
                     Log.Debug("AssetDataExtension.OnAssetLoaded():  prefab is " + prefab, false);
@@ -46,11 +47,13 @@ namespace AdaptiveRoads.LifeCycle {
             } catch (Exception e) {
                 Log.Exception(e, $"asset:{asset} name:{name}");
             }
+            MetaDataName = null; ;
         }
 
         public static void OnAssetSavedImpl(string name, object asset, out Dictionary<string, byte[]> userData) {
             try {
                 Log.Info($"AssetDataExtension.OnAssetSavedImpl({name}, {asset}, userData) called");
+                MetaDataName = name;
                 userData = null;
                 if (ModSettings.VanillaMode) {
                     Log.Info("MetaData not saved vanilla mode is set in the settings");
@@ -69,11 +72,13 @@ namespace AdaptiveRoads.LifeCycle {
                 ex.Log();
                 userData = null;
             }
+            MetaDataName = null;
         }
 
         public static bool InRoadEditor => ToolsModifierControl.toolController.m_editPrefabInfo is NetInfo;
         public static string SaveName;
-        public static Package.Asset AssetRef;
+        public static string MetaDataName;
+        //public static Package.Asset AssetRef;
 
         public static void BeforeSave(string saveName) {
             try {

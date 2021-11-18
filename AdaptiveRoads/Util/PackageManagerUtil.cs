@@ -3,6 +3,7 @@ namespace AdaptiveRoads.Util {
     using ColossalFramework.Packaging;
     using ColossalFramework.PlatformServices;
     using KianCommons;
+    using System.Linq;
 
     public static class PackageManagerUtil {
         static class Delegates {
@@ -12,7 +13,16 @@ namespace AdaptiveRoads.Util {
 
         public static Package GetPackage(string name) => Delegates.GetPackageDelegate(name);
 
-        public static Package LoadingPackage => AssetDataExtension.AssetRef.package;
+        /// <summary>
+        /// package of the asset that is being serialized/deserialized
+        /// </summary>
+        public static Package PersistancyPackage {
+            get {
+                var asset = PackageManager.FindAssetByName(AssetDataExtension.MetaDataName + "_Data");
+                return asset?.package;
+            }
+        }
+
 
         public static Package SavingPackage {
             get {
