@@ -1,4 +1,5 @@
 namespace AdaptiveRoads.Patches.RoadEditor {
+    using AdaptiveRoads.UI;
     using HarmonyLib;
     using KianCommons;
     using PrefabMetadata.Helpers;
@@ -17,6 +18,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         [HarmonyPatch("AddArrayElement")]
         static void AddArrayElement(object target, FieldInfo field, ref object __result) {
             try {
+                if(!ModSettings.ARMode)
+                    return;
                 if (!field.FieldType.IsArray)
                     return;
                 var newVal = PrefabMetadataHelpers.Extend(__result);
