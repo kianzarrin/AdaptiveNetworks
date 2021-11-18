@@ -2,11 +2,16 @@ Tracks:
     - segment/node
         - cross import
         - render while drawing.
-    - vertical mesh offset
     - embankment
         - lane corners
         - AR tool UI
         - prop embankment
+    - track options:
+        - vertical mesh offset
+        - anti-flickering
+        - ignore DC
+        - scale to lane width.
+
 
 TODO:
     - bug fix: can't change custom flag name after loading AR road.

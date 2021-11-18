@@ -141,7 +141,7 @@ namespace AdaptiveRoads.Manager {
                 foreach(var segmentID in NodeID.ToNode().IterateSegments()) {
                     var infoExt = segmentID.ToSegment().Info?.GetMetaData();
                     if(infoExt == null) continue;
-                    Assertion.Assert(infoExt == segmentID.ToSegmentExt().NetInfoExt, $"{infoExt} == {segmentID.ToSegmentExt().NetInfoExt}"); // asset initialized.
+                    //Assertion.Assert(infoExt == segmentID.ToSegmentExt().NetInfoExt, $"{infoExt} == {segmentID.ToSegmentExt().NetInfoExt}"); // asset initialized.
                     var lanes = new LaneIDIterator(segmentID).ToArray();
                     for(int laneIndex = 0; laneIndex < lanes.Length; ++laneIndex) {
                         uint laneID = lanes[laneIndex];
