@@ -16,10 +16,13 @@ namespace AdaptiveRoads.Util {
         /// <summary>
         /// package of the asset that is being serialized/deserialized
         /// </summary>
-        public static Package PersistancyPackage {
+        public static Package PersistencyPackage {
             get {
-                var asset = PackageManager.FindAssetByName(AssetDataExtension.MetaDataName + "_Data");
-                return asset?.package;
+                int dotIndex = AssetDataExtension.MetaDataName.LastIndexOf('.');
+                string packageName = AssetDataExtension.MetaDataName.Substring(0, dotIndex);
+                var ret = GetPackage(packageName);
+                if(ret == null) Log.Error($"failed to find package for asset metadata {AssetDataExtension.MetaDataName}");
+                return ret;
             }
         }
 

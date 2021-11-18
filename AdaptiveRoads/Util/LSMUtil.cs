@@ -99,7 +99,7 @@ namespace AdaptiveRoads.Util {
         public static void Init() {
             object sharing = GetSharing();
             if(sharing != null) {
-                CacheInstance = new Cache(sharing, PackageManagerUtil.PersistancyPackage);
+                CacheInstance = new Cache(sharing, PackageManagerUtil.PersistencyPackage);
             } else {
                 CacheInstance = null;
             }

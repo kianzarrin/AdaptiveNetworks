@@ -16,7 +16,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     var renameButton = parent.AddUIComponent<MenuButton>();
                     renameButton.relativePosition =
                         ___m_AssetName.relativePosition -
-                        new Vector3(0, 10); // mvoe up by 10
+                        new Vector3(0, 10); // move up by 10
                     renameButton.text = "Rename Road";
                     renameButton.eventClick += (_, __) => RenameRoadPanel.Display(__instance);
                     renameButton.eventVisibilityChanged += (_c, _val) => {
