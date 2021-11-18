@@ -294,7 +294,7 @@ namespace AdaptiveRoads.Manager {
             if(!segmentID.ToSegment().IsValid()) return;
             if(!Helpers.InSimulationThread()) {
                 Log.Debug("send to simulation thread");
-                SimulationManager.instance.AddAction(() => UpdateNode(segmentID, fromNodeID, level));
+                SimulationManager.instance.AddAction(() => UpdateSegment(segmentID, fromNodeID, level));
                 return;
             }
             Log.Debug($"mark segment:{segmentID} info:{segmentID.ToSegment().Info} update-level={level} from node:{fromNodeID}" /*+ Environment.StackTrace*/);

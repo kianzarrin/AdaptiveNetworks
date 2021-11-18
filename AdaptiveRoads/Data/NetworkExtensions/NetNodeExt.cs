@@ -135,7 +135,6 @@ namespace AdaptiveRoads.Manager {
                 Transitions = null;
                 //return; //TODO delete
                 if(!NodeID.ToNode().IsValid()) {
-                    Transitions = null;
                     return;
                 }
                 tempConnections_.Clear();
@@ -148,11 +147,15 @@ namespace AdaptiveRoads.Manager {
                         uint laneID = lanes[laneIndex];
                         var transitions = TMPEHelpers.GetForwardRoutings(laneID, NodeID);
                         if(transitions == null) continue;
-                        foreach(var transition in transitions) {
+                        foreach(LaneTransitionData transition in transitions) {
+                            if(transition.type == LaneEndTransitionType.Invalid || transition.type == LaneEndTransitionType.Relaxed)
+                                continue;
                             var infoExt2 = transition.segmentId.ToSegment().Info?.GetMetaData();
                             if(infoExt2 == null) continue;
                             if(infoExt.HasTrackLane(laneIndex) || infoExt2.HasTrackLane(transition.laneIndex)) {
-                                tempConnections_.Add(new Connection { LaneID1 = laneID, LaneID2 = transition.laneId });
+                                if(GoodTurnAngle(segmentID, transition.segmentId, NodeID)) {
+                                    tempConnections_.Add(new Connection { LaneID1 = laneID, LaneID2 = transition.laneId });
+                                }
                             }
                         }
                     }
@@ -166,6 +169,20 @@ namespace AdaptiveRoads.Manager {
                 Transitions = null;
                 throw ex;
             }
+        }
+
+        public static bool GoodTurnAngle(ushort segmentID1, ushort segmentID2, ushort nodeID) {
+            ref var segment1 = ref segmentID1.ToSegment();
+            ref var segment2 = ref segmentID2.ToSegment();
+            var info1 = segment1.Info;
+            var info2 = segment2.Info;
+            var dir1 = segment1.GetDirection(nodeID);
+            var dir2 = segment2.GetDirection(nodeID);
+
+            var dot = VectorUtils.DotXZ(dir1, dir2);
+            float maxTurnAngleCos = Mathf.Min(info1.m_maxTurnAngleCos, info2.m_maxTurnAngleCos);
+            float turnThreshold = 0.01f - maxTurnAngleCos;
+            return dot < turnThreshold;
         }
 
         public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo, int layerMask) {

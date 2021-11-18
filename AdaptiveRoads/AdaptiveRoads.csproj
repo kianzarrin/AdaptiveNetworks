@@ -199,7 +199,6 @@
   <ItemGroup>
     <None Include="KianCommons\KianCommons\StockCode\NetAI.cs" />
     <None Include="KianCommons\KianCommons\StockCode\NetLane.cs" />
-    <None Include="KianCommons\KianCommons\StockCode\NetNode.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\prefab-metadata\PrefabMetadata.csproj" />

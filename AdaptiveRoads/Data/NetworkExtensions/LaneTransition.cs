@@ -125,7 +125,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 dirD = LaneExtD.DirD;
             }
 
-            OutLine = new BezierData(a, d, dirA, dirD, Width, true, true);
+            OutLine = new BezierData(a, d, -dirA, -dirD, Width, true, true);
             RenderData.Position = (a + d) * 0.5f;
 
             RenderData.MeshScale = new Vector4(1f / Width, 1f / InfoA.m_segmentLength, 1f, 1f);
