@@ -15,6 +15,9 @@ namespace AdaptiveRoads.UI.Debug {
     using System.Diagnostics;
     using static KianCommons.ReflectionHelpers;
 
+    /// <summary>
+    /// help to debug pavement width.
+    /// </summary>
     public class PWSelector  : UIPanel {
         [Conditional("DEBUG")]
         public static void Create() => UIView.GetAView().AddUIComponent<PWSelector>();
@@ -23,6 +26,7 @@ namespace AdaptiveRoads.UI.Debug {
             DestroyImmediate(UIView.GetAView().FindUIComponent<PWSelector>(nameof(PWSelector))?.gameObject);
 
         public override void Awake() {
+            Log.Called();
             base.Awake();
             try {
                 name = nameof(PWSelector);
@@ -81,6 +85,7 @@ namespace AdaptiveRoads.UI.Debug {
         }
 
         static void Refresh() {
+            Log.Called();
             for (ushort segmentID = 0; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
                 if (!NetUtil.IsSegmentValid(segmentID)) continue;
                 if (!segmentID.ToSegment().Info.IsAdaptive()) continue;

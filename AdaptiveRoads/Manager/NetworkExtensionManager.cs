@@ -114,17 +114,14 @@ namespace AdaptiveRoads.Manager {
         // should be called from simulation thread.
         void OnLoadImpl() {
             LogCalled();
-            for (ushort nodeID = 0; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID) {
-                if (!NetUtil.IsNodeValid(nodeID)) continue;
-                NodeBuffer[nodeID].UpdateFlags();
-            }
             for (ushort segmentID = 0; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
                 if (!NetUtil.IsSegmentValid(segmentID)) continue;
                 if (!segmentID.ToSegment().Info.IsAdaptive()) continue;
                 SegmentBuffer[segmentID].UpdateAllFlags();
-#if HOTRELOAD // change to debug for hot-reload testing.
-                NetManager.instance.UpdateSegment(segmentID);
-#endif
+            }
+            for(ushort nodeID = 0; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID) {
+                if(!NetUtil.IsNodeValid(nodeID)) continue;
+                NodeBuffer[nodeID].UpdateFlags();
             }
             LogSucceeded();
 
@@ -151,73 +148,54 @@ namespace AdaptiveRoads.Manager {
         }
 
         public void SimulationStep() {
-            bool nodesUpdated = m_nodesUpdated;
-            bool segmentsUpdated = m_segmentsUpdated;
-            if (nodesUpdated) m_nodesUpdated = false;
-            if (segmentsUpdated) m_segmentsUpdated = false;
+            bool segmentsUpdated0 = false;
+            bool nodesUpdated0 = false;
 
-            for (int i = 0; i < 3; ++i) {
-                if (segmentsUpdated) {
-                    for (int maskIndex = 0; maskIndex < m_updatedSegments.Length; maskIndex++) {
+            for(int i = 0; i < 3; ++i) {
+                bool segmentsUpdated = m_segmentsUpdated;
+                for(int j = 0; segmentsUpdated && j < 3; ++j) {
+                    m_segmentsUpdated = false;
+                    segmentsUpdated0 = true;
+                    for(int maskIndex = 0; maskIndex < m_updatedSegments.Length; maskIndex++) {
                         ulong bitmask = m_updatedSegments[maskIndex];
-                        if (bitmask != 0) {
-                            for (int bitIndex = 0; bitIndex < 64; bitIndex++) {
-                                if ((bitmask & 1UL << bitIndex) != 0UL) {
+                        if(bitmask != 0) {
+                            for(int bitIndex = 0; bitIndex < 64; bitIndex++) {
+                                if((bitmask & 1UL << bitIndex) != 0UL) {
                                     ushort segmentID = (ushort)(maskIndex << 6 | bitIndex);
-                                    if(Log.VERBOSE) Log.Debug($"updating {segmentID} ...");
+                                    if(Log.VERBOSE) Log.Debug($"updating segment:{segmentID} ...");
                                     SegmentBuffer[segmentID].UpdateAllFlags();
                                 }
                             }
                         }
                     }
+                    segmentsUpdated = m_segmentsUpdated;
                 }
-                if (nodesUpdated) {
-                    for (int maskIndex = 0; maskIndex < m_updatedNodes.Length; maskIndex++) {
+                if(segmentsUpdated) break;
+
+                bool nodesUpdated = m_nodesUpdated;
+                if(nodesUpdated) {
+                    m_nodesUpdated = false;
+                    nodesUpdated0 = true;
+                    for(int maskIndex = 0; maskIndex < m_updatedNodes.Length; maskIndex++) {
                         ulong bitmask = m_updatedNodes[maskIndex];
                         if (bitmask != 0) {
                             for (int bitIndex = 0; bitIndex < 64; bitIndex++) {
                                 if ((bitmask & 1UL << bitIndex) != 0) {
                                     ushort nodeID = (ushort)(maskIndex << 6 | bitIndex);
+                                    if(Log.VERBOSE) Log.Debug($"updating node:{nodeID} ...");
                                     NodeBuffer[nodeID].UpdateFlags();
                                 }
                             }
                         }
                     }
                 }
+
                 if (!this.m_nodesUpdated && !this.m_segmentsUpdated) {
                     break;
                 }
-                // the line bellow is commented out because I am worried about
-                // never ending circle.
-                // if(i == 3) return; // try again another frame.
-                if (this.m_nodesUpdated) {
-                    nodesUpdated = true;
-                    this.m_nodesUpdated = false;
-                }
-                if (this.m_segmentsUpdated) {
-                    segmentsUpdated = true;
-                    this.m_segmentsUpdated = false;
-                }
             }
 
-            if (nodesUpdated) {
-                for (int maskIndex = 0; maskIndex < m_updatedNodes.Length; maskIndex++) {
-                    ulong bitmask = m_updatedNodes[maskIndex];
-                    if (bitmask != 0) {
-
-                        m_updatedNodes[maskIndex] = 0;
-                        for (int bitIndex = 0; bitIndex < 64; bitIndex++) {
-                            if ((bitmask & 1UL << bitIndex) != 0) {
-                                ushort nodeID = (ushort)(maskIndex << 6 | bitIndex);
-                                NetManager.instance.UpdateNodeRenderer(nodeID, true);
-                            }
-                        }
-
-                    }
-                }
-            }
-
-            if (segmentsUpdated) {
+            if (segmentsUpdated0) {
                 for (int maskIndex = 0; maskIndex < m_updatedSegments.Length; maskIndex++) {
                     ulong bitmask = m_updatedSegments[maskIndex];
                     if (bitmask != 0) {
@@ -228,6 +206,23 @@ namespace AdaptiveRoads.Manager {
                                 NetManager.instance.UpdateSegmentRenderer(segmentID, true);
                             }
                         }
+                    }
+                }
+            }
+
+            if(nodesUpdated0) {
+                for(int maskIndex = 0; maskIndex < m_updatedNodes.Length; maskIndex++) {
+                    ulong bitmask = m_updatedNodes[maskIndex];
+                    if(bitmask != 0) {
+
+                        m_updatedNodes[maskIndex] = 0;
+                        for(int bitIndex = 0; bitIndex < 64; bitIndex++) {
+                            if((bitmask & 1UL << bitIndex) != 0) {
+                                ushort nodeID = (ushort)(maskIndex << 6 | bitIndex);
+                                NetManager.instance.UpdateNodeRenderer(nodeID, true);
+                            }
+                        }
+
                     }
                 }
             }
@@ -264,7 +259,7 @@ namespace AdaptiveRoads.Manager {
             return ref SegmentBuffer[segmentId].GetEnd(nodeId);
         }
 
-        #region data tranfer
+        #region data transfer
         private byte[] CopyInstanceID(InstanceID instanceID) {
             throw new NotImplementedException();
         }
@@ -276,6 +271,13 @@ namespace AdaptiveRoads.Manager {
         #endregion
 
         public void UpdateNode(ushort nodeID, ushort fromSegmentID = 0, int level = -1) {
+            if(!nodeID.ToNode().IsValid()) return;
+            if(!Helpers.InSimulationThread()) {
+                Log.Debug("send to simulation thread");
+                SimulationManager.instance.AddAction(() => UpdateNode(nodeID, fromSegmentID, level));
+                return;
+            }
+            Log.Debug($"mark node:{nodeID} info:{nodeID.ToNode().Info} update-level={level} from segment:{fromSegmentID}" /*+ Environment.StackTrace*/);
             m_updatedNodes[nodeID >> 6] |= 1UL << (int)nodeID;
             m_nodesUpdated = true;
             if (level <= 0) {
@@ -289,12 +291,18 @@ namespace AdaptiveRoads.Manager {
         }
 
         public void UpdateSegment(ushort segmentID, ushort fromNodeID = 0, int level = -1) {
-            Log.Debug($"mark segment:{segmentID} for update level={level}" /*+ Environment.StackTrace*/);
+            if(!segmentID.ToSegment().IsValid()) return;
+            if(!Helpers.InSimulationThread()) {
+                Log.Debug("send to simulation thread");
+                SimulationManager.instance.AddAction(() => UpdateNode(segmentID, fromNodeID, level));
+                return;
+            }
+            Log.Debug($"mark segment:{segmentID} info:{segmentID.ToSegment().Info} update-level={level} from node:{fromNodeID}" /*+ Environment.StackTrace*/);
             m_updatedSegments[segmentID >> 6] |= 1UL << (int)segmentID;
             m_segmentsUpdated = true;
             if (level <= 0) {
-                ushort node1 = segmentID.ToSegment().GetNode(true);
-                ushort node2 = segmentID.ToSegment().GetNode(false);
+                ushort node1 = segmentID.ToSegment().m_startNode;
+                ushort node2 = segmentID.ToSegment().m_endNode;
                 if (node1 != 0 && node1 != fromNodeID) {
                     UpdateNode(node1, segmentID, level + 1);
                 }

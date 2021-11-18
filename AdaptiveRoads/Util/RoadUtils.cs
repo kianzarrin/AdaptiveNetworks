@@ -114,7 +114,8 @@ namespace AdaptiveRoads.Util {
             SimulationManager.instance.AddAction(() => SetDirectionImpl(lht));
         }
         public static void SetDirectionImpl(bool lht = true) {
-                if(lht == NetUtil.LHT) return; // no need for change.
+            Log.Called();
+            if(lht == NetUtil.LHT) return; // no need for change.
             SimulationManager.instance.m_metaData.m_invertTraffic =
                 lht ? SimulationMetaData.MetaBool.True: SimulationMetaData.MetaBool.False;
             

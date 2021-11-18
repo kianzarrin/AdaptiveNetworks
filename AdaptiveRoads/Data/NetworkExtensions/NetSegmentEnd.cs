@@ -248,7 +248,6 @@ namespace AdaptiveRoads.Manager {
             segment.CalculateCorner(SegmentID, heightOffset: true, start: StartNode, leftSide: true, out Corner.Left.Position, out Corner.Left.Direction, out Corner.smooth);
             segment.CalculateCorner(SegmentID, heightOffset: true, start: StartNode, leftSide: false, out Corner.Right.Position, out Corner.Right.Direction, out Corner.smooth);
         }
-
         #endregion
 
     }

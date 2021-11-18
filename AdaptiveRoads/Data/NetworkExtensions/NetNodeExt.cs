@@ -131,32 +131,40 @@ namespace AdaptiveRoads.Manager {
         public static HashSet<Connection> tempConnections_ = new HashSet<Connection>();
         public LaneTransition[] Transitions;
         public void GetTrackConnections() {
-            return; //TODO delete
-            if(!NodeID.ToNode().IsValid()) {
+            try {
                 Transitions = null;
-                return;
-            }
-            tempConnections_.Clear();
-            foreach(var segmentID in NodeID.ToNode().IterateSegments()) {
-                var infoExt = segmentID.ToSegment().Info?.GetMetaData();
-                if(infoExt == null)
-                    continue;
-                var lanes = new LaneIDIterator(segmentID).ToArray();
-                for(int laneIndex = 0; laneIndex < lanes.Length; ++laneIndex) {
-                    uint laneID = lanes[laneIndex];
-                    foreach(var transtion in TMPEHelpers.GetForwardRoutings(laneID, NodeID)) {
-                        var infoExt2 = segmentID.ToSegmentExt().NetInfoExt;
-                        if(infoExt.HasTrackLane(laneIndex) || infoExt2.HasTrackLane(transtion.laneIndex)) {
-                            tempConnections_.Add(new Connection { LaneID1 = laneID, LaneID2 = transtion.laneId });
+                //return; //TODO delete
+                if(!NodeID.ToNode().IsValid()) {
+                    Transitions = null;
+                    return;
+                }
+                tempConnections_.Clear();
+                foreach(var segmentID in NodeID.ToNode().IterateSegments()) {
+                    var infoExt = segmentID.ToSegment().Info?.GetMetaData();
+                    if(infoExt == null) continue;
+                    Assertion.Assert(infoExt == segmentID.ToSegmentExt().NetInfoExt, $"{infoExt} == {segmentID.ToSegmentExt().NetInfoExt}"); // asset initialized.
+                    var lanes = new LaneIDIterator(segmentID).ToArray();
+                    for(int laneIndex = 0; laneIndex < lanes.Length; ++laneIndex) {
+                        uint laneID = lanes[laneIndex];
+                        var transitions = TMPEHelpers.GetForwardRoutings(laneID, NodeID);
+                        if(transitions == null) continue;
+                        foreach(var transition in transitions) {
+                            var infoExt2 = transition.segmentId.ToSegment().Info?.GetMetaData();
+                            if(infoExt2 == null) continue;
+                            if(infoExt.HasTrackLane(laneIndex) || infoExt2.HasTrackLane(transition.laneIndex)) {
+                                tempConnections_.Add(new Connection { LaneID1 = laneID, LaneID2 = transition.laneId });
+                            }
                         }
                     }
                 }
-            }
-            Transitions = new LaneTransition[tempConnections_.Count];
-            int index = 0;
-            foreach(var connection in tempConnections_) {
-                var transtion = Transitions[index++];
-                transtion.Init(connection.LaneID1, connection.LaneID2); // also calculates
+                Transitions = new LaneTransition[tempConnections_.Count];
+                int index = 0;
+                foreach(var connection in tempConnections_) {
+                    Transitions[index++].Init(connection.LaneID1, connection.LaneID2); // also calculates
+                }
+            } catch(Exception ex) {
+                Transitions = null;
+                throw ex;
             }
         }
 

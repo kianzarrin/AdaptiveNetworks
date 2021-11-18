@@ -37,6 +37,10 @@ namespace AdaptiveRoads.LifeCycle {
                 Log.VERBOSE = false;
                 Loaded = false;
                 Log.Buffered = true;
+#if DEBUG
+                //Log.VERBOSE = true;
+                //Log.Buffered = false;
+#endif
 
                 HarmonyHelper.EnsureHarmonyInstalled();
                 ARImplementation.Install();

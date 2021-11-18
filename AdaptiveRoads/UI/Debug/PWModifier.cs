@@ -15,6 +15,9 @@ namespace AdaptiveRoads.UI.Debug {
     using System.Diagnostics;
     using static KianCommons.ReflectionHelpers;
 
+    /// <summary>
+    /// debug pavement width problems
+    /// </summary>
     public class PWModifier  : UIPanel {
         [Conditional("DEBUG")]
         public static void Create() => UIView.GetAView().AddUIComponent<PWModifier>();
@@ -23,6 +26,7 @@ namespace AdaptiveRoads.UI.Debug {
             DestroyImmediate(UIView.GetAView().FindUIComponent<PWSelector>(nameof(PWModifier))?.gameObject);
 
         public override void Awake() {
+            Log.Called();
             base.Awake();
             try {
                 name = nameof(PWSelector);
@@ -53,6 +57,7 @@ namespace AdaptiveRoads.UI.Debug {
 
         internal class TB: UITextField {
             public override void Awake() {
+                Log.Called();
                 try {
                     base.Awake();
                     atlas = TextureUtil.Ingame;
@@ -101,7 +106,8 @@ namespace AdaptiveRoads.UI.Debug {
         }
 
         static void Refresh() {
-            for (ushort segmentID = 0; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
+            Log.Called();
+            for(ushort segmentID = 0; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
                 if (!NetUtil.IsSegmentValid(segmentID)) continue;
                 if (!segmentID.ToSegment().Info.IsAdaptive()) continue;
                 NetManager.instance.UpdateSegment(segmentID);
