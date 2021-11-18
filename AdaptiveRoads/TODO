@@ -11,6 +11,9 @@ Tracks:
         - anti-flickering
         - ignore DC
         - scale to lane width.
+        - implement exclude bend nodes.
+        - overlay
+        - hints
 
 
 TODO:

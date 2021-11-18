@@ -161,21 +161,22 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         }
 
         public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo, int layerMask) {
-            if(InfoA == null || (layerMask & InfoA.m_netLayers) == 0)
+            var infoExtA = InfoExtA;
+            if(infoExtA == null || (layerMask & InfoA.m_netLayers) == 0)
                 return;
-            var netManager = Singleton<NetManager>.instance;
-            foreach(var trackInfo in InfoExtA.Tracks) {
+            var netMan = NetManager.instance;
+            foreach(var trackInfo in infoExtA.Tracks) {
                 if(trackInfo.HasTrackLane(laneIndexA) && trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags)) {
                     var objectIndex = RenderData.GetObjectIndex(trackInfo.m_requireWindSpeed);
                     if(cameraInfo.CheckRenderDistance(RenderData.Position, trackInfo.m_lodRenderDistance)) {
-                        netManager.m_materialBlock.Clear();
-                        netManager.m_materialBlock.SetMatrix(netManager.ID_LeftMatrix, RenderData.LeftMatrix);
-                        netManager.m_materialBlock.SetMatrix(netManager.ID_RightMatrix, RenderData.RightMatrix);
-                        netManager.m_materialBlock.SetVector(netManager.ID_MeshScale, RenderData.MeshScale);
-                        netManager.m_materialBlock.SetVector(netManager.ID_ObjectIndex, objectIndex);
-                        netManager.m_materialBlock.SetColor(netManager.ID_Color, RenderData.Color);
-                        NetManager.instance.m_drawCallData.m_defaultCalls++;
-                        Graphics.DrawMesh(trackInfo.m_trackMesh, RenderData.Position, RenderData.Rotation, trackInfo.m_trackMaterial, trackInfo.m_layer, null, 0, netManager.m_materialBlock);
+                        netMan.m_materialBlock.Clear();
+                        netMan.m_materialBlock.SetMatrix(netMan.ID_LeftMatrix, RenderData.LeftMatrix);
+                        netMan.m_materialBlock.SetMatrix(netMan.ID_RightMatrix, RenderData.RightMatrix);
+                        netMan.m_materialBlock.SetVector(netMan.ID_MeshScale, RenderData.MeshScale);
+                        netMan.m_materialBlock.SetVector(netMan.ID_ObjectIndex, objectIndex);
+                        netMan.m_materialBlock.SetColor(netMan.ID_Color, RenderData.Color);
+                        netMan.m_drawCallData.m_defaultCalls++;
+                        Graphics.DrawMesh(trackInfo.m_trackMesh, RenderData.Position, RenderData.Rotation, trackInfo.m_trackMaterial, trackInfo.m_layer, null, 0, netMan.m_materialBlock);
                     } else {
                         NetInfo.LodValue combinedLod = trackInfo.m_combinedLod;
                         if(combinedLod == null) continue;

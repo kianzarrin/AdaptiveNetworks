@@ -145,28 +145,28 @@ namespace AdaptiveRoads.Manager {
                     var lanes = new LaneIDIterator(segmentID).ToArray();
                     for(int laneIndex = 0; laneIndex < lanes.Length; ++laneIndex) {
                         uint laneID = lanes[laneIndex];
-                        var transitions = TMPEHelpers.GetForwardRoutings(laneID, NodeID);
-                        if(transitions == null) continue;
-                        foreach(LaneTransitionData transition in transitions) {
-                            if(transition.type == LaneEndTransitionType.Invalid || transition.type == LaneEndTransitionType.Relaxed)
+                        var routings = TMPEHelpers.GetForwardRoutings(laneID, NodeID);
+                        if(routings == null) continue;
+                        foreach(LaneTransitionData routing in routings) {
+                            if(routing.type == LaneEndTransitionType.Invalid || routing.type == LaneEndTransitionType.Relaxed)
                                 continue;
-                            var infoExt2 = transition.segmentId.ToSegment().Info?.GetMetaData();
+                            var infoExt2 = routing.segmentId.ToSegment().Info?.GetMetaData();
                             if(infoExt2 == null) continue;
-                            if(infoExt.HasTrackLane(laneIndex) || infoExt2.HasTrackLane(transition.laneIndex)) {
-                                if(GoodTurnAngle(segmentID, transition.segmentId, NodeID)) {
-                                    tempConnections_.Add(new Connection { LaneID1 = laneID, LaneID2 = transition.laneId });
+                            if(infoExt.HasTrackLane(laneIndex) || infoExt2.HasTrackLane(routing.laneIndex)) {
+                                if(GoodTurnAngle(segmentID, routing.segmentId, NodeID)) {
+                                    tempConnections_.Add(new Connection { LaneID1 = laneID, LaneID2 = routing.laneId });
                                 }
                             }
                         }
                     }
                 }
-                Transitions = new LaneTransition[tempConnections_.Count];
+                var transitions =  new LaneTransition[tempConnections_.Count];
                 int index = 0;
                 foreach(var connection in tempConnections_) {
-                    Transitions[index++].Init(connection.LaneID1, connection.LaneID2); // also calculates
+                    transitions[index++].Init(connection.LaneID1, connection.LaneID2); // also calculates
                 }
+                Transitions = transitions;
             } catch(Exception ex) {
-                Transitions = null;
                 throw ex;
             }
         }
