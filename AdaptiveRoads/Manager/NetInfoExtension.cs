@@ -989,40 +989,49 @@ namespace AdaptiveRoads.Manager {
             #endregion
 
             public void Recalculate(NetInfo netInfo) {
-                Assertion.Assert(Helpers.InMainThread(), "in main thread");
-                Log.Called(netInfo, $"inMainthread={Helpers.InMainThread()}");
-                this.ParentInfo = netInfo;
-                float num = netInfo.m_minHeight - netInfo.m_maxSlope * 64f - 10f;
-                float num2 = netInfo.m_maxHeight + netInfo.m_maxSlope * 64f + 10f;
-                this.m_mesh.bounds = new Bounds(new Vector3(0f, (num + num2) * 0.5f, 0f), new Vector3(128f, num2 - num, 128f));
-                this.m_trackMesh = this.m_mesh;
-                this.m_trackMaterial = new Material(this.m_material);
-                string text = this.m_material.GetTag("NetType", searchFallbacks: false);
-                if(text == "PowerLine") {
-                    this.m_requireWindSpeed = true;
-                    this.m_preserveUVs = true;
-                    this.m_generateTangents = false;
-                    this.m_layer = LayerMask.NameToLayer("PowerLines");
-                } else if(text == "MetroTunnel") {
-                    this.m_requireWindSpeed = false;
-                    this.m_preserveUVs = false;
-                    this.m_generateTangents = false;
-                    this.m_layer = LayerMask.NameToLayer("MetroTunnels");
-                } else {
-                    this.m_requireWindSpeed = false;
-                    this.m_preserveUVs = false;
-                    this.m_generateTangents = false;
-                    this.m_layer = netInfo.m_prefabDataLayer;
-                }
-                this.m_trackMaterial.EnableKeyword("NET_SEGMENT");
-                Color color = this.m_material.color;
-                color.a = 0f;
-                this.m_trackMaterial.color = color;
-                Texture2D texture2D = this.m_material.mainTexture as Texture2D;
-                if(texture2D != null && texture2D.format == TextureFormat.DXT5) {
-                    CODebugBase<LogChannel>.Warn(LogChannel.Core, "Segment diffuse is DXT5: " + netInfo.gameObject.name, netInfo.gameObject);
-                }
-                LaneCount = EnumBitMaskExtensions.CountOnes(LaneIndeces);
+                try {
+                    Assertion.Assert(Helpers.InMainThread(), "in main thread");
+                    Log.Called(netInfo, $"inMainthread={Helpers.InMainThread()}");
+                    this.ParentInfo = netInfo;
+                    Assertion.NotNull(ParentInfo, "ParentInfo");
+                    this.m_trackMesh = this.m_mesh;
+                    if(this.m_mesh) {
+                        float corner1 = netInfo.m_minHeight - netInfo.m_maxSlope * 64f - 10f;
+                        float corner2 = netInfo.m_maxHeight + netInfo.m_maxSlope * 64f + 10f;
+                        this.m_mesh.bounds = new Bounds(new Vector3(0f, (corner1 + corner2) * 0.5f, 0f), new Vector3(128f, corner2 - corner1, 128f));
+                    }
+                    string tag = this.m_material?.GetTag("NetType", searchFallbacks: false);
+                    if(tag == "PowerLine") {
+                        this.m_requireWindSpeed = true;
+                        this.m_preserveUVs = true;
+                        this.m_generateTangents = false;
+                        this.m_layer = LayerMask.NameToLayer("PowerLines");
+                    } else if(tag == "MetroTunnel") {
+                        this.m_requireWindSpeed = false;
+                        this.m_preserveUVs = false;
+                        this.m_generateTangents = false;
+                        this.m_layer = LayerMask.NameToLayer("MetroTunnels");
+                    } else {
+                        this.m_requireWindSpeed = false;
+                        this.m_preserveUVs = false;
+                        this.m_generateTangents = false;
+                        this.m_layer = netInfo.m_prefabDataLayer;
+                    }
+                    if(this.m_material) {
+                        this.m_trackMaterial = new Material(this.m_material);
+                        this.m_trackMaterial.EnableKeyword("NET_SEGMENT");
+                        Color color = this.m_material.color;
+                        color.a = 0f;
+                        this.m_trackMaterial.color = color;
+                        Texture2D texture2D = this.m_material.mainTexture as Texture2D;
+                        if(texture2D != null && texture2D.format == TextureFormat.DXT5) {
+                            CODebugBase<LogChannel>.Warn(LogChannel.Core, "Segment diffuse is DXT5: " + netInfo.gameObject.name, netInfo.gameObject);
+                        }
+                    } else {
+                        m_trackMaterial = null;
+                    }
+                    LaneCount = EnumBitMaskExtensions.CountOnes(LaneIndeces);
+                } catch (Exception ex) { ex.Log(); }
             }
 
             public const VehicleInfo.VehicleType TRACK_VEHICLE_TYPES =

@@ -33,5 +33,4 @@ version 3:
     - m_clipSegmentEnds for segmentInfos. (this influences corners so its hard to do it per mesh)
     - option to unmerge bit-mask drop-downs
     - move DPT array elements up and down.
-    - tracks
 
