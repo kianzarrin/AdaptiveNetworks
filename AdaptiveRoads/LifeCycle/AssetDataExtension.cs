@@ -13,6 +13,11 @@ namespace AdaptiveRoads.LifeCycle {
 
     public class AssetDataExtension : IAssetDataExtension {
         public const string ID_NetInfo = "AdvancedRoadEditor_NetInfoExt";
+        public static bool InRoadEditor => ToolsModifierControl.toolController.m_editPrefabInfo is NetInfo;
+        public static string SaveName;
+        public static NetInfo CurrentBasicNetInfo;
+        public static CustomAssetMetaData ListingMetaData;
+
         public void OnCreated(IAssetData assetData) { }
         public void OnReleased() { }
 
@@ -25,13 +30,13 @@ namespace AdaptiveRoads.LifeCycle {
 
         public static void OnAssetLoadedImpl(string name, object asset, Dictionary<string, byte[]> userData) {
             try {
-                if (HelpersExtensions.InAssetEditor && ModSettings.VanillaMode)
+                if(HelpersExtensions.InAssetEditor && ModSettings.VanillaMode)
                     return;
-                MetaDataName = name;
                 Log.Debug($"AssetDataExtension.OnAssetLoadedImpl({name}, {asset}, userData) called", false);
-                if (asset is NetInfo prefab) {
+                if(asset is NetInfo prefab) {
+                    CurrentBasicNetInfo = prefab;
                     Log.Debug("AssetDataExtension.OnAssetLoaded():  prefab is " + prefab, false);
-                    if (userData.TryGetValue(ID_NetInfo, out byte[] data)) {
+                    if(userData.TryGetValue(ID_NetInfo, out byte[] data)) {
                         Log.Debug("AssetDataExtension.OnAssetLoaded(): extracted data for " + ID_NetInfo);
                         AssertNotNull(data, "data");
                         var assetData0 = SerializationUtil.Deserialize(data, default);
@@ -41,19 +46,19 @@ namespace AdaptiveRoads.LifeCycle {
                         AssetData.Load(assetData, prefab);
                         Log.Debug($"AssetDataExtension.OnAssetLoaded(): Asset Data={assetData} version={assetData.VersionString}");
                     }
-                } else if (asset is BuildingInfo buildingInfo) {
+                } else if(asset is BuildingInfo buildingInfo) {
                     // TODO: load stored custom road flags for intersections or buildings.
                 }
-            } catch (Exception e) {
+            } catch(Exception e) {
                 Log.Exception(e, $"asset:{asset} name:{name}");
+            } finally {
+                CurrentBasicNetInfo = null; ;
             }
-            MetaDataName = null; ;
         }
 
         public static void OnAssetSavedImpl(string name, object asset, out Dictionary<string, byte[]> userData) {
             try {
                 Log.Info($"AssetDataExtension.OnAssetSavedImpl({name}, {asset}, userData) called");
-                MetaDataName = name;
                 userData = null;
                 if (ModSettings.VanillaMode) {
                     Log.Info("MetaData not saved vanilla mode is set in the settings");
@@ -61,6 +66,7 @@ namespace AdaptiveRoads.LifeCycle {
                 }
 
                 if (asset is NetInfo prefab) {
+                    CurrentBasicNetInfo = prefab;
                     Log.Info("AssetDataExtension.OnAssetSaved():  prefab is " + prefab);
                     AssertNotNull(AssetData.Snapshot, "snapshot");
                     var assetData = AssetData.Snapshot; //AssetData.CreateFromEditPrefab();
@@ -71,14 +77,10 @@ namespace AdaptiveRoads.LifeCycle {
             } catch (Exception ex) {
                 ex.Log();
                 userData = null;
+            } finally {
+                CurrentBasicNetInfo = null; ;
             }
-            MetaDataName = null;
         }
-
-        public static bool InRoadEditor => ToolsModifierControl.toolController.m_editPrefabInfo is NetInfo;
-        public static string SaveName;
-        public static string MetaDataName;
-        //public static Package.Asset AssetRef;
 
         public static void BeforeSave(string saveName) {
             try {

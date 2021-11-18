@@ -36,6 +36,7 @@ namespace AdaptiveRoads.Patches.AssetPatches {
                 var selectedIndex = ___m_SaveList.selectedIndex;
                 var listingMetaData = (CustomAssetMetaData)mListingMetaData
                     .Invoke(__instance, new object[] { selectedIndex });
+                AssetDataExtension.ListingMetaData = listingMetaData;
 
                 // Taken from LoadingManager.LoadCustomContent
                 if (listingMetaData.userDataRef != null) {
@@ -44,7 +45,7 @@ namespace AdaptiveRoads.Patches.AssetPatches {
                     if (userAssetData == null) {
                         userAssetData = new AssetDataWrapper.UserAssetData();
                     }
-                    Log.Debug($"LoadAssetPanel.OnLoad().Postfix(): Loading asset from load asset panel");
+                    Log.Info($"LoadAssetPanel.OnLoad().Postfix(): Loading asset from load asset panel");
                     AssetDataExtension.OnAssetLoadedImpl(
                         listingMetaData.name,
                         ToolsModifierControl.toolController.m_editPrefabInfo,
@@ -55,7 +56,7 @@ namespace AdaptiveRoads.Patches.AssetPatches {
                         // OnLoad() calls IntializePrefab() which reverses metadata
                         // and can't be patched because its generic.
                         // so we restore asset metadata here
-                        Log.Debug($" restoring original metadata.");
+                        Log.Info($"restoring original metadata.");
                         AssetDataExtension.OnAssetLoadedImpl(
                             listingMetaData.name,
                             originalInfo,
@@ -66,7 +67,10 @@ namespace AdaptiveRoads.Patches.AssetPatches {
                 Log.Debug($"LoadAssetPanel.OnLoad().Postfix() succeeded!");
             } catch (Exception ex) {
                 Log.Exception(ex);
+            } finally {
+                AssetDataExtension.ListingMetaData = null;
             }
+
         }
 
         static NetInfo GetOriginalNetInfo(CustomAssetMetaData listingMetaData) {

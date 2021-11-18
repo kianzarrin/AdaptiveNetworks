@@ -3,6 +3,7 @@ namespace AdaptiveRoads.Util {
     using ColossalFramework.Packaging;
     using ColossalFramework.PlatformServices;
     using KianCommons;
+    using System;
     using System.Linq;
 
     public static class PackageManagerUtil {
@@ -18,11 +19,22 @@ namespace AdaptiveRoads.Util {
         /// </summary>
         public static Package PersistencyPackage {
             get {
-                int dotIndex = AssetDataExtension.MetaDataName.LastIndexOf('.');
-                string packageName = AssetDataExtension.MetaDataName.Substring(0, dotIndex);
-                var ret = GetPackage(packageName);
-                if(ret == null) Log.Error($"failed to find package for asset metadata {AssetDataExtension.MetaDataName}");
-                return ret;
+                try {
+                    string name = AssetDataExtension.CurrentBasicNetInfo.name;
+                    int dotIndex = name.LastIndexOf('.');
+                    if(dotIndex > 0) {
+                        Assertion.Assert(dotIndex > 0, $"dotIndex:{dotIndex} > 0");
+                        string packageName = name.Substring(0, dotIndex);
+                        return GetPackage(packageName)
+                            ?? throw new Exception($"Package {packageName} not found");
+                    } else {
+                        return AssetDataExtension.ListingMetaData?.assetRef.package
+                            ?? throw new Exception($"ListingMetaData?.assetRef.package is null");
+                    }
+                }catch(Exception ex) {
+                    ex.Log($"failed to get package for CurrentBasicNetInfo={AssetDataExtension.CurrentBasicNetInfo} and ListingMetaData={AssetDataExtension.ListingMetaData}");
+                    throw ex;
+                }
             }
         }
 
