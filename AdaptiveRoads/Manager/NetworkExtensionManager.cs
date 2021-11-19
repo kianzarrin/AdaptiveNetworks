@@ -6,6 +6,7 @@ namespace AdaptiveRoads.Manager {
     using KianCommons.Serialization;
     using static KianCommons.ReflectionHelpers;
     using KianCommons.Plugins;
+    using AdaptiveRoads.Util;
 
     public static class NetworkExtensionManagerExtensions{
         static NetworkExtensionManager man = NetworkExtensionManager.Instance;
@@ -108,23 +109,38 @@ namespace AdaptiveRoads.Manager {
         /// preconditions: none. does not need any patches.
         /// </summary>
         public void OnLoad() {
+            // NetManager.instance.RebuildLods(); // [PreloadPatch] NetManager_InitRenderDataImpl takes care of this right from the start.
             SimulationManager.instance.AddAction(OnLoadImpl);
         }
 
         // should be called from simulation thread.
         void OnLoadImpl() {
             LogCalled();
-            for (ushort segmentID = 0; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
-                if (!NetUtil.IsSegmentValid(segmentID)) continue;
-                if (!segmentID.ToSegment().Info.IsAdaptive()) continue;
+            UpdateAllNetworkFlags();
+            LogSucceeded();
+
+        }
+
+        // should be called from simulation thread.
+        public void UpdateAllNetworkFlags() {
+            for(ushort segmentID = 0; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
+                if(!NetUtil.IsSegmentValid(segmentID)) continue;
+                if(!segmentID.ToSegment().Info.IsAdaptive()) continue;
                 SegmentBuffer[segmentID].UpdateAllFlags();
             }
             for(ushort nodeID = 0; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID) {
                 if(!NetUtil.IsNodeValid(nodeID)) continue;
                 NodeBuffer[nodeID].UpdateFlags();
             }
-            LogSucceeded();
+        }
 
+        // should be called from main thread.
+        public void RecalculateARPrefabs() {
+            int n = PrefabCollection<NetInfo>.LoadedCount();
+            for(uint i = 0; i < n; ++i) {
+                var prefab = PrefabCollection<NetInfo>.GetLoaded(i);
+                prefab?.RecalculateMetaData();
+            }
         }
 
         public void OnUnload() {

@@ -128,9 +128,8 @@ namespace AdaptiveRoads.LifeCycle {
         public static void Load() {
             try {
                 Log.Info("LifeCycle.Load() called");
-                Log.Info("testing stack trace:\n" + Environment.StackTrace, false);
+                Log.Debug("testing stack trace:\n" + Environment.StackTrace, false);
 
-                NetworkExtensionManager.Instance.OnLoad();
                 Log.Info($"Scene={Scene} LoadMode={Mode}");
                 if(Scene != "AssetEditor") {
                     Log.Info("Applying in game patches");
@@ -141,6 +140,7 @@ namespace AdaptiveRoads.LifeCycle {
                     HintBox.Create();
                 }
                 NetInfoExtionsion.Ensure_EditedNetInfos();
+                NetworkExtensionManager.Instance.OnLoad();
 
                 ObserverDisposable = GeometryManager.Instance.Subscribe(new ARTMPEObsever());
 

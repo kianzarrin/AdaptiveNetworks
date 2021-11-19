@@ -5,27 +5,24 @@ namespace AdaptiveRoads.Patches.Track {
     using System.Collections;
     using System.Collections.Generic;
     using UnityEngine;
+    using KianCommons;
 
     [HarmonyPatch(typeof(NetManager), "InitRenderDataImpl")]
-    [InGamePatch]
+    [PreloadPatch]
     public static class NetManager_InitRenderDataImpl {
         static bool Prefix(ref IEnumerator __result) {
+            Log.Called();
             __result = InitRenderDataImpl();
             return false;
         }
 
         public static IEnumerator InitRenderDataImpl() {
             Singleton<LoadingManager>.instance.m_loadingProfilerMain.BeginLoading("NetManager.InitRenderData");
-            FastList<KeyValuePair<NetInfo, NetInfo.Segment>> segmentsDic = new FastList<KeyValuePair<NetInfo, NetInfo.Segment>>();
-            FastList<KeyValuePair<NetInfo, NetInfo.Node>> nodesDict = new FastList<KeyValuePair<NetInfo, NetInfo.Node>>();
-            var tracksDict = new FastList<KeyValuePair<NetInfoExtionsion.Net, NetInfoExtionsion.Track>>();
+            int netCount = PrefabCollection<NetInfo>.LoadedCount();
+            var subInfos = new List<KeyValuePair<NetInfo, object>>(netCount * 10);
             FastList<Texture2D> rgbTextures = new FastList<Texture2D>();
             FastList<Texture2D> xysTextures = new FastList<Texture2D>();
             FastList<Texture2D> aprTextures = new FastList<Texture2D>();
-            int netCount = PrefabCollection<NetInfo>.LoadedCount();
-            segmentsDic.EnsureCapacity(netCount * 4);
-            nodesDict.EnsureCapacity(netCount * 4);
-            tracksDict.EnsureCapacity(netCount * 4);
             rgbTextures.EnsureCapacity(netCount * 4);
             xysTextures.EnsureCapacity(netCount * 4);
             aprTextures.EnsureCapacity(netCount * 4);
@@ -65,10 +62,10 @@ namespace AdaptiveRoads.Patches.Track {
                                             throw new PrefabException(netInfo, "LOD apr null");
                                         }
                                         if(xys.width != rgb.width || xys.height != rgb.height) {
-                                            throw new PrefabException(netInfo, "LOD xys size doesnt match diffuse size");
+                                            throw new PrefabException(netInfo, "LOD xys size doesn't match diffuse size");
                                         }
                                         if(apr.width != rgb.width || apr.height != rgb.height) {
-                                            throw new PrefabException(netInfo, "LOD aci size doesnt match diffuse size");
+                                            throw new PrefabException(netInfo, "LOD aci size doesn't match diffuse size");
                                         }
                                         try {
                                             rgb.GetPixel(0, 0);
@@ -85,7 +82,7 @@ namespace AdaptiveRoads.Patches.Track {
                                         } catch(UnityException) {
                                             throw new PrefabException(netInfo, "LOD aci not readable");
                                         }
-                                        segmentsDic.Add(new KeyValuePair<NetInfo, NetInfo.Segment>(netInfo, segment));
+                                        subInfos.Add(new KeyValuePair<NetInfo, object>(netInfo, segment));
                                         rgbTextures.Add(rgb);
                                         xysTextures.Add(xys);
                                         aprTextures.Add(apr);
@@ -126,10 +123,10 @@ namespace AdaptiveRoads.Patches.Track {
                                             throw new PrefabException(netInfo, "LOD apr null");
                                         }
                                         if(xys.width != rgb.width || xys.height != rgb.height) {
-                                            throw new PrefabException(netInfo, "LOD xys size doesnt match diffuse size");
+                                            throw new PrefabException(netInfo, "LOD xys size doesn't match diffuse size");
                                         }
                                         if(apr.width != rgb.width || apr.height != rgb.height) {
-                                            throw new PrefabException(netInfo, "LOD aci size doesnt match diffuse size");
+                                            throw new PrefabException(netInfo, "LOD aci size doesn't match diffuse size");
                                         }
                                         try {
                                             rgb.GetPixel(0, 0);
@@ -146,7 +143,7 @@ namespace AdaptiveRoads.Patches.Track {
                                         } catch(UnityException) {
                                             throw new PrefabException(netInfo, "LOD aci not readable");
                                         }
-                                        nodesDict.Add(new KeyValuePair<NetInfo, NetInfo.Node>(netInfo, node));
+                                        subInfos.Add(new KeyValuePair<NetInfo, object>(netInfo, node));
                                         rgbTextures.Add(rgb);
                                         xysTextures.Add(xys);
                                         aprTextures.Add(apr);
@@ -156,7 +153,7 @@ namespace AdaptiveRoads.Patches.Track {
                         }
                     }
                     var netInfoExt = netInfo?.GetMetaData();
-                    if(netInfoExt?.Tracks != null) {
+                    if(false && netInfoExt?.Tracks != null) { // TODO: fix
                         for(int i = 0; i < netInfoExt.Tracks.Length; i++) {
                             try {
                                 var track = netInfoExt.Tracks[i];
@@ -188,10 +185,10 @@ namespace AdaptiveRoads.Patches.Track {
                                             throw new PrefabException(netInfo, "LOD apr null");
                                         }
                                         if(xys.width != rgb.width || xys.height != rgb.height) {
-                                            throw new PrefabException(netInfo, "LOD xys size doesnt match diffuse size");
+                                            throw new PrefabException(netInfo, "LOD xys size doesn't match diffuse size");
                                         }
                                         if(apr.width != rgb.width || apr.height != rgb.height) {
-                                            throw new PrefabException(netInfo, "LOD aci size doesnt match diffuse size");
+                                            throw new PrefabException(netInfo, "LOD aci size doesn't match diffuse size");
                                         }
                                         try {
                                             rgb.GetPixel(0, 0);
@@ -208,7 +205,8 @@ namespace AdaptiveRoads.Patches.Track {
                                         } catch(UnityException) {
                                             throw new PrefabException(netInfo, "LOD aci not readable");
                                         }
-                                        tracksDict.Add(new KeyValuePair<NetInfoExtionsion.Net, NetInfoExtionsion.Track>(netInfoExt, track));
+
+                                        subInfos.Add(new KeyValuePair<NetInfo, object>(netInfo, track));
                                         rgbTextures.Add(rgb);
                                         xysTextures.Add(xys);
                                         aprTextures.Add(apr);
@@ -249,31 +247,18 @@ namespace AdaptiveRoads.Patches.Track {
             Singleton<LoadingManager>.instance.m_loadingProfilerMain.PauseLoading();
             yield return 0;
             Singleton<LoadingManager>.instance.m_loadingProfilerMain.ContinueLoading();
-            for(int i = 0; i < segmentsDic.m_size; i++) {
-                try {
-                    var pair = segmentsDic.m_buffer[i];
-                    var netInfo = pair.Key;
-                    var segmentInfo = pair.Value;
+
+            for(int i = 0; i < subInfos.Count; ++i) {
+                var netInfo = subInfos[i].Key;
+                if(subInfos[i].Value is NetInfo.Segment segmentInfo) {
                     netInfo.InitMeshData(segmentInfo, rect[i], netMan.m_lodRgbAtlas, netMan.m_lodXysAtlas, netMan.m_lodAprAtlas);
-                } catch(PrefabException ex) { ex.Handle(); }
 
-            }
-            for(int i = 0; i < nodesDict.m_size; i++) {
-                try {
-                    var pair = nodesDict.m_buffer[i];
-                    var netInfo = pair.Key;
-                    var nodeInfo = pair.Value;
+                } else if(subInfos[i].Value is NetInfo.Node nodeInfo) {
                     netInfo.InitMeshData(nodeInfo, rect[i], netMan.m_lodRgbAtlas, netMan.m_lodXysAtlas, netMan.m_lodAprAtlas);
-                } catch(PrefabException ex) { ex.Handle(); }
 
-            }
-            for(int i = 0; i < tracksDict.m_size; i++) {
-                try {
-                    var pair = tracksDict.m_buffer[i];
-                    var netInfoExt = pair.Key;
-                    var trackInfo = pair.Value;
-                    netInfoExt.InitMeshData(trackInfo, rect[i], netMan.m_lodRgbAtlas, netMan.m_lodXysAtlas, netMan.m_lodAprAtlas);
-                } catch(PrefabException ex) { ex.Handle(); }
+                } else if(subInfos[i].Value is NetInfoExtionsion.Track trackInfo) {
+                    netInfo.GetMetaData()?.InitMeshData(trackInfo, rect[i], netMan.m_lodRgbAtlas, netMan.m_lodXysAtlas, netMan.m_lodAprAtlas);
+                }
             }
 
             Singleton<LoadingManager>.instance.m_loadingProfilerMain.EndLoading();
