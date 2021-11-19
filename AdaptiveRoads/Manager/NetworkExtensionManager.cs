@@ -9,10 +9,10 @@ namespace AdaptiveRoads.Manager {
     using AdaptiveRoads.Util;
 
     public static class NetworkExtensionManagerExtensions{
-        static NetworkExtensionManager man = NetworkExtensionManager.Instance;
-        public static ref NetNodeExt ToNodeExt(this ushort id) => ref man.NodeBuffer[id];
-        public static ref NetSegmentExt ToSegmentExt(this ushort id) => ref man.SegmentBuffer[id];
-        public static ref NetLaneExt ToLaneExt(this uint id) => ref man.LaneBuffer[id];
+        static NetworkExtensionManager man_ => NetworkExtensionManager.Instance;
+        public static ref NetNodeExt ToNodeExt(this ushort id) => ref man_.NodeBuffer[id];
+        public static ref NetSegmentExt ToSegmentExt(this ushort id) => ref man_.SegmentBuffer[id];
+        public static ref NetLaneExt ToLaneExt(this uint id) => ref man_.LaneBuffer[id];
     }
 
     [Serializable]
@@ -20,6 +20,7 @@ namespace AdaptiveRoads.Manager {
         #region LifeCycle
         private NetworkExtensionManager() {
             LogCalled();
+            Log.Debug(Environment.StackTrace);
             InitBuffers();
         }
 
@@ -29,8 +30,8 @@ namespace AdaptiveRoads.Manager {
 
         static NetworkExtensionManager instance_;
         public static NetworkExtensionManager Instance => instance_ ??= new NetworkExtensionManager();
-
         public static NetworkExtensionManager RawInstance => instance_;
+        public static bool Exists => instance_ != null;
 
         internal int SerializationCapacity =>
             (NetManager.MAX_NODE_COUNT + NetManager.MAX_SEGMENT_COUNT + NetManager.MAX_LANE_COUNT) * sizeof(int);
@@ -109,7 +110,7 @@ namespace AdaptiveRoads.Manager {
         /// preconditions: none. does not need any patches.
         /// </summary>
         public void OnLoad() {
-            // NetManager.instance.RebuildLods(); // [PreloadPatch] NetManager_InitRenderDataImpl takes care of this right from the start.
+            //NetManager.instance.RebuildLods(); // [PreloadPatch] NetManager_InitRenderDataImpl takes care of this right from the start.
             SimulationManager.instance.AddAction(OnLoadImpl);
         }
 
@@ -160,58 +161,45 @@ namespace AdaptiveRoads.Manager {
             for (uint laneId = 0; laneId < NetManager.MAX_LANE_COUNT; ++laneId) {
                 LaneBuffer[laneId].Init(laneId);
             }
-
         }
 
         public void SimulationStep() {
-            bool segmentsUpdated0 = false;
-            bool nodesUpdated0 = false;
+            bool updateSegments = m_segmentsUpdated;
+            bool updateNodes = m_nodesUpdated;
+            m_segmentsUpdated = false;
+            m_nodesUpdated = false;
 
-            for(int i = 0; i < 3; ++i) {
-                bool segmentsUpdated = m_segmentsUpdated;
-                for(int j = 0; segmentsUpdated && j < 3; ++j) {
-                    m_segmentsUpdated = false;
-                    segmentsUpdated0 = true;
-                    for(int maskIndex = 0; maskIndex < m_updatedSegments.Length; maskIndex++) {
-                        ulong bitmask = m_updatedSegments[maskIndex];
-                        if(bitmask != 0) {
-                            for(int bitIndex = 0; bitIndex < 64; bitIndex++) {
-                                if((bitmask & 1UL << bitIndex) != 0UL) {
-                                    ushort segmentID = (ushort)(maskIndex << 6 | bitIndex);
-                                    if(Log.VERBOSE) Log.Debug($"updating segment:{segmentID} ...");
-                                    SegmentBuffer[segmentID].UpdateAllFlags();
-                                }
+            if(updateSegments) {
+                for(int maskIndex = 0; maskIndex < m_updatedSegments.Length; maskIndex++) {
+                    ulong bitmask = m_updatedSegments[maskIndex];
+                    if(bitmask != 0) {
+                        for(int bitIndex = 0; bitIndex < 64; bitIndex++) {
+                            if((bitmask & 1UL << bitIndex) != 0UL) {
+                                ushort segmentID = (ushort)(maskIndex << 6 | bitIndex);
+                                if(Log.VERBOSE) Log.Debug($"updating segment:{segmentID} ...");
+                                SegmentBuffer[segmentID].UpdateAllFlags();
                             }
                         }
                     }
-                    segmentsUpdated = m_segmentsUpdated;
-                }
-                if(segmentsUpdated) break;
-
-                bool nodesUpdated = m_nodesUpdated;
-                if(nodesUpdated) {
-                    m_nodesUpdated = false;
-                    nodesUpdated0 = true;
-                    for(int maskIndex = 0; maskIndex < m_updatedNodes.Length; maskIndex++) {
-                        ulong bitmask = m_updatedNodes[maskIndex];
-                        if (bitmask != 0) {
-                            for (int bitIndex = 0; bitIndex < 64; bitIndex++) {
-                                if ((bitmask & 1UL << bitIndex) != 0) {
-                                    ushort nodeID = (ushort)(maskIndex << 6 | bitIndex);
-                                    if(Log.VERBOSE) Log.Debug($"updating node:{nodeID} ...");
-                                    NodeBuffer[nodeID].UpdateFlags();
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (!this.m_nodesUpdated && !this.m_segmentsUpdated) {
-                    break;
                 }
             }
 
-            if (segmentsUpdated0) {
+            if(updateNodes) {
+                for(int maskIndex = 0; maskIndex < m_updatedNodes.Length; maskIndex++) {
+                    ulong bitmask = m_updatedNodes[maskIndex];
+                    if(bitmask != 0) {
+                        for(int bitIndex = 0; bitIndex < 64; bitIndex++) {
+                            if((bitmask & 1UL << bitIndex) != 0) {
+                                ushort nodeID = (ushort)(maskIndex << 6 | bitIndex);
+                                if(Log.VERBOSE) Log.Debug($"updating node:{nodeID} ...");
+                                NodeBuffer[nodeID].UpdateFlags();
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (updateSegments) {
                 for (int maskIndex = 0; maskIndex < m_updatedSegments.Length; maskIndex++) {
                     ulong bitmask = m_updatedSegments[maskIndex];
                     if (bitmask != 0) {
@@ -226,7 +214,7 @@ namespace AdaptiveRoads.Manager {
                 }
             }
 
-            if(nodesUpdated0) {
+            if(updateNodes) {
                 for(int maskIndex = 0; maskIndex < m_updatedNodes.Length; maskIndex++) {
                     ulong bitmask = m_updatedNodes[maskIndex];
                     if(bitmask != 0) {

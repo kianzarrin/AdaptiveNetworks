@@ -139,6 +139,7 @@ namespace AdaptiveRoads.Manager {
                 renderCount_ = CalculateTrackRenderCount();
 
                 if(Log.VERBOSE) Log.Debug($"NetSegmentExt.UpdateAllFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
+                if(Log.VERBOSE) Log.Debug($"NetSegmentExt:{NetInfoExt}, TrackLaneCount={NetInfoExt?.TrackLaneCount}");
             } catch(Exception ex) {
                 Log.Exception(
                     ex,
@@ -177,7 +178,8 @@ namespace AdaptiveRoads.Manager {
             if(!SegmentID.ToSegment().IsValid()) 
                 return;
             NetInfo info = SegmentID.ToSegment().Info;
-            if(NetInfoExt == null || (layerMask & info.m_netLayers) == 0) 
+            //Log.DebugWait($"RenderTrackInstance() called for {this}");
+            if(NetInfoExt == null || (layerMask & info.m_netLayers ) == 0) 
                 return;
             if(!cameraInfo.Intersect(Segment.m_bounds)) 
                 return;

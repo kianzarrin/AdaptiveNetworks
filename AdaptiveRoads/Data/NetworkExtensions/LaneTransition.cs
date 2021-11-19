@@ -80,11 +80,13 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             NodeID = segmentID1.ToSegment().GetSharedNode(segmentID2);
 
             Calculate();
+            if(Log.VERBOSE) Log.Debug($"LaneTransition.Init() succeeded for: {this}", false);
         }
 
         public BezierData OutLine;
         public TrackRenderData RenderData;
 
+        public override string ToString() => $"LaneTransition[node:{NodeID} lane:{LaneIDSource}->lane:{LaneIDTarget}]";
         #region shortcuts
         ref NetLane LaneA => ref LaneIDSource.ToLane();
         ref NetLane LaneD => ref LaneIDTarget.ToLane();

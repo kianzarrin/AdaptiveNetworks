@@ -549,6 +549,7 @@ namespace AdaptiveRoads.Manager {
             }
 
             public void InitMeshData(Track trackInfo, Rect atlasRect, Texture2D rgbAtlas, Texture2D xysAtlas, Texture2D aprAtlas) {
+                if(Log.VERBOSE) Log.Debug("InitMeshData() for trackInfo called");
                 // work around private fields/methods.
                 var tempSegment = TempSegmentInfo(trackInfo);
                 Template.InitMeshData(TempSegmentInfo(trackInfo), atlasRect, rgbAtlas, xysAtlas, aprAtlas);

@@ -27,7 +27,6 @@ namespace AdaptiveRoads.LifeCycle {
         public static LoadMode Mode => (LoadMode)UpdateMode;
         public static string Scene => SceneManager.GetActiveScene().name;
 
-        public static bool Loaded;
         public static bool bHotReload = false;
 
         public static void Enable() {
@@ -35,10 +34,9 @@ namespace AdaptiveRoads.LifeCycle {
                 Log.Debug("Testing StackTrace:\n" + new StackTrace(true).ToString(), copyToGameLog: false);
                 KianCommons.UI.TextureUtil.EmbededResources = false;
                 Log.VERBOSE = false;
-                Loaded = false;
                 Log.Buffered = true;
 #if DEBUG
-                //Log.VERBOSE = true;
+                Log.VERBOSE = true;
                 //Log.Buffered = false;
 #endif
 
@@ -94,6 +92,7 @@ namespace AdaptiveRoads.LifeCycle {
             AssetDataExtension.HotReload();
             //SimulationDataReady();
             Load();
+            NetManager.instance.RebuildLods();
             RoadEditorUtils.RefreshRoadEditor();
         }
 
@@ -129,8 +128,10 @@ namespace AdaptiveRoads.LifeCycle {
             try {
                 Log.Info("LifeCycle.Load() called");
                 Log.Debug("testing stack trace:\n" + Environment.StackTrace, false);
-
                 Log.Info($"Scene={Scene} LoadMode={Mode}");
+
+                _ = NetworkExtensionManager.Instance;
+
                 if(Scene != "AssetEditor") {
                     Log.Info("Applying in game patches");
                     HarmonyUtil.InstallHarmony<InGamePatchAttribute>(HARMONY_ID);
@@ -139,7 +140,9 @@ namespace AdaptiveRoads.LifeCycle {
                     HarmonyUtil.InstallHarmony(HARMONY_ID, forbidden:typeof(PreloadPatchAttribute));
                     HintBox.Create();
                 }
+
                 NetInfoExtionsion.Ensure_EditedNetInfos();
+
                 NetworkExtensionManager.Instance.OnLoad();
 
                 ObserverDisposable = GeometryManager.Instance.Subscribe(new ARTMPEObsever());

@@ -63,6 +63,9 @@ namespace AdaptiveRoads.Manager {
 
         public void EndRendering(RenderManager.CameraInfo cameraInfo) {
             try {
+                if(!NetworkExtensionManager.Exists)
+                    return;
+
                 FastList<RenderGroup> renderedGroups = Singleton<RenderManager>.instance.m_renderedGroups;
                 for(int groupIndex = 0; groupIndex < renderedGroups.m_size; groupIndex++) {
                     RenderGroup renderGroup = renderedGroups.m_buffer[groupIndex];
@@ -123,6 +126,9 @@ namespace AdaptiveRoads.Manager {
         }
 
         public bool CalculateGroupData(int groupX, int groupZ, int layer, ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays) {
+            if(!NetworkExtensionManager.Exists)
+                return false;
+
             bool ret = false;
             const int resolutionRatio = NetManager.NODEGRID_RESOLUTION / RenderManager.GROUP_RESOLUTION; // = 270/45 = 6
             int net_x0 = groupX * resolutionRatio;
@@ -162,6 +168,9 @@ namespace AdaptiveRoads.Manager {
         }
 
         public void PopulateGroupData(int groupX, int groupZ, int layer, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData data, ref Vector3 min, ref Vector3 max, ref float maxRenderDistance, ref float maxInstanceDistance, ref bool requireSurfaceMaps) {
+            if(!NetworkExtensionManager.Exists)
+                return;
+
             const int resolutionRatio = NetManager.NODEGRID_RESOLUTION / RenderManager.GROUP_RESOLUTION; // = 270/45 = 6
             int net_x0 = groupX * resolutionRatio;
             int net_z0 = groupZ * resolutionRatio;

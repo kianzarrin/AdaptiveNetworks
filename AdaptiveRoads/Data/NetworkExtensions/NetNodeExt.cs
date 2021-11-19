@@ -76,6 +76,12 @@ namespace AdaptiveRoads.Manager {
 
         public void UpdateFlags() {
             try {
+                Transitions = null;
+                if(!NetUtil.IsSegmentValid(NodeID)) {
+                    if(NodeID.ToSegment().m_flags.IsFlagSet(NetSegment.Flags.Created))
+                        Log.Debug("Skip updating invalid node:" + NodeID);
+                    return;
+                }
                 m_flags = m_flags.SetFlags(Flags.HC_Mod, NetworkExtensionManager.Instance.HTC);
                 m_flags = m_flags.SetFlags(Flags.DCR_Mod, NetworkExtensionManager.Instance.DCR);
                 m_flags = m_flags.SetFlags(Flags.HUT_Mod, NetworkExtensionManager.Instance.HUT);
@@ -98,6 +104,7 @@ namespace AdaptiveRoads.Manager {
                     m_flags = m_flags.SetFlags(Flags.TwoSegments, twoSegments);
 
                     GetTrackConnections();
+                    if(Log.VERBOSE) Log.Debug($"NetNodeExt.UpdateFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
                 }
             } catch(Exception ex) {
                 ex.Log("node=" + this);
@@ -133,7 +140,6 @@ namespace AdaptiveRoads.Manager {
         public void GetTrackConnections() {
             try {
                 Transitions = null;
-                //return; //TODO delete
                 if(!NodeID.ToNode().IsValid()) {
                     return;
                 }
@@ -166,6 +172,7 @@ namespace AdaptiveRoads.Manager {
                     transitions[index++].Init(connection.LaneID1, connection.LaneID2); // also calculates
                 }
                 Transitions = transitions;
+                if(Log.VERBOSE) Log.Debug($"NetNodeExt.GetTrackConnections() succeeded for node:{NodeID} transitions.len={transitions.Length}" , false);
             } catch(Exception ex) {
                 throw ex;
             }

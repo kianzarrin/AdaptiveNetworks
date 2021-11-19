@@ -17,6 +17,8 @@ namespace AdaptiveRoads.Patches.Track {
         }
 
         public static IEnumerator InitRenderDataImpl() {
+            yield return 0;
+            Log.Debug("NetManager_InitRenderDataImpl.InitRenderDataImpl() started ...");
             Singleton<LoadingManager>.instance.m_loadingProfilerMain.BeginLoading("NetManager.InitRenderData");
             int netCount = PrefabCollection<NetInfo>.LoadedCount();
             var subInfos = new List<KeyValuePair<NetInfo, object>>(netCount * 10);
@@ -153,7 +155,7 @@ namespace AdaptiveRoads.Patches.Track {
                         }
                     }
                     var netInfoExt = netInfo?.GetMetaData();
-                    if(false && netInfoExt?.Tracks != null) { // TODO: fix
+                    if(netInfoExt?.Tracks != null) { // TODO: fix
                         for(int i = 0; i < netInfoExt.Tracks.Length; i++) {
                             try {
                                 var track = netInfoExt.Tracks[i];
