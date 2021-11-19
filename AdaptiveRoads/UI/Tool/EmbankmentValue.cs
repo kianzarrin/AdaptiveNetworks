@@ -11,5 +11,25 @@ namespace AdaptiveRoads.UI.Tool {
     using ColossalFramework.UI;
 
     public class EmbankmentValue : UITextField {
+        ushort segmentID_;
+        public static EmbankmentValue Add(UIPanel parent, ushort segmentID) {
+            var ret = parent.AddUIComponent<EmbankmentValue>();
+            ret.segmentID_ = segmentID;
+            return ret;
+        }
+
+        public override string ToString() => GetType().Name + $"({name})";
+
+        private string _postfix = ""; 
+        public string PostFix {
+            get => _postfix;
+            set {
+                if(value.IsNullOrWhiteSpace())
+                    _postfix = "";
+                else
+                    _postfix = value;
+            }
+        }
+
     }
 }

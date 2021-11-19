@@ -14,7 +14,7 @@ Tracks:
         - implement exclude bend nodes.
         - overlay
         - hints
-
+    - put back the hot reload code in NetworkExtensionManager.OnLevelLoadImpl
 
 TODO:
     - bug fix: can't change custom flag name after loading AR road.
