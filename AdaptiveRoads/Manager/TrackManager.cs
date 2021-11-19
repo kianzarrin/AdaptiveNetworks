@@ -8,6 +8,8 @@ namespace AdaptiveRoads.Manager {
     using HarmonyLib;
 
     public class TrackManager : Singleton<TrackManager>, IRenderableManager, IAwakingObject, IDestroyableObject {
+        private static NetworkExtensionManager NetworkExtensionManager => NetworkExtensionManager.RawInstance; // help with modtools
+
         public string GetName() => gameObject?.name ?? "null";
         private int m_roadLayer;
         public DrawCallData GetDrawCallData() => NetManager.instance.GetDrawCallData();
@@ -77,8 +79,7 @@ namespace AdaptiveRoads.Manager {
                                 ushort segmentID = NetManager.instance.m_segmentGrid[gridIndex];
                                 int watchdog = 0;
                                 while(segmentID != 0) {
-                                    ref var segExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
-                                    segExt.RenderTrackInstance(cameraInfo, layerMask);
+                                    segmentID.ToSegmentExt().RenderTrackInstance(cameraInfo, layerMask);
                                     segmentID = segmentID.ToSegment().m_nextGridSegment;
                                     if(++watchdog >= 36864) {
                                         CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
@@ -133,8 +134,7 @@ namespace AdaptiveRoads.Manager {
                     ushort segmentID = NetManager.instance.m_segmentGrid[net_z * NetManager.NODEGRID_RESOLUTION + net_x];
                     int watchdog = 0;
                     while(segmentID != 0) {
-                        ref var segExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
-                        ret |= segExt.CalculateGroupData(layer, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
+                        ret |= segmentID.ToSegmentExt().CalculateGroupData(layer, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
                         segmentID = segmentID.ToSegment().m_nextGridSegment;
                         if(++watchdog >= 36864) {
                             CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
@@ -172,8 +172,7 @@ namespace AdaptiveRoads.Manager {
                     ushort segmentID = NetManager.instance.m_segmentGrid[net_z * NetManager.NODEGRID_RESOLUTION + net_x];
                     int watchdog = 0;
                     while(segmentID != 0) {
-                        ref var segExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
-                        segExt.PopulateGroupData(groupX, groupZ, layer, ref vertexIndex, ref triangleIndex, groupPosition, data, ref min, ref max, ref maxRenderDistance, ref maxInstanceDistance);
+                        segmentID.ToSegmentExt().PopulateGroupData(groupX, groupZ, layer, ref vertexIndex, ref triangleIndex, groupPosition, data, ref min, ref max, ref maxRenderDistance, ref maxInstanceDistance);
                         segmentID = segmentID.ToSegment().m_nextGridSegment;
                         if(++watchdog >= 36864) {
                             CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
