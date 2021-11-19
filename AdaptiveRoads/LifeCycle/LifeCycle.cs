@@ -91,8 +91,8 @@ namespace AdaptiveRoads.LifeCycle {
             Preload();
             AssetDataExtension.HotReload();
             //SimulationDataReady();
+            NetworkExtensionManager.Instance.HotReload();
             Load();
-            NetManager.instance.RebuildLods();
             RoadEditorUtils.RefreshRoadEditor();
         }
 

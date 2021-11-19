@@ -77,8 +77,8 @@ namespace AdaptiveRoads.Manager {
         public void UpdateFlags() {
             try {
                 Transitions = null;
-                if(!NetUtil.IsSegmentValid(NodeID)) {
-                    if(NodeID.ToSegment().m_flags.IsFlagSet(NetSegment.Flags.Created))
+                if(!NetUtil.IsNodeValid(NodeID)) {
+                    if(NodeID.ToNode().m_flags.IsFlagSet(NetSegment.Flags.Created))
                         Log.Debug("Skip updating invalid node:" + NodeID);
                     return;
                 }

@@ -126,13 +126,25 @@ namespace AdaptiveRoads.Manager {
         public void UpdateAllNetworkFlags() {
             for(ushort segmentID = 0; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
                 if(!NetUtil.IsSegmentValid(segmentID)) continue;
-                if(!segmentID.ToSegment().Info.IsAdaptive()) continue;
                 SegmentBuffer[segmentID].UpdateAllFlags();
             }
             for(ushort nodeID = 0; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID) {
                 if(!NetUtil.IsNodeValid(nodeID)) continue;
                 NodeBuffer[nodeID].UpdateFlags();
             }
+            for(ushort segmentID = 0; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
+                if(!NetUtil.IsSegmentValid(segmentID)) continue;
+                NetManager.instance.UpdateSegmentRenderer(segmentID, true);
+            }
+            for(ushort nodeID = 0; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID) {
+                if(!NetUtil.IsNodeValid(nodeID)) continue;
+                NetManager.instance.UpdateNodeRenderer(nodeID, true);
+            }
+        }
+
+        public void HotReload() {
+            NetManager.instance.RebuildLods();
+            RecalculateARPrefabs();
         }
 
         // should be called from main thread.
@@ -162,6 +174,8 @@ namespace AdaptiveRoads.Manager {
                 LaneBuffer[laneId].Init(laneId);
             }
         }
+
+        #endregion LifeCycle
 
         public void SimulationStep() {
             bool updateSegments = m_segmentsUpdated;
@@ -232,7 +246,6 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
-        #endregion LifeCycle
 
         [NonSerialized]
         public readonly bool HUT = PluginUtil.GetHideUnconnectedTracks().IsActive();
