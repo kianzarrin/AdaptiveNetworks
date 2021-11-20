@@ -9,6 +9,7 @@ namespace AdaptiveRoads.Patches.Node {
     using System;
     using static KianCommons.Patches.TranspilerUtils;
     using KianCommons.Patches;
+    using AdaptiveRoads.Data.NetworkExtensions;
 
     public static class CheckNodeFlagsCommons {
         public static bool CheckFlagsDC(NetInfo.Node node, ushort nodeID, ushort segmentID, ushort segmentID2) {

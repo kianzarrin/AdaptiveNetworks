@@ -1,15 +1,15 @@
-namespace AdaptiveRoads.NSInterface.UI{
-    using ColossalFramework;
+namespace AdaptiveRoads.NSInterface.UI {
+    using AdaptiveRoads.Data.NetworkExtensions;
+    using AdaptiveRoads.Manager;
+    using AdaptiveRoads.Util;
     using ColossalFramework.UI;
     using KianCommons;
     using KianCommons.UI;
     using System;
-    using UnityEngine;
-    using static KianCommons.ReflectionHelpers;
-    using AdaptiveRoads.Manager;
-    using AdaptiveRoads.Util;
-    using static KianCommons.Assertion;
     using System.Linq;
+    using UnityEngine;
+    using static KianCommons.Assertion;
+    using static KianCommons.ReflectionHelpers;
 
     public class AR_NS_FlagsPanel : UIPanel {
         internal int HoveredLaneIndex { get; private set; } = -1;
@@ -29,7 +29,7 @@ namespace AdaptiveRoads.NSInterface.UI{
                 autoFitChildrenVertically = true;
                 autoLayoutPadding = new RectOffset(0, 0, 0, 5);
                 padding = default;
-            } catch (Exception ex) {
+            } catch(Exception ex) {
                 ex.Log();
             }
         }
@@ -48,8 +48,8 @@ namespace AdaptiveRoads.NSInterface.UI{
                 if(Impl.PrefabCustomFlags.Node != default) {
                     AddNodeFlags(this);
                 }
-                SizeChanged(default,default);
-            } catch (Exception ex) { ex.Log(); }
+                SizeChanged(default, default);
+            } catch(Exception ex) { ex.Log(); }
         }
 
         public void AddSegmentFlags(UIPanel container) {
@@ -58,7 +58,7 @@ namespace AdaptiveRoads.NSInterface.UI{
 
             var subPanel = AddPanel(container, 1);
             var mask = Impl.PrefabCustomFlags.Segment;
-            foreach (var flag in mask.ExtractPow2Flags()) {
+            foreach(var flag in mask.ExtractPow2Flags()) {
                 SegmentFlagToggle.Add(subPanel, flag);
             }
 
@@ -66,7 +66,7 @@ namespace AdaptiveRoads.NSInterface.UI{
                 var laneInfo = Prefab.m_lanes[laneIndex];
                 var laneMask = laneInfo.GetUsedCustomFlagsLane();
                 //Log.Info($"lane:{lane} laneMask:" + laneMask);
-                if (laneMask != 0)
+                if(laneMask != 0)
                     AddLaneFlags(container, laneIndex, laneMask);
             }
         }
@@ -74,16 +74,16 @@ namespace AdaptiveRoads.NSInterface.UI{
         public void AddLaneFlags(UIPanel container, int laneIndex, NetLaneExt.Flags mask) {
             try {
                 LogCalled(container, laneIndex, mask);
-                
+
                 var lanes = LaneHelpers.GetSimilarLanes(laneIndex, Prefab).ToArray();
                 var laneContainer = LanePanelCollapsable.Add(container, laneIndex, mask);
 
                 laneContainer.eventMouseEnter += (_, __) => HoveredLaneIndex = laneIndex;
                 laneContainer.eventMouseLeave += (_, __) => {
-                    if (HoveredLaneIndex == laneIndex)
+                    if(HoveredLaneIndex == laneIndex)
                         HoveredLaneIndex = -1;
                 };
-            } catch (Exception ex) {
+            } catch(Exception ex) {
                 Log.Exception(ex);
             }
         }
@@ -94,7 +94,7 @@ namespace AdaptiveRoads.NSInterface.UI{
             var subPanel = AddPanel(container, 1);
 
             var mask = Impl.PrefabCustomFlags.SegmentEnd;
-            foreach (var flag in mask.ExtractPow2Flags()) {
+            foreach(var flag in mask.ExtractPow2Flags()) {
                 SegmentEndFlagToggle.Add(subPanel, flag: flag);
             }
         }
@@ -104,7 +104,7 @@ namespace AdaptiveRoads.NSInterface.UI{
             var subPanel = AddPanel(container, 1);
 
             var mask = Impl.PrefabCustomFlags.Node;
-            foreach (var flag in mask.ExtractPow2Flags()) {
+            foreach(var flag in mask.ExtractPow2Flags()) {
                 NodeFlagToggle.Add(subPanel, flag);
             }
         }

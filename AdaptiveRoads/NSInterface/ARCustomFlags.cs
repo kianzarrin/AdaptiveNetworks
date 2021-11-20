@@ -3,6 +3,7 @@ namespace AdaptiveRoads.NSInterface {
     using System;
     using System.Linq;
     using KianCommons;
+    using AdaptiveRoads.Data.NetworkExtensions;
 
     public class ARCustomFlags : ICloneable {
         public NetSegmentExt.Flags Segment;

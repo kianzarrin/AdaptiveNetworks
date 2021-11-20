@@ -11,6 +11,8 @@ namespace AdaptiveRoads.NSInterface {
     using NetworkSkins.Persistence;
     using TextureUtil = KianCommons.UI.TextureUtil;
     using AdaptiveRoads.NSInterface.UI;
+    using AdaptiveRoads.Data.NetworkExtensions;
+
 
     public class ARImplementation : NSIntegrationBase<ARImplementation> {
         public override string ID => "Adaptive Roads";

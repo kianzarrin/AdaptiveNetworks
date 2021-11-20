@@ -1,14 +1,10 @@
 namespace AdaptiveRoads.UI.Tool {
-    using ColossalFramework;
     using ColossalFramework.UI;
     using KianCommons;
     using KianCommons.UI;
-    using System;
     using System.Linq;
     using UnityEngine;
-    using static KianCommons.ReflectionHelpers;
-    using AdaptiveRoads.Manager;
-    using static KianCommons.Assertion;
+    using AdaptiveRoads.Data.NetworkExtensions;
 
     public class LanePanelCollapsable : UIPanel {
         public override void Awake() {
@@ -37,7 +33,7 @@ namespace AdaptiveRoads.UI.Tool {
             return newPanel;
         }
 
-        public static LanePanelCollapsable Add(UIComponent parent, LaneData lane, LaneData []lanes, NetLaneExt.Flags mask) {
+        public static LanePanelCollapsable Add(UIComponent parent, LaneData lane, LaneData[] lanes, NetLaneExt.Flags mask) {
             Log.Called();
             Assertion.AssertNotNull(parent, "parent");
             var ret = parent.AddUIComponent<LanePanelCollapsable>();
@@ -50,8 +46,8 @@ namespace AdaptiveRoads.UI.Tool {
             innerPanel.name = "lanePanel";
 
             var laneIDs = lanes?.Select(item => item.LaneID).ToArray();
-            foreach (var flag in mask.ExtractPow2Flags()) {
-                LaneFlagToggle.Add(innerPanel, lane.LaneID, laneIDs , flag);
+            foreach(var flag in mask.ExtractPow2Flags()) {
+                LaneFlagToggle.Add(innerPanel, lane.LaneID, laneIDs, flag);
             }
 
             return ret;

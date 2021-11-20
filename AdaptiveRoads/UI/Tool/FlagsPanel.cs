@@ -9,7 +9,7 @@ namespace AdaptiveRoads.UI.Tool {
     using AdaptiveRoads.Manager;
     using static KianCommons.Assertion;
     using System.Linq;
-    using AdaptiveRoads.Util;
+    using AdaptiveRoads.Data.NetworkExtensions;
 
     public class FlagsPanel : UIPanel {
         static string FileName => ModSettings.FILE_NAME;

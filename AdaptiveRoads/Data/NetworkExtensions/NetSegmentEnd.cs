@@ -12,6 +12,7 @@ namespace AdaptiveRoads.Manager {
     using TrafficManager.API.Traffic.Data;
     using TrafficManager.API.Traffic.Enums;
     using TrafficManager.Manager.Impl;
+    using AdaptiveRoads.Data.NetworkExtensions;
 
     public struct NetSegmentEnd {
         [Flags]

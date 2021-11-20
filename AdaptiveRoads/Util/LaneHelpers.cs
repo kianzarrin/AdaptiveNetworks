@@ -5,9 +5,9 @@ namespace AdaptiveRoads.Util {
     using TrafficManager.API.Manager;
     using TrafficManager.API.Traffic.Enums;
     using TrafficManager.Manager.Impl;
-    using AdaptiveRoads.Manager;
     using ColossalFramework.Math;
     using UnityEngine;
+    using AdaptiveRoads.Data.NetworkExtensions;
 
     internal static class LaneHelpers {
         static RoutingManager rman => RoutingManager.Instance;
@@ -17,7 +17,7 @@ namespace AdaptiveRoads.Util {
         /// <summary>
         /// note: does not return null
         /// </summary>
-        /// <returns>valid forward transions from the given lane end to other lanes</returns>
+        /// <returns>valid forward transition from the given lane end to other lanes</returns>
         internal static IEnumerable<LaneTransitionData> GetForwardTransisions(uint laneID, bool startNode) {
             Assertion.NotNull(rman);
             uint index = rman.GetLaneEndRoutingIndex(laneID, startNode);
@@ -29,7 +29,7 @@ namespace AdaptiveRoads.Util {
         /// <summary>
         /// note: does not return null
         /// </summary>
-        /// <returns>valid backward transions from other lanes to the given lane end</returns>
+        /// <returns>valid backward transitions from other lanes to the given lane end</returns>
         internal static IEnumerable<LaneTransitionData> GetBackwardTransisions(uint laneID, bool startNode) {
             Assertion.NotNull(rman);
             uint index = rman.GetLaneEndRoutingIndex(laneID, startNode);
@@ -38,7 +38,7 @@ namespace AdaptiveRoads.Util {
             return transisions ?? Enumerable.Empty<LaneTransitionData>();
         }
 
-        // splits into multiple lanes at least one of which has only one transion to it.
+        // splits into multiple lanes at least one of which has only one transitions to it.
         internal static bool IsSplitsUnique(this LaneData lane) {
             var transitions = GetForwardTransisions(lane.LaneID, lane.StartNode);
 

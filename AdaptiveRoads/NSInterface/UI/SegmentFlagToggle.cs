@@ -5,6 +5,7 @@ namespace AdaptiveRoads.NSInterface.UI {
     using AdaptiveRoads.Manager;
     using KianCommons;
     using System;
+    using AdaptiveRoads.Data.NetworkExtensions;
 
     public class SegmentFlagToggle : UICheckBoxExt {
         private NetSegmentExt.Flags flag_;

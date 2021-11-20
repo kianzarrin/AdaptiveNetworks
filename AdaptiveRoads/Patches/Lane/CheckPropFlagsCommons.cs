@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using KianCommons.Patches;
+using AdaptiveRoads.Data.NetworkExtensions;
 
 /* TODO use this to pass __state from prefix to transpiler or initialize it on first use:
 see : https://github.com/boformer/NetworkSkins2/blob/0d165621204f77a0183f2ef769914d96e3dbbac5/NetworkSkins/Patches/NetNode/NetNodeTerrainUpdatedPatch.cs

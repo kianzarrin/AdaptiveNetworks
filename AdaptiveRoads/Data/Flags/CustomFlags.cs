@@ -1,6 +1,6 @@
 namespace AdaptiveRoads.Manager {
     using System;
-
+    using AdaptiveRoads.Data.NetworkExtensions;
     public struct CustomFlags {
         public NetNodeExt.Flags Node;
         public NetSegmentExt.Flags Segment;

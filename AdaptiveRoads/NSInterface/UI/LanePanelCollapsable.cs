@@ -4,7 +4,7 @@ namespace AdaptiveRoads.NSInterface.UI {
     using KianCommons;
     using KianCommons.UI;
     using UnityEngine;
-    using AdaptiveRoads.Manager;
+    using AdaptiveRoads.Data.NetworkExtensions;
 
     public class LanePanelCollapsable : UIPanel {
         public override void Awake() {

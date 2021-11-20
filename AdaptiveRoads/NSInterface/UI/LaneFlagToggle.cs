@@ -5,7 +5,7 @@ namespace AdaptiveRoads.NSInterface.UI {
     using KianCommons;
     using KianCommons.UI;
     using System;
-
+    using AdaptiveRoads.Data.NetworkExtensions;
     public class LaneFlagToggle : UICheckBoxExt {
         int laneIndex_;
         NetLaneExt.Flags flag_;

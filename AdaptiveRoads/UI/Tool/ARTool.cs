@@ -177,8 +177,8 @@ namespace AdaptiveRoads.UI.Tool {
 
                 ref var laneExt = ref NetworkExtensionManager.Instance.LaneBuffer[laneId];
                 ref var lane = ref laneId.ToLane();
-                laneExt.Right.Render(cameraInfo, Color.green, 0.1f);
-                laneExt.Left.Render(cameraInfo, Color.yellow, 0.1f);
+                laneExt.OutLine.Right.Render(cameraInfo, Color.green, 0.1f);
+                laneExt.OutLine.Left.Render(cameraInfo, Color.yellow, 0.1f);
                 return;
             }
         }

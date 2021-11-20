@@ -6,6 +6,7 @@ namespace AdaptiveRoads.UI.Tool {
     using KianCommons;
     using UnityEngine;
     using System.Linq;
+    using AdaptiveRoads.Data.NetworkExtensions;
 
     public class LaneFlagToggle : UICheckBoxExt {
         static NetworkExtensionManager man_ => NetworkExtensionManager.Instance;

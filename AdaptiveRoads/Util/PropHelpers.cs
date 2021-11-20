@@ -1,4 +1,5 @@
 namespace AdaptiveRoads.Util {
+    using AdaptiveRoads.Data.NetworkExtensions;
     using AdaptiveRoads.Manager;
     using ColossalFramework;
     using KianCommons;
@@ -37,7 +38,7 @@ namespace AdaptiveRoads.Util {
                 _ => colorMode,
             };
         }
-        public static void SwitchFlags<T>(ref this T flags, T flag1, T flag2) where T : struct, Enum, IConvertible{
+        public static void SwitchFlags<T>(ref this T flags, T flag1, T flag2) where T : struct, Enum, IConvertible {
             bool hasFlag1 = flags.IsFlagSet(flag1);
             bool hasFlag2 = flags.IsFlagSet(flag2);
             flags = flags.SetFlags(flag1, hasFlag2);
@@ -84,8 +85,7 @@ namespace AdaptiveRoads.Util {
                     NetLane.Flags.Inverted,
                     InvertRequired);
             }
-            if(prop.GetMetaData() is NetInfoExtionsion.LaneProp metaData)
-            {
+            if(prop.GetMetaData() is NetInfoExtionsion.LaneProp metaData) {
                 bool InvertRequired = metaData.SegmentFlags.Required.IsFlagSet(NetSegmentExt.Flags.LeftHandTraffic);
                 bool InvertForbidden = metaData.SegmentFlags.Forbidden.IsFlagSet(NetSegmentExt.Flags.LeftHandTraffic);
                 metaData.SegmentFlags.Required = metaData.SegmentFlags.Required.SetFlags(
@@ -119,7 +119,7 @@ namespace AdaptiveRoads.Util {
             prop.m_flagsForbidden.InvertLeftRight();
 
             var propExt = prop.GetMetaData();
-            if (propExt != null) {
+            if(propExt != null) {
                 if(!unidirectional) {
                     Helpers.Swap(ref propExt.StartNodeFlags, ref propExt.EndNodeFlags);
                     Helpers.Swap(ref propExt.SegmentStartFlags, ref propExt.SegmentEndFlags);
@@ -155,7 +155,7 @@ namespace AdaptiveRoads.Util {
             Helpers.Swap(ref prop.m_startFlagsForbidden, ref prop.m_endFlagsForbidden);
 
             var propExt = prop.GetMetaData();
-            if (propExt != null) {
+            if(propExt != null) {
                 Helpers.Swap(ref propExt.StartNodeFlags, ref propExt.EndNodeFlags);
                 Helpers.Swap(ref propExt.SegmentStartFlags, ref propExt.SegmentEndFlags);
 
@@ -210,24 +210,24 @@ namespace AdaptiveRoads.Util {
         NetLaneProps.Prop prop = null) {
             var srcInfo = NetInfoExtionsion.EditedNetInfo;
             var srcLanes = srcInfo.m_lanes;
-            foreach (var targetInfo in NetInfoExtionsion.EditedNetInfos.Skip(1)) {
+            foreach(var targetInfo in NetInfoExtionsion.EditedNetInfos.Skip(1)) {
                 var targetLanes = targetInfo.m_lanes;
-                for (int i = 0, j = 0; i < srcLanes.Length && j < targetLanes.Length;) {
+                for(int i = 0, j = 0; i < srcLanes.Length && j < targetLanes.Length;) {
                     int ii = srcInfo.m_sortedLanes[i];
                     int jj = targetInfo.m_sortedLanes[j];
                     var srcLane = srcLanes[ii];
                     var targetLane = targetLanes[jj];
 
-                    if (srcLane.m_laneType == targetLane.m_laneType) {
-                        if (prop != null) {
-                            if (laneIndex < 0) {
-                                if (srcLane.m_laneProps.m_props.ContainsRef(prop)) {
+                    if(srcLane.m_laneType == targetLane.m_laneType) {
+                        if(prop != null) {
+                            if(laneIndex < 0) {
+                                if(srcLane.m_laneProps.m_props.ContainsRef(prop)) {
                                     AddProp(prop, targetLane);
                                 }
                             } else {
-                                if (ii == laneIndex) AddProp(prop, targetLane);
+                                if(ii == laneIndex) AddProp(prop, targetLane);
                             }
-                        } else if (ii == laneIndex || laneIndex < 0) {
+                        } else if(ii == laneIndex || laneIndex < 0) {
                             CopyProps(srcLane, targetLane, clear);
                         }
                         i++; j++;
@@ -245,7 +245,7 @@ namespace AdaptiveRoads.Util {
 
         public static void CopyProps(NetInfo.Lane srcLane, NetInfo.Lane targetLane, bool clear) {
             var srcProps = srcLane.m_laneProps.m_props;
-            if (clear) {
+            if(clear) {
                 targetLane.m_laneProps.m_props = Clone(srcProps);
             } else {
                 var targetProps =
@@ -260,7 +260,7 @@ namespace AdaptiveRoads.Util {
 
 
         public static NetLaneProps.Prop Clone(this NetLaneProps.Prop prop) {
-            if (prop is ICloneable cloneable)
+            if(prop is ICloneable cloneable)
                 return cloneable.Clone() as NetLaneProps.Prop;
             else
                 return prop.ShalowClone();
@@ -279,9 +279,9 @@ namespace AdaptiveRoads.Util {
         }
 
         public static string DisplayName(this NetLaneProps.Prop prop) {
-            if (prop.m_prop != null) {
+            if(prop.m_prop != null) {
                 return prop.m_prop.name;
-            } else if (prop.m_tree != null) {
+            } else if(prop.m_tree != null) {
                 return prop.m_tree.name;
             } else {
                 return "New prop";
@@ -315,13 +315,13 @@ namespace AdaptiveRoads.Util {
                     prop.m_startFlagsRequired,
                     propExt?.StartNodeFlags.Required,
                     propExt?.SegmentStartFlags.Required);
-                if (!string.IsNullOrEmpty(tStart))
+                if(!string.IsNullOrEmpty(tStart))
                     tStart = " Tail:" + tStart;
                 var tEnd = MergeFlagText(
                     prop.m_endFlagsRequired,
                     propExt?.EndNodeFlags.Required,
                     propExt?.SegmentEndFlags.Required);
-                if (!string.IsNullOrEmpty(tEnd))
+                if(!string.IsNullOrEmpty(tEnd))
                     tEnd = " Head:" + tEnd;
                 text1 = t + tStart + tEnd;
             }
@@ -336,20 +336,20 @@ namespace AdaptiveRoads.Util {
                     prop.m_startFlagsForbidden,
                     propExt?.StartNodeFlags.Forbidden,
                     propExt?.SegmentStartFlags.Forbidden);
-                if (!string.IsNullOrEmpty(tStart))
+                if(!string.IsNullOrEmpty(tStart))
                     tStart = " Tail:" + tStart;
                 var tEnd = MergeFlagText(
                     prop.m_endFlagsForbidden,
                     propExt?.EndNodeFlags.Forbidden,
                     propExt?.SegmentEndFlags.Forbidden);
-                if (!string.IsNullOrEmpty(tEnd))
+                if(!string.IsNullOrEmpty(tEnd))
                     tEnd = " Head:" + tEnd;
                 text2 = t + tStart + tEnd;
             }
 
-            if (!string.IsNullOrEmpty(text1))
+            if(!string.IsNullOrEmpty(text1))
                 ret += "\n  Required:" + text1;
-            if (!string.IsNullOrEmpty(text2))
+            if(!string.IsNullOrEmpty(text2))
                 ret += "\n  Forbidden:" + text2;
             return ret;
         }
@@ -357,13 +357,13 @@ namespace AdaptiveRoads.Util {
 
         public static string MergeFlagText(params IConvertible[] flags) {
             string ret = "";
-            foreach (IConvertible item in flags) {
+            foreach(IConvertible item in flags) {
                 try {
-                    if (item is null || item.ToInt64() == 0)
+                    if(item is null || item.ToInt64() == 0)
                         continue;
-                    if (ret != "") ret += ", ";
+                    if(ret != "") ret += ", ";
                     ret += item.ToString();
-                } catch (Exception ex) {
+                } catch(Exception ex) {
                     throw new Exception(
                         $"Bad argument type: {(item?.GetType()).ToSTR()}",
                         ex);
@@ -376,7 +376,7 @@ namespace AdaptiveRoads.Util {
             return props.Select(p => p.Summary()).JoinLines();
         }
 
-        public static bool LocateEditProp(this NetLaneProps.Prop  prop, out NetInfo info, out NetInfo.Lane lane) {
+        public static bool LocateEditProp(this NetLaneProps.Prop prop, out NetInfo info, out NetInfo.Lane lane) {
             foreach(var info2 in NetInfoExtionsion.EditedNetInfos) {
                 foreach(var lane2 in info2.m_lanes) {
                     var props = lane2?.m_laneProps?.m_props;

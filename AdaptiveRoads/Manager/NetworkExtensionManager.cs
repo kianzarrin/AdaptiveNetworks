@@ -6,7 +6,7 @@ namespace AdaptiveRoads.Manager {
     using KianCommons.Serialization;
     using static KianCommons.ReflectionHelpers;
     using KianCommons.Plugins;
-    using AdaptiveRoads.Util;
+    using AdaptiveRoads.Data.NetworkExtensions;
 
     public static class NetworkExtensionManagerExtensions{
         static NetworkExtensionManager man_ => NetworkExtensionManager.Instance;

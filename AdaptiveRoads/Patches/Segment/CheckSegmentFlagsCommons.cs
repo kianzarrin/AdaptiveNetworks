@@ -2,6 +2,7 @@ using HarmonyLib;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+using AdaptiveRoads.Data.NetworkExtensions;
 
 namespace AdaptiveRoads.Patches.Segment {
     using AdaptiveRoads.Manager;

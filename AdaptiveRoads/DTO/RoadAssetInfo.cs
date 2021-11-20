@@ -1,16 +1,15 @@
 using ColossalFramework.IO;
 using System.IO;
 using AdaptiveRoads.Util;
-using ColossalFramework.IO;
 using KianCommons;
 using KianCommons.Math;
 using KianCommons.Serialization;
 using PrefabMetadata.Helpers;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
+using AdaptiveRoads.Data.NetworkExtensions;
 
 namespace AdaptiveRoads.DTO {
     //code from RoadImporter: https://github.com/citiesskylines-csur/RoadImporter

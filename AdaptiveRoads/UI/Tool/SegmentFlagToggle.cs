@@ -6,6 +6,7 @@ namespace AdaptiveRoads.UI.Tool {
     using KianCommons;
     using System.Linq;
     using UnityEngine;
+    using AdaptiveRoads.Data.NetworkExtensions;
 
     public class SegmentFlagToggle : UICheckBoxExt {
         static NetworkExtensionManager man_ => NetworkExtensionManager.Instance;

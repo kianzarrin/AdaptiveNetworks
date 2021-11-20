@@ -1,5 +1,6 @@
+using AdaptiveRoads.UI.RoadEditor.Bitmask;
+using AdaptiveRoads.Util;
 using ColossalFramework;
-using ColossalFramework.Threading;
 using KianCommons;
 using KianCommons.Math;
 using KianCommons.Serialization;
@@ -8,16 +9,13 @@ using PrefabMetadata.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 using UnityEngine;
 using static AdaptiveRoads.Manager.NetInfoExtionsion;
 using static AdaptiveRoads.UI.ModSettings;
 using static KianCommons.ReflectionHelpers;
-using AdaptiveRoads.UI.RoadEditor.Bitmask;
-using AdaptiveRoads.Util;
-using System.Collections;
-using System.Reflection;
-using ColossalFramework.Packaging;
+using AdaptiveRoads.Data.NetworkExtensions;
 
 namespace AdaptiveRoads.Manager {
     using static HintExtension;
@@ -78,7 +76,7 @@ namespace AdaptiveRoads.Manager {
             Assertion.Assert(segment is IInfoExtended);
             var segment2 = segment as IInfoExtended;
             var ret = segment2.GetMetaData<Segment>();
-            if (ret == null) {
+            if(ret == null) {
                 ret = new Segment(segment);
                 segment2.SetMetaData(ret);
             }
@@ -89,7 +87,7 @@ namespace AdaptiveRoads.Manager {
             Assertion.Assert(node is IInfoExtended);
             var node2 = node as IInfoExtended;
             var ret = node2.GetMetaData<Node>();
-            if (ret == null) {
+            if(ret == null) {
                 ret = new Node(node);
                 node2.SetMetaData(ret);
             }
@@ -100,7 +98,7 @@ namespace AdaptiveRoads.Manager {
             Assertion.Assert(prop is IInfoExtended);
             var prop2 = prop as IInfoExtended;
             var ret = prop2.GetMetaData<LaneProp>();
-            if (ret == null) {
+            if(ret == null) {
                 ret = new LaneProp(prop);
                 prop2.SetMetaData(ret);
             }
@@ -110,7 +108,7 @@ namespace AdaptiveRoads.Manager {
         public static bool CheckRange(this Range range, float value) => range?.InRange(value) ?? true;
 
         public static bool CheckFlags(this NetInfo.Segment segmentInfo, NetSegment.Flags flags, bool turnAround) {
-            if (!turnAround)
+            if(!turnAround)
                 return flags.CheckFlags(segmentInfo.m_forwardRequired, segmentInfo.m_forwardForbidden);
             else
                 return flags.CheckFlags(segmentInfo.m_backwardRequired, segmentInfo.m_backwardForbidden);
@@ -435,7 +433,7 @@ namespace AdaptiveRoads.Manager {
 
             public void RenameCustomFlag(int laneIndex, NetLaneExt.Flags flag, string name) {
                 try {
-                    Assertion.NotNull(Template,"Template");
+                    Assertion.NotNull(Template, "Template");
                     var lane = Template.m_lanes[laneIndex];
                     Dictionary<NetLaneExt.Flags, string> dict = null;
 
@@ -878,7 +876,7 @@ namespace AdaptiveRoads.Manager {
             public Range LaneCurve;
 
             [CustomizableProperty("Segment Curve")]
-            public Range SegmentCurve; 
+            public Range SegmentCurve;
 
             /// <param name="laneSpeed">game speed</param>
             /// <param name="forwardSpeedLimit">game speed</param>
@@ -947,7 +945,7 @@ namespace AdaptiveRoads.Manager {
                             //Vector3Serializable v = (Vector3Serializable)field.GetValue(instance);
                             info.AddValue(field.Name, value, typeof(Vector3Serializable));
                         } else if(value is Mesh mesh) {
-                            Log.Debug($"package.AddAsset mesh : {mesh} InMainThread={Helpers.InMainThread()}" );
+                            Log.Debug($"package.AddAsset mesh : {mesh} InMainThread={Helpers.InMainThread()}");
                             var asset = package.AddAsset(mesh.name, mesh, true);
                             info.AddValue(field.Name, asset.checksum);
                         } else if(value is Material material) {
@@ -958,7 +956,7 @@ namespace AdaptiveRoads.Manager {
                             info.AddValue(field.Name, value, field.FieldType);
                         }
                     }
-                }catch(Exception ex) {
+                } catch(Exception ex) {
                     ex.Log();
                 }
             }
@@ -976,7 +974,7 @@ namespace AdaptiveRoads.Manager {
                             if(field.FieldType == typeof(Mesh)) {
                                 bool lod = field.Name.Contains("lod");
                                 string checksum = item.Value as string;
-                                val = LSMUtil.GetMesh(sharing, checksum , package, lod);
+                                val = LSMUtil.GetMesh(sharing, checksum, package, lod);
                             } else if(field.FieldType == typeof(Material)) {
                                 bool lod = field.Name.Contains("lod");
                                 string checksum = item.Value as string;
@@ -1036,7 +1034,7 @@ namespace AdaptiveRoads.Manager {
                         m_trackMaterial = null;
                     }
                     LaneCount = EnumBitMaskExtensions.CountOnes(LaneIndeces);
-                } catch (Exception ex) { ex.Log(); }
+                } catch(Exception ex) { ex.Log(); }
             }
 
             public const VehicleInfo.VehicleType TRACK_VEHICLE_TYPES =
