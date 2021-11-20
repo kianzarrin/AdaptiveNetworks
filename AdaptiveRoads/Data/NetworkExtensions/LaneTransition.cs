@@ -1,15 +1,8 @@
 namespace AdaptiveRoads.Data.NetworkExtensions {
     using AdaptiveRoads.Manager;
-    using AdaptiveRoads.Util;
     using ColossalFramework;
     using ColossalFramework.Math;
     using KianCommons;
-    using KianCommons.Serialization;
-    using System;
-    using TrafficManager;
-    using TrafficManager.API.Manager;
-    using TrafficManager.API.Traffic.Enums;
-    using TrafficManager.Manager.Impl;
     using UnityEngine;
     using Log = KianCommons.Log;
 
@@ -240,7 +233,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                         NetSegment.PopulateGroupData(
                             InfoA, tempSegmentInfo,
                             leftMatrix: RenderData.LeftMatrix, rightMatrix: RenderData.RightMatrix,
-                            meshScale: RenderData.MeshScale  , objectIndex: objectIndex,
+                            meshScale: RenderData.MeshScale, objectIndex: objectIndex,
                             ref vertexIndex, ref triangleIndex, groupPosition, meshData, ref _);
                     }
                 }
