@@ -1076,7 +1076,7 @@ namespace AdaptiveRoads.Manager {
             //public bool m_requireSurfaceMaps; // terrain network
 
             //[NonSerialized]
-            //public bool m_requireHeightMap; //fence
+            //public bool m_requireHeightMap; // fence
 
             [NonSerialized]
             public bool m_requireWindSpeed;
@@ -1089,18 +1089,18 @@ namespace AdaptiveRoads.Manager {
 
             [NonSerialized]
             public int m_layer;
+            [CustomizableProperty("Vertical Offset")]
+            public float VerticalOffset;
 
-            //[CustomizableProperty("Scale to lane width")]
+            [CustomizableProperty("Anti-flickering")]
+            [Hint("moves the tracks up and down by a random few millimeters to avoid z-fighting")]
+            public bool AntiFlickering;
+
+            [CustomizableProperty("Scale to lane width")]
             [Hint("the width of the rendered mesh is proportional to the width of the lane.\n" +
                 "1 unit in blender means the mesh will be as wide as the lane")]
             public bool ScaleToLaneWidth;
 
-            //[CustomizableProperty("Vertical Offset")]
-            public float VerticalOffset;
-
-            //[CustomizableProperty("Anti-flickering")]
-            [Hint("moves the tracks up and down by a random few millimeters to avoid z-fighting")]
-            public bool AntiFlickering;
 
             //[CustomizableProperty("Low Priority")]
             [Hint("Other tracks with DC node take priority")]

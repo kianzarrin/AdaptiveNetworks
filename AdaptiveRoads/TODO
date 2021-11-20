@@ -11,11 +11,7 @@ Tracks:
         - NC compatible
     - support for nodeless
     - track options:
-        - scale to lane width.
-        - vertical mesh offset
-            - anti-flickering
         - ignore DC
-
         - overlay
         - hints
 
