@@ -498,13 +498,11 @@ namespace AdaptiveRoads.Manager {
 
             public void RefreshLevelOfDetail(NetInfo netInfo) {
                 if(Tracks != null) {
-                    float lodRenderDistance;
-                    if(!netInfo.m_segments.IsNullorEmpty()) {
-                        lodRenderDistance = netInfo.m_segments[0].m_lodRenderDistance;
-                    } else {
-                        var max = Mathf.Max(netInfo.m_halfWidth * 50f, (netInfo.m_maxHeight - netInfo.m_minHeight) * 80f);
-                        lodRenderDistance = Mathf.Clamp(100f + RenderManager.LevelOfDetailFactor * max, 100f, 1000f);
-                    }
+                    var max = Mathf.Max(netInfo.m_halfWidth * 50f, (netInfo.m_maxHeight - netInfo.m_minHeight) * 80f);
+                    float lodRenderDistance =
+                        netInfo.m_segments?.FirstOrDefault().m_lodRenderDistance ??
+                        netInfo.m_nodes?.FirstOrDefault().m_lodRenderDistance ??
+                        Mathf.Clamp(100f + RenderManager.LevelOfDetailFactor * max, 100f, 1000f);
 
                     bool lodMissing = false;
                     TrackLanes = 0;
