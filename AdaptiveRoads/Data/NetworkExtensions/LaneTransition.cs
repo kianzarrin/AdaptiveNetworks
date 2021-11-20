@@ -13,12 +13,12 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
     using UnityEngine;
     using Log = KianCommons.Log;
 
-    public struct BezierData {
+    public struct OutlineData {
         public Bezier3 Center, Left, Right;
         public Vector3 DirA, DirD;
         public bool SmoothA, SmoothD;
 
-        public BezierData(Vector3 a, Vector3 d, Vector3 dirA, Vector3 dirD, float width, bool smoothA, bool smoothD) {
+        public OutlineData(Vector3 a, Vector3 d, Vector3 dirA, Vector3 dirD, float width, bool smoothA, bool smoothD) {
             {
                 SmoothA = smoothA;
                 Center.a = a;
@@ -83,7 +83,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             if(Log.VERBOSE) Log.Debug($"LaneTransition.Init() succeeded for: {this}", false);
         }
 
-        public BezierData OutLine;
+        public OutlineData OutLine;
         public TrackRenderData RenderData;
 
         public override string ToString() => $"LaneTransition[node:{NodeID} lane:{LaneIDSource}->lane:{LaneIDTarget}]";
@@ -127,30 +127,34 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 dirD = LaneExtD.DirD;
             }
 
-            OutLine = new BezierData(a, d, -dirA, -dirD, Width, true, true);
-            RenderData.Position = (a + d) * 0.5f;
+            OutLine = new OutlineData(a, d, -dirA, -dirD, Width, true, true);
+            RenderData = GenerateRenderData();
+        }
+        public TrackRenderData GenerateRenderData(Vector3? pos = null) {
+            TrackRenderData ret = default;
+            ret.Position = pos ?? (OutLine.Center.a + OutLine.Center.d) * 0.5f;
 
-            RenderData.MeshScale = new Vector4(1f / Width, 1f / InfoA.m_segmentLength, 1f, 1f);
+            ret.MeshScale = new Vector4(1f / Width, 1f / InfoA.m_segmentLength, 1f, 1f);
             bool turnAround = laneInfoA.IsGoingBackward(); // TODO is this logic sufficient? is this line even necessary?
             if(turnAround) {
-                RenderData.MeshScale.x *= -1;
-                RenderData.MeshScale.y *= -1;
+                ret.MeshScale.x *= -1;
+                ret.MeshScale.y *= -1;
             }
 
             float vScale = InfoA.m_netAI.GetVScale();
-            RenderData.LeftMatrix = NetSegment.CalculateControlMatrix(
+            ret.LeftMatrix = NetSegment.CalculateControlMatrix(
                 OutLine.Left.a, OutLine.Left.b, OutLine.Left.c, OutLine.Left.d,
                 OutLine.Right.a, OutLine.Right.b, OutLine.Right.c, OutLine.Right.d,
-                RenderData.Position, vScale);
-            RenderData.RightMatrix = NetSegment.CalculateControlMatrix(
+                ret.Position, vScale);
+            ret.RightMatrix = NetSegment.CalculateControlMatrix(
                 OutLine.Right.a, OutLine.Right.b, OutLine.Right.c, OutLine.Right.d,
                 OutLine.Left.a, OutLine.Left.b, OutLine.Left.c, OutLine.Left.d,
-                RenderData.Position, vScale);
+                ret.Position, vScale);
 
 
-            RenderData.WindSpeed = Singleton<WeatherManager>.instance.GetWindSpeed(RenderData.Position);
-            RenderData.Color = Info.m_color;
-            RenderData.Color.a = 0;
+            ret.WindSpeed = Singleton<WeatherManager>.instance.GetWindSpeed(ret.Position);
+            ret.Color = Info.m_color;
+            ret.Color.a = 0;
             Vector4 colorLocationA;
             Vector4 colorLocationD;
             if(NetNode.BlendJunction(NodeID)) {
@@ -159,7 +163,8 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 colorLocationA = RenderManager.GetColorLocation(TrackManager.SEGMENT_HOLDER + segmentID_A);
                 colorLocationD = RenderManager.GetColorLocation(TrackManager.SEGMENT_HOLDER + segmentID_D);
             }
-            RenderData.ObjectIndex = new Vector4(colorLocationA.x, colorLocationA.y, colorLocationD.x, colorLocationD.y);
+            ret.ObjectIndex = new Vector4(colorLocationA.x, colorLocationA.y, colorLocationD.x, colorLocationD.y);
+            return ret;
         }
 
         public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo) {
@@ -225,7 +230,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 return;
             if(InfoExtA.TrackLaneCount == 0)
                 return;
-
+            var RenderData = GenerateRenderData(groupPosition);
             foreach(var trackInfo in InfoExtA.Tracks) {
                 if(trackInfo.HasTrackLane(LaneExtA.LaneData.LaneIndex) && trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags)) {
                     if(trackInfo.m_combinedLod != null) {
