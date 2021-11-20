@@ -215,13 +215,13 @@ namespace AdaptiveRoads.Manager {
             var infoExt = segmentExt.NetInfoExt;
             var netManager = Singleton<NetManager>.instance;
             ref var segment = ref LaneData.Segment;
-            foreach(var track in infoExt.Tracks) {
-                if(track.HasTrackLane(LaneData.LaneIndex)&& track.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags)) {
+            foreach(var trackInfo in infoExt.Tracks) {
+                if(trackInfo.RenderSegment && trackInfo.HasTrackLane(LaneData.LaneIndex)&& trackInfo.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags)) {
                     Vector4 objectIndex = renderData.m_dataVector3;
-                    if(track.m_requireWindSpeed)
+                    if(trackInfo.m_requireWindSpeed)
                         objectIndex.w = renderData.m_dataFloat0; //wind speed
 
-                    if(false && cameraInfo.CheckRenderDistance(renderData.m_position, track.m_lodRenderDistance)) {
+                    if(false && cameraInfo.CheckRenderDistance(renderData.m_position, trackInfo.m_lodRenderDistance)) {
                         netManager.m_materialBlock.Clear();
                         netManager.m_materialBlock.SetMatrix(netManager.ID_LeftMatrix, renderData.m_dataMatrix0);
                         netManager.m_materialBlock.SetMatrix(netManager.ID_RightMatrix, renderData.m_dataMatrix1);
@@ -229,9 +229,9 @@ namespace AdaptiveRoads.Manager {
                         netManager.m_materialBlock.SetVector(netManager.ID_ObjectIndex, objectIndex);
                         netManager.m_materialBlock.SetColor(netManager.ID_Color, renderData.m_dataColor0);
                         NetManager.instance.m_drawCallData.m_defaultCalls++;
-                        Graphics.DrawMesh(track.m_trackMesh, renderData.m_position, renderData.m_rotation, track.m_trackMaterial, track.m_layer, null, 0, netManager.m_materialBlock);
+                        Graphics.DrawMesh(trackInfo.m_trackMesh, renderData.m_position, renderData.m_rotation, trackInfo.m_trackMaterial, trackInfo.m_layer, null, 0, netManager.m_materialBlock);
                     } else {
-                        NetInfo.LodValue combinedLod = track.m_combinedLod;
+                        NetInfo.LodValue combinedLod = trackInfo.m_combinedLod;
                         if(combinedLod == null) continue;
 
                         combinedLod.m_leftMatrices[combinedLod.m_lodCount] = renderData.m_dataMatrix0;
@@ -301,7 +301,7 @@ namespace AdaptiveRoads.Manager {
             ref var segment = ref LaneData.Segment;
 
             foreach(var trackInfo in infoExt.Tracks) {
-                if(trackInfo.HasTrackLane(LaneData.LaneIndex) && trackInfo.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags)) {
+                if(trackInfo.RenderSegment && trackInfo.HasTrackLane(LaneData.LaneIndex) && trackInfo.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags)) {
                     if(trackInfo.m_combinedLod != null) {
                         var tempSegmentInfo = NetInfoExtionsion.Net.TempSegmentInfo(trackInfo);
                         if(Log.VERBOSE) Log.Debug($"calling NetSegment.CalculateGroupData for: segmentID:{LaneData.SegmentID}, laneIndex:{LaneData.LaneIndex}, track:{trackInfo.m_mesh?.name}");
@@ -326,7 +326,7 @@ namespace AdaptiveRoads.Manager {
             RefreshRenderData(ref renderData, groupPosition);
 
             foreach(var trackInfo in infoExt.Tracks) {
-                if(trackInfo.HasTrackLane(LaneData.LaneIndex) && trackInfo.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags)) {
+                if(trackInfo.RenderSegment && trackInfo.HasTrackLane(LaneData.LaneIndex) && trackInfo.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags)) {
                     if(trackInfo.m_combinedLod != null) {
                         var tempSegmentInfo = NetInfoExtionsion.Net.TempSegmentInfo(trackInfo);
                         bool _ = false;

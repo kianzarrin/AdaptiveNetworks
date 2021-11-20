@@ -166,7 +166,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 return;
             var netMan = NetManager.instance;
             foreach(var trackInfo in infoExtA.Tracks) {
-                if(trackInfo.HasTrackLane(laneIndexA) && trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags)) {
+                if(trackInfo.RenderJunction && trackInfo.HasTrackLane(laneIndexA) && trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags)) {
                     var objectIndex = RenderData.GetObjectIndex(trackInfo.m_requireWindSpeed);
                     if(cameraInfo.CheckRenderDistance(RenderData.Position, trackInfo.m_lodRenderDistance)) {
                         netMan.m_materialBlock.Clear();
@@ -206,7 +206,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             bool result = false;
 
             foreach(var trackInfo in infoExtA.Tracks) {
-                if(trackInfo.HasTrackLane(LaneExtA.LaneData.LaneIndex) && trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags)) {
+                if(trackInfo.RenderJunction && trackInfo.HasTrackLane(LaneExtA.LaneData.LaneIndex) && trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags)) {
                     if(trackInfo.m_combinedLod != null) {
                         var tempSegmentInfo = NetInfoExtionsion.Net.TempSegmentInfo(trackInfo);
                         NetSegment.CalculateGroupData(tempSegmentInfo, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
@@ -225,7 +225,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 return;
             var RenderData = GenerateRenderData(groupPosition);
             foreach(var trackInfo in InfoExtA.Tracks) {
-                if(trackInfo.HasTrackLane(LaneExtA.LaneData.LaneIndex) && trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags)) {
+                if(trackInfo.RenderJunction && trackInfo.HasTrackLane(LaneExtA.LaneData.LaneIndex) && trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags)) {
                     if(trackInfo.m_combinedLod != null) {
                         var tempSegmentInfo = NetInfoExtionsion.Net.TempSegmentInfo(trackInfo);
                         Vector4 objectIndex = RenderData.GetObjectIndex(trackInfo.m_requireWindSpeed);

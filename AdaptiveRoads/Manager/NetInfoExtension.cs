@@ -1095,11 +1095,8 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Render On Segments")]
             public bool RenderSegment = true;
 
-            [CustomizableProperty("Render On Bend Nodes")]
-            public bool RenderBend = true;
-
-            [CustomizableProperty("Render On Nodes")]
-            public bool RenderNode = true;
+            [CustomizableProperty("Render On Junctions")]
+            public bool RenderJunction = true;
 
             [CustomizableProperty("Lanes to apply to")]
             [BitMaskLanes]

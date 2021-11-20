@@ -140,9 +140,15 @@ namespace AdaptiveRoads.Manager {
         public void GetTrackConnections() {
             try {
                 Transitions = null;
-                if(!NodeID.ToNode().IsValid()) {
+                ref var node = ref NodeID.ToNode();
+                if(!node.IsValid()) 
                     return;
-                }
+                if(!node.m_flags.IsFlagSet(NetNode.Flags.Junction | NetNode.Flags.Bend)) 
+                    return;
+                if(!node.Info.m_clipSegmentEnds)
+                    return;
+                // TODO : support NC nodeless
+
                 tempConnections_.Clear();
                 foreach(var segmentID in NodeID.ToNode().IterateSegments()) {
                     var infoExt = segmentID.ToSegment().Info?.GetMetaData();
