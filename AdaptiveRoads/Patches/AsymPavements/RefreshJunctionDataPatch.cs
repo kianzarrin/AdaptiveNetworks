@@ -23,8 +23,8 @@ namespace AdaptiveRoads.Patches.AsymPavements {
             var codes = instructions.ToCodeList();
 
             var ldSegmentID = GetLDArg(original, "nodeSegment");
-            var ldSegmentIDA = new CodeInstruction(OpCodes.Ldloc_S, 20); // TODO aquire dynamically
-            var ldSegmentIDB = new CodeInstruction(OpCodes.Ldloc_S, 21); // TODO aquire dynamically
+            var ldSegmentIDA = new CodeInstruction(OpCodes.Ldloc_S, 20); // TODO acquire dynamically
+            var ldSegmentIDB = new CodeInstruction(OpCodes.Ldloc_S, 21); // TODO acquire dynamically
 
             return Commons.ApplyPatch(codes, ldSegmentID, ldSegmentIDA, ldSegmentIDB);
      

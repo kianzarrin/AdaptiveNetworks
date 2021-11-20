@@ -79,7 +79,7 @@ namespace AdaptiveRoads.Patches.Lane {
             //var laneInfoExt = laneInfo?.GetExt();
             //if (laneInfoExt == null) return true;
 
-            // TODO prepare data at the begining.
+            // TODO prepare data at the beginning.
             ushort segmentID = laneID.ToLane().m_segment;
             ref NetSegment segment = ref segmentID.ToSegment();
             ref NetLane netLane= ref laneID.ToLane();

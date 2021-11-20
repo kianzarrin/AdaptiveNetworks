@@ -166,7 +166,6 @@ namespace AdaptiveRoads.UI.Tool {
 
         public void RenderLaneOverlay(RenderManager.CameraInfo cameraInfo) {
             if(HoverValid) {
-                //TODO: delete test code:
                 HoveredSegmentID.ToSegment().GetClosestLanePosition(
                     HitPos,
                     NetInfo.LaneType.All,

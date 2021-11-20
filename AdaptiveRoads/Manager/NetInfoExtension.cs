@@ -874,7 +874,7 @@ namespace AdaptiveRoads.Manager {
             public Range LaneCurve;
 
             [CustomizableProperty("Segment Curve")]
-            public Range SegmentCurve; // TODO: minimum |curve| with same sign
+            public Range SegmentCurve; 
 
             /// <param name="laneSpeed">game speed</param>
             /// <param name="forwardSpeedLimit">game speed</param>
@@ -1052,7 +1052,7 @@ namespace AdaptiveRoads.Manager {
             public Material m_lodMaterial;
 
             [NonSerialized]
-            public NetInfo.LodValue m_combinedLod; // TODO: initialize
+            public NetInfo.LodValue m_combinedLod;
 
             [NonSerialized]
             public Mesh m_trackMesh;

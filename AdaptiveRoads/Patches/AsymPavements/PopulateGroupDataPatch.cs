@@ -18,9 +18,9 @@ namespace AdaptiveRoads.Patches.AsymPavements {
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, MethodBase original) {
             var codes = instructions.ToCodeList();
 
-            var ldSegmentID = new CodeInstruction(OpCodes.Ldloc_S, 79); // TODO aquire dynamically
-            var ldSegmentIDA = new CodeInstruction(OpCodes.Ldloc_S, 106); // TODO aquire dynamically
-            var ldSegmentIDB = new CodeInstruction(OpCodes.Ldloc_S, 107); // TODO aquire dynamically
+            var ldSegmentID = new CodeInstruction(OpCodes.Ldloc_S, 79); // TODO acquire dynamically
+            var ldSegmentIDA = new CodeInstruction(OpCodes.Ldloc_S, 106); // TODO acquire dynamically
+            var ldSegmentIDB = new CodeInstruction(OpCodes.Ldloc_S, 107); // TODO acquire dynamically
 
             return Commons.ApplyPatch(codes, ldSegmentID, ldSegmentIDA, ldSegmentIDB);
 

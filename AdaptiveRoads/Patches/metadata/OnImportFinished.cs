@@ -4,9 +4,9 @@ namespace AdaptiveRoads.Patches.metadata {
     using System;
 
     /// <summary>
-    /// changeing types confuses OnImportFinished when importing node/segment models.
+    /// changing types confuses OnImportFinished when importing node/segment models.
     /// this patch resolves that confusion by using the replaced types.
-    /// TODO move this pacth to prefab indeces mod.
+    /// TODO move this patch to prefab indeces mod.
     /// </summary>
     [HarmonyPatch(typeof(REModelCrossImportSet), "OnImportFinished")]
     public static class OnImportFinished {

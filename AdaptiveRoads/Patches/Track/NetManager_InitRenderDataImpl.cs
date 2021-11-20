@@ -155,7 +155,7 @@ namespace AdaptiveRoads.Patches.Track {
                         }
                     }
                     var netInfoExt = netInfo?.GetMetaData();
-                    if(netInfoExt?.Tracks != null) { // TODO: fix
+                    if(netInfoExt?.Tracks != null) { 
                         for(int i = 0; i < netInfoExt.Tracks.Length; i++) {
                             try {
                                 var track = netInfoExt.Tracks[i];
