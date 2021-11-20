@@ -3,6 +3,7 @@ Tracks:
         - cross import
         - render while drawing.
         - asym texture
+        - postfix: [HarmonyPatch(typeof(NetInfo), "RefreshLevelOfDetail")] after ULOD
     - embankment
         - lane corners
         - AR tool UI
