@@ -1,6 +1,5 @@
 Tracks:
     - segment/node
-        - cross import
         - asym texture
     - embankment
         - lane corners

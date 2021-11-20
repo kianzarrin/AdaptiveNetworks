@@ -2,11 +2,12 @@ namespace AdaptiveRoads.Patches.metadata {
     using HarmonyLib;
     using UnityEngine;
     using System;
+    using AdaptiveRoads.Manager;
 
     /// <summary>
     /// changing types confuses OnImportFinished when importing node/segment models.
     /// this patch resolves that confusion by using the replaced types.
-    /// TODO move this patch to prefab indeces mod.
+    /// TODO: move this patch to prefab indeces mod. (except for track)
     /// </summary>
     [HarmonyPatch(typeof(REModelCrossImportSet), "OnImportFinished")]
     public static class OnImportFinished {
@@ -24,7 +25,6 @@ namespace AdaptiveRoads.Patches.metadata {
                 node.m_material = material;
                 node.m_lodMaterial = lodMaterial;
             }
-
         }
     }
 }
