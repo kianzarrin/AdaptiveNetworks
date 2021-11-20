@@ -221,7 +221,7 @@ namespace AdaptiveRoads.Manager {
                     if(track.m_requireWindSpeed)
                         objectIndex.w = renderData.m_dataFloat0; //wind speed
 
-                    if(cameraInfo.CheckRenderDistance(renderData.m_position, track.m_lodRenderDistance)) {
+                    if(false && cameraInfo.CheckRenderDistance(renderData.m_position, track.m_lodRenderDistance)) {
                         netManager.m_materialBlock.Clear();
                         netManager.m_materialBlock.SetMatrix(netManager.ID_LeftMatrix, renderData.m_dataMatrix0);
                         netManager.m_materialBlock.SetMatrix(netManager.ID_RightMatrix, renderData.m_dataMatrix1);
@@ -249,7 +249,7 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
-        public void RefreshRenderData(ref RenderManager.Instance renderData) {
+        public void RefreshRenderData(ref RenderManager.Instance renderData, Vector3? pos = null) {
             ref var segment = ref LaneData.Segment;
             var info = segment.Info;
             ref NetNode startNode = ref segment.m_startNode.ToNode();
@@ -261,7 +261,7 @@ namespace AdaptiveRoads.Manager {
             Vector3 endPos = bezier.d;
 
             renderData.m_dataInt0 = LaneData.LaneIndex;
-            renderData.m_position = (startPos + endPos) * 0.5f;
+            renderData.m_position = pos ?? (startPos + endPos) * 0.5f;
             renderData.m_rotation = Quaternion.identity;
             renderData.m_dataColor0 = info.m_color;
             renderData.m_dataColor0.a = 0f;
@@ -304,6 +304,7 @@ namespace AdaptiveRoads.Manager {
                 if(trackInfo.HasTrackLane(LaneData.LaneIndex) && trackInfo.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags)) {
                     if(trackInfo.m_combinedLod != null) {
                         var tempSegmentInfo = NetInfoExtionsion.Net.TempSegmentInfo(trackInfo);
+                        if(Log.VERBOSE) Log.Debug($"calling NetSegment.CalculateGroupData for: segmentID:{LaneData.SegmentID}, laneIndex:{LaneData.LaneIndex}, track:{trackInfo.m_mesh?.name}");
                         NetSegment.CalculateGroupData(tempSegmentInfo, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
                         result = true;
                     }
@@ -322,7 +323,7 @@ namespace AdaptiveRoads.Manager {
             ref var segment = ref LaneData.Segment;
 
             RenderManager.Instance renderData = default;
-            RefreshRenderData(ref renderData);
+            RefreshRenderData(ref renderData, groupPosition);
 
             foreach(var trackInfo in infoExt.Tracks) {
                 if(trackInfo.HasTrackLane(LaneData.LaneIndex) && trackInfo.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags)) {
@@ -332,6 +333,7 @@ namespace AdaptiveRoads.Manager {
                         Vector4 objectIndex = renderData.m_dataVector3;
                         if(trackInfo.m_requireWindSpeed)
                             objectIndex.w = renderData.m_dataFloat0; //wind speed
+                        if(Log.VERBOSE) Log.Debug($"calling NetSegment.PopulateGroupData for: segmentID:{LaneData.SegmentID}, laneIndex:{LaneData.LaneIndex}, track:{trackInfo.m_mesh?.name}");
                         NetSegment.PopulateGroupData(
                             info, tempSegmentInfo,
                             leftMatrix: renderData.m_dataMatrix0, rightMatrix: renderData.m_dataMatrix1,
