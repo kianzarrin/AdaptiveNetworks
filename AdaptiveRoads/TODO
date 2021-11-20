@@ -8,12 +8,14 @@ Tracks:
         - lane corners
         - AR tool UI
         - prop embankment
+        - NC compatible
+    - support for nodeless
     - track options:
-        - vertical mesh offset
-        - anti-flickering
-        - ignore DC
         - scale to lane width.
-        - implement exclude bend nodes.
+        - vertical mesh offset
+            - anti-flickering
+        - ignore DC
+
         - overlay
         - hints
 

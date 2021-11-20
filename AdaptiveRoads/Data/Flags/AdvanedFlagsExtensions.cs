@@ -1,4 +1,5 @@
-namespace AdaptiveRoads.Manager {
+namespace AdaptiveRoads.Data.NetworkExtensions {
+    using AdaptiveRoads.Manager;
     public static class AdvanedFlagsExtensions {
         public static bool CheckFlags(this NetLaneExt.Flags value, NetLaneExt.Flags required, NetLaneExt.Flags forbidden) =>
             (value & (required | forbidden)) == required;

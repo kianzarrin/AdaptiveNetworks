@@ -1092,11 +1092,21 @@ namespace AdaptiveRoads.Manager {
             [NonSerialized]
             public int m_layer;
 
-            [CustomizableProperty("Render On Segments")]
-            public bool RenderSegment = true;
+            //[CustomizableProperty("Scale to lane width")]
+            [Hint("the width of the rendered mesh is proportional to the width of the lane.\n" +
+                "1 unit in blender means the mesh will be as wide as the lane")]
+            public bool ScaleToLaneWidth;
 
-            [CustomizableProperty("Render On Junctions")]
-            public bool RenderJunction = true;
+            //[CustomizableProperty("Vertical Offset")]
+            public float VerticalOffset;
+
+            //[CustomizableProperty("Anti-flickering")]
+            [Hint("moves the tracks up and down by a random few millimeters to avoid z-fighting")]
+            public bool AntiFlickering;
+
+            //[CustomizableProperty("Low Priority")]
+            [Hint("Other tracks with DC node take priority")]
+            public bool IgnoreDC;
 
             [CustomizableProperty("Lanes to apply to")]
             [BitMaskLanes]
@@ -1108,29 +1118,38 @@ namespace AdaptiveRoads.Manager {
             public bool HasTrackLane(int laneIndex) => ((1ul << laneIndex) & LaneIndeces) != 0;
 
             #region flags
+            [CustomizableProperty("Render On Segments")]
+            public bool RenderSegment = true;
+
+            [CustomizableProperty("Render On Junctions")]
+            public bool RenderJunction = true;
+
             [CustomizableProperty("Segment")]
             public VanillaSegmentInfoFlags VanillaSegmentFlags;
 
             [CustomizableProperty("Segment Extension")]
+            [Hint("Only checked on segments")]
             public SegmentInfoFlags SegmentFlags;
 
             [CustomizableProperty("Node")]
             public VanillaNodeInfoFlags VanillaNodeFlags;
 
             [CustomizableProperty("Node Extension")]
+            [Hint("Only checked on nodes (including bend nodes)")]
             public NodeInfoFlags NodeFlags;
-            #endregion
 
             public bool CheckNodeFlags(NetNodeExt.Flags nodeFlags, NetNode.Flags vanillaNodeFlags) =>
-                NodeFlags.CheckFlags(nodeFlags) && VanillaNodeFlags.CheckFlags(vanillaNodeFlags);
+                RenderJunction && NodeFlags.CheckFlags(nodeFlags) && VanillaNodeFlags.CheckFlags(vanillaNodeFlags);
 
             public bool CheckSegmentFlags(NetSegmentExt.Flags segmentFlags, NetSegment.Flags vanillaSegmentFlags) =>
-                SegmentFlags.CheckFlags(segmentFlags) && VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags);
+                RenderSegment && SegmentFlags.CheckFlags(segmentFlags) && VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags);
 
             public CustomFlags UsedCustomFlags => new CustomFlags {
                 Segment = SegmentFlags.UsedCustomFlags,
                 Node = NodeFlags.UsedCustomFlags,
             };
+            #endregion
+
         }
         #endregion
 

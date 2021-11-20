@@ -1,4 +1,5 @@
-namespace AdaptiveRoads.Manager {
+namespace AdaptiveRoads.Data.NetworkExtensions {
+    using AdaptiveRoads.Manager;
     using AdaptiveRoads.Data;
     using AdaptiveRoads.Util;
     using ColossalFramework;
@@ -156,10 +157,10 @@ namespace AdaptiveRoads.Manager {
             return $"NetLaneExt({LaneData} flags={m_flags} speed={SpeedLimit})";
         }
 
-        #region corner
-        //public CornerTripleData A, D;
-        public Vector3 DirA, DirD;
-        public Bezier3 Left, Right; // left and right is WRT the direction of the bezier
+        #region track
+        public OutlineData OutLine;
+        public TrackRenderData RenderData;
+
         public void UpdateCorners() {
             ushort segmentID = LaneData.SegmentID;
             ref var segment = ref LaneData.Segment;
@@ -192,64 +193,12 @@ namespace AdaptiveRoads.Manager {
             NetSegment.CalculateMiddlePoints(a, startDir, d, endDir, smoothStart, smoothEnd, out var b, out var c);
             //var bezier = new Bezier3(a, b, c, d);
 
-            float laneWidth = laneInfo.m_width;
-            CornerTripleData A = default, D = default;
-            A.Set(a, startDir, laneWidth, start: true);
-            D.Set(d, endDir, laneWidth, start: false);
-
-            DirA = A.Direction;
-            DirD = D.Direction;
-            Left.a = A.Left;
-            Left.d = D.Left;
-            NetSegment.CalculateMiddlePoints(A.Left, A.Direction, D.Left, DirD, smoothStart, smoothEnd, out Left.b, out Left.c);
-
-            Right.a = A.Right;
-            Right.d = D.Right;
-            NetSegment.CalculateMiddlePoints(A.Right, DirA, D.Right, DirD, smoothStart, smoothEnd, out Right.b, out Right.c);
-        }
-        #endregion
-
-        #region track
-        public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo, ref RenderManager.Instance renderData) {
-            ref var segmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[LaneData.SegmentID];
-            var infoExt = segmentExt.NetInfoExt;
-            var netManager = Singleton<NetManager>.instance;
-            ref var segment = ref LaneData.Segment;
-            foreach(var trackInfo in infoExt.Tracks) {
-                if(trackInfo.RenderSegment && trackInfo.HasTrackLane(LaneData.LaneIndex)&& trackInfo.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags)) {
-                    Vector4 objectIndex = renderData.m_dataVector3;
-                    if(trackInfo.m_requireWindSpeed)
-                        objectIndex.w = renderData.m_dataFloat0; //wind speed
-
-                    if(false && cameraInfo.CheckRenderDistance(renderData.m_position, trackInfo.m_lodRenderDistance)) {
-                        netManager.m_materialBlock.Clear();
-                        netManager.m_materialBlock.SetMatrix(netManager.ID_LeftMatrix, renderData.m_dataMatrix0);
-                        netManager.m_materialBlock.SetMatrix(netManager.ID_RightMatrix, renderData.m_dataMatrix1);
-                        netManager.m_materialBlock.SetVector(netManager.ID_MeshScale, renderData.m_dataVector0);
-                        netManager.m_materialBlock.SetVector(netManager.ID_ObjectIndex, objectIndex);
-                        netManager.m_materialBlock.SetColor(netManager.ID_Color, renderData.m_dataColor0);
-                        NetManager.instance.m_drawCallData.m_defaultCalls++;
-                        Graphics.DrawMesh(trackInfo.m_trackMesh, renderData.m_position, renderData.m_rotation, trackInfo.m_trackMaterial, trackInfo.m_layer, null, 0, netManager.m_materialBlock);
-                    } else {
-                        NetInfo.LodValue combinedLod = trackInfo.m_combinedLod;
-                        if(combinedLod == null) continue;
-
-                        combinedLod.m_leftMatrices[combinedLod.m_lodCount] = renderData.m_dataMatrix0;
-                        combinedLod.m_rightMatrices[combinedLod.m_lodCount] = renderData.m_dataMatrix1;
-                        combinedLod.m_meshScales[combinedLod.m_lodCount] = renderData.m_dataVector0;
-                        combinedLod.m_objectIndices[combinedLod.m_lodCount] = objectIndex;
-                        combinedLod.m_meshLocations[combinedLod.m_lodCount] = renderData.m_position;
-                        combinedLod.m_lodMin = Vector3.Min(combinedLod.m_lodMin, renderData.m_position);
-                        combinedLod.m_lodMax = Vector3.Max(combinedLod.m_lodMax, renderData.m_position);
-                        if(++combinedLod.m_lodCount == combinedLod.m_leftMatrices.Length) {
-                            NetSegment.RenderLod(cameraInfo, combinedLod);
-                        }
-                    }
-                }
-            }
+            OutLine = new OutlineData(a, d, startDir, endDir, laneInfo.m_width, smoothStart, smoothEnd);
+            RenderData = GenerateRenderData();
         }
 
-        public void RefreshRenderData(ref RenderManager.Instance renderData, Vector3? pos = null) {
+        public TrackRenderData GenerateRenderData(Vector3? pos = null) {
+            TrackRenderData ret = default;
             ref var segment = ref LaneData.Segment;
             var info = segment.Info;
             ref NetNode startNode = ref segment.m_startNode.ToNode();
@@ -260,17 +209,15 @@ namespace AdaptiveRoads.Manager {
             Vector3 startPos = bezier.a;
             Vector3 endPos = bezier.d;
 
-            renderData.m_dataInt0 = LaneData.LaneIndex;
-            renderData.m_position = pos ?? (startPos + endPos) * 0.5f;
-            renderData.m_rotation = Quaternion.identity;
-            renderData.m_dataColor0 = info.m_color;
-            renderData.m_dataColor0.a = 0f;
-            renderData.m_dataFloat0 = Singleton<WeatherManager>.instance.GetWindSpeed(renderData.m_position); // wind speed
-            renderData.m_dataVector0 = new Vector4(1f / laneInfo.m_width, 1f / info.m_segmentLength, 1f, 1f); // mesh scale
+            ret.Position = pos ?? (startPos + endPos) * 0.5f;
+            ret.Color = info.m_color;
+            ret.Color.a = 0f;
+            ret.WindSpeed = Singleton<WeatherManager>.instance.GetWindSpeed(ret.Position); // wind speed
+            ret.MeshScale = new Vector4(1f / laneInfo.m_width, 1f / info.m_segmentLength, 1f, 1f); // mesh scale
             bool turnAround = LaneData.LaneInfo.IsGoingBackward(); // TODO is this logic sufficient?
             if(turnAround) {
-                renderData.m_dataVector0.x *= -1;
-                renderData.m_dataVector0.y *= -1;
+                ret.MeshScale.x *= -1;
+                ret.MeshScale.y *= -1;
             }
             Vector4 colorLocationStart = RenderManager.GetColorLocation(TrackManager.SEGMENT_HOLDER + LaneData.SegmentID);
             Vector4 colorLocationEnd = colorLocationStart;
@@ -280,37 +227,46 @@ namespace AdaptiveRoads.Manager {
             if(NetNode.BlendJunction(segment.m_endNode)) {
                 colorLocationEnd = RenderManager.GetColorLocation(TrackManager.SEGMENT_HOLDER + segment.m_endNode);
             }
-            renderData.m_dataVector3 = new Vector4(colorLocationStart.x, colorLocationStart.y, colorLocationEnd.x, colorLocationEnd.y); // object index
+            ret.ObjectIndex = new Vector4(colorLocationStart.x, colorLocationStart.y, colorLocationEnd.x, colorLocationEnd.y); // object index
             float vScale = info.m_netAI.GetVScale();
-            renderData.m_dataMatrix0 = NetSegment.CalculateControlMatrix( // left matrix
-                Left.a, Left.b, Left.c, Left.d,
-                Right.a, Right.b, Right.c, Right.d,
-                renderData.m_position, vScale);
-            renderData.m_dataMatrix1 = NetSegment.CalculateControlMatrix( // right matrix
-                Right.a, Right.b, Right.c, Right.d,
-                Left.a, Left.b, Left.c, Left.d,
-                renderData.m_position, vScale);
+            ret.LeftMatrix = NetSegment.CalculateControlMatrix(
+                OutLine.Left.a, OutLine.Left.b, OutLine.Left.c, OutLine.Left.d,
+                OutLine.Right.a, OutLine.Right.b, OutLine.Right.c, OutLine.Right.d,
+                ret.Position, vScale);
+            ret.RightMatrix = NetSegment.CalculateControlMatrix(
+                OutLine.Right.a, OutLine.Right.b, OutLine.Right.c, OutLine.Right.d,
+                OutLine.Left.a, OutLine.Left.b, OutLine.Left.c, OutLine.Left.d,
+                ret.Position, vScale);
+            return ret;
+        }
+
+        public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo) {
+            ref var segmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[LaneData.SegmentID];
+            var infoExt = segmentExt.NetInfoExt;
+            var netManager = Singleton<NetManager>.instance;
+            ref var segment = ref LaneData.Segment;
+            var laneInfo = LaneData.LaneInfo;
+            foreach(var trackInfo in infoExt.Tracks) {
+                if(trackInfo.HasTrackLane(LaneData.LaneIndex)&& trackInfo.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags)) {
+                    var renderData = RenderData.GetDataFor(trackInfo);
+                    renderData.RenderInstance(trackInfo);
+                }
+            }
         }
 
         public bool CalculateGroupData(ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays) {
-            bool result = false;
             ref var segmentExt = ref LaneData.SegmentID.ToSegmentExt();
             var infoExt = segmentExt.NetInfoExt;
             if(infoExt.TrackLaneCount == 0)
                 return false;
-            ref var segment = ref LaneData.Segment;
 
+            ref var segment = ref LaneData.Segment;
+            bool result = false;
             foreach(var trackInfo in infoExt.Tracks) {
-                if(trackInfo.RenderSegment && trackInfo.HasTrackLane(LaneData.LaneIndex) && trackInfo.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags)) {
-                    if(trackInfo.m_combinedLod != null) {
-                        var tempSegmentInfo = NetInfoExtionsion.Net.TempSegmentInfo(trackInfo);
-                        if(Log.VERBOSE) Log.Debug($"calling NetSegment.CalculateGroupData for: segmentID:{LaneData.SegmentID}, laneIndex:{LaneData.LaneIndex}, track:{trackInfo.m_mesh?.name}");
-                        NetSegment.CalculateGroupData(tempSegmentInfo, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
-                        result = true;
-                    }
+                if(trackInfo.HasTrackLane(LaneData.LaneIndex) && trackInfo.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags)) {
+                    result |= RenderData.CalculateGroupData(trackInfo, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
                 }
             }
-
             return result;
         }
 
@@ -320,26 +276,15 @@ namespace AdaptiveRoads.Manager {
             var infoExt = segmentExt.NetInfoExt;
             if(infoExt.TrackLaneCount == 0)
                 return;
+
             ref var segment = ref LaneData.Segment;
 
-            RenderManager.Instance renderData = default;
-            RefreshRenderData(ref renderData, groupPosition);
 
+            var renderData0 = GenerateRenderData(groupPosition);
             foreach(var trackInfo in infoExt.Tracks) {
-                if(trackInfo.RenderSegment && trackInfo.HasTrackLane(LaneData.LaneIndex) && trackInfo.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags)) {
-                    if(trackInfo.m_combinedLod != null) {
-                        var tempSegmentInfo = NetInfoExtionsion.Net.TempSegmentInfo(trackInfo);
-                        bool _ = false;
-                        Vector4 objectIndex = renderData.m_dataVector3;
-                        if(trackInfo.m_requireWindSpeed)
-                            objectIndex.w = renderData.m_dataFloat0; //wind speed
-                        if(Log.VERBOSE) Log.Debug($"calling NetSegment.PopulateGroupData for: segmentID:{LaneData.SegmentID}, laneIndex:{LaneData.LaneIndex}, track:{trackInfo.m_mesh?.name}");
-                        NetSegment.PopulateGroupData(
-                            info, tempSegmentInfo,
-                            leftMatrix: renderData.m_dataMatrix0, rightMatrix: renderData.m_dataMatrix1,
-                            meshScale: renderData.m_dataVector0, objectIndex: objectIndex,
-                            ref vertexIndex, ref triangleIndex, groupPosition, meshData, ref _);
-                    }
+                if(trackInfo.HasTrackLane(LaneData.LaneIndex) && trackInfo.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags)) {
+                    var renderData = renderData0.GetDataFor(trackInfo);
+                    renderData.PopulateGroupData(trackInfo, groupX, groupZ, ref vertexIndex, ref triangleIndex, meshData);
                 }
             }
         }

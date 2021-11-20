@@ -1,62 +1,18 @@
 namespace AdaptiveRoads.Data.NetworkExtensions {
     using AdaptiveRoads.Manager;
     using ColossalFramework;
-    using ColossalFramework.Math;
     using KianCommons;
     using UnityEngine;
     using Log = KianCommons.Log;
-
-    public struct OutlineData {
-        public Bezier3 Center, Left, Right;
-        public Vector3 DirA, DirD;
-        public bool SmoothA, SmoothD;
-
-        public OutlineData(Vector3 a, Vector3 d, Vector3 dirA, Vector3 dirD, float width, bool smoothA, bool smoothD) {
-            {
-                SmoothA = smoothA;
-                Center.a = a;
-                DirA = dirA;
-                var normal = new Vector3(-dirA.z, 0, dirA.x);
-                normal = VectorUtils.NormalizeXZ(normal);
-                Left.a = a + normal * width * 0.5f;
-                Right.a = a - normal * width * 0.5f;
-            }
-            {
-                SmoothD = smoothD;
-                DirD = dirD;
-                Center.d = d;
-                var normal = new Vector3(-dirD.z, 0, dirD.x);
-                normal = -VectorUtils.NormalizeXZ(normal);
-                Left.d = d + normal * width * 0.5f;
-                Right.d = d - normal * width * 0.5f;
-            }
-            NetSegment.CalculateMiddlePoints(Center.a, DirA, Center.d, DirD, SmoothA, SmoothD, out Center.b, out Center.c);
-            NetSegment.CalculateMiddlePoints(Left.a, DirA, Left.d, DirD, SmoothA, SmoothD, out Left.b, out Left.c);
-            NetSegment.CalculateMiddlePoints(Right.a, DirA, Right.d, DirD, SmoothA, SmoothD, out Right.b, out Right.c);
-        }
-    }
-
-    public struct TrackRenderData {
-        public Matrix4x4 LeftMatrix, RightMatrix;
-        public Vector4 MeshScale;
-        public Vector4 ObjectIndex;
-        public Color Color;
-        public Quaternion Rotation => Quaternion.identity;
-        public Vector3 Position;
-        public float WindSpeed;
-        public Vector4 GetObjectIndex(bool requiresWindSpeed) {
-            Vector4 objectIndex = ObjectIndex;
-            if(requiresWindSpeed) objectIndex.w = WindSpeed;
-            return objectIndex;
-        }
-    }
 
     public struct LaneTransition {
         public ushort NodeID;
         public uint LaneIDSource; // dominant
         public uint LaneIDTarget;
+        public int TransitionIndex;
 
-        public void Init(uint laneID1, uint laneID2) {
+        public void Init(uint laneID1, uint laneID2, int index) {
+            TransitionIndex = index;
             ushort segmentID1 = laneID1.ToLane().m_segment;
             ushort segmentID2 = laneID2.ToLane().m_segment;
             float prio1 = segmentID1.ToSegment().Info.m_netAI.GetNodeInfoPriority(segmentID1, ref segmentID1.ToSegment());
@@ -100,24 +56,23 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         float Width => laneInfoA.m_width;
         #endregion
 
-
         public void Calculate() {
             Vector3 a, dirA;
             if(SegmentA.IsStartNode(NodeID)) {
                 a = LaneA.m_bezier.a;
-                dirA = LaneExtA.DirA;
+                dirA = LaneExtA.OutLine.DirA;
             } else {
                 a = LaneA.m_bezier.d;
-                dirA = LaneExtA.DirD;
+                dirA = LaneExtA.OutLine.DirD;
             }
 
             Vector3 d, dirD;
             if(SegmentD.IsStartNode(NodeID)) {
                 d = LaneD.m_bezier.a;
-                dirD = LaneExtD.DirA;
+                dirD = LaneExtD.OutLine.DirA;
             } else {
                 d = LaneD.m_bezier.d;
-                dirD = LaneExtD.DirD;
+                dirD = LaneExtD.OutLine.DirD;
             }
 
             OutLine = new OutlineData(a, d, -dirA, -dirD, Width, true, true);
@@ -164,34 +119,10 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             var infoExtA = InfoExtA;
             if(infoExtA == null)
                 return;
-            var netMan = NetManager.instance;
             foreach(var trackInfo in infoExtA.Tracks) {
-                if(trackInfo.RenderJunction && trackInfo.HasTrackLane(laneIndexA) && trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags)) {
-                    var objectIndex = RenderData.GetObjectIndex(trackInfo.m_requireWindSpeed);
-                    if(cameraInfo.CheckRenderDistance(RenderData.Position, trackInfo.m_lodRenderDistance)) {
-                        netMan.m_materialBlock.Clear();
-                        netMan.m_materialBlock.SetMatrix(netMan.ID_LeftMatrix, RenderData.LeftMatrix);
-                        netMan.m_materialBlock.SetMatrix(netMan.ID_RightMatrix, RenderData.RightMatrix);
-                        netMan.m_materialBlock.SetVector(netMan.ID_MeshScale, RenderData.MeshScale);
-                        netMan.m_materialBlock.SetVector(netMan.ID_ObjectIndex, objectIndex);
-                        netMan.m_materialBlock.SetColor(netMan.ID_Color, RenderData.Color);
-                        netMan.m_drawCallData.m_defaultCalls++;
-                        Graphics.DrawMesh(trackInfo.m_trackMesh, RenderData.Position, RenderData.Rotation, trackInfo.m_trackMaterial, trackInfo.m_layer, null, 0, netMan.m_materialBlock);
-                    } else {
-                        NetInfo.LodValue combinedLod = trackInfo.m_combinedLod;
-                        if(combinedLod == null) continue;
-
-                        combinedLod.m_leftMatrices[combinedLod.m_lodCount] = RenderData.LeftMatrix;
-                        combinedLod.m_rightMatrices[combinedLod.m_lodCount] = RenderData.RightMatrix;
-                        combinedLod.m_meshScales[combinedLod.m_lodCount] = RenderData.MeshScale;
-                        combinedLod.m_objectIndices[combinedLod.m_lodCount] = objectIndex;
-                        combinedLod.m_meshLocations[combinedLod.m_lodCount] = RenderData.Position;
-                        combinedLod.m_lodMin = Vector3.Min(combinedLod.m_lodMin, RenderData.Position);
-                        combinedLod.m_lodMax = Vector3.Max(combinedLod.m_lodMax, RenderData.Position);
-                        if(++combinedLod.m_lodCount == combinedLod.m_leftMatrices.Length) {
-                            NetSegment.RenderLod(cameraInfo, combinedLod);
-                        }
-                    }
+                if(trackInfo.HasTrackLane(laneIndexA) && trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags)) {
+                    var renderData = RenderData.GetDataFor(trackInfo, TransitionIndex);
+                    renderData.RenderInstance(trackInfo);
                 }
             }
         }
@@ -203,18 +134,13 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 return false;
             if(infoExtA.TrackLaneCount == 0)
                 return false;
-            bool result = false;
 
+            bool result = false;
             foreach(var trackInfo in infoExtA.Tracks) {
-                if(trackInfo.RenderJunction && trackInfo.HasTrackLane(LaneExtA.LaneData.LaneIndex) && trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags)) {
-                    if(trackInfo.m_combinedLod != null) {
-                        var tempSegmentInfo = NetInfoExtionsion.Net.TempSegmentInfo(trackInfo);
-                        NetSegment.CalculateGroupData(tempSegmentInfo, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
-                        result = true;
-                    }
+                if(trackInfo.HasTrackLane(LaneExtA.LaneData.LaneIndex) && trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags)) {
+                    result |= RenderData.CalculateGroupData(trackInfo, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
                 }
             }
-
             return result;
         }
 
@@ -223,19 +149,12 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 return;
             if(InfoExtA.TrackLaneCount == 0)
                 return;
-            var RenderData = GenerateRenderData(groupPosition);
+
+            var renderData0 = GenerateRenderData(groupPosition);
             foreach(var trackInfo in InfoExtA.Tracks) {
-                if(trackInfo.RenderJunction && trackInfo.HasTrackLane(LaneExtA.LaneData.LaneIndex) && trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags)) {
-                    if(trackInfo.m_combinedLod != null) {
-                        var tempSegmentInfo = NetInfoExtionsion.Net.TempSegmentInfo(trackInfo);
-                        Vector4 objectIndex = RenderData.GetObjectIndex(trackInfo.m_requireWindSpeed);
-                        bool _ = false;
-                        NetSegment.PopulateGroupData(
-                            InfoA, tempSegmentInfo,
-                            leftMatrix: RenderData.LeftMatrix, rightMatrix: RenderData.RightMatrix,
-                            meshScale: RenderData.MeshScale, objectIndex: objectIndex,
-                            ref vertexIndex, ref triangleIndex, groupPosition, meshData, ref _);
-                    }
+                if(trackInfo.HasTrackLane(LaneExtA.LaneData.LaneIndex) && trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags)) {
+                    var renderData = renderData0.GetDataFor(trackInfo, TransitionIndex);
+                    renderData.PopulateGroupData(trackInfo, groupX, groupZ, ref vertexIndex, ref triangleIndex, meshData);
                 }
             }
         }

@@ -1,4 +1,5 @@
-namespace AdaptiveRoads.Manager {
+namespace AdaptiveRoads.Data.NetworkExtensions {
+    using AdaptiveRoads.Manager;
     using AdaptiveRoads.Util;
     using ColossalFramework;
     using ColossalFramework.Math;
@@ -25,7 +26,6 @@ namespace AdaptiveRoads.Manager {
         #region cache
         public uint[] LaneIDs;
         public NetInfoExtionsion.Net NetInfoExt;
-        private uint renderCount_;
         #endregion
 
         public void Serialize(SimpleDataSerializer s) => s.WriteInt32(
@@ -85,7 +85,6 @@ namespace AdaptiveRoads.Manager {
             try {
                 NetInfoExt = null;
                 LaneIDs = null;
-                renderCount_ = 0;
                 if(!NetUtil.IsSegmentValid(SegmentID)) {
                     if(SegmentID.ToSegment().m_flags.IsFlagSet(NetSegment.Flags.Created))
                         Log.Debug("Skip updating invalid segment:" + SegmentID);
@@ -136,8 +135,6 @@ namespace AdaptiveRoads.Manager {
                 End.UpdateDirections();
                 End.UpdateCorners();
 
-                renderCount_ = CalculateTrackRenderCount();
-
                 if(Log.VERBOSE) Log.Debug($"NetSegmentExt.UpdateAllFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
                 if(Log.VERBOSE) Log.Debug($"NetSegmentExt:{NetInfoExt}, TrackLaneCount={NetInfoExt?.TrackLaneCount}");
             } catch(Exception ex) {
@@ -175,71 +172,22 @@ namespace AdaptiveRoads.Manager {
 
         #region Track
         public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo, int layerMask) {
-            if(!SegmentID.ToSegment().IsValid()) 
-                return;
-            //Log.DebugWait($"RenderTrackInstance() called for {this}");
-            if(NetInfoExt == null || !Segment.Info.CheckNetLayers(layerMask))
-                return;
-            if(!cameraInfo.Intersect(Segment.m_bounds)) 
-                return;
-            if(GetOrCalculateTrackInstance(out var renderInstanceIndex)) {
-                var renderData = RenderManager.instance.m_instances[renderInstanceIndex];
-                if(renderData.m_dirty) {
-                    renderData.m_dirty = false;
-                    RefreshRenderData(renderInstanceIndex);
-                }
-                RenderTrackInstance(cameraInfo, renderInstanceIndex);
-            }
-        }
-
-        public bool GetOrCalculateTrackInstance(out uint renderInstanceIndex) {
-            renderInstanceIndex = TrackManager.INVALID_RENDER_INDEX;
-            var count = renderCount_;
-            if(count == 0)
-                return false;
-            if(!RequireTrackInstance(count, out renderInstanceIndex))
-                return false;
-
-            var renderData = RenderManager.instance.m_instances[renderInstanceIndex];
-            if(renderData.m_dirty) {
-                renderData.m_dirty = false;
-                RefreshRenderData(renderInstanceIndex);
-            }
-            return true;
-        }
-
-        public uint CalculateTrackRenderCount() => (uint)(NetInfoExt?.TrackLaneCount ?? 0);
-
-        public bool RequireTrackInstance(uint count, out uint instanceIndex) =>
-            Singleton<RenderManager>.instance.RequireInstance(TrackManager.TRACK_HOLDER_SEGMNET + SegmentID, count, out instanceIndex);
-
-        private void RefreshRenderData(uint renderInstanceIndex) {
-            var renderInstances = RenderManager.instance.m_instances;
-            var laneMask = NetInfoExt.TrackLanes;
-            for(int laneIndex = 0; laneIndex < LaneIDs.Length; ++laneIndex) {
-                var laneBit = 1ul << laneIndex;
-                if((laneBit & laneMask) != 0) {
-                    var laneID = LaneIDs[laneIndex];
-                    ref var laneExt = ref NetworkExtensionManager.Instance.LaneBuffer[laneID];
-                    ref var renderData = ref renderInstances[renderInstanceIndex];
-                    laneExt.RefreshRenderData(ref renderData);
-                    renderInstanceIndex = renderData.m_nextInstance;
-                }
-            }
-        }
-        private void RenderTrackInstance(RenderManager.CameraInfo cameraInfo, uint renderInstanceIndex) {
             try {
-                var renderInstances = RenderManager.instance.m_instances;
-                do {
-                    ref var renderData = ref renderInstances[renderInstanceIndex];
+                if(!SegmentID.ToSegment().IsValid())
+                    return;
+                //Log.DebugWait($"RenderTrackInstance() called for {this}");
+                if(NetInfoExt == null || !Segment.Info.CheckNetLayers(layerMask))
+                    return;
+                if(!cameraInfo.Intersect(Segment.m_bounds))
+                    return;
 
-                    int laneIndex = renderData.m_dataInt0;
-                    var laneID = LaneIDs[laneIndex];
-                    ref var laneExt = ref NetworkExtensionManager.Instance.LaneBuffer[laneID];
-                    laneExt.RenderTrackInstance(cameraInfo, ref renderData);
-
-                    renderInstanceIndex = renderData.m_nextInstance;
-                } while(renderInstanceIndex != TrackManager.INVALID_RENDER_INDEX);
+                for(int laneIndex = 0; laneIndex < LaneIDs.Length; ++laneIndex) {
+                    if(NetInfoExt.HasTrackLane(laneIndex)) {
+                        var laneID = LaneIDs[laneIndex];
+                        ref var laneExt = ref NetworkExtensionManager.Instance.LaneBuffer[laneID];
+                        laneExt.RenderTrackInstance(cameraInfo);
+                    }
+                }
             } catch(Exception ex) {
                 ex.Log($"failed to render {SegmentID}", false);
             }

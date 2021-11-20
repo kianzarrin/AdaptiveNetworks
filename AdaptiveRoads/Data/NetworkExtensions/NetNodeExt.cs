@@ -175,7 +175,7 @@ namespace AdaptiveRoads.Manager {
                 var transitions =  new LaneTransition[tempConnections_.Count];
                 int index = 0;
                 foreach(var connection in tempConnections_) {
-                    transitions[index++].Init(connection.LaneID1, connection.LaneID2); // also calculates
+                    transitions[index++].Init(connection.LaneID1, connection.LaneID2,index); // also calculates
                 }
                 Transitions = transitions;
                 if(Log.VERBOSE) Log.Debug($"NetNodeExt.GetTrackConnections() succeeded for node:{NodeID} transitions.len={transitions.Length}" , false);
