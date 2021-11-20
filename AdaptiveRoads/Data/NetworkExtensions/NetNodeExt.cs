@@ -195,36 +195,36 @@ namespace AdaptiveRoads.Manager {
         public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo, int layerMask) {
             if(!NodeID.ToNode().IsValid())
                 return;
-            if((layerMask & NodeID.ToNode().Info.m_netLayers) == 0)
+            if(!NodeID.ToNode().Info.CheckNetLayers(layerMask))
                 return;
             if(Transitions.IsNullorEmpty())
                 return;
             foreach(var transition in Transitions)
-                transition.RenderTrackInstance(cameraInfo, layerMask);
+                transition.RenderTrackInstance(cameraInfo);
         }
 
         public bool CalculateGroupData(int layer, ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays) {
             if(!NodeID.ToNode().IsValid())
                 return false;
-            if((layer & NodeID.ToNode().Info.m_netLayers) == 0)
+            if(!NodeID.ToNode().Info.CheckNetLayers(1 << layer))
                 return false;
             if(Transitions.IsNullorEmpty())
                 return false;
             bool result = false;
             foreach(var transtion in Transitions) {
-                result |= transtion.CalculateGroupData(layer, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
+                result |= transtion.CalculateGroupData(ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
             }
             return result;
         }
         public void PopulateGroupData(int groupX, int groupZ, int layer, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData data, ref Vector3 min, ref Vector3 max, ref float maxRenderDistance, ref float maxInstanceDistance) {
             if(!NodeID.ToNode().IsValid())
                 return;
-            if((layer & NodeID.ToNode().Info.m_netLayers) == 0)
+            if(!NodeID.ToNode().Info.CheckNetLayers(1 << layer))
                 return;
             if(Transitions.IsNullorEmpty())
                 return;
             foreach(var transtion in Transitions) {
-                transtion.PopulateGroupData(groupX, groupZ, layer, ref vertexIndex, ref triangleIndex, groupPosition, data);
+                transtion.PopulateGroupData(groupX, groupZ, ref vertexIndex, ref triangleIndex, groupPosition, data);
             }
         }
         #endregion

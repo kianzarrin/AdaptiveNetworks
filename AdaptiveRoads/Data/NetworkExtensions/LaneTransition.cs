@@ -162,9 +162,9 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             RenderData.ObjectIndex = new Vector4(colorLocationA.x, colorLocationA.y, colorLocationD.x, colorLocationD.y);
         }
 
-        public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo, int layerMask) {
+        public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo) {
             var infoExtA = InfoExtA;
-            if(infoExtA == null || (layerMask & InfoA.m_netLayers) == 0)
+            if(infoExtA == null)
                 return;
             var netMan = NetManager.instance;
             foreach(var trackInfo in infoExtA.Tracks) {
@@ -199,9 +199,9 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         }
 
 
-        public bool CalculateGroupData(int layerMask, ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays) {
+        public bool CalculateGroupData(ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays) {
             var infoExtA = InfoExtA;
-            if(infoExtA == null || (layerMask & InfoA.m_netLayers) == 0)
+            if(infoExtA == null)
                 return false;
             if(infoExtA.TrackLaneCount == 0)
                 return false;
@@ -220,8 +220,8 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             return result;
         }
 
-        public void PopulateGroupData(int groupX, int groupZ, int layerMask, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData meshData) {
-            if(InfoA == null || InfoExtA == null || (layerMask & InfoA.m_netLayers) == 0)
+        public void PopulateGroupData(int groupX, int groupZ, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData meshData) {
+            if(InfoExtA == null)
                 return;
             if(InfoExtA.TrackLaneCount == 0)
                 return;

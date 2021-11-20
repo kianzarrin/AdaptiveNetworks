@@ -210,10 +210,7 @@ namespace AdaptiveRoads.Manager {
         #endregion
 
         #region track
-        public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo, int layerMask, ref RenderManager.Instance renderData) {
-            var info = LaneData.Segment.Info;
-            if(info == null || (layerMask & info.m_netLayers) == 0)
-                return;
+        public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo, ref RenderManager.Instance renderData) {
             ref var segmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[LaneData.SegmentID];
             var infoExt = segmentExt.NetInfoExt;
             var netManager = Singleton<NetManager>.instance;
@@ -295,10 +292,7 @@ namespace AdaptiveRoads.Manager {
                 renderData.m_position, vScale);
         }
 
-        public bool CalculateGroupData(int layer, ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays) {
-            var info = LaneData.Segment.Info;
-            if(info == null || (layer & info.m_netLayers) == 0)
-                return false;
+        public bool CalculateGroupData(ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays) {
             bool result = false;
             ref var segmentExt = ref LaneData.SegmentID.ToSegmentExt();
             var infoExt = segmentExt.NetInfoExt;
@@ -319,10 +313,8 @@ namespace AdaptiveRoads.Manager {
             return result;
         }
 
-        public void PopulateGroupData(int groupX, int groupZ, int layer, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData meshData) {
+        public void PopulateGroupData(int groupX, int groupZ, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData meshData) {
             var info = LaneData.Segment.Info;
-            if(info == null || (layer & info.m_netLayers) == 0)
-                return;
             ref var segmentExt = ref LaneData.SegmentID.ToSegmentExt();
             var infoExt = segmentExt.NetInfoExt;
             if(infoExt.TrackLaneCount == 0)

@@ -177,9 +177,8 @@ namespace AdaptiveRoads.Manager {
         public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo, int layerMask) {
             if(!SegmentID.ToSegment().IsValid()) 
                 return;
-            NetInfo info = SegmentID.ToSegment().Info;
             //Log.DebugWait($"RenderTrackInstance() called for {this}");
-            if(NetInfoExt == null || (layerMask & info.m_netLayers ) == 0) 
+            if(NetInfoExt == null || !Segment.Info.CheckNetLayers(layerMask))
                 return;
             if(!cameraInfo.Intersect(Segment.m_bounds)) 
                 return;
@@ -189,7 +188,7 @@ namespace AdaptiveRoads.Manager {
                     renderData.m_dirty = false;
                     RefreshRenderData(renderInstanceIndex);
                 }
-                RenderTrackInstance(cameraInfo, layerMask, renderInstanceIndex);
+                RenderTrackInstance(cameraInfo, renderInstanceIndex);
             }
         }
 
@@ -228,7 +227,7 @@ namespace AdaptiveRoads.Manager {
                 }
             }
         }
-        private void RenderTrackInstance(RenderManager.CameraInfo cameraInfo, int layerMask, uint renderInstanceIndex) {
+        private void RenderTrackInstance(RenderManager.CameraInfo cameraInfo, uint renderInstanceIndex) {
             try {
                 var renderInstances = RenderManager.instance.m_instances;
                 do {
@@ -237,7 +236,7 @@ namespace AdaptiveRoads.Manager {
                     int laneIndex = renderData.m_dataInt0;
                     var laneID = LaneIDs[laneIndex];
                     ref var laneExt = ref NetworkExtensionManager.Instance.LaneBuffer[laneID];
-                    laneExt.RenderTrackInstance(cameraInfo, layerMask, ref renderData);
+                    laneExt.RenderTrackInstance(cameraInfo, ref renderData);
 
                     renderInstanceIndex = renderData.m_nextInstance;
                 } while(renderInstanceIndex != TrackManager.INVALID_RENDER_INDEX);
@@ -248,16 +247,17 @@ namespace AdaptiveRoads.Manager {
         public bool CalculateGroupData(int layer, ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays) {
             if(NetInfoExt == null)
                 return false;
-            if((Segment.Info.m_netLayers & (1 << layer)) == 0)
+            if(!Segment.Info.CheckNetLayers(1 << layer))
                 return false;
             if(NetInfoExt.TrackLaneCount == 0)
                 return false;
+            if(Log.VERBOSE) Log.Called(SegmentID);
             bool result = false;
             for(int laneIndex = 0; laneIndex < LaneIDs.Length; ++laneIndex) {
                 if(NetInfoExt.HasTrackLane(laneIndex)) {
                     var laneID = LaneIDs[laneIndex];
                     ref var laneExt = ref laneID.ToLaneExt();
-                    result |= laneExt.CalculateGroupData(layer, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
+                    result |= laneExt.CalculateGroupData(ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
                 }
             }
             return result;
@@ -265,10 +265,11 @@ namespace AdaptiveRoads.Manager {
         public void PopulateGroupData(int groupX, int groupZ, int layer, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData data, ref Vector3 min, ref Vector3 max, ref float maxRenderDistance, ref float maxInstanceDistance) {
             if(NetInfoExt == null)
                 return;
-            if((Segment.Info.m_netLayers & (1 << layer)) == 0)
+            if(!Segment.Info.CheckNetLayers(1 << layer))
                 return;
             if(NetInfoExt.TrackLaneCount == 0)
                 return;
+            if(Log.VERBOSE) Log.Called(SegmentID);
             min = Vector3.Min(min, Segment.m_bounds.min);
             max = Vector3.Max(max, Segment.m_bounds.max);
             maxRenderDistance = Mathf.Max(maxRenderDistance, 30000f);
@@ -277,7 +278,7 @@ namespace AdaptiveRoads.Manager {
                 if(NetInfoExt.HasTrackLane(laneIndex)) {
                     var laneID = LaneIDs[laneIndex];
                     ref var laneExt = ref laneID.ToLaneExt();
-                    laneExt.PopulateGroupData(groupX, groupZ, layer, ref vertexIndex, ref triangleIndex, groupPosition, data);
+                    laneExt.PopulateGroupData(groupX, groupZ, ref vertexIndex, ref triangleIndex, groupPosition, data);
                 }
             }
         }
