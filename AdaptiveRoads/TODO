@@ -1,7 +1,6 @@
 Tracks:
     - segment/node
         - cross import
-        - render while drawing.
         - asym texture
         - postfix: [HarmonyPatch(typeof(NetInfo), "RefreshLevelOfDetail")] after ULOD
     - embankment

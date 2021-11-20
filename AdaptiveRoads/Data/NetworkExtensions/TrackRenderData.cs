@@ -34,9 +34,8 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         }
 
 
-        public void RenderInstance(NetInfoExtionsion.Track trackInfo) {
-            var cameraInfo = RenderManager.instance.CurrentCameraInfo;
-            if(cameraInfo.CheckRenderDistance(this.Position, trackInfo.m_lodRenderDistance)) {
+        public void RenderInstance(NetInfoExtionsion.Track trackInfo, RenderManager.CameraInfo cameraInfo) {
+            if(cameraInfo == null || cameraInfo.CheckRenderDistance(this.Position, trackInfo.m_lodRenderDistance)) {
                 netMan.m_materialBlock.Clear();
                 netMan.m_materialBlock.SetMatrix(netMan.ID_LeftMatrix, this.LeftMatrix);
                 netMan.m_materialBlock.SetMatrix(netMan.ID_RightMatrix, this.RightMatrix);

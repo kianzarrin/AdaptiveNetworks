@@ -231,6 +231,17 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             }
         }
 
+        public static void Render(NetInfo info, NetSegment.Flags flags, OutlineData outline) {
+            var infoExt = info?.GetMetaData();
+            if(infoExt == null || infoExt.TrackLaneCount == 0)
+                return;
+
+            for(int laneIndex=0;laneIndex< info.m_lanes.Length; ++laneIndex) {
+                if(infoExt.HasTrackLane(laneIndex)) {
+                    NetLaneExt.Render(info, laneIndex, flags, outline);
+                }
+            }
+        }
 
         #endregion
     }

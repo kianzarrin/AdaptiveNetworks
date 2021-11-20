@@ -184,14 +184,13 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             if(segment.IsInvert()) {
                 posNormalized = 1f - posNormalized;
             }
+
             Vector3 a = posStartLeft + (posStartRight - posStartLeft) * posNormalized;
             Vector3 startDir = Vector3.Lerp(DirectionStartLeft, DirectionStartRight, posNormalized);
             Vector3 d = posEndRight + (posEndLeft - posEndRight) * posNormalized;
             Vector3 endDir = Vector3.Lerp(DirectionEndRight, DirectionEndLeft, posNormalized);
             a.y += laneInfo.m_verticalOffset;
             d.y += laneInfo.m_verticalOffset;
-            NetSegment.CalculateMiddlePoints(a, startDir, d, endDir, smoothStart, smoothEnd, out var b, out var c);
-            //var bezier = new Bezier3(a, b, c, d);
 
             OutLine = new OutlineData(a, d, startDir, endDir, laneInfo.m_width, smoothStart, smoothEnd);
             RenderData = GenerateRenderData();
@@ -212,8 +211,8 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             ret.Position = pos ?? (startPos + endPos) * 0.5f;
             ret.Color = info.m_color;
             ret.Color.a = 0f;
-            ret.WindSpeed = Singleton<WeatherManager>.instance.GetWindSpeed(ret.Position); // wind speed
-            ret.MeshScale = new Vector4(1f / laneInfo.m_width, 1f / info.m_segmentLength, 1f, 1f); // mesh scale
+            ret.WindSpeed = Singleton<WeatherManager>.instance.GetWindSpeed(ret.Position);
+            ret.MeshScale = new Vector4(1f / laneInfo.m_width, 1f / info.m_segmentLength, 1f, 1f);
             bool turnAround = LaneData.LaneInfo.IsGoingBackward(); // TODO is this logic sufficient?
             if(turnAround) {
                 ret.MeshScale.x *= -1;
@@ -249,7 +248,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             foreach(var trackInfo in infoExt.Tracks) {
                 if(trackInfo.HasTrackLane(LaneData.LaneIndex)&& trackInfo.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags)) {
                     var renderData = RenderData.GetDataFor(trackInfo);
-                    renderData.RenderInstance(trackInfo);
+                    renderData.RenderInstance(trackInfo, cameraInfo);
                 }
             }
         }
@@ -285,6 +284,69 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 if(trackInfo.HasTrackLane(LaneData.LaneIndex) && trackInfo.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags)) {
                     var renderData = renderData0.GetDataFor(trackInfo);
                     renderData.PopulateGroupData(trackInfo, groupX, groupZ, ref vertexIndex, ref triangleIndex, meshData);
+                }
+            }
+        }
+
+        public static void Render(NetInfo info, int laneIndex, NetSegment.Flags flags, OutlineData segmentOutline) {
+            var infoExt = info?.GetMetaData();
+            if(infoExt == null || infoExt.TrackLaneCount == 0)
+                return;
+            var laneInfo = info.m_lanes[laneIndex];
+
+            var posStartLeft = segmentOutline.Left.a;
+            var posStartRight = segmentOutline.Right.a;
+            var posEndLeft = segmentOutline.Left.d;
+            var posEndRight = segmentOutline.Right.d;
+
+            var DirectionStartLeft = segmentOutline.DirA;
+            var DirectionStartRight = segmentOutline.DirA;
+            var DirectionEndLeft = segmentOutline.DirD;
+            var DirectionEndRight = segmentOutline.DirD;
+
+            var smoothStart = segmentOutline.SmoothA;
+            var smoothEnd = segmentOutline.SmoothD;
+
+            float posNormalized = laneInfo.m_position / (info.m_halfWidth * 2f) + 0.5f;
+            if(flags.IsFlagSet(NetSegment.Flags.Invert)) posNormalized = 1f - posNormalized;
+            
+            Vector3 a = posStartLeft + (posStartRight - posStartLeft) * posNormalized;
+            Vector3 startDir = Vector3.Lerp(DirectionStartLeft, DirectionStartRight, posNormalized);
+            Vector3 d = posEndRight + (posEndLeft - posEndRight) * posNormalized;
+            Vector3 endDir = Vector3.Lerp(DirectionEndRight, DirectionEndLeft, posNormalized);
+            a.y += laneInfo.m_verticalOffset;
+            d.y += laneInfo.m_verticalOffset;
+            NetSegment.CalculateMiddlePoints(a, startDir, d, endDir, smoothStart, smoothEnd, out var b, out var c);
+            //var bezier = new Bezier3(a, b, c, d);
+
+            var laneOutline = new OutlineData(a, d, startDir, endDir, laneInfo.m_width, smoothStart, smoothEnd);
+
+            TrackRenderData renderData = default;
+            renderData.Position = (laneOutline.Center.a + laneOutline.Center.d) * 0.5f;
+            renderData.Color = info.m_color;
+            renderData.Color.a = 0f;
+            renderData.WindSpeed = Singleton<WeatherManager>.instance.GetWindSpeed(renderData.Position); 
+            renderData.MeshScale = new Vector4(1f / laneInfo.m_width, 1f / info.m_segmentLength, 1f, 1f); 
+            bool turnAround = laneInfo.IsGoingBackward();
+            if(turnAround) {
+                renderData.MeshScale.x *= -1;
+                renderData.MeshScale.y *= -1;
+            }
+            renderData.ObjectIndex = RenderManager.DefaultColorLocation;
+            float vScale = info.m_netAI.GetVScale();
+            renderData.LeftMatrix = NetSegment.CalculateControlMatrix(
+                laneOutline.Left.a, laneOutline.Left.b, laneOutline.Left.c, laneOutline.Left.d,
+                laneOutline.Right.a, laneOutline.Right.b, laneOutline.Right.c, laneOutline.Right.d,
+                renderData.Position, vScale);
+            renderData.RightMatrix = NetSegment.CalculateControlMatrix(
+                laneOutline.Right.a, laneOutline.Right.b, laneOutline.Right.c, laneOutline.Right.d,
+                laneOutline.Left.a, laneOutline.Left.b, laneOutline.Left.c, laneOutline.Left.d,
+                renderData.Position, vScale);
+
+            foreach(var trackInfo in infoExt.Tracks) {
+                if(trackInfo.HasTrackLane(laneIndex) && trackInfo.CheckSegmentFlags(default, flags)) {
+                    var renderData2 = renderData.GetDataFor(trackInfo);
+                    renderData2.RenderInstance(trackInfo, null);
                 }
             }
         }

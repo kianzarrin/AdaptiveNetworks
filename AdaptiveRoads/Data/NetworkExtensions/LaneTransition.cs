@@ -122,7 +122,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             foreach(var trackInfo in infoExtA.Tracks) {
                 if(trackInfo.HasTrackLane(laneIndexA) && trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags)) {
                     var renderData = RenderData.GetDataFor(trackInfo, TransitionIndex);
-                    renderData.RenderInstance(trackInfo);
+                    renderData.RenderInstance(trackInfo, cameraInfo);
                 }
             }
         }
