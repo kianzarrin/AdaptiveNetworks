@@ -7,7 +7,16 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         public Vector3 DirA, DirD;
         public bool SmoothA, SmoothD;
 
+        public bool Empty => Center.a == Center.d;
         public OutlineData(Vector3 a, Vector3 d, Vector3 dirA, Vector3 dirD, float width, bool smoothA, bool smoothD) {
+            if((a-d).sqrMagnitude < 0.01) {
+                // too small to render (nodeless)
+                Center = Left = Right = default;
+                DirA = DirD = default;
+                SmoothA = SmoothD = default;
+                return;
+            }
+
             {
                 SmoothA = smoothA;
                 Center.a = a;

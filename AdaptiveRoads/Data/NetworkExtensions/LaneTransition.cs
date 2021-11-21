@@ -1,6 +1,7 @@
 namespace AdaptiveRoads.Data.NetworkExtensions {
     using AdaptiveRoads.Manager;
     using ColossalFramework;
+    using ColossalFramework.Math;
     using KianCommons;
     using UnityEngine;
     using Log = KianCommons.Log;
@@ -9,10 +10,10 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         public ushort NodeID;
         public uint LaneIDSource; // dominant
         public uint LaneIDTarget;
-        public int TransitionIndex;
+        public int AntiFlickerIndex;
 
-        public void Init(uint laneID1, uint laneID2, int index) {
-            TransitionIndex = index;
+        public void Init(uint laneID1, uint laneID2, int antiFlickerIndex) {
+            AntiFlickerIndex = antiFlickerIndex;
             ushort segmentID1 = laneID1.ToLane().m_segment;
             ushort segmentID2 = laneID2.ToLane().m_segment;
             float prio1 = segmentID1.ToSegment().Info.m_netAI.GetNodeInfoPriority(segmentID1, ref segmentID1.ToSegment());
@@ -56,6 +57,8 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         float Width => laneInfoA.m_width;
         #endregion
 
+        public bool Nodeless => OutLine.Empty;
+
         public void Calculate() {
             Vector3 a, dirA;
             if(SegmentA.IsStartNode(NodeID)) {
@@ -76,6 +79,9 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             }
 
             OutLine = new OutlineData(a, d, -dirA, -dirD, Width, true, true);
+            if(OutLine.Empty)
+                return;
+
             RenderData = GenerateRenderData();
         }
         public TrackRenderData GenerateRenderData(Vector3? pos = null) {
@@ -116,12 +122,13 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         }
 
         public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo) {
+            if(Nodeless) return;
             var infoExtA = InfoExtA;
-            if(infoExtA == null)
-                return;
+            if(infoExtA == null || InfoExtA.TrackLaneCount == 0) return;
+
             foreach(var trackInfo in infoExtA.Tracks) {
                 if(trackInfo.HasTrackLane(laneIndexA) && trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags)) {
-                    var renderData = RenderData.GetDataFor(trackInfo, TransitionIndex);
+                    var renderData = RenderData.GetDataFor(trackInfo, AntiFlickerIndex);
                     renderData.RenderInstance(trackInfo, cameraInfo);
                     TrackManager.instance.EnqueuOverlay(trackInfo, ref OutLine, tunrAround: renderData.TurnAround, DC: true);
                 }
@@ -130,14 +137,11 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
 
 
         public bool CalculateGroupData(ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays) {
-            var infoExtA = InfoExtA;
-            if(infoExtA == null)
-                return false;
-            if(infoExtA.TrackLaneCount == 0)
+            if(!Nodeless || InfoExtA == null || InfoExtA.TrackLaneCount == 0)
                 return false;
 
             bool result = false;
-            foreach(var trackInfo in infoExtA.Tracks) {
+            foreach(var trackInfo in InfoExtA.Tracks) {
                 if(trackInfo.HasTrackLane(LaneExtA.LaneData.LaneIndex) && trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags)) {
                     result |= RenderData.CalculateGroupData(trackInfo, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
                 }
@@ -146,15 +150,14 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         }
 
         public void PopulateGroupData(int groupX, int groupZ, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData meshData) {
-            if(InfoExtA == null)
-                return;
-            if(InfoExtA.TrackLaneCount == 0)
+            if(!Nodeless || InfoExtA == null || InfoExtA.TrackLaneCount == 0)
+
                 return;
 
             var renderData0 = GenerateRenderData(groupPosition);
             foreach(var trackInfo in InfoExtA.Tracks) {
                 if(trackInfo.HasTrackLane(LaneExtA.LaneData.LaneIndex) && trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags)) {
-                    var renderData = renderData0.GetDataFor(trackInfo, TransitionIndex);
+                    var renderData = renderData0.GetDataFor(trackInfo, AntiFlickerIndex);
                     renderData.PopulateGroupData(trackInfo, groupX, groupZ, ref vertexIndex, ref triangleIndex, meshData);
                 }
             }

@@ -173,11 +173,11 @@ namespace AdaptiveRoads.Manager {
                     }
                 }
                 var transitions =  new LaneTransition[tempConnections_.Count];
-                int index = 0;
+                int antiFilickerIndex = 0 - (tempConnections_.Count >>1);
                 foreach(var connection in tempConnections_) {
-                    transitions[index++].Init(connection.LaneID1, connection.LaneID2,index); // also calculates
+                    transitions[antiFilickerIndex++].Init(connection.LaneID1, connection.LaneID2, antiFilickerIndex); // also calculates
                 }
-                Transitions = transitions;
+                Transitions = transitions.Where(item=>!item.Nodeless).ToArray();
                 if(Log.VERBOSE) Log.Debug($"NetNodeExt.GetTrackConnections() succeeded for node:{NodeID} transitions.len={transitions.Length}" , false);
             } catch(Exception ex) {
                 throw ex;

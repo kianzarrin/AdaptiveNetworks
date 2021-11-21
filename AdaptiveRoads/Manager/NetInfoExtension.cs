@@ -123,6 +123,7 @@ namespace AdaptiveRoads.Manager {
         /// <param name="layerMask">for calculate/populate group data <c>layerMask=1<<layer</c></param>
         /// <returns>if there is any matching layer</returns>
         public static bool CheckNetLayers(this NetInfo info, int layerMask) => info && (layerMask & info.m_netLayers) != 0;
+        public static int TrackLaneCount(this NetInfo info) => info?.GetMetaData()?.TrackLaneCount ?? 0;
     }
 
     public class NetMetadataContainer : MonoBehaviour {
