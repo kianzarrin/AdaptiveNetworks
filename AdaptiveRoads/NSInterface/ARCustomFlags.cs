@@ -13,7 +13,6 @@ namespace AdaptiveRoads.NSInterface {
 
         public ARCustomFlags() { }
         public ARCustomFlags(int nLanes) {
-            // TODO: what if somebody changed the number of lanes in the asset?
             Lanes = new NetLaneExt.Flags[nLanes];
         }
         public ARCustomFlags(NetInfo prefab) : this(prefab.m_lanes.Length) { }
