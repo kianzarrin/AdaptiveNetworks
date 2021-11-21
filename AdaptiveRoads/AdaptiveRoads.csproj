@@ -99,6 +99,7 @@
     <Compile Remove="Patches\HarmonyExtension.cs" />
     <Compile Remove="Patches\Lane\CalculateLane.cs" />
     <Compile Remove="Patches\Lane\NetAI_UpdateLanes.cs" />
+    <Compile Remove="Patches\Managers_RenderOverlay.cs" />
     <Compile Remove="Patches\Node\CalculateNode.cs" />
     <Compile Remove="Patches\Node\NetAI_UpdateNodeFlags.cs" />
     <Compile Remove="Patches\Node\NetNode_UpdateNode.cs" />

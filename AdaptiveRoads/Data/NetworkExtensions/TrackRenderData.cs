@@ -11,6 +11,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         public Quaternion Rotation => Quaternion.identity;
         public Vector3 Position;
         public float WindSpeed;
+        public bool TurnAround;
 
         public TrackRenderData GetDataFor(NetInfoExtionsion.Track trackInfo, int antiFlickerIndex = 0) {
             var ret = this;

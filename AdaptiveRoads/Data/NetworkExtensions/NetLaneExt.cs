@@ -213,8 +213,8 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             ret.Color.a = 0f;
             ret.WindSpeed = Singleton<WeatherManager>.instance.GetWindSpeed(ret.Position);
             ret.MeshScale = new Vector4(1f / laneInfo.m_width, 1f / info.m_segmentLength, 1f, 1f);
-            bool turnAround = LaneData.LaneInfo.IsGoingBackward(); // TODO is this logic sufficient?
-            if(turnAround) {
+            ret.TurnAround = LaneData.LaneInfo.IsGoingBackward(); // TODO is this logic sufficient?
+            if(ret.TurnAround) {
                 ret.MeshScale.x *= -1;
                 ret.MeshScale.y *= -1;
             }
@@ -249,6 +249,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 if(trackInfo.HasTrackLane(LaneData.LaneIndex)&& trackInfo.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags)) {
                     var renderData = RenderData.GetDataFor(trackInfo);
                     renderData.RenderInstance(trackInfo, cameraInfo);
+                    TrackManager.instance.EnqueuOverlay(trackInfo, ref OutLine, tunrAround: renderData.TurnAround, DC: false);
                 }
             }
         }

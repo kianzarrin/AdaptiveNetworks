@@ -83,8 +83,8 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             ret.Position = pos ?? (OutLine.Center.a + OutLine.Center.d) * 0.5f;
 
             ret.MeshScale = new Vector4(1f / Width, 1f / InfoA.m_segmentLength, 1f, 1f);
-            bool turnAround = laneInfoA.IsGoingBackward(); // TODO is this logic sufficient? is this line even necessary?
-            if(turnAround) {
+            ret.TurnAround = laneInfoA.IsGoingBackward(); // TODO is this logic sufficient? is this line even necessary?
+            if(ret.TurnAround) {
                 ret.MeshScale.x *= -1;
                 ret.MeshScale.y *= -1;
             }
@@ -123,6 +123,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 if(trackInfo.HasTrackLane(laneIndexA) && trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags)) {
                     var renderData = RenderData.GetDataFor(trackInfo, TransitionIndex);
                     renderData.RenderInstance(trackInfo, cameraInfo);
+                    TrackManager.instance.EnqueuOverlay(trackInfo, ref OutLine, tunrAround: renderData.TurnAround, DC: true);
                 }
             }
         }

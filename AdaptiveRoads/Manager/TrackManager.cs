@@ -6,9 +6,14 @@ namespace AdaptiveRoads.Manager {
     using System.Collections;
     using KianCommons.IImplict;
     using HarmonyLib;
+    using AdaptiveRoads.Data.NetworkExtensions;
+    using System.Collections.Generic;
+    using KianCommons.UI;
+    using ColossalFramework.Math;
+    using AdaptiveRoads.UI.RoadEditor;
 
     public class TrackManager : Singleton<TrackManager>, IRenderableManager, IAwakingObject, IDestroyableObject {
-        private static NetworkExtensionManager NetworkExtensionManager => NetworkExtensionManager.RawInstance; // help with modtools
+        private static NetworkExtensionManager NetworkExtensionManager => NetworkExtensionManager.RawInstance; // help with mod-tools
 
         public string GetName() => gameObject?.name ?? "null";
         private int m_roadLayer;
@@ -218,9 +223,39 @@ namespace AdaptiveRoads.Manager {
         #endregion
 
         #region overlay
+        private struct OverlayData {
+            public OutlineData Outline;
+            public bool turnAround;
+            public bool DC;
+        }
+
+        private Queue<OverlayData> OutlineQueue = new Queue<OverlayData>();
+        public void EnqueuOverlay(NetInfoExtionsion.Track trackInfo, ref OutlineData outline, bool tunrAround, bool DC) {
+            if(Overlay.HoveredInfo == trackInfo) {
+                OutlineQueue.Enqueue(new OverlayData { Outline = outline, turnAround = tunrAround, DC = true });
+            }
+        }
         public void BeginOverlay(RenderManager.CameraInfo cameraInfo) { }
 
-        public void EndOverlay(RenderManager.CameraInfo cameraInfo) { }
+        public void EndOverlay(RenderManager.CameraInfo cameraInfo) {
+            while(OutlineQueue.Count > 0) {
+                var overlay = OutlineQueue.Dequeue();
+                ref var outline = ref overlay.Outline;
+                ref var bezier = ref outline.Center;
+                float hw = 0.5f * VectorUtils.LengthXZ(outline.Right.a - outline.Left.a);
+                if(overlay.turnAround) bezier = bezier.Invert();
+                Color ORANGE = new Color32(255, 165, 0, 255);
+                Color color = overlay.turnAround ? ORANGE : Color.yellow;
+
+                if(!overlay.DC) {
+                    bezier.Render(cameraInfo, color, hw);
+                } else {
+                    bezier.RenderArrow(cameraInfo, color, hw);
+
+                }
+            }
+            Overlay.RenderOverlay(cameraInfo);
+        }
 
         public void UndergroundOverlay(RenderManager.CameraInfo cameraInfo) { }
         #endregion

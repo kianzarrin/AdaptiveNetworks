@@ -8,9 +8,7 @@ Tracks:
         - NC compatible
     - support for nodeless
     - track options:
-        - ignore DC
-        - overlay
-        - hints
+ 
 
 TODO:
     - bug fix: can't change custom flag name after loading AR road.
