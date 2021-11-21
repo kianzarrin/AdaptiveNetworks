@@ -61,24 +61,38 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
 
         public void Calculate() {
             Vector3 a, dirA;
+            float angleA;
             if(SegmentA.IsStartNode(NodeID)) {
                 a = LaneA.m_bezier.a;
                 dirA = LaneExtA.OutLine.DirA;
+
+                // the dir is already going away from the node which is against the direction of the bezier at start. so we need - :
+                angleA = -segmentID_A.ToSegmentExt().Start.TotalAngle;
             } else {
                 a = LaneA.m_bezier.d;
                 dirA = LaneExtA.OutLine.DirD;
+
+                // the dir is already going away from the node which is against the direction of the bezier at start. so we need - :
+                angleA = -segmentID_A.ToSegmentExt().End.TotalAngle; 
             }
 
             Vector3 d, dirD;
+            float angleD;
             if(SegmentD.IsStartNode(NodeID)) {
                 d = LaneD.m_bezier.a;
                 dirD = LaneExtD.OutLine.DirA;
+
+                // the dir is already going away from the node which is in the same direction as lane end. so we need + :
+                angleD = -segmentID_D.ToSegmentExt().Start.TotalAngle;
             } else {
                 d = LaneD.m_bezier.d;
                 dirD = LaneExtD.OutLine.DirD;
+
+                // the dir is already going away from the node which is in the same direction as lane end. so we need + :
+                angleD = +segmentID_D.ToSegmentExt().End.TotalAngle; 
             }
 
-            OutLine = new OutlineData(a, d, -dirA, -dirD, Width, true, true);
+            OutLine = new OutlineData(a, d, -dirA, -dirD, Width, true, true, angleA, angleD);
             if(OutLine.Empty)
                 return;
 

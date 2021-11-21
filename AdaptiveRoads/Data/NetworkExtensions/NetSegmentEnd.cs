@@ -13,6 +13,7 @@ namespace AdaptiveRoads.Manager {
     using TrafficManager.API.Traffic.Enums;
     using TrafficManager.Manager.Impl;
     using AdaptiveRoads.Data.NetworkExtensions;
+    using UnityEngine;
 
     public struct NetSegmentEnd {
         [Flags]
@@ -244,10 +245,19 @@ namespace AdaptiveRoads.Manager {
 
         #region cache corners
         public CornerPairData Corner;
+        public float DeltaAngle; // in radians
+        public float Angle0; // in radians
+        public float TotalAngle => Angle0 + DeltaAngle;
+
+        /// <summary>
+        /// Precondition: SegmentEnd is initialized. (There is no need to have called Updated anything)
+        /// </summary>
         public void UpdateCorners() {
             ref var segment = ref SegmentID.ToSegment();
             segment.CalculateCorner(SegmentID, heightOffset: true, start: StartNode, leftSide: true, out Corner.Left.Position, out Corner.Left.Direction, out Corner.smooth);
             segment.CalculateCorner(SegmentID, heightOffset: true, start: StartNode, leftSide: false, out Corner.Right.Position, out Corner.Right.Direction, out Corner.smooth);
+            Vector3 v = Corner.Right.Position - Corner.Left.Position;
+            Angle0 = (0.5f * Mathf.PI) - Vector3.Angle(Vector3.up, v); // angle between 3d vector and the horizontal plane
         }
         #endregion
 

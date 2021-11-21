@@ -76,14 +76,13 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             AllDirections = LeftSlight | LeftModerate | LeftSharp | RightSlight | RightModerate | RightSharp | UTurn,
         }
 
+        public LaneData LaneData;
         public Flags m_flags;
-
         public float SpeedLimit; // game speed limit 1=50kph 20=unlimited
 
         //public object OuterMarking;
         //public object InnerMarking;
 
-        public LaneData LaneData;
 
         const int CUSTOM_FLAG_SHIFT = 24;
 
@@ -192,7 +191,10 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             a.y += laneInfo.m_verticalOffset;
             d.y += laneInfo.m_verticalOffset;
 
-            OutLine = new OutlineData(a, d, startDir, endDir, laneInfo.m_width, smoothStart, smoothEnd);
+            OutLine = new OutlineData(
+                a, d, startDir, endDir, laneInfo.m_width,
+                smoothStart, smoothEnd,
+                segmentExt.Start.TotalAngle, -segmentExt.End.TotalAngle);
             RenderData = GenerateRenderData();
         }
 
@@ -320,7 +322,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             NetSegment.CalculateMiddlePoints(a, startDir, d, endDir, smoothStart, smoothEnd, out var b, out var c);
             //var bezier = new Bezier3(a, b, c, d);
 
-            var laneOutline = new OutlineData(a, d, startDir, endDir, laneInfo.m_width, smoothStart, smoothEnd);
+            var laneOutline = new OutlineData(a, d, startDir, endDir, laneInfo.m_width, smoothStart, smoothEnd, 0, 0);
 
             TrackRenderData renderData = default;
             renderData.Position = (laneOutline.Center.a + laneOutline.Center.d) * 0.5f;

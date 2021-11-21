@@ -9,7 +9,10 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         public bool SmoothA, SmoothD;
 
         public bool Empty => Center.a == Center.d;
-        public OutlineData(Vector3 a, Vector3 d, Vector3 dirA, Vector3 dirD, float width, bool smoothA, bool smoothD) {
+
+        // TODO: should I just raise the lane instead of accepting deltaY
+        /// <param name="angle">tilt angle in radians</param>
+        public OutlineData(Vector3 a, Vector3 d, Vector3 dirA, Vector3 dirD, float width, bool smoothA, bool smoothD, float angleA, float angleD) {
             bool nodeless = (a - d).sqrMagnitude < 0.01; // too small to render
             if(!nodeless) {
                 // check if lane ends is in the direction of dirA or dirD
@@ -29,24 +32,36 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 return;
             }
 
+            float hw = 0.5f * width;
+
+            SmoothA = smoothA;
+            Center.a = a;
+            DirA = dirA;
+            var normalA = new Vector3(dirA.z, 0, -dirA.x);
+            normalA = VectorUtils.NormalizeXZ(normalA); // rotate right.
+            Right.a = a + normalA * hw;
+            Left.a = a - normalA * hw;
+
+            SmoothD = smoothD;
+            DirD = dirD;
+            Center.d = d;
+            var normalD = new Vector3(dirD.z, 0, -dirD.x); // rotate right.
+            normalD = -VectorUtils.NormalizeXZ(normalD); // end dir needs minus
+            Right.d = d + normalD * hw;
+            Left.d = d - normalD * hw;
+
             {
-                SmoothA = smoothA;
-                Center.a = a;
-                DirA = dirA;
-                var normal = new Vector3(-dirA.z, 0, dirA.x);
-                normal = VectorUtils.NormalizeXZ(normal);
-                Left.a = a + normal * width * 0.5f;
-                Right.a = a - normal * width * 0.5f;
+                Right.a.y += hw * Mathf.Sin(angleA);
+                Left.a.y -= hw * Mathf.Sin(angleA);
+                Right.d.y += hw * Mathf.Sin(angleD);
+                Left.d.y -= hw * Mathf.Sin(angleD);
+
+                Right.a += hw * normalA * Mathf.Cos(angleA);
+                Left.a -= hw * normalA * Mathf.Cos(angleA);
+                Right.d += hw * normalD * Mathf.Cos(angleD);
+                Left.d -= hw * normalD * Mathf.Cos(angleD);
             }
-            {
-                SmoothD = smoothD;
-                DirD = dirD;
-                Center.d = d;
-                var normal = new Vector3(-dirD.z, 0, dirD.x);
-                normal = -VectorUtils.NormalizeXZ(normal);
-                Left.d = d + normal * width * 0.5f;
-                Right.d = d - normal * width * 0.5f;
-            }
+
             NetSegment.CalculateMiddlePoints(Center.a, DirA, Center.d, DirD, SmoothA, SmoothD, out Center.b, out Center.c);
             NetSegment.CalculateMiddlePoints(Left.a, DirA, Left.d, DirD, SmoothA, SmoothD, out Left.b, out Left.c);
             NetSegment.CalculateMiddlePoints(Right.a, DirA, Right.d, DirD, SmoothA, SmoothD, out Right.b, out Right.c);
