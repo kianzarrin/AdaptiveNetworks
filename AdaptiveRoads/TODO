@@ -1,13 +1,10 @@
 Tracks:
-    - segment/node
-        - asym texture
+    - asym Track
     - embankment
-        - lane corners
         - AR tool UI
         - prop embankment
-        - NC compatible
 
-    - test: overlay | cross-import | refreshLOD + ULOD | render while drawing | nodeless
+    - test: overlay | cross-import | refreshLOD + ULOD | render while drawing | nodeless | tilt
 
 TODO:
     - bug fix: can't change custom flag name after loading AR road.
