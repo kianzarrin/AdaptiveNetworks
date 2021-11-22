@@ -488,6 +488,7 @@ namespace AdaptiveRoads.Manager {
             /// <param name="netInfo"></param>
             public void Recalculate(NetInfo netInfo) {
                 try {
+                    Assertion.NotNull(netInfo, "netInfo");
                     Template = netInfo;
                     RecalculateTracks(netInfo);
                     RefreshLevelOfDetail(netInfo);
@@ -500,9 +501,10 @@ namespace AdaptiveRoads.Manager {
             public void RefreshLevelOfDetail(NetInfo netInfo) {
                 if(Tracks != null) {
                     var max = Mathf.Max(netInfo.m_halfWidth * 50f, (netInfo.m_maxHeight - netInfo.m_minHeight) * 80f);
+                    // get lod render instance from already existing nodes/segments. if not found then calculate.
                     float lodRenderDistance =
-                        netInfo.m_segments?.FirstOrDefault().m_lodRenderDistance ??
-                        netInfo.m_nodes?.FirstOrDefault().m_lodRenderDistance ??
+                        netInfo.m_segments?.FirstOrDefault()?.m_lodRenderDistance ??
+                        netInfo.m_nodes?.FirstOrDefault()?.m_lodRenderDistance ??
                         Mathf.Clamp(100f + RenderManager.LevelOfDetailFactor * max, 100f, 1000f);
 
                     bool lodMissing = false;
