@@ -13,24 +13,24 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         // TODO: should I just raise the lane instead of accepting deltaY
         /// <param name="angle">tilt angle in radians</param>
         public OutlineData(Vector3 a, Vector3 d, Vector3 dirA, Vector3 dirD, float width, bool smoothA, bool smoothD, float angleA, float angleD) {
-            bool nodeless = (a - d).sqrMagnitude < 0.01; // too small to render
-            if(!nodeless) {
-                // check if lane ends is in the direction of dirA or dirD
-                Vector2 dir = (a - d).ToCS2D().normalized;
-                Vector2 dir1 = dirA.ToCS2D().normalized;
-                Vector2 dir2 = dirD.ToCS2D().normalized;
-                float absdot0 = Mathf.Abs(Vector2.Dot(dir1, dir2)); // if dirs are aligned, we expect the lane ends to be aligned too even if not nodeless.
-                float absdot1 = Mathf.Abs(Vector2.Dot(dir, dir1));
-                float absdot2 = Mathf.Abs(Vector2.Dot(dir, dir2));
-                nodeless = absdot0 < 0.999 && (absdot1 > 0.999 || absdot2 > 0.999); 
-            }
+            //bool nodeless = (a - d).sqrMagnitude < 0.01; // too small to render
+            //if(!nodeless) {
+            //    // check if lane ends is in the direction of dirA or dirD
+            //    Vector2 dir = (a - d).ToCS2D().normalized;
+            //    Vector2 dir1 = dirA.ToCS2D().normalized;
+            //    Vector2 dir2 = dirD.ToCS2D().normalized;
+            //    float absdot0 = Mathf.Abs(Vector2.Dot(dir1, dir2)); // if dirs are aligned, we expect the lane ends to be aligned too even if not nodeless.
+            //    float absdot1 = Mathf.Abs(Vector2.Dot(dir, dir1));
+            //    float absdot2 = Mathf.Abs(Vector2.Dot(dir, dir2));
+            //    nodeless = absdot0 < 0.999 && (absdot1 > 0.999 || absdot2 > 0.999); 
+            //}
 
-            if(nodeless) {
-                Center = Left = Right = default;
-                DirA = DirD = default;
-                SmoothA = SmoothD = default;
-                return;
-            }
+            //if(nodeless) {
+            //    Center = Left = Right = default;
+            //    DirA = DirD = default;
+            //    SmoothA = SmoothD = default;
+            //    return;
+            //}
 
             float hw = 0.5f * width;
 

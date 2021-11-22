@@ -145,9 +145,6 @@ namespace AdaptiveRoads.Manager {
                     return;
                 if(!node.m_flags.IsFlagSet(NetNode.Flags.Junction | NetNode.Flags.Bend)) 
                     return;
-                if(!node.Info.m_clipSegmentEnds)
-                    return;
-                // TODO : support NC nodeless
 
                 tempConnections_.Clear();
                 foreach(var segmentID in NodeID.ToNode().IterateSegments()) {
@@ -159,11 +156,13 @@ namespace AdaptiveRoads.Manager {
                         uint laneID = lanes[laneIndex];
                         var routings = TMPEHelpers.GetForwardRoutings(laneID, NodeID);
                         if(routings == null) continue;
+                        if(IsNodeless(segmentID: segmentID, nodeID:NodeID)) continue;
                         foreach(LaneTransitionData routing in routings) {
                             if(routing.type == LaneEndTransitionType.Invalid || routing.type == LaneEndTransitionType.Relaxed)
                                 continue;
                             var infoExt2 = routing.segmentId.ToSegment().Info?.GetMetaData();
                             if(infoExt2 == null) continue;
+                            if(IsNodeless(segmentID: routing.segmentId, nodeID:NodeID)) continue;
                             if(infoExt.HasTrackLane(laneIndex) || infoExt2.HasTrackLane(routing.laneIndex)) {
                                 if(GoodTurnAngle(segmentID, routing.segmentId, NodeID)) {
                                     tempConnections_.Add(new Connection { LaneID1 = laneID, LaneID2 = routing.laneId });
@@ -172,16 +171,26 @@ namespace AdaptiveRoads.Manager {
                         }
                     }
                 }
-                var transitions =  new LaneTransition[tempConnections_.Count];
-                int antiFilickerIndex = 0 - (tempConnections_.Count >>1);
+
+                int n = tempConnections_.Count;
+                var transitions =  new LaneTransition[n];
+                int n2 = n >> 1; // n/2
+                int index = 0;
                 foreach(var connection in tempConnections_) {
-                    transitions[antiFilickerIndex++].Init(connection.LaneID1, connection.LaneID2, antiFilickerIndex); // also calculates
+                    transitions[index++].Init(connection.LaneID1, connection.LaneID2, index - n2); // also calculates
                 }
-                Transitions = transitions.Where(item=>!item.Nodeless).ToArray();
+                Transitions = transitions;
                 if(Log.VERBOSE) Log.Debug($"NetNodeExt.GetTrackConnections() succeeded for node:{NodeID} transitions.len={transitions.Length}" , false);
             } catch(Exception ex) {
                 throw ex;
             }
+        }
+
+        public static bool IsNodeless(ushort segmentID, ushort nodeID) {
+            ref var corner = ref segmentID.ToSegmentExt().GetEnd(nodeID).Corner;
+            var center = (corner.Left.Position + corner.Right.Position) * 0.5f;
+            var diff = center - nodeID.ToNode().m_position;
+            return VectorUtils.LengthSqrXZ(diff) < 0.00001f;
         }
 
         public static bool GoodTurnAngle(ushort segmentID1, ushort segmentID2, ushort nodeID) {

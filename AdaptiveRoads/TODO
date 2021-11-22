@@ -4,7 +4,11 @@ Tracks:
         - prop embankment
         - wire embankment
 
-    - test: overlay | cross-import | refreshLOD + ULOD | render while drawing | nodeless | tilt
+    - test: render while drawing | refreshLOD + ULOD |  nodeless | tilt
+    - test failed : 
+        - regression: tracks render regression 
+        - regression: creating track intersection causes array index out of range.
+        - cross-import does not work 
 
 TODO:
 - remove custom flags when network is deleted.
