@@ -161,7 +161,9 @@ namespace AdaptiveRoads.UI.Tool {
             foreach (var flag in mask.ExtractPow2Flags()) {
                 SegmentEndFlagToggle.Add(container, segmentID: segmentID_, nodeID: nodeID_, flag: flag);
             }
-            EmbankmentValue.Add(container, segmentID: segmentID_, nodeID: nodeID_);
+
+            if(segmentID_.ToSegment().Info.TrackLaneCount() > 0)
+                EmbankmentValue.Add(container, segmentID: segmentID_, nodeID: nodeID_);
         }
 
         public void AddNodeFlags(UIPanel parent) {

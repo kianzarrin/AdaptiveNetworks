@@ -50,7 +50,7 @@ namespace AdaptiveRoads.UI.Tool {
 
         protected override void OnPrimaryMouseClicked() {
             LogCalled();
-            if (!HoverHasFlags())
+            if (!CanCustomiseHover())
                 return;
             if (SegmentMode) {
                 SelectedSegmentID = HoveredSegmentID;
@@ -87,7 +87,7 @@ namespace AdaptiveRoads.UI.Tool {
         protected override void OnToolUpdate() {
             base.OnToolUpdate();
 
-            if (HoverHasFlags()) {
+            if (CanCustomiseHover()) {
                 ToolCursor = ToolsModifierControl.toolController.Tools.OfType<NetTool>().FirstOrDefault()?.m_upgradeCursor;
             } else {
                 ToolCursor = null;
@@ -139,14 +139,16 @@ namespace AdaptiveRoads.UI.Tool {
             return ret;
         }
 
-        public bool HoverHasFlags() {
+        public bool CanCustomiseHover() {
             if (NodeMode) {
                 return GetUsedFlagsNode(HoveredNodeID) != 0;
             } else if (SegmentMode) {
                 var usedCustomFlags = GetUsedFlagsSegment(HoveredSegmentID);
                 return usedCustomFlags.Segment != 0 || usedCustomFlags.Lane != 0;
             } else if (SegmentEndMode) {
-                return GetUsedFlagsSegmentEnd(segmentID:HoveredSegmentID, nodeID:HoveredNodeID) != 0;
+                bool hasCustomFlags = GetUsedFlagsSegmentEnd(segmentID:HoveredSegmentID, nodeID:HoveredNodeID) != 0;
+                bool canTilt = HoveredSegmentID.ToSegment().Info.TrackLaneCount() > 0;
+                return hasCustomFlags || canTilt;
             }
 
             throw new Exception("Unreachable code");
@@ -215,7 +217,7 @@ namespace AdaptiveRoads.UI.Tool {
             Color color;
             if (Input.GetMouseButton(0))
                 color = GetToolColor(true, false);
-            else if (HoverHasFlags())
+            else if (CanCustomiseHover())
                 color = GetToolColor(false, false);
             else
                 color = GetToolColor(false, true);

@@ -4,12 +4,13 @@ Tracks:
         - prop embankment
         - wire embankment
 
-    - test: render while drawing | refreshLOD + ULOD |  nodeless | tilt
+    - test: render while drawing | refreshLOD + ULOD |  nodeless | tilt | vehicle tilt
     - test failed : 
         - regression: tracks render regression *
         - regression: creating track intersection causes array index out of range. *
         - RefreshLOD causes null exception. *
-        - cross-import does not work 
+        - cross-import does not work  *
+        - enable segmentEnd panel if there are tracks but no custom flags.
 
 TODO:
 - remove custom flags when network is deleted.
