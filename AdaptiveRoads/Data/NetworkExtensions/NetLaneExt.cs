@@ -216,6 +216,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             ret.WindSpeed = Singleton<WeatherManager>.instance.GetWindSpeed(ret.Position);
             ret.MeshScale = new Vector4(1f / laneInfo.m_width, 1f / info.m_segmentLength, 1f, 1f);
             ret.TurnAround = LaneData.LaneInfo.IsGoingBackward(); // TODO is this logic sufficient?
+            ret.TurnAround ^= LaneData.Segment.IsInvert();
             if(ret.TurnAround) {
                 ret.MeshScale.x *= -1;
                 ret.MeshScale.y *= -1;

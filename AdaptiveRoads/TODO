@@ -1,11 +1,14 @@
 Tracks:
-    - asym Track
     - embankment
         - prop embankment
         - wire embankment
 
-    - test: refreshLOD + ULOD |  node-less | vehicle tilt
-    - test failed : 
+    - test:
+        - refreshLOD + ULOD
+        - vehicle tilt
+    - test failed :
+        - asym*
+        - removing TMPE lane connection does not do anything. (does notifier fix this?)
 
 TODO:
 - remove custom flags when network is deleted.
@@ -18,7 +21,5 @@ version 3:
     - export/import road xml.
     - patch AssetImporterAssetTemplate.RefreshCoroutine() to speed up prop model loading time
         micro-benchmark UIComponent.Find<T>(string) to see how much time they take up
-    - m_clipSegmentEnds for segmentInfos. (this influences corners so its hard to do it per mesh)
-    - option to unmerge bit-mask drop-downs
     - move DPT array elements up and down.
 

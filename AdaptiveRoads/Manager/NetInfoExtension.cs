@@ -500,6 +500,7 @@ namespace AdaptiveRoads.Manager {
 
             public void RefreshLevelOfDetail(NetInfo netInfo) {
                 if(Tracks != null) {
+                    Log.Called();
                     var max = Mathf.Max(netInfo.m_halfWidth * 50f, (netInfo.m_maxHeight - netInfo.m_minHeight) * 80f);
                     // get lod render instance from already existing nodes/segments. if not found then calculate.
                     float lodRenderDistance =

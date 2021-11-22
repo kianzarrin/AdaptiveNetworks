@@ -103,7 +103,8 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             ret.Position = pos ?? (OutLine.Center.a + OutLine.Center.d) * 0.5f;
 
             ret.MeshScale = new Vector4(1f / Width, 1f / InfoA.m_segmentLength, 1f, 1f);
-            ret.TurnAround = laneInfoA.IsGoingBackward(); // TODO is this logic sufficient? is this line even necessary?
+            ret.TurnAround = laneInfoA.m_finalDirection.IsGoingBackward(); // TODO is this logic sufficient? is this line even necessary?
+            ret.TurnAround ^= SegmentA.IsInvert();
             if(ret.TurnAround) {
                 ret.MeshScale.x *= -1;
                 ret.MeshScale.y *= -1;
