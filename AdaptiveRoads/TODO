@@ -4,11 +4,9 @@ Tracks:
         - prop embankment
         - wire embankment
 
-    - test: render while drawing | refreshLOD + ULOD |  node-less | vehicle tilt
+    - test: refreshLOD + ULOD |  node-less | vehicle tilt
     - test failed : 
         - render while drawing (way off!) 
-        - tiltingUI does not handle del key and its initial value is wrong.
-        - tilting: all segments tilted by default (log angles)
 
 TODO:
 - remove custom flags when network is deleted.
