@@ -302,11 +302,6 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             var posEndLeft = segmentOutline.Left.d;
             var posEndRight = segmentOutline.Right.d;
 
-            var DirectionStartLeft = segmentOutline.DirA;
-            var DirectionStartRight = segmentOutline.DirA;
-            var DirectionEndLeft = segmentOutline.DirD;
-            var DirectionEndRight = segmentOutline.DirD;
-
             var smoothStart = segmentOutline.SmoothA;
             var smoothEnd = segmentOutline.SmoothD;
 
@@ -314,9 +309,9 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             if(flags.IsFlagSet(NetSegment.Flags.Invert)) posNormalized = 1f - posNormalized;
             
             Vector3 a = posStartLeft + (posStartRight - posStartLeft) * posNormalized;
-            Vector3 startDir = Vector3.Lerp(DirectionStartLeft, DirectionStartRight, posNormalized);
+            Vector3 startDir = segmentOutline.DirA;
             Vector3 d = posEndRight + (posEndLeft - posEndRight) * posNormalized;
-            Vector3 endDir = Vector3.Lerp(DirectionEndRight, DirectionEndLeft, posNormalized);
+            Vector3 endDir = segmentOutline.DirD;
             a.y += laneInfo.m_verticalOffset;
             d.y += laneInfo.m_verticalOffset;
             NetSegment.CalculateMiddlePoints(a, startDir, d, endDir, smoothStart, smoothEnd, out var b, out var c);
