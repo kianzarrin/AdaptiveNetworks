@@ -6,7 +6,6 @@ Tracks:
 
     - test: refreshLOD + ULOD |  node-less | vehicle tilt
     - test failed : 
-        - render while drawing (way off!) 
 
 TODO:
 - remove custom flags when network is deleted.

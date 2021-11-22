@@ -1,25 +1,17 @@
 namespace AdaptiveRoads.Manager {
+    using AdaptiveRoads.Data.NetworkExtensions;
+    using AdaptiveRoads.Util;
     using ColossalFramework;
-    using ColossalFramework.IO;
     using ColossalFramework.Math;
-    using CSUtil.Commons;
     using KianCommons;
+    using KianCommons.Serialization;
     using System;
-    using TrafficManager;
+    using System.Collections.Generic;
+    using System.Linq;
     using TrafficManager.API.Manager;
-    using TrafficManager.API.Traffic.Data;
     using TrafficManager.API.Traffic.Enums;
-    using TrafficManager.Manager.Impl;
     using UnityEngine;
     using Log = KianCommons.Log;
-    using System.Linq;
-    using AdaptiveRoads.Util;
-    using KianCommons.Serialization;
-    using KianCommons.Plugins;
-    using System.Reflection;
-    using AdaptiveRoads.Data;
-    using System.Collections.Generic;
-    using AdaptiveRoads.Data.NetworkExtensions;
 
     public struct NetNodeExt {
         public ushort NodeID;
@@ -141,9 +133,9 @@ namespace AdaptiveRoads.Manager {
             try {
                 Transitions = null;
                 ref var node = ref NodeID.ToNode();
-                if(!node.IsValid()) 
+                if(!node.IsValid())
                     return;
-                if(!node.m_flags.IsFlagSet(NetNode.Flags.Junction | NetNode.Flags.Bend)) 
+                if(!node.m_flags.IsFlagSet(NetNode.Flags.Junction | NetNode.Flags.Bend))
                     return;
 
                 tempConnections_.Clear();
@@ -156,13 +148,13 @@ namespace AdaptiveRoads.Manager {
                         uint laneID = lanes[laneIndex];
                         var routings = TMPEHelpers.GetForwardRoutings(laneID, NodeID);
                         if(routings == null) continue;
-                        if(IsNodeless(segmentID: segmentID, nodeID:NodeID)) continue;
+                        if(IsNodeless(segmentID: segmentID, nodeID: NodeID)) continue;
                         foreach(LaneTransitionData routing in routings) {
                             if(routing.type == LaneEndTransitionType.Invalid || routing.type == LaneEndTransitionType.Relaxed)
                                 continue;
                             var infoExt2 = routing.segmentId.ToSegment().Info?.GetMetaData();
                             if(infoExt2 == null) continue;
-                            if(IsNodeless(segmentID: routing.segmentId, nodeID:NodeID)) continue;
+                            if(IsNodeless(segmentID: routing.segmentId, nodeID: NodeID)) continue;
                             if(infoExt.HasTrackLane(laneIndex) || infoExt2.HasTrackLane(routing.laneIndex)) {
                                 if(GoodTurnAngle(segmentID, routing.segmentId, NodeID)) {
                                     tempConnections_.Add(new Connection { LaneID1 = laneID, LaneID2 = routing.laneId });
@@ -173,14 +165,14 @@ namespace AdaptiveRoads.Manager {
                 }
 
                 int n = tempConnections_.Count;
-                var transitions =  new LaneTransition[n];
+                var transitions = new LaneTransition[n];
                 int n2 = n >> 1; // n/2
                 int index = 0;
                 foreach(var connection in tempConnections_) {
                     transitions[index++].Init(connection.LaneID1, connection.LaneID2, index - n2); // also calculates
                 }
                 Transitions = transitions;
-                if(Log.VERBOSE) Log.Debug($"NetNodeExt.GetTrackConnections() succeeded for node:{NodeID} transitions.len={transitions.Length}" , false);
+                if(Log.VERBOSE) Log.Debug($"NetNodeExt.GetTrackConnections() succeeded for node:{NodeID} transitions.len={transitions.Length}", false);
             } catch(Exception ex) {
                 throw ex;
             }
