@@ -25,7 +25,7 @@ namespace AdaptiveRoads.UI.Tool {
 
         public override string ToString() => GetType().Name + $"({name})";
 
-        private string _postfix = "°"; 
+        private string _postfix = "°";
         public string PostFix {
             get => _postfix;
             set {
@@ -67,7 +67,6 @@ namespace AdaptiveRoads.UI.Tool {
             color = new Color32(255, 255, 255, 255);
             textScale = 0.9f;
             useDropShadow = true;
-            UIValue = AngleDeg;
 
             submitOnFocusLost = true;
             selectOnFocus = true;
@@ -76,7 +75,11 @@ namespace AdaptiveRoads.UI.Tool {
             allowNegative = true;
         }
 
-        bool refreshing_;
+        public override void Start() {
+            base.Start();
+            UIValue = AngleDeg;
+        }
+
 
         public float MinStep => 1;
         private string format_ = "0.##";
@@ -93,9 +96,15 @@ namespace AdaptiveRoads.UI.Tool {
             }
         }
 
+        public override void Update() {
+            if(containsMouse && !containsFocus && Input.GetKeyDown(KeyCode.Delete))
+                UIValue = AngleDeg = 0;
+            base.Update();
+        }
+
         protected override void OnMouseWheel(UIMouseEventParameter p) {
             base.OnMouseWheel(p);
-            AddDelta(-p.wheelDelta * ScrollStep, ScrollStep);
+            AddDelta(p.wheelDelta * ScrollStep, ScrollStep);
         }
 
         /// <summary>
@@ -104,11 +113,17 @@ namespace AdaptiveRoads.UI.Tool {
         /// <returns>final delta in Value after rounding</returns>
         public void AddDelta(float delta, float step) {
             Log.Debug(Environment.StackTrace);
-            delta = AngleDeg - (AngleDeg + delta).RoundToNearest(step); // we need final detla for Mirror values.
-            AngleDeg += delta;
+            UIValue = AngleDeg = (AngleDeg + delta).RoundToNearest(step);
         }
 
-        public string StrippedText => PostFix != "" ? text.Replace(PostFix, "") : text;
+        public string StrippedText {
+            get {
+                if(text.IsNullorEmpty() || PostFix.IsNullorEmpty())
+                    return text;
+                else
+                    return  text?.Replace(PostFix, "");
+            }
+        }
 
         public bool TryGetValue(out float value) {
             string text2 = StrippedText;
@@ -122,6 +137,7 @@ namespace AdaptiveRoads.UI.Tool {
             return ret;
         }
 
+        bool refreshing_;
         public float UIValue {
             set {
                 refreshing_ = true;
