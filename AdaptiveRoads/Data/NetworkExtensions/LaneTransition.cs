@@ -83,7 +83,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 dirD = LaneExtD.OutLine.DirA;
 
                 // the dir is already going away from the node which is in the same direction as lane end. so we need + :
-                angleD = -segmentID_D.ToSegmentExt().Start.TotalAngle;
+                angleD = +segmentID_D.ToSegmentExt().Start.TotalAngle;
             } else {
                 d = LaneD.m_bezier.d;
                 dirD = LaneExtD.OutLine.DirD;

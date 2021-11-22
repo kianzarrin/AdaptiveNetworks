@@ -4,12 +4,11 @@ Tracks:
         - prop embankment
         - wire embankment
 
-    - test: render while drawing | refreshLOD + ULOD |  nodeless | vehicle tilt
+    - test: render while drawing | refreshLOD + ULOD |  node-less | vehicle tilt
     - test failed : 
-        - regression: tracks render regression 
-        - render while drawing (end dir is 180 wrong) *
-        - conditional embnakment UI *
-        - tilting seems to influence both segment ends. 
+        - render while drawing (way off!) 
+        - tiltingUI does not handle del key and its initial value is wrong.
+        - tilting: all segments tilted by default (log angles)
 
 TODO:
 - remove custom flags when network is deleted.
