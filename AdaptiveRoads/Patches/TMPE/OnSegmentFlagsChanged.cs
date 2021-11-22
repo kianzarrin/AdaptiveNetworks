@@ -50,6 +50,14 @@ namespace AdaptiveRoads.Patches.TMPE {
                 typeof(JunctionRestrictionsManager),
                 "OnSegmentChange")
                 ?? throw new Exception("JunctionRestrictionsManager.OnSegmentChange not found");
+
+            /************ routing Manger */
+            // useful when removing lanes.
+            // public void RequestRecalculation(ushort segmentId, bool propagate = true)
+            yield return AccessTools.DeclaredMethod(
+                typeof(RoutingManager),
+                "RecalculateSegment")
+                ?? throw new Exception("RoutingManager.RecalculateSegment not found");
         }
 
         static void Postfix(ushort segmentId) {

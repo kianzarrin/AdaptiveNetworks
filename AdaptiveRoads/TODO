@@ -3,11 +3,7 @@ Tracks:
         - prop embankment
         - wire embankment
 
-    - test:
-        - refreshLOD + ULOD
-        - vehicle tilt
     - test failed :
-        - asym*
         - removing TMPE lane connection does not do anything. (does notifier fix this?)
 
 TODO:
