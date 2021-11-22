@@ -231,9 +231,9 @@ namespace AdaptiveRoads.Manager {
 
         private Queue<OverlayData> OutlineQueue = new Queue<OverlayData>();
         public Queue<Action<RenderManager.CameraInfo>> OverlayActionQueue = new Queue<Action<RenderManager.CameraInfo>>();
-        public void EnqueuOverlay(NetInfoExtionsion.Track trackInfo, ref OutlineData outline, bool tunrAround, bool DC) {
+        public void EnqueuOverlay(NetInfoExtionsion.Track trackInfo, ref OutlineData outline, bool turnAround, bool DC) {
             if(Overlay.HoveredInfo == trackInfo) {
-                OutlineQueue.Enqueue(new OverlayData { Outline = outline, turnAround = tunrAround, DC = true });
+                OutlineQueue.Enqueue(new OverlayData { Outline = outline, turnAround = turnAround, DC = true });
             }
         }
         public void BeginOverlay(RenderManager.CameraInfo cameraInfo) { }
