@@ -6,7 +6,7 @@ Tracks:
 
     - test: render while drawing | refreshLOD + ULOD |  nodeless | tilt
     - test failed : 
-        - regression: tracks render regression 
+        - regression: tracks render regression *
         - regression: creating track intersection causes array index out of range. *
         - RefreshLOD causes null exception. *
         - cross-import does not work 

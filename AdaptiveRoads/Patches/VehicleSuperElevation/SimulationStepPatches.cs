@@ -6,6 +6,7 @@ namespace AdaptiveRoads.Patches.VehicleSuperElevation {
 
 
     [HarmonyPatch]
+    [InGamePatch]
     static class TrainAI_SimulationStepPatch {
         internal static IEnumerable<MethodBase> TargetMethods() {
             yield return TargetMethod<TrainAI>();
