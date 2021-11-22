@@ -2,6 +2,9 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
     using ColossalFramework.Math;
     using UnityEngine;
     using KianCommons.Math;
+    using KianCommons.UI;
+    using KianCommons;
+    using System;
 
     public struct OutlineData {
         public Bezier3 Center, Left, Right;
@@ -67,6 +70,22 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             NetSegment.CalculateMiddlePoints(Center.a, DirA, Center.d, DirD, SmoothA, SmoothD, out Center.b, out Center.c);
             NetSegment.CalculateMiddlePoints(Left.a, DirA, Left.d, DirD, SmoothA, SmoothD, out Left.b, out Left.c);
             NetSegment.CalculateMiddlePoints(Right.a, DirA, Right.d, DirD, SmoothA, SmoothD, out Right.b, out Right.c);
+        }
+
+        public void RenderTestOverlay(RenderManager.CameraInfo cameraInfo) {
+            try {
+                bool alphaBlend = false;
+
+                RenderUtil.DrawOverlayCircle(cameraInfo, Color.green, Right.a, 1, alphaBlend);
+                RenderUtil.DrawOverlayCircle(cameraInfo, Color.yellow, Left.a, 1, alphaBlend);
+                RenderUtil.DrawOverlayCircle(cameraInfo, Color.green / 2, Right.d, 1, alphaBlend);
+                RenderUtil.DrawOverlayCircle(cameraInfo, Color.yellow / 2, Left.d, 1, alphaBlend);
+
+                var startArrow = new Bezier3(Center.a, Center.a + DirA, Center.a + 2 * DirA, Center.a + 3 * DirA);
+                var endArrow = new Bezier3(Center.d, Center.d + DirD, Center.d + 2 * DirD, Center.d + 3 * DirD);
+                startArrow.RenderArrow(cameraInfo, Color.blue, 1, alphaBlend);
+                endArrow.RenderArrow(cameraInfo, Color.blue, 1, alphaBlend);
+            } catch(Exception ex) { ex.Log(); }
         }
     }
 }

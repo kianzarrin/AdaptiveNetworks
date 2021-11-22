@@ -310,11 +310,11 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             
             Vector3 a = posStartLeft + (posStartRight - posStartLeft) * posNormalized;
             Vector3 startDir = segmentOutline.DirA;
-            Vector3 d = posEndRight + (posEndLeft - posEndRight) * posNormalized;
+            Vector3 d = posEndLeft + (posEndRight- posEndLeft) * posNormalized;
             Vector3 endDir = segmentOutline.DirD;
             a.y += laneInfo.m_verticalOffset;
             d.y += laneInfo.m_verticalOffset;
-            NetSegment.CalculateMiddlePoints(a, startDir, d, endDir, smoothStart, smoothEnd, out var b, out var c);
+            //NetSegment.CalculateMiddlePoints(a, startDir, d, endDir, smoothStart, smoothEnd, out var b, out var c);
             //var bezier = new Bezier3(a, b, c, d);
 
             var laneOutline = new OutlineData(a, d, startDir, endDir, laneInfo.m_width, smoothStart, smoothEnd, 0, 0);
