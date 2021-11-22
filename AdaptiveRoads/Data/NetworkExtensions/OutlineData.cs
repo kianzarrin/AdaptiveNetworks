@@ -34,32 +34,34 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
 
             float hw = 0.5f * width;
 
-            SmoothA = smoothA;
-            Center.a = a;
-            DirA = dirA;
-            var normalA = new Vector3(dirA.z, 0, -dirA.x);
-            normalA = VectorUtils.NormalizeXZ(normalA); // rotate right.
-            Right.a = a + normalA * hw;
-            Left.a = a - normalA * hw;
+            {
+                SmoothA = smoothA;
+                Center.a = a;
+                DirA = dirA;
 
-            SmoothD = smoothD;
-            DirD = dirD;
-            Center.d = d;
-            var normalD = new Vector3(dirD.z, 0, -dirD.x); // rotate right.
-            normalD = -VectorUtils.NormalizeXZ(normalD); // end dir needs minus
-            Right.d = d + normalD * hw;
-            Left.d = d - normalD * hw;
+                var normal = new Vector3(dirA.z, 0, -dirA.x);
+                normal = VectorUtils.NormalizeXZ(normal); // rotate right.
+
+                var displacement = normal * (hw * Mathf.Cos(angleA));
+                displacement.y = hw * Mathf.Sin(angleA);
+
+                Right.a = a + displacement;
+                Left.a = a - displacement;
+            }
 
             {
-                Right.a.y += hw * Mathf.Sin(angleA);
-                Left.a.y -= hw * Mathf.Sin(angleA);
-                Right.d.y += hw * Mathf.Sin(angleD);
-                Left.d.y -= hw * Mathf.Sin(angleD);
+                SmoothD = smoothD;
+                DirD = dirD;
+                Center.d = d;
 
-                Right.a += hw * normalA * Mathf.Cos(angleA);
-                Left.a -= hw * normalA * Mathf.Cos(angleA);
-                Right.d += hw * normalD * Mathf.Cos(angleD);
-                Left.d -= hw * normalD * Mathf.Cos(angleD);
+                var normal = new Vector3(dirD.z, 0, -dirD.x); // rotate right.
+                normal = -VectorUtils.NormalizeXZ(normal); // end dir needs minus
+
+                var displacement = normal * hw * Mathf.Cos(angleD);
+                displacement.y = hw * Mathf.Sin(angleD);
+
+                Right.d = d + displacement;
+                Left.d = d - displacement;
             }
 
             NetSegment.CalculateMiddlePoints(Center.a, DirA, Center.d, DirD, SmoothA, SmoothD, out Center.b, out Center.c);
