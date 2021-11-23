@@ -2,9 +2,7 @@ Tracks:
     - embankment
         - prop embankment
         - wire embankment
-
-    - test failed :
-        - removing TMPE lane connection does not do anything. (does notifier fix this?)
+    - segment/node flags
 
 TODO:
 - remove custom flags when network is deleted.
