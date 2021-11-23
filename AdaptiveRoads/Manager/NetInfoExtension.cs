@@ -1140,7 +1140,8 @@ namespace AdaptiveRoads.Manager {
             public VanillaSegmentInfoFlags VanillaSegmentFlags;
 
             [CustomizableProperty("Segment Extension")]
-            [Hint("Only checked on segments")]
+            [Hint("checked on segments.\n" +
+                "flags for source segment is also checked on nodes.")]
             public SegmentInfoFlags SegmentFlags;
 
             [CustomizableProperty("Node")]
@@ -1150,8 +1151,12 @@ namespace AdaptiveRoads.Manager {
             [Hint("Only checked on nodes (including bend nodes)")]
             public NodeInfoFlags NodeFlags;
 
-            public bool CheckNodeFlags(NetNodeExt.Flags nodeFlags, NetNode.Flags vanillaNodeFlags) =>
-                RenderJunction && NodeFlags.CheckFlags(nodeFlags) && VanillaNodeFlags.CheckFlags(vanillaNodeFlags);
+            public bool CheckNodeFlags
+                (NetNodeExt.Flags nodeFlags, NetNode.Flags vanillaNodeFlags,
+                NetSegmentExt.Flags sourceSegmentFlags, NetSegment.Flags startVanillaSegmentFlags) =>
+                RenderJunction && NodeFlags.CheckFlags(nodeFlags) && VanillaNodeFlags.CheckFlags(vanillaNodeFlags) &&
+                SegmentFlags.CheckFlags(sourceSegmentFlags) && VanillaSegmentFlags.CheckFlags(startVanillaSegmentFlags);
+
 
             public bool CheckSegmentFlags(NetSegmentExt.Flags segmentFlags, NetSegment.Flags vanillaSegmentFlags) =>
                 RenderSegment && SegmentFlags.CheckFlags(segmentFlags) && VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags);

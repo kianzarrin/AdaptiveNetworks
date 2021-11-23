@@ -242,14 +242,15 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             return ret;
         }
 
-        public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo) {
-            ref var segmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[LaneData.SegmentID];
-            var infoExt = segmentExt.NetInfoExt;
-            var netManager = Singleton<NetManager>.instance;
+        private bool Check(NetInfoExtionsion.Track trackInfo) {
+            ref var segmentExt = ref LaneData.SegmentID.ToSegmentExt();
             ref var segment = ref LaneData.Segment;
-            var laneInfo = LaneData.LaneInfo;
-            foreach(var trackInfo in infoExt.Tracks) {
-                if(trackInfo.HasTrackLane(LaneData.LaneIndex)&& trackInfo.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags)) {
+            return trackInfo.HasTrackLane(LaneData.LaneIndex) && trackInfo.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags);
+        }
+        public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo) {
+            var tracks = LaneData.SegmentID.ToSegmentExt().NetInfoExt.Tracks;
+            foreach(var trackInfo in tracks) {
+                if(Check(trackInfo)) {
                     var renderData = RenderData.GetDataFor(trackInfo);
                     renderData.RenderInstance(trackInfo, cameraInfo);
                     TrackManager.instance.EnqueuOverlay(trackInfo, ref OutLine, turnAround: renderData.TurnAround, DC: false);
@@ -258,15 +259,13 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         }
 
         public bool CalculateGroupData(ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays) {
-            ref var segmentExt = ref LaneData.SegmentID.ToSegmentExt();
-            var infoExt = segmentExt.NetInfoExt;
+            var infoExt = LaneData.SegmentID.ToSegmentExt().NetInfoExt;
             if(infoExt.TrackLaneCount == 0)
                 return false;
 
-            ref var segment = ref LaneData.Segment;
             bool result = false;
             foreach(var trackInfo in infoExt.Tracks) {
-                if(trackInfo.HasTrackLane(LaneData.LaneIndex) && trackInfo.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags)) {
+                if(Check(trackInfo)) {
                     result |= RenderData.CalculateGroupData(trackInfo, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
                 }
             }
@@ -274,18 +273,13 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         }
 
         public void PopulateGroupData(int groupX, int groupZ, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData meshData) {
-            var info = LaneData.Segment.Info;
-            ref var segmentExt = ref LaneData.SegmentID.ToSegmentExt();
-            var infoExt = segmentExt.NetInfoExt;
+            var infoExt = LaneData.SegmentID.ToSegmentExt().NetInfoExt;
             if(infoExt.TrackLaneCount == 0)
                 return;
 
-            ref var segment = ref LaneData.Segment;
-
-
             var renderData0 = GenerateRenderData(groupPosition);
             foreach(var trackInfo in infoExt.Tracks) {
-                if(trackInfo.HasTrackLane(LaneData.LaneIndex) && trackInfo.CheckSegmentFlags(segmentExt.m_flags, segment.m_flags)) {
+                if(Check(trackInfo)) {
                     var renderData = renderData0.GetDataFor(trackInfo);
                     renderData.PopulateGroupData(trackInfo, groupX, groupZ, ref vertexIndex, ref triangleIndex, meshData);
                 }

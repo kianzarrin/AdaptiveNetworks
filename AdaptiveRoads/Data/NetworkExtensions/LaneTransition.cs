@@ -44,6 +44,8 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         ref NetLaneExt LaneExtD => ref LaneIDTarget.ToLaneExt();
         ref NetSegment SegmentA => ref LaneA.m_segment.ToSegment();
         ref NetSegment SegmentD => ref LaneD.m_segment.ToSegment();
+        ref NetSegmentExt SegmentExtA => ref LaneA.m_segment.ToSegmentExt();
+        ref NetSegmentExt SegmentExtD => ref LaneD.m_segment.ToSegmentExt();
         ushort segmentID_A => LaneA.m_segment;
         ushort segmentID_D => LaneD.m_segment;
         ref NetNode Node => ref NodeID.ToNode();
@@ -136,13 +138,17 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             return ret;
         }
 
+        private bool Check(NetInfoExtionsion.Track trackInfo) =>
+            trackInfo.HasTrackLane(laneIndexA) && trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags, SegmentExtA.m_flags, SegmentA.m_flags);
+
+
         public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo) {
             if(Nodeless) return;
             var infoExtA = InfoExtA;
             if(infoExtA == null || InfoExtA.TrackLaneCount == 0) return;
 
             foreach(var trackInfo in infoExtA.Tracks) {
-                if(trackInfo.HasTrackLane(laneIndexA) && trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags)) {
+                if(Check(trackInfo)) {
                     var renderData = RenderData.GetDataFor(trackInfo, AntiFlickerIndex);
                     renderData.RenderInstance(trackInfo, cameraInfo);
                     TrackManager.instance.EnqueuOverlay(trackInfo, ref OutLine, turnAround: renderData.TurnAround, DC: true);
@@ -157,7 +163,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
 
             bool result = false;
             foreach(var trackInfo in InfoExtA.Tracks) {
-                if(trackInfo.HasTrackLane(LaneExtA.LaneData.LaneIndex) && trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags)) {
+                if(Check(trackInfo)) {
                     result |= RenderData.CalculateGroupData(trackInfo, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
                 }
             }
@@ -166,12 +172,11 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
 
         public void PopulateGroupData(int groupX, int groupZ, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData meshData) {
             if(!Nodeless || InfoExtA == null || InfoExtA.TrackLaneCount == 0)
-
                 return;
 
             var renderData0 = GenerateRenderData(groupPosition);
             foreach(var trackInfo in InfoExtA.Tracks) {
-                if(trackInfo.HasTrackLane(LaneExtA.LaneData.LaneIndex) && trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags)) {
+                if(Check(trackInfo)) {
                     var renderData = renderData0.GetDataFor(trackInfo, AntiFlickerIndex);
                     renderData.PopulateGroupData(trackInfo, groupX, groupZ, ref vertexIndex, ref triangleIndex, meshData);
                 }
