@@ -1,9 +1,11 @@
 using AdaptiveRoads.Manager;
+using AdaptiveRoads.UI;
 using AdaptiveRoads.UI.RoadEditor;
 using AdaptiveRoads.UI.RoadEditor.MenuStyle;
 using ColossalFramework.UI;
 using HarmonyLib;
 using KianCommons;
+using PrefabMetadata.API;
 using PrefabMetadata.Helpers;
 using System;
 using System.Collections.Generic;
@@ -344,7 +346,19 @@ namespace AdaptiveRoads.Util {
                 Log.Debug("AddProps called, props.count=" + props.Length);
                 if(props == null || props.Length == 0) return;
                 NetLaneProps.Prop[] m_props = groupPanel.GetArray() as NetLaneProps.Prop[];
-                props = props.Select(_p => _p.Extend().Base).ToArray();
+                if(ModSettings.ARMode) {
+                    // extend in AR mode
+                    props = props.Select(_p => _p.Extend().Base).ToArray();
+                } else {
+                    // undo extend in Vanilla mode.
+                    props = props.Select(_p => {
+                        if(_p is IInfoExtended<NetLaneProps.Prop> propExt) {
+                            return propExt.UndoExtend();
+                        } else {
+                            return _p;
+                        }
+                    }).ToArray();
+                }
                 var m_props2 = m_props.AddRangeToArray(props);
 
                 var sidePanel = groupPanel.component.GetComponentInParent<RoadEditorPanel>();
