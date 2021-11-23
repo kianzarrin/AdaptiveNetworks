@@ -74,7 +74,13 @@ namespace AdaptiveRoads.LifeCycle {
 
         public static void BeforeSave() {
             try {
-                if (ModSettings.VanillaMode || !InRoadEditor) return;
+                if(!InRoadEditor) return;
+                if(ModSettings.VanillaMode) {
+                    // just in case there is extended infos by mistake.
+                    // in AR mode I first need to pause simulation
+                    NetInfoExtionsion.Ensure_EditedNetInfos();
+                    return;
+                }
                 AssetData.TakeSnapshot();
                 Log.Debug($"AssetDataExtension.BeforeSave(): reversing ...");
                 SimulationManager.instance.ForcedSimulationPaused = true;
