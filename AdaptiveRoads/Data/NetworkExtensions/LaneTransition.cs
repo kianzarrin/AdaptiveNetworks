@@ -45,6 +45,8 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
 
         public OutlineData OutLine;
         public TrackRenderData RenderData;
+        public OutlineData WireOutLine;
+        public TrackRenderData WireRenderData;
 
         public override string ToString() => $"LaneTransition[node:{NodeID} lane:{LaneIDSource}->lane:{LaneIDTarget}]";
         #region shortcuts
@@ -104,15 +106,20 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 angleD = +segmentID_D.ToSegmentExt().End.TotalAngle; 
             }
 
-            OutLine = new OutlineData(a, d, -dirA, -dirD, Width, true, true, angleA, angleD);
-            if(OutLine.Empty)
-                return;
+            OutLine = new OutlineData(a, d, -dirA, -dirD, Width, true, true, angleA, angleD, wire:false);
+            if(OutLine.Empty) return;
 
-            RenderData = GenerateRenderData();
+            RenderData = GenerateRenderData(ref OutLine);
+
+            WireOutLine = new OutlineData(a, d, -dirA, -dirD, Width, true, true, angleA, angleD, wire: true);
+            if(OutLine.Empty) return;
+
+            WireRenderData = GenerateRenderData(ref WireOutLine);
+
         }
-        public TrackRenderData GenerateRenderData(Vector3? pos = null) {
+        public TrackRenderData GenerateRenderData(ref OutlineData outline, Vector3? pos = null) {
             TrackRenderData ret = default;
-            ret.Position = pos ?? (OutLine.Center.a + OutLine.Center.d) * 0.5f;
+            ret.Position = pos ?? (outline.Center.a + outline.Center.d) * 0.5f;
 
             ret.MeshScale = new Vector4(1f / Width, 1f / InfoA.m_segmentLength, 1f, 1f);
             ret.TurnAround = laneInfoA.m_finalDirection.IsGoingBackward(); // TODO is this logic sufficient? is this line even necessary?
@@ -124,12 +131,12 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
 
             float vScale = InfoA.m_netAI.GetVScale();
             ret.LeftMatrix = NetSegment.CalculateControlMatrix(
-                OutLine.Left.a, OutLine.Left.b, OutLine.Left.c, OutLine.Left.d,
-                OutLine.Right.a, OutLine.Right.b, OutLine.Right.c, OutLine.Right.d,
+                outline.Left.a, outline.Left.b, outline.Left.c, outline.Left.d,
+                outline.Right.a, outline.Right.b, outline.Right.c, outline.Right.d,
                 ret.Position, vScale);
             ret.RightMatrix = NetSegment.CalculateControlMatrix(
-                OutLine.Right.a, OutLine.Right.b, OutLine.Right.c, OutLine.Right.d,
-                OutLine.Left.a, OutLine.Left.b, OutLine.Left.c, OutLine.Left.d,
+                outline.Right.a, outline.Right.b, outline.Right.c, outline.Right.d,
+                outline.Left.a, outline.Left.b, outline.Left.c, outline.Left.d,
                 ret.Position, vScale);
 
 
@@ -159,7 +166,8 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
 
             foreach(var trackInfo in infoExtA.Tracks) {
                 if(Check(trackInfo)) {
-                    var renderData = RenderData.GetDataFor(trackInfo, AntiFlickerIndex);
+                    var renderData = trackInfo.m_requireWindSpeed ? WireRenderData : RenderData;
+                    renderData = renderData.GetDataFor(trackInfo, AntiFlickerIndex);
                     renderData.RenderInstance(trackInfo, cameraInfo);
                     TrackManager.instance.EnqueuOverlay(trackInfo, ref OutLine, turnAround: renderData.TurnAround, DC: true);
                 }
@@ -184,10 +192,12 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             if(!Nodeless || InfoExtA == null || InfoExtA.TrackLaneCount == 0)
                 return;
 
-            var renderData0 = GenerateRenderData(groupPosition);
+            var renderData0 = GenerateRenderData(ref OutLine, groupPosition);
+            var wireRenderData0 = GenerateRenderData(ref WireOutLine, groupPosition);
             foreach(var trackInfo in InfoExtA.Tracks) {
                 if(Check(trackInfo)) {
-                    var renderData = renderData0.GetDataFor(trackInfo, AntiFlickerIndex);
+                    var renderData = trackInfo.m_requireWindSpeed ? wireRenderData0 : renderData0;
+                    renderData = renderData.GetDataFor(trackInfo, AntiFlickerIndex);
                     renderData.PopulateGroupData(trackInfo, groupX, groupZ, ref vertexIndex, ref triangleIndex, meshData);
                 }
             }

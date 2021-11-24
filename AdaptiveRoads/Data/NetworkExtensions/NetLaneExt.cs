@@ -159,6 +159,8 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         #region track
         public OutlineData OutLine;
         public TrackRenderData RenderData;
+        public OutlineData WireOutLine;
+        public TrackRenderData WireRenderData;
 
         public void UpdateCorners() {
             ushort segmentID = LaneData.SegmentID;
@@ -194,11 +196,19 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             OutLine = new OutlineData(
                 a, d, startDir, endDir, laneInfo.m_width,
                 smoothStart, smoothEnd,
-                segmentExt.Start.TotalAngle, -segmentExt.End.TotalAngle);
-            RenderData = GenerateRenderData();
+                segmentExt.Start.TotalAngle, -segmentExt.End.TotalAngle, wire: true);
+
+            RenderData = GenerateRenderData(ref OutLine);
+
+            WireOutLine = new OutlineData(
+                a, d, startDir, endDir, laneInfo.m_width,
+                smoothStart, smoothEnd,
+                segmentExt.Start.TotalAngle, -segmentExt.End.TotalAngle, wire: false);
+
+            WireRenderData = GenerateRenderData(ref WireOutLine);
         }
 
-        public TrackRenderData GenerateRenderData(Vector3? pos = null) {
+        public TrackRenderData GenerateRenderData(ref OutlineData outline, Vector3? pos = null) {
             TrackRenderData ret = default;
             ref var segment = ref LaneData.Segment;
             var info = segment.Info;
@@ -232,12 +242,12 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             ret.ObjectIndex = new Vector4(colorLocationStart.x, colorLocationStart.y, colorLocationEnd.x, colorLocationEnd.y); // object index
             float vScale = info.m_netAI.GetVScale();
             ret.LeftMatrix = NetSegment.CalculateControlMatrix(
-                OutLine.Left.a, OutLine.Left.b, OutLine.Left.c, OutLine.Left.d,
-                OutLine.Right.a, OutLine.Right.b, OutLine.Right.c, OutLine.Right.d,
+                outline.Left.a, outline.Left.b, outline.Left.c, outline.Left.d,
+                outline.Right.a, outline.Right.b, outline.Right.c, outline.Right.d,
                 ret.Position, vScale);
             ret.RightMatrix = NetSegment.CalculateControlMatrix(
-                OutLine.Right.a, OutLine.Right.b, OutLine.Right.c, OutLine.Right.d,
-                OutLine.Left.a, OutLine.Left.b, OutLine.Left.c, OutLine.Left.d,
+                outline.Right.a, outline.Right.b, outline.Right.c, outline.Right.d,
+                outline.Left.a, outline.Left.b, outline.Left.c, outline.Left.d,
                 ret.Position, vScale);
             return ret;
         }
@@ -251,7 +261,8 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             var tracks = LaneData.SegmentID.ToSegmentExt().NetInfoExt.Tracks;
             foreach(var trackInfo in tracks) {
                 if(Check(trackInfo)) {
-                    var renderData = RenderData.GetDataFor(trackInfo);
+                    var renderData = trackInfo.m_requireWindSpeed ? WireRenderData : RenderData;
+                    renderData = renderData.GetDataFor(trackInfo);
                     renderData.RenderInstance(trackInfo, cameraInfo);
                     TrackManager.instance.EnqueuOverlay(trackInfo, ref OutLine, turnAround: renderData.TurnAround, DC: false);
                 }
@@ -277,10 +288,12 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             if(infoExt.TrackLaneCount == 0)
                 return;
 
-            var renderData0 = GenerateRenderData(groupPosition);
+            var renderData0 = GenerateRenderData(ref OutLine, groupPosition);
+            var wireRenderData0 = GenerateRenderData(ref WireOutLine, groupPosition);
             foreach(var trackInfo in infoExt.Tracks) {
                 if(Check(trackInfo)) {
-                    var renderData = renderData0.GetDataFor(trackInfo);
+                    var renderData = trackInfo.m_requireWindSpeed ? wireRenderData0 : renderData0;
+                    renderData = renderData.GetDataFor(trackInfo);
                     renderData.PopulateGroupData(trackInfo, groupX, groupZ, ref vertexIndex, ref triangleIndex, meshData);
                 }
             }
@@ -312,7 +325,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             //NetSegment.CalculateMiddlePoints(a, startDir, d, endDir, smoothStart, smoothEnd, out var b, out var c);
             //var bezier = new Bezier3(a, b, c, d);
 
-            var laneOutline = new OutlineData(a, d, startDir, endDir, laneInfo.m_width, smoothStart, smoothEnd, 0, 0);
+            var laneOutline = new OutlineData(a, d, startDir, endDir, laneInfo.m_width, smoothStart, smoothEnd, 0, 0, false);
 
             TrackRenderData renderData = default;
             renderData.Position = (laneOutline.Center.a + laneOutline.Center.d) * 0.5f;
