@@ -893,6 +893,10 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Segment Curve")]
             public Range SegmentCurve;
 
+            [Hint("Catenaries shift according to track super-elevation")]
+            [CustomizableProperty("Catenary")]
+            public bool Catenary;
+
             /// <param name="laneSpeed">game speed</param>
             /// <param name="forwardSpeedLimit">game speed</param>
             /// <param name="backwardSpeedLimit">game speed</param>

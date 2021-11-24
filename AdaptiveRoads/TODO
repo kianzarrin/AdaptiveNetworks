@@ -3,7 +3,8 @@ Tracks:
         - prop embankment
         - wire embankment
     - segment/node flags
-
+    bugs:
+        - import mesh name does not update (or the mesh is lagging by one)
 TODO:
 - remove custom flags when network is deleted.
 - list scrollbars

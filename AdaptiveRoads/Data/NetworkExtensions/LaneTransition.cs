@@ -108,12 +108,9 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
 
             OutLine = new OutlineData(a, d, -dirA, -dirD, Width, true, true, angleA, angleD, wire:false);
             if(OutLine.Empty) return;
-
             RenderData = GenerateRenderData(ref OutLine);
 
             WireOutLine = new OutlineData(a, d, -dirA, -dirD, Width, true, true, angleA, angleD, wire: true);
-            if(OutLine.Empty) return;
-
             WireRenderData = GenerateRenderData(ref WireOutLine);
 
         }
@@ -166,8 +163,12 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
 
             foreach(var trackInfo in infoExtA.Tracks) {
                 if(Check(trackInfo)) {
-                    var renderData = trackInfo.m_requireWindSpeed ? WireRenderData : RenderData;
-                    renderData = renderData.GetDataFor(trackInfo, AntiFlickerIndex);
+                    TrackRenderData renderData;
+                    if(trackInfo.m_requireWindSpeed) {
+                        renderData = WireRenderData.GetDataFor(trackInfo, AntiFlickerIndex);
+                    } else {
+                        renderData = RenderData.GetDataFor(trackInfo, AntiFlickerIndex);
+                    }
                     renderData.RenderInstance(trackInfo, cameraInfo);
                     TrackManager.instance.EnqueuOverlay(trackInfo, ref OutLine, turnAround: renderData.TurnAround, DC: true);
                 }
@@ -196,7 +197,12 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             var wireRenderData0 = GenerateRenderData(ref WireOutLine, groupPosition);
             foreach(var trackInfo in InfoExtA.Tracks) {
                 if(Check(trackInfo)) {
-                    var renderData = trackInfo.m_requireWindSpeed ? wireRenderData0 : renderData0;
+                    TrackRenderData renderData;
+                    if(trackInfo.m_requireWindSpeed) {
+                        renderData = wireRenderData0.GetDataFor(trackInfo, AntiFlickerIndex);
+                    } else {
+                        renderData = renderData0.GetDataFor(trackInfo, AntiFlickerIndex);
+                    }
                     renderData = renderData.GetDataFor(trackInfo, AntiFlickerIndex);
                     renderData.PopulateGroupData(trackInfo, groupX, groupZ, ref vertexIndex, ref triangleIndex, meshData);
                 }

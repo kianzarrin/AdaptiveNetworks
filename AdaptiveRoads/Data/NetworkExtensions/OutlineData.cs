@@ -10,7 +10,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         public Bezier3 Center, Left, Right;
         public Vector3 DirA, DirD;
         public bool SmoothA, SmoothD;
-        const float WIRE_HEIGHT = 2.25f;
+        public const float WIRE_HEIGHT = 4.9f;
 
         public bool Empty => Center.a == Center.d;
 

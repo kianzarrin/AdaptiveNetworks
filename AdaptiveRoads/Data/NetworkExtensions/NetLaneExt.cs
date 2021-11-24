@@ -196,14 +196,14 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             OutLine = new OutlineData(
                 a, d, startDir, endDir, laneInfo.m_width,
                 smoothStart, smoothEnd,
-                segmentExt.Start.TotalAngle, -segmentExt.End.TotalAngle, wire: true);
+                segmentExt.Start.TotalAngle, -segmentExt.End.TotalAngle, wire: false);
 
             RenderData = GenerateRenderData(ref OutLine);
 
             WireOutLine = new OutlineData(
                 a, d, startDir, endDir, laneInfo.m_width,
                 smoothStart, smoothEnd,
-                segmentExt.Start.TotalAngle, -segmentExt.End.TotalAngle, wire: false);
+                segmentExt.Start.TotalAngle, -segmentExt.End.TotalAngle, wire: true);
 
             WireRenderData = GenerateRenderData(ref WireOutLine);
         }
@@ -261,8 +261,12 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             var tracks = LaneData.SegmentID.ToSegmentExt().NetInfoExt.Tracks;
             foreach(var trackInfo in tracks) {
                 if(Check(trackInfo)) {
-                    var renderData = trackInfo.m_requireWindSpeed ? WireRenderData : RenderData;
-                    renderData = renderData.GetDataFor(trackInfo);
+                    TrackRenderData renderData;
+                    if(trackInfo.m_requireWindSpeed) {
+                        renderData = WireRenderData.GetDataFor(trackInfo);
+                    } else {
+                        renderData = RenderData.GetDataFor(trackInfo);
+                    }
                     renderData.RenderInstance(trackInfo, cameraInfo);
                     TrackManager.instance.EnqueuOverlay(trackInfo, ref OutLine, turnAround: renderData.TurnAround, DC: false);
                 }
@@ -292,8 +296,12 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             var wireRenderData0 = GenerateRenderData(ref WireOutLine, groupPosition);
             foreach(var trackInfo in infoExt.Tracks) {
                 if(Check(trackInfo)) {
-                    var renderData = trackInfo.m_requireWindSpeed ? wireRenderData0 : renderData0;
-                    renderData = renderData.GetDataFor(trackInfo);
+                    TrackRenderData renderData;
+                    if(trackInfo.m_requireWindSpeed) {
+                        renderData = wireRenderData0.GetDataFor(trackInfo);
+                    } else {
+                        renderData = renderData0.GetDataFor(trackInfo);
+                    }
                     renderData.PopulateGroupData(trackInfo, groupX, groupZ, ref vertexIndex, ref triangleIndex, meshData);
                 }
             }
