@@ -14,7 +14,7 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
     /// <summary> insert after the clause:'node.m_ConnectGroup == None' </summary>
     internal static class CheckNodeConnectGroupNone {
         // returns !(ConnectGroup == None && MetaData.ConnectGroups == null)
-        // the next instruction is brfalse which aumatically takes a not of the above phrase so at the end it will be
+        // the next instruction is brfalse which automatically takes a not of the above phrase so at the end it will be
         // (ConnectGroup == None && MetaData.ConnectGroups == null) ||
         public static bool CheckConnectGroup(NetInfo.ConnectGroup cg, NetInfo.Node node) {
 #if DEBUG
@@ -113,7 +113,7 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
     /// <summary>insert after the clause:'info.m_nodeConnectGroups == None'</summary>
     internal static class CheckNetConnectGroupNone {
         // returns ConnectGroup != None || MetaData.ConnectGroups != null
-        // the next instruction is brfalse which aumatically takes a not of the above phrase so at the end it will be
+        // the next instruction is brfalse which automatically takes a not of the above phrase so at the end it will be
         // (ConnectGroup == None && MetaData.ConnectGroups == null) ||
         public static bool CheckConnectGroup(NetInfo.ConnectGroup cg, NetInfo info) {
 #if DEBUG
