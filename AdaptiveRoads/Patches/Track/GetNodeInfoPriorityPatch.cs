@@ -3,14 +3,14 @@ namespace AdaptiveRoads.Patches {
     using System.Collections.Generic;
     using System.Reflection;
     using System.Linq;
-    using System;
-    using static KianCommons.ReflectionHelpers;
+    using KianCommons;
     using HarmonyLib;
 
     /// <summary>
     /// make sure netInfos with tracks get priority.
     /// </summary>
     [HarmonyPatch]
+    [InGamePatch]
     static class GetNodeInfoPriorityPatch {
         static IEnumerable<MethodBase> TargetMethods() {
             var parenType = typeof(NetAI);
@@ -25,9 +25,10 @@ namespace AdaptiveRoads.Patches {
             }
         }
         static void Postfix(ushort segmentID, ref NetSegment data, ref float __result) {
-            if(data.Info?.GetMetaData() is NetInfoExtionsion.Net infoExt && infoExt.TrackLaneCount > 0) {
-                __result += 40E3f; //bigger than damAI has the biggest vanilla number which is 20E3.
+            if(data.Info.TrackLaneCount() > 0) {
+                __result += 40E3f; // bigger than damAI. It has the biggest vanilla number which is 20E3.
             }
+            if(Log.VERBOSE) Log.Called(data.Info, segmentID, $"result->{__result}");
         }
     }
 }

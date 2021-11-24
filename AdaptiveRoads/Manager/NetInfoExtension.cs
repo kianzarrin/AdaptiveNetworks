@@ -547,6 +547,7 @@ namespace AdaptiveRoads.Manager {
                     }
 
                     TrackLaneCount = EnumBitMaskExtensions.CountOnes(TrackLanes);
+                    netInfo.m_requireDirectRenderers |= TrackLaneCount > 0;
                 }
             }
 

@@ -16,10 +16,20 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             AntiFlickerIndex = antiFlickerIndex;
             ushort segmentID1 = laneID1.ToLane().m_segment;
             ushort segmentID2 = laneID2.ToLane().m_segment;
-            float prio1 = segmentID1.ToSegment().Info.m_netAI.GetNodeInfoPriority(segmentID1, ref segmentID1.ToSegment());
-            float prio2 = segmentID2.ToSegment().Info.m_netAI.GetNodeInfoPriority(segmentID2, ref segmentID2.ToSegment());
+            var info1 = segmentID1.ToSegment().Info;
+            var info2 = segmentID2.ToSegment().Info;
+            float prio1 = info1.m_netAI.GetNodeInfoPriority(segmentID1, ref segmentID1.ToSegment());
+            float prio2 = info2.m_netAI.GetNodeInfoPriority(segmentID2, ref segmentID2.ToSegment());
 
-            if(prio1 >= prio2) {
+            var infoExt = info1.GetMetaData();
+            var infoExt2 = info2.GetMetaData();
+            bool hasTrackLane = infoExt != null && infoExt.HasTrackLane(laneID1.ToLaneExt().LaneData.LaneIndex);
+            bool hasTrackLane2 = infoExt2 != null && infoExt2.HasTrackLane(laneID2.ToLaneExt().LaneData.LaneIndex);
+            if(!(hasTrackLane || hasTrackLane2)) {
+                Log.Warning("neither has track for this lane index");
+                return; //empty
+            }
+            if( (prio1 >= prio2 && hasTrackLane) || !hasTrackLane2) {
                 LaneIDSource = laneID1;
                 LaneIDTarget = laneID2;
             } else {

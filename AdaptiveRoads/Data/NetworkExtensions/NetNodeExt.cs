@@ -141,8 +141,7 @@ namespace AdaptiveRoads.Manager {
                 tempConnections_.Clear();
                 foreach(var segmentID in NodeID.ToNode().IterateSegments()) {
                     var infoExt = segmentID.ToSegment().Info?.GetMetaData();
-                    if(infoExt == null) continue;
-                    //Assertion.Assert(infoExt == segmentID.ToSegmentExt().NetInfoExt, $"{infoExt} == {segmentID.ToSegmentExt().NetInfoExt}"); // asset initialized.
+                    //if(infoExt == null) continue;
                     var lanes = new LaneIDIterator(segmentID).ToArray();
                     for(int laneIndex = 0; laneIndex < lanes.Length; ++laneIndex) {
                         uint laneID = lanes[laneIndex];
@@ -153,9 +152,11 @@ namespace AdaptiveRoads.Manager {
                             if(routing.type == LaneEndTransitionType.Invalid || routing.type == LaneEndTransitionType.Relaxed)
                                 continue;
                             var infoExt2 = routing.segmentId.ToSegment().Info?.GetMetaData();
-                            if(infoExt2 == null) continue;
+                            //if(infoExt2 == null) continue;
                             if(IsNodeless(segmentID: routing.segmentId, nodeID: NodeID)) continue;
-                            if(infoExt.HasTrackLane(laneIndex) || infoExt2.HasTrackLane(routing.laneIndex)) {
+                            bool hasTrackLane = infoExt != null && infoExt.HasTrackLane(laneIndex);
+                            bool hasTrackLane2 = infoExt2 != null && infoExt2.HasTrackLane(routing.laneIndex);
+                            if(hasTrackLane || hasTrackLane2) {
                                 if(GoodTurnAngle(segmentID, routing.segmentId, NodeID)) {
                                     tempConnections_.Add(new Connection { LaneID1 = laneID, LaneID2 = routing.laneId });
                                 }

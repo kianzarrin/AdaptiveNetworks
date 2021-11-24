@@ -161,6 +161,10 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
         public static bool CheckConnectGroup(bool flagsMatch, NetInfo sourceInfo, NetInfo targetInfo) {
             if (flagsMatch)
                 return true;
+            if(sourceInfo.TrackLaneCount() > 0 && targetInfo.TrackLaneCount() == 0) {
+                //networks with tracks act as if they can connect to networks without tracks.
+                return true; 
+            }
             return DirectConnectUtil.ConnectGroupsMatch(
                 sourceInfo.GetMetaData()?.NodeConnectGroupsHash,
                 targetInfo.GetMetaData()?.ConnectGroupsHash);
