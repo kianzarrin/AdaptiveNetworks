@@ -196,14 +196,14 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             OutLine = new OutlineData(
                 a, d, startDir, endDir, laneInfo.m_width,
                 smoothStart, smoothEnd,
-                segmentExt.Start.TotalAngle, -segmentExt.End.TotalAngle, wire: false);
+                segmentExt.Start.TotalAngle, -segmentExt.End.TotalAngle, wireHeight: 0);
 
             RenderData = GenerateRenderData(ref OutLine);
 
             WireOutLine = new OutlineData(
                 a, d, startDir, endDir, laneInfo.m_width,
                 smoothStart, smoothEnd,
-                segmentExt.Start.TotalAngle, -segmentExt.End.TotalAngle, wire: true);
+                segmentExt.Start.TotalAngle, -segmentExt.End.TotalAngle, wireHeight: segmentExt.NetInfoExt.CatenaryHeight);
 
             WireRenderData = GenerateRenderData(ref WireOutLine);
         }
@@ -333,7 +333,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             //NetSegment.CalculateMiddlePoints(a, startDir, d, endDir, smoothStart, smoothEnd, out var b, out var c);
             //var bezier = new Bezier3(a, b, c, d);
 
-            var laneOutline = new OutlineData(a, d, startDir, endDir, laneInfo.m_width, smoothStart, smoothEnd, 0, 0, false);
+            var laneOutline = new OutlineData(a, d, startDir, endDir, laneInfo.m_width, smoothStart, smoothEnd, 0, 0, 0);
 
             TrackRenderData renderData = default;
             renderData.Position = (laneOutline.Center.a + laneOutline.Center.d) * 0.5f;

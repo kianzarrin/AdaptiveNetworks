@@ -296,6 +296,11 @@ namespace AdaptiveRoads.Manager {
             [Hint("shifts road right-wards (when going from tail to head)")]
             public float Shift = 0;
 
+            [AfterField(nameof(NetInfo.m_pavementWidth))]
+            [CustomizableProperty("Catenary Height", "Properties")]
+            [Hint("Catenaries and wires are shifted based on super elevation and height")]
+            public float CatenaryHeight = 2;
+
             [AfterField(nameof(NetInfo.m_minCornerOffset))]
             [CustomizableProperty("Sharp Corners", "Properties")]
             [Hint("only works when corner is 90deg")]
@@ -893,8 +898,8 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Segment Curve")]
             public Range SegmentCurve;
 
-            [Hint("Catenaries shift according to track super-elevation")]
-            [CustomizableProperty("Catenary")]
+            [Hint("Catenaries shift according to track super-elevation.")]
+            [CustomizableProperty("Catenary Height")]
             public bool Catenary;
 
             /// <param name="laneSpeed">game speed</param>

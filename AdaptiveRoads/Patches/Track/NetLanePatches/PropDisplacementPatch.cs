@@ -99,7 +99,7 @@ namespace AdaptiveRoads.Patches.Track.NetLanePatches {
             float angleStart = segExt.Start.TotalAngle;
             float angleEnd = -segExt.End.TotalAngle; // end angle needs minus
             float angle = Mathf.Lerp(angleStart, angleEnd, offset);
-            float shift = OutlineData.WIRE_HEIGHT * Mathf.Sin(angle);
+            float shift = segExt.NetInfoExt.CatenaryHeight * Mathf.Sin(angle);
 
             pos += shift * normalCW;
             //bool reverse = laneInfo.IsGoingBackward(segmentID.ToSegment().IsInvert());

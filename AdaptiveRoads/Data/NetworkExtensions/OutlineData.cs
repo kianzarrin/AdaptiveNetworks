@@ -5,18 +5,17 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
     using KianCommons.UI;
     using KianCommons;
     using System;
+    using System.IO;
 
     public struct OutlineData {
         public Bezier3 Center, Left, Right;
         public Vector3 DirA, DirD;
         public bool SmoothA, SmoothD;
-        public const float WIRE_HEIGHT = 4.9f;
-
         public bool Empty => Center.a == Center.d;
 
         // TODO: should I just raise the lane instead of accepting deltaY
         /// <param name="angle">tilt angle in radians</param>
-        public OutlineData(Vector3 a, Vector3 d, Vector3 dirA, Vector3 dirD, float width, bool smoothA, bool smoothD, float angleA, float angleD, bool wire) {
+        public OutlineData(Vector3 a, Vector3 d, Vector3 dirA, Vector3 dirD, float width, bool smoothA, bool smoothD, float angleA, float angleD, float wireHeight) {
             //Log.Called($"angleA={angleA}", $"angleD={angleD}", $"wire={wire}");
             float hw = 0.5f * width;
 
@@ -24,9 +23,9 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 var normal = new Vector3(dirA.z, 0, -dirA.x); // rotate right.
                 normal = VectorUtils.NormalizeXZ(normal);
 
-                if(wire) {
+                if(wireHeight != 0) {
                     // move wires sideways to avoid clipping into tilted train
-                    a -= normal * (WIRE_HEIGHT * Mathf.Sin(angleA));
+                    a -= normal * (wireHeight * Mathf.Sin(angleA));
                 }
 
                 SmoothA = smoothA;
@@ -34,7 +33,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 DirA = dirA;
 
                 Vector3 displacement;
-                if(wire) {
+                if(wireHeight!=0) {
                     displacement = normal * hw;
                 } else {
                     displacement = normal * (hw * Mathf.Cos(angleA));
@@ -48,9 +47,9 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 var normal = new Vector3(dirD.z, 0, -dirD.x); // rotate right.
                 normal = -VectorUtils.NormalizeXZ(normal); // end dir needs minus
 
-                if(wire) {
+                if(wireHeight!=0) {
                     // move wires sideways to avoid clipping into tilted train
-                    d -= normal * (WIRE_HEIGHT * Mathf.Sin(angleD));
+                    d -= normal * (wireHeight * Mathf.Sin(angleD));
                 }
 
                 SmoothD = smoothD;
@@ -58,7 +57,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 DirD = dirD;
 
                 Vector3 displacement;
-                if(wire) {
+                if(wireHeight!=0) {
                     displacement = normal * hw;
                 } else {
                     displacement = normal * (hw * Mathf.Cos(angleD));

@@ -106,14 +106,14 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 angleD = +segmentID_D.ToSegmentExt().End.TotalAngle; 
             }
 
-            OutLine = new OutlineData(a, d, -dirA, -dirD, Width, true, true, angleA, angleD, wire:false);
+            OutLine = new OutlineData(a, d, -dirA, -dirD, Width, true, true, angleA, angleD, wireHeight:0);
             if(OutLine.Empty) return;
             RenderData = GenerateRenderData(ref OutLine);
 
-            WireOutLine = new OutlineData(a, d, -dirA, -dirD, Width, true, true, angleA, angleD, wire: true);
+            WireOutLine = new OutlineData(a, d, -dirA, -dirD, Width, true, true, angleA, angleD, wireHeight: InfoExtA.CatenaryHeight);
             WireRenderData = GenerateRenderData(ref WireOutLine);
-
         }
+
         public TrackRenderData GenerateRenderData(ref OutlineData outline, Vector3? pos = null) {
             TrackRenderData ret = default;
             ret.Position = pos ?? (outline.Center.a + outline.Center.d) * 0.5f;
