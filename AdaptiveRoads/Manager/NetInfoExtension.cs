@@ -898,8 +898,9 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Segment Curve")]
             public Range SegmentCurve;
 
-            [Hint("Catenaries shift according to track super-elevation.")]
-            [CustomizableProperty("Catenary Height")]
+            [Hint("Shift due track super-elevation. " +
+                "The amount of shift is proportional to sin(angle) and Catenary height which can be set in the network properties.")]
+            [CustomizableProperty("Catenary")]
             public bool Catenary;
 
             /// <param name="laneSpeed">game speed</param>
