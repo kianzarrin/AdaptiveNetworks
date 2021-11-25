@@ -37,7 +37,7 @@ namespace AdaptiveRoads.LifeCycle {
                 Log.VERBOSE = false;
                 Log.Buffered = true;
 #if DEBUG
-                Log.VERBOSE = true;
+                //Log.VERBOSE = true;
                 //Log.Buffered = false;
 #endif
 

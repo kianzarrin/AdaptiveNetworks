@@ -299,7 +299,7 @@ namespace AdaptiveRoads.Manager {
             [AfterField(nameof(NetInfo.m_pavementWidth))]
             [CustomizableProperty("Catenary Height", "Properties")]
             [Hint("Catenaries and wires are shifted based on super elevation and height")]
-            public float CatenaryHeight = 2;
+            public float CatenaryHeight = 2.5f;
 
             [AfterField(nameof(NetInfo.m_minCornerOffset))]
             [CustomizableProperty("Sharp Corners", "Properties")]
