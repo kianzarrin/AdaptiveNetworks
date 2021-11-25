@@ -17,16 +17,16 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         // TODO: should I just raise the lane instead of accepting deltaY
         /// <param name="angle">tilt angle in radians</param>
         public OutlineData(Vector3 a, Vector3 d, Vector3 dirA, Vector3 dirD, float width, bool smoothA, bool smoothD, float angleA, float angleD, bool wire) {
-            Log.Called($"angleA={angleA}", $"angleD={angleD}", $"wire={wire}");
+            //Log.Called($"angleA={angleA}", $"angleD={angleD}", $"wire={wire}");
             float hw = 0.5f * width;
 
             {
-                var normal = new Vector3(dirA.z, 0, -dirA.x);
-                normal = VectorUtils.NormalizeXZ(normal); // rotate right.
+                var normal = new Vector3(dirA.z, 0, -dirA.x); // rotate right.
+                normal = VectorUtils.NormalizeXZ(normal);
 
                 if(wire) {
                     // move wires sideways to avoid clipping into tilted train
-                        a -= normal * (WIRE_HEIGHT * Mathf.Sin(angleA));
+                    a -= normal * (WIRE_HEIGHT * Mathf.Sin(angleA));
                 }
 
                 SmoothA = smoothA;
@@ -34,7 +34,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 DirA = dirA;
 
                 Vector3 displacement;
-                if(!wire) {
+                if(wire) {
                     displacement = normal * hw;
                 } else {
                     displacement = normal * (hw * Mathf.Cos(angleA));
@@ -54,8 +54,8 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 }
 
                 SmoothD = smoothD;
-                DirD = dirD;
                 Center.d = d;
+                DirD = dirD;
 
                 Vector3 displacement;
                 if(wire) {

@@ -95,17 +95,14 @@ namespace AdaptiveRoads.Patches.Track.NetLanePatches {
 
             ref var segExt = ref segmentID.ToSegmentExt();
 
-            var normalCW = VectorUtils.NormalizeXZ(new Vector3(tan.z, 0, -tan.x));
+            var normalCW = VectorUtils.NormalizeXZ(new Vector3(-tan.z, 0, tan.x));
             float angleStart = segExt.Start.TotalAngle;
-            float angleEnd = segExt.End.TotalAngle;
+            float angleEnd = -segExt.End.TotalAngle; // end angle needs minus
             float angle = Mathf.Lerp(angleStart, angleEnd, offset);
             float shift = OutlineData.WIRE_HEIGHT * Mathf.Sin(angle);
 
-            bool reverse = laneInfo.IsGoingBackward() != segmentID.ToSegment().IsInvert();
-            if(reverse)
-                pos -= shift * normalCW;
-            else
-                pos += shift * normalCW;
+            pos += shift * normalCW;
+            //bool reverse = laneInfo.IsGoingBackward(segmentID.ToSegment().IsInvert());
         }
 
     }

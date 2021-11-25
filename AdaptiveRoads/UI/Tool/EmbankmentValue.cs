@@ -1,16 +1,11 @@
 namespace AdaptiveRoads.UI.Tool {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using KianCommons;
-    using KianCommons.UI;
-    using KianCommons.UI.Helpers;
-    using UnityEngine;
+    using AdaptiveRoads.Manager;
     using ColossalFramework;
     using ColossalFramework.UI;
-    using AdaptiveRoads.Data.NetworkExtensions;
-    using AdaptiveRoads.Manager;
+    using KianCommons;
+    using KianCommons.UI;
+    using System;
+    using UnityEngine;
 
     public class EmbankmentValue : UITextField {
         ushort segmentID_, nodeID_;
@@ -33,19 +28,6 @@ namespace AdaptiveRoads.UI.Tool {
                     _postfix = "";
                 else
                     _postfix = value;
-            }
-        }
-
-        public string HintHotkeys {
-            get {
-                if(containsFocus)
-                    return null;
-                string ret =
-                    "mousewheel => increment/decrement.\n" +
-                    "shift + mousewheel => small increment/decrement.\n" +
-                    "alt + mousewheel => large increment/decrement.\n" +
-                    "del => reset hovered value to default";
-                return ret;
             }
         }
 
@@ -73,6 +55,11 @@ namespace AdaptiveRoads.UI.Tool {
             numericalOnly = true;
             allowFloats = true;
             allowNegative = true;
+            tooltip =
+                "mouse-wheel => increment/decrement.\n" +
+                "shift + mouse-wheel => small increment/decrement.\n" +
+                "alt + mouse-wheel => large increment/decrement.\n" +
+                "del => reset hovered value to default"; ;
         }
 
         public override void Start() {
@@ -121,7 +108,7 @@ namespace AdaptiveRoads.UI.Tool {
                 if(text.IsNullorEmpty() || PostFix.IsNullorEmpty())
                     return text;
                 else
-                    return  text?.Replace(PostFix, "");
+                    return text?.Replace(PostFix, "");
             }
         }
 
