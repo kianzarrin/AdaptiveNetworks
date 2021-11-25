@@ -7,12 +7,8 @@ namespace AdaptiveRoads.Util {
     using System.Linq;
 
     public static class PackageManagerUtil {
-        static class Delegates {
-            public delegate Package GetPackage(string packageName);
-            public static GetPackage GetPackageDelegate = DelegateUtil.CreateDelegate<GetPackage>(typeof(PackageManager));
-        }
-
-        public static Package GetPackage(string name) => Delegates.GetPackageDelegate(name);
+        public static Package GetPackage(string name) =>
+            PackageManager.allPackages.FirstOrDefault(p => p.packageName == name);
 
         /// <summary>
         /// package of the asset that is being serialized/deserialized
@@ -46,14 +42,23 @@ namespace AdaptiveRoads.Util {
 
         public static Package SavingPackage {
             get {
-                string name;
+                string packageName;
                 if(SimulationManager.instance.m_metaData.m_WorkshopPublishedFileId != PublishedFileId.invalid) {
-                    name = SimulationManager.instance.m_metaData.m_WorkshopPublishedFileId.ToString();
+                    packageName = SimulationManager.instance.m_metaData.m_WorkshopPublishedFileId.ToString();
                 } else {
-                    name = AssetDataExtension.SaveName;
+                    packageName = AssetDataExtension.SaveName;
                 }
-                Log.Debug("getting package with name = " + name );
-                return GetPackage(name);
+                Log.Debug("getting package with name = " + packageName );
+                foreach(Package package in PackageManager.allPackages) {
+                    if( package.packageName == packageName &&
+                        package.packageMainAsset == AssetDataExtension.SaveName && // LUT also may have null path. but LUT does not have main asset
+                        package.packagePath == null // when overwriting, there would be another package with the same name. The package being saved is the one that has no path.
+                        ) {
+                        return package;
+                    }
+                }
+                Log.Error($"Failed to find saving package! packageName={packageName} SaveName={AssetDataExtension.SaveName}");
+                return null;
             }
         }
     }

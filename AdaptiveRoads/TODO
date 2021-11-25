@@ -1,11 +1,10 @@
 Tracks:
     bugs:
-        - import mesh name does not update (or the mesh is lagging by one)
+        - I have to cross import track model 2 times.
+        - mesh height does not apply uniformly.
     - loading bugs:
         - load(startup) -> save(overwrite) :
             - some times error : cannot serialize mesh
-            - always does not save mesh.
-            - duplicate package name
 TODO:
 - remove custom flags when network is deleted.
 - list scrollbars
