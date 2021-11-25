@@ -24,12 +24,17 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             if(deltaY != 0) {
                 ref var l = ref ret.LeftMatrix;
                 ref var r = ref ret.RightMatrix;
-                // cols: 0=a 1=b 2=c 3=d
                 // row 1 is for y
+                // cols: 0=a 1=b 2=c 3=d
+                l.m10 += deltaY; //a.y
                 l.m11 += deltaY + deltaY2; //b.y
-                l.m21 += deltaY + deltaY2; //c.y
-                l.m01 += deltaY ; //a.y
-                l.m31 += deltaY ; //d.y
+                l.m12 += deltaY + deltaY2; //c.y
+                l.m13 += deltaY ; //d.y
+
+                r.m10 += deltaY; //a.y
+                r.m11 += deltaY + deltaY2; //b.y
+                r.m12 += deltaY + deltaY2; //c.y
+                r.m13 += deltaY; //d.y
             }
             return ret;
         }
