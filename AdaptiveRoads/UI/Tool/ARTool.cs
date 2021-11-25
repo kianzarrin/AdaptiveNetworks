@@ -103,9 +103,9 @@ namespace AdaptiveRoads.UI.Tool {
                 if(GetUsedFlagsNode(HoveredNodeID) != 0)
                     hints.Add("CTRL + Click => modify node flags");
                 if(GetUsedFlagsSegmentEnd(segmentID: HoveredSegmentID, nodeID: HoveredNodeID) != 0) {
-                    hints.Add("CTRL + Click => modify segmentEnd flags");
+                    hints.Add("ALT + Click => modify segmentEnd flags");
                 } else if(HoveredSegmentID.ToSegment().Info.TrackLaneCount() > 0)
-                    hints.Add("CTRL + Click => modify segmentEnd angle");
+                    hints.Add("ALT + Click => modify segmentEnd angle");
                 if(hints.Count == 0)
                     hints.Add("no custom AR flags to modify");
                 ShowToolInfo(true, hints.JoinLines(), HitPos);
