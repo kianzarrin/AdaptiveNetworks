@@ -203,7 +203,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             WireOutLine = new OutlineData(
                 a, d, startDir, endDir, laneInfo.m_width,
                 smoothStart, smoothEnd,
-                segmentExt.Start.TotalAngle, -segmentExt.End.TotalAngle, wireHeight: segmentExt.NetInfoExt.CatenaryHeight);
+                segmentExt.Start.TotalAngle, -segmentExt.End.TotalAngle, wireHeight: segmentExt.NetInfoExt?.CatenaryHeight ?? 0);
 
             WireRenderData = GenerateRenderData(ref WireOutLine);
         }
@@ -275,7 +275,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
 
         public bool CalculateGroupData(ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays) {
             var infoExt = LaneData.SegmentID.ToSegmentExt().NetInfoExt;
-            if(infoExt.TrackLaneCount == 0)
+            if(infoExt == null || infoExt.TrackLaneCount == 0)
                 return false;
 
             bool result = false;
@@ -289,7 +289,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
 
         public void PopulateGroupData(int groupX, int groupZ, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData meshData) {
             var infoExt = LaneData.SegmentID.ToSegmentExt().NetInfoExt;
-            if(infoExt.TrackLaneCount == 0)
+            if(infoExt == null || infoExt.TrackLaneCount == 0)
                 return;
 
             var renderData0 = GenerateRenderData(ref OutLine, groupPosition);

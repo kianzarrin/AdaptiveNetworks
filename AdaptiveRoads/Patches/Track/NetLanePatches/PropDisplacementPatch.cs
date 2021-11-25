@@ -87,13 +87,11 @@ namespace AdaptiveRoads.Patches.Track.NetLanePatches {
             //Log.Called(offset, "lane:" + laneID, "lane pos:" + laneInfo.m_position, laneProp?.m_finalProp);
             var propExt = laneProp?.GetMetaData();
             bool catenary = propExt != null && propExt.Catenary;
-            Log.Debug($"catenary={catenary}", false);
             if(!catenary) return;
-
             ushort segmentID = laneID.ToLane().m_segment;
-            Log.Debug($"segmentID={segmentID}", false);
-
             ref var segExt = ref segmentID.ToSegmentExt();
+            var infoExt = segExt.NetInfoExt;
+            if(infoExt == null) return;
 
             var normalCW = VectorUtils.NormalizeXZ(new Vector3(-tan.z, 0, tan.x));
             float angleStart = segExt.Start.TotalAngle;
