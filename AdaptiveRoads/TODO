@@ -1,9 +1,5 @@
 Tracks:
-    bugs:
-        - track height
-    - loading bugs:
-        - load(startup) -> save(overwrite) :
-            - some times error : cannot serialize mesh
+
 TODO:
 - remove custom flags when network is deleted.
 - list scrollbars
