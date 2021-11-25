@@ -1,7 +1,7 @@
 namespace AdaptiveRoads.Patches.Track {
     using HarmonyLib;
     using UnityEngine;
-    using System;
+    using AdaptiveRoads.Util;
     using AdaptiveRoads.Manager;
 
     /// <summary>
@@ -18,6 +18,7 @@ namespace AdaptiveRoads.Patches.Track {
                 track.m_lodMesh = lodMesh;
                 track.m_material = material;
                 track.m_lodMaterial = lodMaterial;
+                __instance.OnPropertyChanged();
             }
         }
     }

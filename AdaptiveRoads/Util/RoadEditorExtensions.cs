@@ -11,6 +11,9 @@ namespace AdaptiveRoads.Util {
 
         public static FieldInfo GetTargetField(this REPropertySet instance) =>
             ReflectionHelpers.GetFieldValue(instance, "m_TargetField") as FieldInfo;
+
+        public static void OnPropertyChanged(this REPropertySet instance) =>
+            ReflectionHelpers.InvokeMethod(instance, "OnPropertyChanged");
     }
 
     internal static class REEnumBitmaskSetExtensions {
