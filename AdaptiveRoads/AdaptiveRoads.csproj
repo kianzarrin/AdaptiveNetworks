@@ -92,7 +92,6 @@
     <None Remove="UI\MainPanel\**" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="KianCommons\KianCommons\StockCode\**" />
     <Compile Remove="Manager\Track.cs" />
     <Compile Remove="Patches\AssetPatches\InitializePrefabImpl.cs" />
     <Compile Remove="Patches\AsymPavements\GetPathTargetPosition.cs" />
@@ -155,9 +154,7 @@
     <Compile Include="KianCommons\KianCommons\Serialization\Vector3Serializable.cs" />
     <Compile Include="KianCommons\KianCommons\Patches\HarmonyUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Patches\TranspilerUtils.cs" />
-    <None Include="KianCommons\KianCommons\StockCode\NetSegment.cs" />
     <Compile Include="KianCommons\KianCommons\Util\DelegateUtil.cs" />
-    <None Include="KianCommons\KianCommons\StockCode\NetManager.cs" />
     <Compile Include="KianCommons\KianCommons\UI\TextureExtensions.cs" />
     <Compile Include="KianCommons\KianCommons\Util\DirectionUtil.cs" />
     <Compile Include="KianCommons\KianCommons\UI\Table\ArrayExtension.cs" />
@@ -168,7 +165,6 @@
     <Compile Include="KianCommons\KianCommons\UI\UIHelperExtension.cs" />
     <Compile Include="KianCommons\KianCommons\UI\UIToolButton.cs" />
     <Compile Include="KianCommons\KianCommons\Util\SingletonStrong.cs" />
-    <None Include="KianCommons\KianCommons\StockCode\PassengerCarAI.cs" />
     <Compile Include="KianCommons\KianCommons\Tool\KianToolBase.cs" />
     <Compile Include="KianCommons\KianCommons\UI\Helpers\UIAutoSizePanel.cs" />
     <Compile Include="KianCommons\KianCommons\UI\Helpers\UIButtonExt.cs" />
@@ -196,10 +192,6 @@
     <Compile Include="FbxUtil\UnityFBXExporter\FBXUnityMaterialGetter.cs" />
     <Compile Include="FbxUtil\UnityFBXExporter\FBXUnityMeshGetter.cs" />
     <Compile Include="KianCommons\KianCommons\Util\TypeUtil.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="KianCommons\KianCommons\StockCode\NetAI.cs" />
-    <None Include="KianCommons\KianCommons\StockCode\NetLane.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\prefab-metadata\PrefabMetadata.csproj" />
