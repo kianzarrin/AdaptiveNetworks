@@ -84,7 +84,7 @@ namespace AdaptiveRoads.Patches.Track.NetLanePatches {
             ref Vector3 pos, Vector3 tan, float offset,
             uint laneID, NetInfo.Lane laneInfo,
             NetLaneProps.Prop laneProp) {
-            Log.Called(offset, "lane:" + laneID, "lane pos:" + laneInfo.m_position, laneProp?.m_finalProp);
+            //Log.Called(offset, "lane:" + laneID, "lane pos:" + laneInfo.m_position, laneProp?.m_finalProp);
             var propExt = laneProp?.GetMetaData();
             bool catenary = propExt != null && propExt.Catenary;
             Log.Debug($"catenary={catenary}", false);
