@@ -959,6 +959,7 @@ namespace AdaptiveRoads.Manager {
             //serialization
             public void GetObjectData(SerializationInfo info, StreamingContext context) {
                 try {
+                    if(Log.VERBOSE) Log.Called();
                     var package = PackageManagerUtil.SavingPackage;
                     Assertion.NotNull(package, "package");
                     var fields = this.GetType().GetFields(ReflectionHelpers.COPYABLE).Where(field => !field.HasAttribute<NonSerializedAttribute>());
@@ -988,6 +989,7 @@ namespace AdaptiveRoads.Manager {
             // deserialization
             public Track(SerializationInfo info, StreamingContext context) {
                 try {
+                    Log.Called();
                     var package = PackageManagerUtil.PersistencyPackage;
                     var sharing = LSMUtil.GetSharing();
                     Assertion.NotNull(package, "package");
@@ -1012,6 +1014,7 @@ namespace AdaptiveRoads.Manager {
                 } catch(Exception ex) {
                     ex.Log();
                 }
+                Log.Succeeded();
             }
             #endregion
 

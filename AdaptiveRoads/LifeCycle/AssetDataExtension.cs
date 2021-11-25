@@ -58,7 +58,7 @@ namespace AdaptiveRoads.LifeCycle {
 
         public static void OnAssetSavedImpl(string name, object asset, out Dictionary<string, byte[]> userData) {
             try {
-                Log.Info($"AssetDataExtension.OnAssetSavedImpl({name}, {asset}, userData) called");
+                if(Log.VERBOSE) Log.Called(name, asset, "userData");
                 userData = null;
                 if (ModSettings.VanillaMode) {
                     Log.Info("MetaData not saved vanilla mode is set in the settings");
@@ -67,10 +67,10 @@ namespace AdaptiveRoads.LifeCycle {
 
                 if (asset is NetInfo prefab) {
                     CurrentBasicNetInfo = prefab;
-                    Log.Info("AssetDataExtension.OnAssetSaved():  prefab is " + prefab);
+                    if(Log.VERBOSE) Log.Info(ThisMethod + " :  prefab is " + prefab);
                     AssertNotNull(AssetData.Snapshot, "snapshot");
                     var assetData = AssetData.Snapshot; //AssetData.CreateFromEditPrefab();
-                    Log.Debug("AssetDataExtension.OnAssetSaved(): assetData=" + assetData);
+                    if(Log.VERBOSE) Log.Debug(ThisMethod + " : assetData =" + assetData);
                     userData = new Dictionary<string, byte[]>();
                     userData.Add(ID_NetInfo, SerializationUtil.Serialize(assetData));
                 }

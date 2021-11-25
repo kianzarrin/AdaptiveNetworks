@@ -108,6 +108,7 @@ namespace AdaptiveRoads.Manager {
 
         // deserialization
         public AssetData(SerializationInfo info, StreamingContext context) {
+            if(Log.VERBOSE) Log.Called();
             try {
                 VersionString = info.GetString("VersionString");
             } catch {

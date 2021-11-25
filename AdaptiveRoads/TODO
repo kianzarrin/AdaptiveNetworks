@@ -1,10 +1,11 @@
 Tracks:
-    - embankment
-        - prop embankment
-        - wire embankment
-    - segment/node flags
     bugs:
         - import mesh name does not update (or the mesh is lagging by one)
+    - loading bugs:
+        - load(startup) -> save(overwrite) :
+            - some times error : cannot serialize mesh
+            - always does not save mesh.
+            - duplicate package name
 TODO:
 - remove custom flags when network is deleted.
 - list scrollbars
