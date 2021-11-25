@@ -1,7 +1,6 @@
 Tracks:
     bugs:
         - I have to cross import track model 2 times.
-        - mesh height does not apply uniformly.
     - loading bugs:
         - load(startup) -> save(overwrite) :
             - some times error : cannot serialize mesh

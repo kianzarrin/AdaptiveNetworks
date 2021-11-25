@@ -19,17 +19,17 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             if(trackInfo.ScaleToLaneWidth) ret.MeshScale.x = 1f;
 
             float deltaY = trackInfo.VerticalOffset;
-            if(trackInfo.AntiFlickering) deltaY += antiFlickerIndex * 0.001f;
+            float deltaY2 = 0;
+            if(trackInfo.AntiFlickering) deltaY2 = antiFlickerIndex * 0.001f;
             if(deltaY != 0) {
                 ref var l = ref ret.LeftMatrix;
                 ref var r = ref ret.RightMatrix;
                 // cols: 0=a 1=b 2=c 3=d
                 // row 1 is for y
-                // only raise the middle points:
-                l.m11 += deltaY; //b.y
-                l.m21 += deltaY; //c.y
-                r.m11 += deltaY; //b.y
-                r.m21 += deltaY; //c.y
+                l.m11 += deltaY + deltaY2; //b.y
+                l.m21 += deltaY + deltaY2; //c.y
+                l.m01 += deltaY ; //a.y
+                l.m31 += deltaY ; //d.y
             }
             return ret;
         }
