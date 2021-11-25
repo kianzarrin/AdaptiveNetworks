@@ -1147,8 +1147,9 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Render On Segments")]
             public bool RenderSegment = true;
 
-            [CustomizableProperty("Render On Junctions")]
-            public bool RenderJunction = true;
+            [Hint("Renders on junction/bend nodes")]
+            [CustomizableProperty("Render On Nodes")]
+            public bool RenderNode = true;
 
             [CustomizableProperty("Segment")]
             public VanillaSegmentInfoFlags VanillaSegmentFlags;
@@ -1168,7 +1169,7 @@ namespace AdaptiveRoads.Manager {
             public bool CheckNodeFlags
                 (NetNodeExt.Flags nodeFlags, NetNode.Flags vanillaNodeFlags,
                 NetSegmentExt.Flags sourceSegmentFlags, NetSegment.Flags startVanillaSegmentFlags) =>
-                RenderJunction && NodeFlags.CheckFlags(nodeFlags) && VanillaNodeFlags.CheckFlags(vanillaNodeFlags) &&
+                RenderNode && NodeFlags.CheckFlags(nodeFlags) && VanillaNodeFlags.CheckFlags(vanillaNodeFlags) &&
                 SegmentFlags.CheckFlags(sourceSegmentFlags) && VanillaSegmentFlags.CheckFlags(startVanillaSegmentFlags);
 
 
