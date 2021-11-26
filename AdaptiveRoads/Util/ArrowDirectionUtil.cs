@@ -1,5 +1,5 @@
 namespace AdaptiveRoads.Util {
-    using AdaptiveRoads.Data.NetworkExtensions;
+    using AdaptiveRoads.Manager;
     using KianCommons;
     using UnityEngine;
 

@@ -7,7 +7,7 @@ namespace AdaptiveRoads.Util {
     using TrafficManager.Manager.Impl;
     using ColossalFramework.Math;
     using UnityEngine;
-    using AdaptiveRoads.Data.NetworkExtensions;
+    using AdaptiveRoads.Manager;
 
     internal static class LaneHelpers {
         static RoutingManager rman => RoutingManager.Instance;

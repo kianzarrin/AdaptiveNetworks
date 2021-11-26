@@ -1,5 +1,5 @@
-namespace AdaptiveRoads.Data.NetworkExtensions {
-    using AdaptiveRoads.Manager;
+namespace AdaptiveRoads.Manager{
+    using AdaptiveRoads.Data.NetworkExtensions;
     using AdaptiveRoads.Data;
     using AdaptiveRoads.Util;
     using ColossalFramework;
