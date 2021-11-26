@@ -1062,8 +1062,34 @@ namespace AdaptiveRoads.Manager {
                         m_trackMaterial = null;
                     }
                     LaneCount = EnumBitMaskExtensions.CountOnes(LaneIndeces);
+                    SetupThinWires(netInfo);
+                    SetupTiling(netInfo);
                 } catch(Exception ex) { ex.Log(); }
             }
+
+            private void SetupThinWires(NetInfo info) {
+                if(info.m_netAI is not TrainTrackBaseAI) return;
+                if(!m_requireWindSpeed) return;
+                if(!m_material?.shader) return;
+                if(ThinWires) {
+                    Vector2 scale = new Vector2(3.5f, 1.0f);
+                    m_material.mainTextureScale = scale;
+                    m_trackMaterial.mainTextureScale = scale;
+                    m_lodMaterial.mainTextureScale = scale;
+                    m_combinedLod.m_material.mainTextureScale = scale;
+                }
+            }
+
+
+            private void SetupTiling(NetInfo info) {
+                if(Tiling!=0) {
+                    m_material.mainTextureScale = new Vector2(1, Tiling);
+                    if(m_trackMaterial != null) m_trackMaterial.mainTextureScale = new Vector2(1, Tiling);
+                    if(m_lodMaterial != null) m_lodMaterial.mainTextureScale = new Vector2(1, Tiling);
+                    if(m_combinedLod.m_material != null) m_combinedLod.m_material.mainTextureScale = new Vector2(1, Math.Abs(Tiling));
+                }
+            }
+            
 
             public const VehicleInfo.VehicleType TRACK_VEHICLE_TYPES =
                 VehicleInfo.VehicleType.Tram |
@@ -1165,6 +1191,10 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Node Extension")]
             [Hint("Only checked on nodes (including bend nodes)")]
             public NodeInfoFlags NodeFlags;
+
+            [CustomizableProperty("Tiling")]
+            [Hint("network tiling value")]
+            public float Tiling;
 
             public bool CheckNodeFlags
                 (NetNodeExt.Flags nodeFlags, NetNode.Flags vanillaNodeFlags,

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using static KianCommons.EnumBitMaskExtensions;
+using KianCommons.Plugins;
 using UnityEngine;
 using KianCommons.UI;
 
@@ -19,6 +20,8 @@ namespace AdaptiveRoads.UI {
         public static SavedInt SavedInt(string key, int def) => new SavedInt(key, FILE_NAME, def, true);
         public static SavedFloat SavedFloat(string key, float def) => new SavedFloat(key, FILE_NAME, def, true);
 
+        public static bool RailwayModEnabled => PluginUtil.GetPlugin("RailwayMod", searchOptions: PluginUtil.AssemblyEquals).IsActive();
+        public static SavedBool ThinWires => new SavedBool("enableWires", "RailwayModSettings", RailwayModEnabled, true);
         public enum SpeedUnitType { KPH, MPH }
 
         public const string SEGMENT_NODE = "Segment.Node";
@@ -103,13 +106,13 @@ namespace AdaptiveRoads.UI {
 
 
             var dd = general.AddDropdown(
-                "prefered speed unit",
+                "preferred speed unit",
                 Enum.GetNames(typeof(SpeedUnitType)),
                 0, // kph
                 sel => {
                     var value = GetEnumValues<SpeedUnitType>()[sel];
                     SpeedUnit.value = (int)value;
-                    Log.Debug("option 'prefered speed unit' is set to " + value);
+                    Log.Debug("option 'preferred speed unit' is set to " + value);
                     RoadEditorUtils.RefreshRoadEditor();
                 });
 
@@ -141,7 +144,7 @@ namespace AdaptiveRoads.UI {
             }
 
             string msg =
-                "this operation removes all AR metada. " +
+                "this operation removes all AR metadata. " +
                 "Are you sure you want to continue?";
 
             UIView.library.ShowModal<ConfirmPanel>("ConfirmPanel", CallbackFunc)
