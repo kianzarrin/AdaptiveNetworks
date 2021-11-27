@@ -1,9 +1,5 @@
 namespace AdaptiveRoads {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using AdaptiveRoads.Manager;
+   using AdaptiveRoads.Manager;
     using KianCommons;
     using AdaptiveRoads.Patches.Corner;
 
