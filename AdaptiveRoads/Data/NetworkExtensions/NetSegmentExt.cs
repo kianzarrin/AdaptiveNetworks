@@ -182,7 +182,7 @@ namespace AdaptiveRoads.Manager {
                     return;
                 if(!cameraInfo.Intersect(Segment.m_bounds))
                     return;
-
+                Assertion.NotNull(LaneIDs, "LaneIDs");
                 for(int laneIndex = 0; laneIndex < LaneIDs.Length; ++laneIndex) {
                     if(NetInfoExt.HasTrackLane(laneIndex)) {
                         var laneID = LaneIDs[laneIndex];
