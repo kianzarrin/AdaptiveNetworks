@@ -8,7 +8,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         public Vector4 MeshScale;
         public Vector4 ObjectIndex;
         public Color Color;
-        public Quaternion Rotation => Quaternion.identity;
+        public Quaternion Rotation => Quaternion.Slerp(Quaternion.Euler(30, 0, 0), Quaternion.Euler(0, 0, 30), 0.5f);
         public Vector3 Position;
         public float WindSpeed;
         public bool TurnAround;
@@ -21,24 +21,19 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             float deltaY = trackInfo.VerticalOffset;
             float deltaY2 = 0;
             if(trackInfo.AntiFlickering) deltaY2 = antiFlickerIndex * 0.001f;
-
-            ref var l = ref ret.LeftMatrix;
-            ref var r = ref ret.RightMatrix;
-            // row 1 is for y
-            // cols: 0=a 1=b 2=c 3=d
-            l.m10 += deltaY; //a.y
-            l.m11 += deltaY + deltaY2; //b.y
-            l.m12 += deltaY + deltaY2; //c.y
-            l.m13 += deltaY ; //d.y
-
-            r.m10 += deltaY; //a.y
-            r.m11 += deltaY + deltaY2; //b.y
-            r.m12 += deltaY + deltaY2; //c.y
-            r.m13 += deltaY; //d.y
+            Lift(ref ret.LeftMatrix,deltaY,deltaY2);
+            Lift(ref ret.RightMatrix, deltaY, deltaY2);
 
             return ret;
+            static void Lift(ref Matrix4x4 mat, float deltaY, float deltaY2) {
+                // row 1 is for y
+                // cols: 0=a 1=b 2=c 3=d
+                mat.m10 += deltaY; //a.y
+                mat.m11 += deltaY + deltaY2; //b.y
+                mat.m12 += deltaY + deltaY2; //c.y
+                mat.m13 += deltaY; //d.y
+            }
         }
-
 
         public void RenderInstance(NetInfoExtionsion.Track trackInfo, RenderManager.CameraInfo cameraInfo) {
             if(cameraInfo == null || cameraInfo.CheckRenderDistance(this.Position, trackInfo.m_lodRenderDistance)) {
