@@ -284,6 +284,7 @@ namespace AdaptiveRoads.Manager {
                     Assertion.NotNull(netInfo, "netInfo");
                     Template = netInfo;
                     RecalculateTracks(netInfo);
+                    UpdateTextureScales(netInfo);
                     RefreshLevelOfDetail(netInfo);
                     UsedCustomFlags = GatherUsedCustomFlags(netInfo);
                     RecalculateParkingAngle();
@@ -320,6 +321,16 @@ namespace AdaptiveRoads.Manager {
                     }
                 }
             }
+
+            void UpdateTextureScales(NetInfo netInfo) {
+                // tracks are taken care of in RecalculateTracks
+                // here we only deal with node/segment
+                foreach(var nodeInfo in netInfo.m_nodes)
+                    nodeInfo?.GetMetaData()?.SetupTiling(nodeInfo);
+                foreach(var segmentInfo in netInfo.m_segments)
+                    segmentInfo?.GetMetaData()?.SetupTiling(segmentInfo);
+            }
+
             void RecalculateTracks(NetInfo netInfo) {
                 if(Tracks != null) {
                     // has color been already assigned in NetInfo.InitializePrefab() ?
@@ -364,7 +375,6 @@ namespace AdaptiveRoads.Manager {
                 var tempSegment = TempSegmentInfo(trackInfo);
                 Template.InitMeshData(TempSegmentInfo(trackInfo), atlasRect, rgbAtlas, xysAtlas, aprAtlas);
                 trackInfo.m_combinedLod = tempSegment.m_combinedLod;
-                trackInfo.UpdateScale(Template);
             }
 
             void RecalculateParkingAngle() {

@@ -4,6 +4,7 @@ namespace AdaptiveRoads.Manager {
     using System;
     using System.Linq;
     using System.Runtime.Serialization;
+    using UnityEngine;
     using static AdaptiveRoads.UI.ModSettings;
     using static KianCommons.ReflectionHelpers;
 
@@ -53,6 +54,11 @@ namespace AdaptiveRoads.Manager {
             [AfterField(nameof(NetInfo.Node.m_directConnect))]
             public bool HideBrokenMedians = true;
 
+            [CustomizableProperty("Tiling")]
+            [Hint("network tiling value")]
+            [AfterField(nameof(NetInfo.Node.m_directConnect))]
+            public float Tiling;
+
             public bool CheckFlags(
                 NetNodeExt.Flags nodeFlags, NetSegmentEnd.Flags segmentEndFlags,
                 NetSegmentExt.Flags segmentFlags, NetSegment.Flags vanillaSegmentFlags) =>
@@ -83,6 +89,16 @@ namespace AdaptiveRoads.Manager {
             public Node(SerializationInfo info, StreamingContext context) =>
                 SerializationUtil.SetObjectFields(info, this);
             #endregion
+
+            public void SetupTiling(NetInfo.Node nodeInfo) {
+                if(Tiling != 0) {
+                    if(nodeInfo.m_material) nodeInfo.m_material.mainTextureScale = new Vector2(1, Tiling);
+                    if(nodeInfo.m_nodeMaterial) nodeInfo.m_nodeMaterial.mainTextureScale = new Vector2(1, Tiling);
+                    if(nodeInfo.m_lodMaterial) nodeInfo.m_lodMaterial.mainTextureScale = new Vector2(1, Tiling);
+                    if(nodeInfo.m_combinedLod?.m_material) nodeInfo.m_combinedLod.m_material.mainTextureScale = new Vector2(1, Math.Abs(Tiling));
+                }
+            }
+
         }
     }
 }

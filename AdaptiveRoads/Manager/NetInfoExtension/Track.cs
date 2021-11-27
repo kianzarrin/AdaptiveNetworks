@@ -145,7 +145,7 @@ namespace AdaptiveRoads.Manager {
                 } catch(Exception ex) { ex.Log(); }
             }
 
-            public void UpdateScale(NetInfo info) {
+            private void UpdateScale(NetInfo info) {
                 SetupThinWires(info);
                 SetupTiling(info);
             }

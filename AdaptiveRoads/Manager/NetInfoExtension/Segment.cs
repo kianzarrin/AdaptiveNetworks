@@ -3,6 +3,7 @@ namespace AdaptiveRoads.Manager {
     using KianCommons.Serialization;
     using System;
     using System.Runtime.Serialization;
+    using UnityEngine;
     using static AdaptiveRoads.UI.ModSettings;
     using static KianCommons.ReflectionHelpers;
 
@@ -43,6 +44,10 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Segment Head")]
             [Optional(SEGMENT_SEGMENT_END)]
             public SegmentEndInfoFlags Head;
+
+            [CustomizableProperty("Tiling")]
+            [Hint("network tiling value")]
+            public float Tiling;
 
             public bool CheckEndFlags(
                     NetSegmentEnd.Flags tailFlags,
@@ -110,6 +115,15 @@ namespace AdaptiveRoads.Manager {
             public Segment(SerializationInfo info, StreamingContext context) =>
                 SerializationUtil.SetObjectFields(info, this);
             #endregion
+
+            public void SetupTiling(NetInfo.Segment segmentInfo) {
+                if(Tiling != 0) {
+                    if(segmentInfo.m_material) segmentInfo.m_material.mainTextureScale = new Vector2(1, Tiling);
+                    if(segmentInfo.m_segmentMaterial) segmentInfo.m_segmentMaterial.mainTextureScale = new Vector2(1, Tiling);
+                    if(segmentInfo.m_lodMaterial) segmentInfo.m_lodMaterial.mainTextureScale = new Vector2(1, Tiling);
+                    if(segmentInfo.m_combinedLod?.m_material) segmentInfo.m_combinedLod.m_material.mainTextureScale = new Vector2(1, Math.Abs(Tiling));
+                }
+            }
         }
     }
 }
