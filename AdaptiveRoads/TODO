@@ -1,14 +1,5 @@
-Tracks:
-[Exception] 101,057ms | failed to render 19610 -> 
-System.NullReferenceException: Object reference not set to an instance of an object
-  at AdaptiveRoads.Data.NetworkExtensions.NetSegmentExt.RenderTrackInstance (.CameraInfo cameraInfo, Int32 layerMask) [0x0008a] in \Patches\RoadEditor\model\ImportScalePatch.cs:15 
-	-- end of exception --
-   at KianCommons.Log.Exception(System.Exception ex, System.String m, Boolean showInPanel) in \KianCommons\KianCommons\Util\NetUtil.cs:line 697
-   at KianCommons.LogExtensions.Log(System.Exception ex, System.String message, Boolean showInPannel) in \KianCommons\KianCommons\Util\NetUtil.cs:line 827
-   at AdaptiveRoads.Data.NetworkExtensions.NetSegmentExt.RenderTrackInstance(.CameraInfo cameraInfo, Int32 layerMask) in \Patches\RoadEditor\model\ImportScalePatch.cs:line 16
-   at AdaptiveRoads.Manager.TrackManager.EndRendering(.CameraInfo cameraInfo)
-   at RenderManager.FpsBoosterLateUpdate()
-   at BehaviourUpdater.Updater.LateUpdate()
+tilting options for node/segments.
+
 
 
 TODO:

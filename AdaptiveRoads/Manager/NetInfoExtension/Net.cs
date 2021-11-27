@@ -364,6 +364,7 @@ namespace AdaptiveRoads.Manager {
                 var tempSegment = TempSegmentInfo(trackInfo);
                 Template.InitMeshData(TempSegmentInfo(trackInfo), atlasRect, rgbAtlas, xysAtlas, aprAtlas);
                 trackInfo.m_combinedLod = tempSegment.m_combinedLod;
+                trackInfo.UpdateScale(Template);
             }
 
             void RecalculateParkingAngle() {

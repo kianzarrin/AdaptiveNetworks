@@ -141,21 +141,24 @@ namespace AdaptiveRoads.Manager {
                         m_trackMaterial = null;
                     }
                     LaneCount = EnumBitMaskExtensions.CountOnes(LaneIndeces);
-                    SetupThinWires(netInfo);
-                    SetupTiling(netInfo);
+                    UpdateScale(netInfo);
                 } catch(Exception ex) { ex.Log(); }
             }
 
+            public void UpdateScale(NetInfo info) {
+                SetupThinWires(info);
+                SetupTiling(info);
+            }
+
             private void SetupThinWires(NetInfo info) {
-                if(info.m_netAI is not TrainTrackBaseAI) return;
+                if(info?.m_netAI is not TrainTrackBaseAI) return;
                 if(!m_requireWindSpeed) return;
-                if(!m_material?.shader) return;
                 if(ThinWires) {
                     Vector2 scale = new Vector2(3.5f, 1.0f);
-                    m_material.mainTextureScale = scale;
-                    m_trackMaterial.mainTextureScale = scale;
-                    m_lodMaterial.mainTextureScale = scale;
-                    m_combinedLod.m_material.mainTextureScale = scale;
+                    if(m_material)m_material.mainTextureScale = scale;
+                    if(m_trackMaterial) m_trackMaterial.mainTextureScale = scale;
+                    if(m_lodMaterial)m_lodMaterial.mainTextureScale = scale;
+                    if(m_combinedLod?.m_material) m_combinedLod.m_material.mainTextureScale = scale;
                 }
             }
 
@@ -163,9 +166,9 @@ namespace AdaptiveRoads.Manager {
             private void SetupTiling(NetInfo info) {
                 if(Tiling != 0) {
                     m_material.mainTextureScale = new Vector2(1, Tiling);
-                    if(m_trackMaterial != null) m_trackMaterial.mainTextureScale = new Vector2(1, Tiling);
-                    if(m_lodMaterial != null) m_lodMaterial.mainTextureScale = new Vector2(1, Tiling);
-                    if(m_combinedLod.m_material != null) m_combinedLod.m_material.mainTextureScale = new Vector2(1, Math.Abs(Tiling));
+                    if(m_trackMaterial) m_trackMaterial.mainTextureScale = new Vector2(1, Tiling);
+                    if(m_lodMaterial) m_lodMaterial.mainTextureScale = new Vector2(1, Tiling);
+                    if(m_combinedLod?.m_material) m_combinedLod.m_material.mainTextureScale = new Vector2(1, Math.Abs(Tiling));
                 }
             }
 

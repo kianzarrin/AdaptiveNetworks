@@ -8,7 +8,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         public Vector4 MeshScale;
         public Vector4 ObjectIndex;
         public Color Color;
-        public Quaternion Rotation => Quaternion.Slerp(Quaternion.Euler(30, 0, 0), Quaternion.Euler(0, 0, 30), 0.5f);
+        public Quaternion Rotation => Quaternion.identity;
         public Vector3 Position;
         public float WindSpeed;
         public bool TurnAround;
