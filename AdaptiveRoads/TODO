@@ -1,6 +1,4 @@
-tilting options for node/segments.
-
-
+bend nodes use segment flags.
 
 TODO:
 - remove custom flags when network is deleted.
