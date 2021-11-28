@@ -135,8 +135,8 @@ namespace AdaptiveRoads.Manager {
                 ref var node = ref NodeID.ToNode();
                 if(!node.IsValid())
                     return;
-                if(!node.m_flags.IsFlagSet(NetNode.Flags.Junction | NetNode.Flags.Bend))
-                    return;
+                    if(!node.m_flags.IsFlagSet(NetNode.Flags.Junction | NetNode.Flags.Bend))
+                        return;
 
                 tempConnections_.Clear();
                 foreach(var segmentID in NodeID.ToNode().IterateSegments()) {
@@ -157,7 +157,7 @@ namespace AdaptiveRoads.Manager {
                             bool hasTrackLane = infoExt != null && infoExt.HasTrackLane(laneIndex);
                             bool hasTrackLane2 = infoExt2 != null && infoExt2.HasTrackLane(routing.laneIndex);
                             if(hasTrackLane || hasTrackLane2) {
-                                if(GoodTurnAngle(segmentID, routing.segmentId, NodeID)) {
+                                if(LanesConnect(laneID, routing.laneId)) {
                                     tempConnections_.Add(new Connection { LaneID1 = laneID, LaneID2 = routing.laneId });
                                 }
                             }
@@ -170,7 +170,7 @@ namespace AdaptiveRoads.Manager {
                 int n2 = n >> 1; // n/2
                 int index = 0;
                 foreach(var connection in tempConnections_) {
-                    transitions[index++].Init(connection.LaneID1, connection.LaneID2, index - n2); // also calculates
+                    transitions[index++].Init(connection.LaneID1, connection.LaneID2, NodeID, index - n2); // also calculates
                 }
                 Transitions = transitions;
                 if(Log.VERBOSE) Log.Debug($"NetNodeExt.GetTrackConnections() succeeded for node:{NodeID} transitions.len={transitions.Length}", false);
@@ -186,18 +186,35 @@ namespace AdaptiveRoads.Manager {
             return VectorUtils.LengthSqrXZ(diff) < 0.00001f;
         }
 
-        public static bool GoodTurnAngle(ushort segmentID1, ushort segmentID2, ushort nodeID) {
+        private bool GoodTurnAngle(ushort segmentID1, ushort segmentID2) {
+            if(segmentID1 == segmentID2)
+                return false; // u-turn.
             ref var segment1 = ref segmentID1.ToSegment();
             ref var segment2 = ref segmentID2.ToSegment();
             var info1 = segment1.Info;
             var info2 = segment2.Info;
-            var dir1 = segment1.GetDirection(nodeID);
-            var dir2 = segment2.GetDirection(nodeID);
+            var dir1 = segment1.GetDirection(NodeID);
+            var dir2 = segment2.GetDirection(NodeID);
 
             var dot = VectorUtils.DotXZ(dir1, dir2);
             float maxTurnAngleCos = Mathf.Min(info1.m_maxTurnAngleCos, info2.m_maxTurnAngleCos);
             float turnThreshold = 0.01f - maxTurnAngleCos;
             return dot < turnThreshold;
+        }
+
+        private bool LanesConnect(uint laneIDSource, uint laneIDTarget) {
+            ref var lane = ref laneIDSource.ToLaneExt().LaneData;
+            ref var lane2 = ref laneIDTarget.ToLaneExt().LaneData;
+            bool hasTracks = lane.LaneInfo.m_vehicleType.IsFlagSet(NetInfoExtionsion.Track.TRACK_VEHICLE_TYPES);
+            bool hasTracks2 = lane2.LaneInfo.m_vehicleType.IsFlagSet(NetInfoExtionsion.Track.TRACK_VEHICLE_TYPES);
+            if(hasTracks != hasTracks2)
+                return false;
+
+            if(hasTracks) {
+                return GoodTurnAngle(lane.SegmentID, lane2.SegmentID);
+            }
+
+            return true; // bike
         }
 
         public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo, int layerMask) {

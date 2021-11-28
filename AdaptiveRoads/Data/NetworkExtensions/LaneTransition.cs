@@ -12,7 +12,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         public uint LaneIDTarget;
         public int AntiFlickerIndex;
 
-        public void Init(uint laneID1, uint laneID2, int antiFlickerIndex) {
+        public void Init(uint laneID1, uint laneID2, ushort nodeID, int antiFlickerIndex) {
             AntiFlickerIndex = antiFlickerIndex;
             ushort segmentID1 = laneID1.ToLane().m_segment;
             ushort segmentID2 = laneID2.ToLane().m_segment;
@@ -37,7 +37,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 LaneIDTarget = laneID1;
             }
 
-            NodeID = segmentID1.ToSegment().GetSharedNode(segmentID2);
+            NodeID = nodeID;
 
             Calculate();
             if(Log.VERBOSE) Log.Debug($"LaneTransition.Init() succeeded for: {this}", false);
