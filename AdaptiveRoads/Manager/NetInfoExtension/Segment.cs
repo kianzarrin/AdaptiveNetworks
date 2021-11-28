@@ -1,4 +1,5 @@
 namespace AdaptiveRoads.Manager {
+    using AdaptiveRoads.Util;
     using KianCommons;
     using KianCommons.Serialization;
     using System;
@@ -118,10 +119,10 @@ namespace AdaptiveRoads.Manager {
 
             public void SetupTiling(NetInfo.Segment segmentInfo) {
                 if(Tiling != 0) {
-                    if(segmentInfo.m_material) segmentInfo.m_material.mainTextureScale = new Vector2(1, Tiling);
-                    if(segmentInfo.m_segmentMaterial) segmentInfo.m_segmentMaterial.mainTextureScale = new Vector2(1, Tiling);
-                    if(segmentInfo.m_lodMaterial) segmentInfo.m_lodMaterial.mainTextureScale = new Vector2(1, Tiling);
-                    if(segmentInfo.m_combinedLod?.m_material) segmentInfo.m_combinedLod.m_material.mainTextureScale = new Vector2(1, Math.Abs(Tiling));
+                    segmentInfo.m_material?.SetTiling(Tiling);
+                    segmentInfo.m_segmentMaterial?.SetTiling(Tiling);
+                    segmentInfo.m_lodMaterial?.SetTiling(Tiling);
+                    segmentInfo.m_combinedLod?.m_material?.SetTiling(Mathf.Abs(Tiling));
                 }
             }
         }

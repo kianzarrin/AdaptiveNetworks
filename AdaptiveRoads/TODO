@@ -1,6 +1,4 @@
-bend nodes use segment flags.
-
-TODO:
+-----------------
 - remove custom flags when network is deleted.
 - list scrollbars
 - group DC components.
@@ -11,5 +9,3 @@ version 3:
     - export/import road xml.
     - patch AssetImporterAssetTemplate.RefreshCoroutine() to speed up prop model loading time
         micro-benchmark UIComponent.Find<T>(string) to see how much time they take up
-    - move DPT array elements up and down.
-

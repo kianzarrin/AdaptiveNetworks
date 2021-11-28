@@ -162,13 +162,12 @@ namespace AdaptiveRoads.Manager {
                 }
             }
 
-
             private void SetupTiling(NetInfo info) {
                 if(Tiling != 0) {
-                    m_material.mainTextureScale = new Vector2(1, Tiling);
-                    if(m_trackMaterial) m_trackMaterial.mainTextureScale = new Vector2(1, Tiling);
-                    if(m_lodMaterial) m_lodMaterial.mainTextureScale = new Vector2(1, Tiling);
-                    if(m_combinedLod?.m_material) m_combinedLod.m_material.mainTextureScale = new Vector2(1, Math.Abs(Tiling));
+                    m_material?.SetTiling(Tiling);
+                    m_trackMaterial?.SetTiling(Tiling);
+                    m_lodMaterial?.SetTiling(Tiling);
+                    m_combinedLod?.m_material?.SetTiling(Mathf.Abs(Tiling));
                 }
             }
 

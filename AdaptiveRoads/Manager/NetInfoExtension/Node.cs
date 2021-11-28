@@ -5,6 +5,7 @@ namespace AdaptiveRoads.Manager {
     using System.Linq;
     using System.Runtime.Serialization;
     using UnityEngine;
+    using AdaptiveRoads.Util;
     using static AdaptiveRoads.UI.ModSettings;
     using static KianCommons.ReflectionHelpers;
 
@@ -92,13 +93,12 @@ namespace AdaptiveRoads.Manager {
 
             public void SetupTiling(NetInfo.Node nodeInfo) {
                 if(Tiling != 0) {
-                    if(nodeInfo.m_material) nodeInfo.m_material.mainTextureScale = new Vector2(1, Tiling);
-                    if(nodeInfo.m_nodeMaterial) nodeInfo.m_nodeMaterial.mainTextureScale = new Vector2(1, Tiling);
-                    if(nodeInfo.m_lodMaterial) nodeInfo.m_lodMaterial.mainTextureScale = new Vector2(1, Tiling);
-                    if(nodeInfo.m_combinedLod?.m_material) nodeInfo.m_combinedLod.m_material.mainTextureScale = new Vector2(1, Math.Abs(Tiling));
+                    nodeInfo.m_material?.SetTiling(Tiling);
+                    nodeInfo.m_nodeMaterial?.SetTiling(Tiling);
+                    nodeInfo.m_lodMaterial?.SetTiling(Tiling);
+                    nodeInfo.m_combinedLod?.m_material?.SetTiling(Mathf.Abs(Tiling));
                 }
             }
-
         }
     }
 }
