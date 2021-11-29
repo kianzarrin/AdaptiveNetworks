@@ -149,7 +149,7 @@ namespace AdaptiveRoads.Manager {
                         if(routings == null) continue;
                         if(IsNodeless(segmentID: segmentID, nodeID: NodeID)) continue;
                         foreach(LaneTransitionData routing in routings) {
-                            if(routing.type == LaneEndTransitionType.Invalid || routing.type == LaneEndTransitionType.Relaxed)
+                            if(routing.type == LaneEndTransitionType.Invalid /*|| routing.type == LaneEndTransitionType.Relaxed*/)
                                 continue;
                             var infoExt2 = routing.segmentId.ToSegment().Info?.GetMetaData();
                             //if(infoExt2 == null) continue;
