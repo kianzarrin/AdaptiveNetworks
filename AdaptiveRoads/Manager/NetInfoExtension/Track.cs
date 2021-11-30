@@ -177,7 +177,7 @@ namespace AdaptiveRoads.Manager {
                 VehicleInfo.VehicleType.Metro |
                 VehicleInfo.VehicleType.Train |
                 VehicleInfo.VehicleType.Monorail |
-                VehicleInfo.VehicleType.Trolleybus | VehicleInfo.VehicleType.TrolleybusLeftPole | VehicleInfo.VehicleType.TrolleybusRightPole;
+                VehicleInfo.VehicleType.Trolleybus;
 
             #region materials
             public Mesh m_mesh;
