@@ -23,7 +23,7 @@ namespace AdaptiveRoads.Manager {
                 Assertion.Assert(template, "template");
                 var lanes = template.m_lanes;
                 for(int laneIndex = 0; laneIndex < lanes.Length; ++laneIndex) {
-                    if(lanes[laneIndex].m_vehicleType.IsFlagSet(TRACK_VEHICLE_TYPES))
+                    if(lanes[laneIndex].m_vehicleType.IsFlagSet(TRACK_VehicleTypes))
                         LaneIndeces |= 1ul << laneIndex;
                 }
             }
@@ -172,7 +172,7 @@ namespace AdaptiveRoads.Manager {
             }
 
 
-            public const VehicleInfo.VehicleType TRACK_VEHICLE_TYPES =
+            public const VehicleInfo.VehicleType TRACK_VehicleTypes =
                 VehicleInfo.VehicleType.Tram |
                 VehicleInfo.VehicleType.Metro |
                 VehicleInfo.VehicleType.Train |

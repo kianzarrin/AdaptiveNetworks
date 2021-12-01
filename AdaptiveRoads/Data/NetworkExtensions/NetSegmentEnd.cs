@@ -11,7 +11,6 @@ namespace AdaptiveRoads.Manager {
     using TrafficManager.API.Manager;
     using TrafficManager.API.Traffic.Data;
     using TrafficManager.API.Traffic.Enums;
-    using TrafficManager.Manager.Impl;
     using AdaptiveRoads.Data.NetworkExtensions;
     using UnityEngine;
     using Log = KianCommons.Log;
@@ -127,8 +126,10 @@ namespace AdaptiveRoads.Manager {
             StartNode = startNode;
         }
 
-        public static JunctionRestrictionsManager JRMan => JunctionRestrictionsManager.Instance;
-        public static TrafficPriorityManager PMan => TrafficPriorityManager.Instance;
+
+        public static IJunctionRestrictionsManager JRMan => Constants.ManagerFactory?.JunctionRestrictionsManager;
+        public static ITrafficPriorityManager PMan => Constants.ManagerFactory?.TrafficPriorityManager;
+        public static ILaneArrowManager LaneArrowMan => Constants.ManagerFactory?.LaneArrowManager;
 
         public void UpdateFlags() {
             var flags = m_flags;
@@ -163,15 +164,15 @@ namespace AdaptiveRoads.Manager {
                 var sourceLanes = new LaneDataIterator(
                     SegmentID,
                     StartNode, // going toward node:NodeID
-                    LaneArrowManager.LANE_TYPES,
-                    LaneArrowManager.VEHICLE_TYPES);
+                    LaneArrowMan.LaneTypes,
+                    LaneArrowMan.VehicleTypes);
                 var segmentID2 = NodeID.ToNode().GetAnotherSegment(SegmentID);
                 bool startNode2 = segmentID2.ToSegment().IsStartNode(NodeID);
                 var targetLanes = new LaneDataIterator(
                     segmentID2,
                     !startNode2, // lanes that are going away from node:NodeID
-                    LaneArrowManager.LANE_TYPES,
-                    LaneArrowManager.VEHICLE_TYPES);
+                    LaneArrowMan.LaneTypes,
+                    LaneArrowMan.VehicleTypes);
                 int nSource = sourceLanes.Count;
                 int nTarget = targetLanes.Count;
                 lanesIncrease = nTarget > nSource;
@@ -205,8 +206,8 @@ namespace AdaptiveRoads.Manager {
             LaneArrows ret = LaneArrows.None;
             foreach(var lane in NetUtil.IterateLanes(
                 segmentId: segmentId, startNode: startNode,
-                laneType: LaneArrowManager.LANE_TYPES, vehicleType: LaneArrowManager.VEHICLE_TYPES)) {
-                LaneArrows arrows = LaneArrowManager.Instance.GetFinalLaneArrows(lane.LaneID);
+                laneType: LaneArrowMan.LaneTypes, vehicleType: LaneArrowMan.VehicleTypes)) {
+                LaneArrows arrows = LaneArrowMan.GetFinalLaneArrows(lane.LaneID);
                 ret |= arrows;
             }
             return ret;

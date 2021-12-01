@@ -7,14 +7,14 @@ namespace AdaptiveRoads.UI.RoadEditor {
     using System.Reflection;
     using AdaptiveRoads.Manager;
     using TrafficManager.API.Traffic;
-    using TrafficManager.Manager.Impl;
     using System;
     using static ModSettings;
     using KianCommons.Plugins;
 
     public class SpeedRangePanel : UIPanel, IHint {
         static float HUMAN_TO_GAME => 1 / GAME_TO_HUMAN;
-        static float MAX_HUMAN_SPEED => SpeedLimitManager.MAX_SPEED * GAME_TO_HUMAN;
+        const float MAX_SPEED = 20;
+        static float MAX_HUMAN_SPEED => MAX_SPEED * GAME_TO_HUMAN;
         static float GAME_TO_HUMAN =>
             (SpeedUnitType)SpeedUnit.value switch {
                 SpeedUnitType.KPH => ApiConstants.SPEED_TO_KMPH,

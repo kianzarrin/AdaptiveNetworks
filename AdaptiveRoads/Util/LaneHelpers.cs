@@ -4,13 +4,12 @@ namespace AdaptiveRoads.Util {
     using System.Linq;
     using TrafficManager.API.Manager;
     using TrafficManager.API.Traffic.Enums;
-    using TrafficManager.Manager.Impl;
     using ColossalFramework.Math;
     using UnityEngine;
     using AdaptiveRoads.Manager;
 
     internal static class LaneHelpers {
-        static RoutingManager rman => RoutingManager.Instance;
+        static IRoutingManager rman => TrafficManager.Constants.ManagerFactory?.RoutingManager;
         internal static bool HasProps(this NetInfo.Lane lane) =>
             (lane?.m_laneProps?.m_props?.Length ?? 0) > 0;
 
