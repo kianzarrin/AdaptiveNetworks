@@ -11,12 +11,10 @@ namespace AdaptiveRoads.LifeCycle {
     using UnityEngine.SceneManagement;
     using static KianCommons.ReflectionHelpers;
     using AdaptiveRoads.Util;
-    using TrafficManager.Manager.Impl;
     using AdaptiveRoads.UI.Tool;
     using AdaptiveRoads.NSInterface;
     using KianCommons.Serialization;
     using UnityEngine;
-    using AdaptiveRoads.Data.NetworkExtensions;
 
     public static class LifeCycle {
         public static string HARMONY_ID = "CS.Kian.AdaptiveRoads";
@@ -146,7 +144,9 @@ namespace AdaptiveRoads.LifeCycle {
 
                 NetworkExtensionManager.Instance.OnLoad();
 
-                ObserverDisposable = GeometryManager.Instance.Subscribe(new ARTMPEObsever());
+                ObserverDisposable =
+                    TrafficManager.Constants.ManagerFactory.GeometryManager
+                    .Subscribe(new ARTMPEObsever());
 
                 ARTool.Create();
 
