@@ -120,6 +120,8 @@ namespace AdaptiveRoads.UI {
             general.AddSavedToggle("hide floating hint box", HideHints);
             general.AddSavedToggle("Set default scale to 100", DefaultScale100);
 
+            general.AddButton("Refresh AR networks", RefreshARNetworks);
+
             //var export = helper.AddGroup("import/export:");
             //export.AddButton("export edited road", null);
             //export.AddButton("import to edited road", null);
@@ -135,6 +137,7 @@ namespace AdaptiveRoads.UI {
             var laneProp = extensions.AddGroup("Lane prop");
             laneProp.AddSavedToggle("Segment and Segment-extension flags", Lane_Segment);
             laneProp.AddSavedToggle("Segment End flags", Lane_SegmentEnd);
+
         }
 
         public static void OnConfimRemoveARdata() {
@@ -168,5 +171,9 @@ namespace AdaptiveRoads.UI {
             NetInfoExtionsion.Ensure_EditedNetInfos();
             RoadEditorUtils.RefreshRoadEditor();
         }
+
+        public static void RefreshARNetworks() =>
+            NetworkExtensionManager.RawInstance?.UpdateAllNetworkFlags();
+        
     }
 }

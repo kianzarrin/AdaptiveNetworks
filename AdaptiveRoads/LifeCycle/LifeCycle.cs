@@ -144,11 +144,11 @@ namespace AdaptiveRoads.LifeCycle {
 
                 NetInfoExtionsion.Ensure_EditedNetInfos();
 
-                NetworkExtensionManager.Instance.OnLoad();
-
                 ObserverDisposable = GeometryManager.Instance.Subscribe(new ARTMPEObsever());
 
                 ARTool.Create();
+
+                NetworkExtensionManager.Instance.OnLoad();
 
                 const bool testPWValues = false;
                 if (testPWValues) {
