@@ -83,8 +83,8 @@ namespace AdaptiveRoads.Manager {
         /// <summary>
         /// Gets the used lane flags for the input lane (not all the lanes of the NetInfo)
         /// </summary>
-        public static NetLaneExt.Flags GetUsedCustomFlagsLane(this NetInfo.Lane laneInfo) =>
-            Net.GetUsedCustomFlagsLane(laneInfo);
+        public static NetLaneExt.Flags GetUsedCustomFlagsLane(this NetInfo netInfo, int laneIndex) =>
+            netInfo?.GetMetaData()?.GetUsedCustomFlagsLane(laneIndex) ?? default;
 
         /// <param name="layerMask">for calculate/populate group data <c>layerMask=1<<layer</c></param>
         /// <returns>if there is any matching layer</returns>

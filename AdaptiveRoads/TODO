@@ -1,6 +1,6 @@
-tracks
-- lane flags
-- hide in AE features in game.
+tracks:
+- check node/segment flags at segment's/node's : start/end/both
+- why do I need to refresh roads 2 times on load?
 
 -----------------
 - remove custom flags when network is deleted.

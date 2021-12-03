@@ -63,8 +63,7 @@ namespace AdaptiveRoads.NSInterface.UI {
             }
 
             foreach(int laneIndex in Prefab.m_sortedLanes) {
-                var laneInfo = Prefab.m_lanes[laneIndex];
-                var laneMask = laneInfo.GetUsedCustomFlagsLane();
+                var laneMask = Prefab.GetUsedCustomFlagsLane(laneIndex);
                 //Log.Info($"lane:{lane} laneMask:" + laneMask);
                 if(laneMask != 0)
                     AddLaneFlags(container, laneIndex, laneMask);
