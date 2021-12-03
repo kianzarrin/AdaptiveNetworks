@@ -196,9 +196,22 @@ namespace AdaptiveRoads.Manager {
 
             public static string GetCustomFlagName(Enum flag, object target) {
                 try {
-                    if(target is NetLaneProps.Prop prop && flag is NetLaneExt.Flags laneFlag) {
-                        var netInfo = prop.GetParent(laneIndex: out int laneIndex, out _);
-                        return netInfo?.GetMetaData()?.GetCustomLaneFlagName(laneFlag, laneIndex);
+                    if(flag is NetLaneExt.Flags laneFlag) {
+                        if(target is NetLaneProps.Prop prop) {
+                            var netInfo = prop.GetParent(laneIndex: out int laneIndex, out _);
+                            return netInfo?.GetMetaData()?.GetCustomLaneFlagName(laneFlag, laneIndex);
+                        } else if(target is Track track) {
+                            var netInfo = track.ParentInfo;
+                            for(int laneIndex = 0; laneIndex < netInfo.m_lanes.Length; ++laneIndex) {
+                                if(track.HasTrackLane(laneIndex)) {
+                                    string name = netInfo?.GetMetaData()?.GetCustomLaneFlagName(laneFlag, laneIndex);
+                                    if(!name.IsNullorEmpty()) return name;
+                                }
+                            }
+                            return null;
+                        } else {
+                            throw new NotImplementedException($"GetCustomFlagName({flag}, {target})");
+                        }
                     } else {
                         var netInfo = RoadEditorUtils.GetSelectedNetInfo(out _);
                         //  (target as NetInfo.Node)?.GetParent(out _) ??
@@ -213,7 +226,7 @@ namespace AdaptiveRoads.Manager {
                 return null;
             }
 
-            public static event Action OnCustomFlagRenamed;
+            public static event Action OnCustomFlagRenamed; // TODO move out
             public void RenameCustomFlag(Enum flag, string name) {
                 try {
                     CustomFlagNames ??= new Dictionary<Enum, string>();
@@ -247,9 +260,20 @@ namespace AdaptiveRoads.Manager {
 
             public static void RenameCustomFlag(Enum flag, object target, string name) {
                 try {
-                    if(target is NetLaneProps.Prop prop && flag is NetLaneExt.Flags laneFlag) {
-                        var netInfo = prop.GetParent(laneIndex: out int laneIndex, out _);
-                        netInfo.GetMetaData().RenameCustomFlag(laneIndex: laneIndex, flag: (NetLaneExt.Flags)flag, name: name);
+                    if(flag is NetLaneExt.Flags laneFlag) {
+                        if(target is NetLaneProps.Prop prop) {
+                            var netInfo = prop.GetParent(laneIndex: out int laneIndex, out _);
+                            netInfo.GetMetaData().RenameCustomFlag(laneIndex: laneIndex, flag: laneFlag, name: name);
+                        } else if(target is Track track) {
+                            var netInfo = track.ParentInfo;
+                            for(int laneIndex = 0; laneIndex < netInfo.m_lanes.Length; ++laneIndex) {
+                                if(track.HasTrackLane(laneIndex)) {
+                                    netInfo.GetMetaData().RenameCustomFlag(laneIndex: laneIndex, flag: laneFlag, name: name);
+                                }
+                            }
+                        } else {
+                            throw new NotImplementedException($"RenameCustomFlag({flag}, {target}, {name})");
+                        }
                     } else {
                         var netInfo = RoadEditorUtils.GetSelectedNetInfo(out _);
                         //var netInfo =
@@ -261,25 +285,28 @@ namespace AdaptiveRoads.Manager {
                 } catch(Exception ex) { ex.Log(); }
             }
 
-            /// <summary>
-            /// Gets the used lane flags for the input lane (not all the lanes of the NetInfo)
-            /// </summary>
-            public static NetLaneExt.Flags GetUsedCustomFlagsLane(NetInfo.Lane laneInfo) {
-                NetLaneExt.Flags mask = 0;
-                var props = (laneInfo.m_laneProps?.m_props).EmptyIfNull();
-                foreach(var prop in props) {
-                    var metadata = prop.GetMetaData();
-                    if(metadata != null)
-                        mask |= (metadata.LaneFlags.Required | metadata.LaneFlags.Forbidden);
-                }
-                return mask & NetLaneExt.Flags.CustomsMask;
+            public NetLaneExt.Flags GetUsedCustomFlagsLane(int laneIndex) {
+                NetLaneExt.Flags ret = default;
+                try {
+                    if(CustomLaneFlagNames0 is not null) {
+                        // edit prefab
+                        var laneInfo = Template.m_lanes[laneIndex];
+                        if(CustomLaneFlagNames0.TryGetValue(laneInfo, out var dict)) {
+                            foreach(var flag in dict.Keys) ret |= flag;
+                        }
+                    } else if(CustomLaneFlagNames is not null) {
+                        // normal
+                        Assertion.InRange(CustomLaneFlagNames, laneIndex);
+                        var dict = CustomLaneFlagNames[laneIndex];
+                        if(dict != null) {
+                            foreach(var flag in dict.Keys) ret |= flag;
+                        }
+                    }
+                } catch(Exception ex) { ex.Log(); }
+                return ret;
             }
             #endregion
 
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="netInfo"></param>
             public void Recalculate(NetInfo netInfo) {
                 try {
                     Assertion.NotNull(netInfo, "netInfo");

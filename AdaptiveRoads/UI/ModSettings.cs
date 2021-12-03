@@ -85,56 +85,69 @@ namespace AdaptiveRoads.UI {
             }
         }
 
+
         public static void OnSettingsUI(UIHelperBase helper) {
+            bool inAssetEditor = HelpersExtensions.InAssetEditor;
+
             var general = helper.AddGroup("General") as UIHelper;
 
             var keymappingsPanel = general.AddKeymappingsPanel();
             keymappingsPanel.AddKeymapping("Hotkey", Hotkey);
 
-            VanillaModeToggle = general.AddCheckbox("Vanilla mode", !ARMode, delegate (bool vanillaMode) {
-                if (ARMode == !vanillaMode) // happens after rejecting confirmation message
-                    return; // no change is necessary
-                if (vanillaMode)
-                    OnConfimRemoveARdata(); // set to vanilla mode
-                else
-                    OnRefreshARMode(); // set to ARMode
+            if(inAssetEditor || Helpers.InStartupMenu) {
+                VanillaModeToggle = general.AddCheckbox("Vanilla mode", !ARMode, delegate (bool vanillaMode) {
+                    if(ARMode == !vanillaMode) // happens after rejecting confirmation message
+                        return; // no change is necessary
+                    if(vanillaMode)
+                        OnConfimRemoveARdata(); // set to vanilla mode
+                    else
+                        OnRefreshARMode(); // set to ARMode
 
-            }) as UICheckBox;
+                }) as UICheckBox;
+            }
 
             var btn = general.AddCheckbox("Left Hand Traffic", NetUtil.LHT, RoadUtils.SetDirection) as UICheckBox;
-            btn.eventVisibilityChanged += (_,__) => btn.isChecked = NetUtil.LHT;
+            btn.eventVisibilityChanged += (_, __) => btn.isChecked = NetUtil.LHT;
 
+            if(inAssetEditor) { 
+                var dd = general.AddDropdown(
+                    "preferred speed unit",
+                    Enum.GetNames(typeof(SpeedUnitType)),
+                    0, // kph
+                    sel => {
+                        var value = GetEnumValues<SpeedUnitType>()[sel];
+                        SpeedUnit.value = (int)value;
+                        Log.Debug("option 'preferred speed unit' is set to " + value);
+                        RoadEditorUtils.RefreshRoadEditor();
+                    });
 
-            var dd = general.AddDropdown(
-                "preferred speed unit",
-                Enum.GetNames(typeof(SpeedUnitType)),
-                0, // kph
-                sel => {
-                    var value = GetEnumValues<SpeedUnitType>()[sel];
-                    SpeedUnit.value = (int)value;
-                    Log.Debug("option 'preferred speed unit' is set to " + value);
-                    RoadEditorUtils.RefreshRoadEditor();
-                });
+                general.AddSavedToggle("hide irrelevant flags", HideIrrelavant);
+                general.AddSavedToggle("hide floating hint box", HideHints);
+                general.AddSavedToggle("Set default scale to 100", DefaultScale100);
+            }
 
-            general.AddSavedToggle("hide irrelevant flags", HideIrrelavant);
-            general.AddSavedToggle("hide floating hint box", HideHints);
-            general.AddSavedToggle("Set default scale to 100", DefaultScale100);
+            if(!Helpers.InStartupMenu) {
+                general.AddButton("Refresh AR networks", RefreshARNetworks);
+            }
 
-            //var export = helper.AddGroup("import/export:");
-            //export.AddButton("export edited road", null);
-            //export.AddButton("import to edited road", null);
+            if(inAssetEditor) {
+                //var export = helper.AddGroup("import/export:");
+                //export.AddButton("export edited road", null);
+                //export.AddButton("import to edited road", null);
 
-            var extensions = helper.AddGroup("UI components visible in asset editor:");
-            var segment = extensions.AddGroup("Segment");
-            segment.AddSavedToggle("Node flags", Segment_Node);
-            segment.AddSavedToggle("Segment End flags", Segment_SegmentEnd);
+                var extensions = helper.AddGroup("UI components visible in asset editor:");
+                var segment = extensions.AddGroup("Segment");
+                segment.AddSavedToggle("Node flags", Segment_Node);
+                segment.AddSavedToggle("Segment End flags", Segment_SegmentEnd);
 
-            var node = extensions.AddGroup("Node");
-            node.AddSavedToggle("Segment and Segment-extension flags", Node_Segment);
+                var node = extensions.AddGroup("Node");
+                node.AddSavedToggle("Segment and Segment-extension flags", Node_Segment);
 
-            var laneProp = extensions.AddGroup("Lane prop");
-            laneProp.AddSavedToggle("Segment and Segment-extension flags", Lane_Segment);
-            laneProp.AddSavedToggle("Segment End flags", Lane_SegmentEnd);
+                var laneProp = extensions.AddGroup("Lane prop");
+                laneProp.AddSavedToggle("Segment and Segment-extension flags", Lane_Segment);
+                laneProp.AddSavedToggle("Segment End flags", Lane_SegmentEnd);
+            }
+
         }
 
         public static void OnConfimRemoveARdata() {
@@ -168,5 +181,9 @@ namespace AdaptiveRoads.UI {
             NetInfoExtionsion.Ensure_EditedNetInfos();
             RoadEditorUtils.RefreshRoadEditor();
         }
+
+        public static void RefreshARNetworks() =>
+            NetworkExtensionManager.RawInstance?.UpdateAllNetworkFlags();
+        
     }
 }

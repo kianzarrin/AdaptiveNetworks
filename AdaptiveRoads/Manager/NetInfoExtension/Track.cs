@@ -266,6 +266,11 @@ namespace AdaptiveRoads.Manager {
                 "flags for source segment is also checked on nodes.")]
             public SegmentInfoFlags SegmentFlags;
 
+            [CustomizableProperty("Lane")]
+            [Hint("checked on segment lanes.\n" +
+                "flags for source lane is also checked on node transitions.")]
+            public LaneInfoFlags LaneFlags;
+
             [CustomizableProperty("Node")]
             public VanillaNodeInfoFlags VanillaNodeFlags;
 
@@ -279,17 +284,20 @@ namespace AdaptiveRoads.Manager {
 
             public bool CheckNodeFlags
                 (NetNodeExt.Flags nodeFlags, NetNode.Flags vanillaNodeFlags,
-                NetSegmentExt.Flags sourceSegmentFlags, NetSegment.Flags startVanillaSegmentFlags) =>
+                NetSegmentExt.Flags sourceSegmentFlags, NetSegment.Flags startVanillaSegmentFlags, NetLaneExt.Flags laneFalgs) =>
                 RenderNode && NodeFlags.CheckFlags(nodeFlags) && VanillaNodeFlags.CheckFlags(vanillaNodeFlags) &&
-                SegmentFlags.CheckFlags(sourceSegmentFlags) && VanillaSegmentFlags.CheckFlags(startVanillaSegmentFlags);
+                SegmentFlags.CheckFlags(sourceSegmentFlags) && VanillaSegmentFlags.CheckFlags(startVanillaSegmentFlags) &&
+                LaneFlags.CheckFlags(laneFalgs);
 
 
-            public bool CheckSegmentFlags(NetSegmentExt.Flags segmentFlags, NetSegment.Flags vanillaSegmentFlags) =>
-                RenderSegment && SegmentFlags.CheckFlags(segmentFlags) && VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags);
+            public bool CheckSegmentFlags(NetSegmentExt.Flags segmentFlags, NetSegment.Flags vanillaSegmentFlags, NetLaneExt.Flags laneFalgs) =>
+                RenderSegment && SegmentFlags.CheckFlags(segmentFlags) && VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags)
+                && LaneFlags.CheckFlags(laneFalgs);
 
             public CustomFlags UsedCustomFlags => new CustomFlags {
                 Segment = SegmentFlags.UsedCustomFlags,
                 Node = NodeFlags.UsedCustomFlags,
+                Lane = LaneFlags.UsedCustomFlags,
             };
             #endregion
 

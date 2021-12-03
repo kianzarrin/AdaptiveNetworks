@@ -6,9 +6,11 @@ namespace AdaptiveRoads.Manager {
     using KianCommons.Serialization;
     using static KianCommons.ReflectionHelpers;
     using KianCommons.Plugins;
-    using AdaptiveRoads.Data.NetworkExtensions;
+    using UnityEngine;
+    using KianCommons.IImplict;
+    using System.Collections;
 
-    public static class NetworkExtensionManagerExtensions{
+    public static class NetworkExtensionManagerExtensions {
         static NetworkExtensionManager man_ => NetworkExtensionManager.Instance;
         public static ref NetNodeExt ToNodeExt(this ushort id) => ref man_.NodeBuffer[id];
         public static ref NetSegmentExt ToSegmentExt(this ushort id) => ref man_.SegmentBuffer[id];
@@ -16,20 +18,36 @@ namespace AdaptiveRoads.Manager {
     }
 
     [Serializable]
-    public class NetworkExtensionManager {
+    public class NetworkExtensionManager : MonoBehaviour, IAwakingObject {
         #region LifeCycle
-        private NetworkExtensionManager() {
-            LogCalled();
-            Log.Debug(Environment.StackTrace);
-            InitBuffers();
+
+        [Obsolete("call create instead", error:true)] private NetworkExtensionManager() { }
+
+        public void Awake() {
+            try {
+                LogCalled();
+                Log.Debug(Environment.StackTrace);
+                InitBuffers();
+                this.enabled = true;
+            } catch(Exception ex) { ex.Log(); }
         }
 
 #if DEBUG
-        internal static NetworkExtensionManager CreateNew() => new NetworkExtensionManager();
+        internal static NetworkExtensionManager CreateNew() => Create();
 #endif
 
+        private static NetworkExtensionManager Create() {
+            try {
+                Log.Called();
+                var go = new GameObject(nameof(NetworkExtensionManager), typeof(NetworkExtensionManager));
+                GameObject.DontDestroyOnLoad(go);
+                return go.GetComponent<NetworkExtensionManager>();
+            }catch(Exception ex) { ex.Log(); }
+            return null;
+        }
+
         static NetworkExtensionManager instance_;
-        public static NetworkExtensionManager Instance => instance_ ??= new NetworkExtensionManager();
+        public static NetworkExtensionManager Instance => instance_ ??= Create();
         public static NetworkExtensionManager RawInstance => instance_;
         public static bool Exists => instance_ != null;
 
@@ -68,7 +86,7 @@ namespace AdaptiveRoads.Manager {
         }
         public static void Deserialize(SimpleDataSerializer s) {
             try {
-                instance_ = new NetworkExtensionManager();
+                instance_ = Create();
                 if (s != null)
                     instance_.DeserializeImp(s);
             } catch (Exception ex) {
@@ -106,39 +124,45 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
-        /// <summary>
-        /// preconditions: none. does not need any patches.
-        /// </summary>
         public void OnLoad() {
-            //NetManager.instance.RebuildLods(); // [PreloadPatch] NetManager_InitRenderDataImpl takes care of this right from the start.
-            SimulationManager.instance.AddAction(OnLoadImpl);
+            SimulationManager.instance.AddAction(LoadImpl);
+            Log.Called();
         }
 
         // should be called from simulation thread.
-        void OnLoadImpl() {
+        void LoadImpl() {
             LogCalled();
             UpdateAllNetworkFlags();
+            UpdateAllNetworkFlags();
             LogSucceeded();
-
         }
 
         // should be called from simulation thread.
         public void UpdateAllNetworkFlags() {
-            for(ushort segmentID = 0; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
-                if(!NetUtil.IsSegmentValid(segmentID)) continue;
-                SegmentBuffer[segmentID].UpdateAllFlags();
-            }
-            for(ushort nodeID = 0; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID) {
-                if(!NetUtil.IsNodeValid(nodeID)) continue;
-                NodeBuffer[nodeID].UpdateFlags();
-            }
-            for(ushort segmentID = 0; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
-                if(!NetUtil.IsSegmentValid(segmentID)) continue;
-                NetManager.instance.UpdateSegmentRenderer(segmentID, true);
-            }
-            for(ushort nodeID = 0; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID) {
-                if(!NetUtil.IsNodeValid(nodeID)) continue;
-                NetManager.instance.UpdateNodeRenderer(nodeID, true);
+            try {
+                if(!Helpers.InSimulationThread()) {
+                    Log.Info("calling UpdateAllNetworkFlags() again from simulation thread");
+                    SimulationManager.instance.AddAction(UpdateAllNetworkFlags);
+                }
+                Log.Called();
+                for(ushort segmentID = 0; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
+                    if(!NetUtil.IsSegmentValid(segmentID)) continue;
+                    SegmentBuffer[segmentID].UpdateAllFlags();
+                }
+                for(ushort nodeID = 0; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID) {
+                    if(!NetUtil.IsNodeValid(nodeID)) continue;
+                    NodeBuffer[nodeID].UpdateFlags();
+                }
+                for(ushort segmentID = 0; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
+                    if(!NetUtil.IsSegmentValid(segmentID)) continue;
+                    NetManager.instance.UpdateSegmentRenderer(segmentID, true);
+                }
+                for(ushort nodeID = 0; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID) {
+                    if(!NetUtil.IsNodeValid(nodeID)) continue;
+                    NetManager.instance.UpdateNodeRenderer(nodeID, true);
+                }
+            } catch(Exception ex) {
+                ex.Log();
             }
         }
 
@@ -157,6 +181,7 @@ namespace AdaptiveRoads.Manager {
         }
 
         public void OnUnload() {
+            Destroy(gameObject);
             instance_ = null;
         }
 

@@ -110,10 +110,10 @@ namespace AdaptiveRoads.Util {
             return ret;
         }
 
-        public static void SetDirection(bool lht = true) {
+        public static void SetDirection(bool lht) {
             SimulationManager.instance.AddAction(() => SetDirectionImpl(lht));
         }
-        public static void SetDirectionImpl(bool lht = true) {
+        public static void SetDirectionImpl(bool lht) {
             Log.Called();
             if(lht == NetUtil.LHT) return; // no need for change.
             SimulationManager.instance.m_metaData.m_invertTraffic =

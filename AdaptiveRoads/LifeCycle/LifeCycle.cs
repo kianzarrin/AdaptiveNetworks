@@ -150,6 +150,8 @@ namespace AdaptiveRoads.LifeCycle {
 
                 ARTool.Create();
 
+                NetworkExtensionManager.Instance.OnLoad();
+
                 const bool testPWValues = false;
                 if (testPWValues) {
                     UI.Debug.PWSelector.Create();

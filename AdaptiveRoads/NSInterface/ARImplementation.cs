@@ -149,7 +149,7 @@ namespace AdaptiveRoads.NSInterface {
                 }
                 if(PrefabCustomFlags.Lane != default) {
                     foreach(var laneIndex in Prefab.m_sortedLanes) {
-                        var usedLaneFlags = Prefab.m_lanes[laneIndex].GetUsedCustomFlagsLane();
+                        var usedLaneFlags = Prefab.GetUsedCustomFlagsLane(laneIndex);
                         foreach(var usedFlag in usedLaneFlags.ExtractPow2Flags()) {
                             var value = ActiveSelectionData.Instance.GetBoolValue(Prefab, GetLaneFlagKey(laneIndex, usedFlag));
                             if(value.HasValue && value == true) {
@@ -185,7 +185,7 @@ namespace AdaptiveRoads.NSInterface {
                 }
                 if(PrefabCustomFlags.Lane != default) {
                     foreach(var laneIndex in Prefab.m_sortedLanes) {
-                        var usedLaneFlags = Prefab.m_lanes[laneIndex].GetUsedCustomFlagsLane();
+                        var usedLaneFlags = Prefab.GetUsedCustomFlagsLane(laneIndex);
                         foreach(var usedFlag in usedLaneFlags.ExtractPow2Flags()) {
                             if(ARCustomFlags.Lanes[laneIndex].IsFlagSet(usedFlag))
                                 ActiveSelectionData.Instance.SetBoolValue(Prefab, GetLaneFlagKey(laneIndex, usedFlag), true);

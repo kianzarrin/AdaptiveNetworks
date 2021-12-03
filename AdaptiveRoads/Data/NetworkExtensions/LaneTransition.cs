@@ -153,8 +153,9 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         }
 
         private bool Check(NetInfoExtionsion.Track trackInfo) =>
-            trackInfo.HasTrackLane(laneIndexA) && trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags, SegmentExtA.m_flags, SegmentA.m_flags);
-
+            trackInfo.HasTrackLane(laneIndexA) &&
+            trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags,
+                SegmentExtA.m_flags, SegmentA.m_flags, LaneExtA.m_flags);
 
         public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo) {
             if(Nodeless) return;
