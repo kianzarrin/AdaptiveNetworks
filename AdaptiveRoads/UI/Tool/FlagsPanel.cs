@@ -126,7 +126,7 @@ namespace AdaptiveRoads.UI.Tool {
             }
 
             foreach (var lane in NetUtil.GetSortedLanes(segmentID_)) {
-                var laneMask = segmentID_.ToSegment().Info.GetUsedCustomFlagsLane(lane.LaneIndex);
+                var laneMask = segmentID_.ToSegmentExt().NetInfoExt.GetUsedCustomFlagsLane(lane.LaneIndex);
 
                 //Log.Info($"lane:{lane} laneMask:" + laneMask);
                 if (laneMask != 0)

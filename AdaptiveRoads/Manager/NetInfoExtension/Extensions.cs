@@ -80,12 +80,6 @@ namespace AdaptiveRoads.Manager {
                 return flags.CheckFlags(segmentInfo.m_backwardRequired, segmentInfo.m_backwardForbidden);
         }
 
-        /// <summary>
-        /// Gets the used lane flags for the input lane (not all the lanes of the NetInfo)
-        /// </summary>
-        public static NetLaneExt.Flags GetUsedCustomFlagsLane(this NetInfo netInfo, int laneIndex) =>
-            netInfo?.GetMetaData()?.GetUsedCustomFlagsLane(laneIndex) ?? default;
-
         /// <param name="layerMask">for calculate/populate group data <c>layerMask=1<<layer</c></param>
         /// <returns>if there is any matching layer</returns>
         public static bool CheckNetLayers(this NetInfo info, int layerMask) => info && (layerMask & info.m_netLayers) != 0;
