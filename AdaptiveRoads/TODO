@@ -1,7 +1,6 @@
 tracks
-    - lane flags
-    - bug: refresh on load
-    - hide in AE features in game.
+- lane flags
+- hide in AE features in game.
 
 -----------------
 - remove custom flags when network is deleted.
