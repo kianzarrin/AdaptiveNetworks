@@ -9,6 +9,8 @@ namespace AdaptiveRoads.Manager {
     using UnityEngine;
     using KianCommons.IImplict;
     using System.Collections;
+    using TrafficManager;
+    using TrafficManager.API.Notifier;
 
     public static class NetworkExtensionManagerExtensions {
         static NetworkExtensionManager man_ => NetworkExtensionManager.Instance;
@@ -124,10 +126,6 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
-        public void OnLoad() {
-            SimulationManager.instance.AddAction(LoadImpl);
-            Log.Called();
-        }
 
         // should be called from simulation thread.
         void LoadImpl() {
@@ -161,6 +159,8 @@ namespace AdaptiveRoads.Manager {
                     if(!NetUtil.IsNodeValid(nodeID)) continue;
                     NetManager.instance.UpdateNodeRenderer(nodeID, true);
                 }
+                Notifier.Instance.EventModified -= OnTMPEModified;
+                Notifier.Instance.EventModified += OnTMPEModified;
             } catch(Exception ex) {
                 ex.Log();
             }
@@ -169,6 +169,10 @@ namespace AdaptiveRoads.Manager {
         public void HotReload() {
             NetManager.instance.RebuildLods();
             RecalculateARPrefabs();
+        }
+
+        public static void OnTMPELoaded() {
+            SimulationManager.instance.AddAction(Instance.LoadImpl);
         }
 
         // should be called from main thread.
@@ -180,7 +184,15 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
+        private void OnTMPEModified(OnModifiedEventArgs args) {
+            if (args.InstanceID.Type == InstanceType.NetNode)
+                UpdateNode(args.InstanceID.NetNode, level: -2);
+            if (args.InstanceID.Type == InstanceType.NetSegment)
+                UpdateSegment(args.InstanceID.NetSegment, level:-2);
+        }
+
         public void OnUnload() {
+            Notifier.Instance.EventModified -= OnTMPEModified;
             Destroy(gameObject);
             instance_ = null;
         }
