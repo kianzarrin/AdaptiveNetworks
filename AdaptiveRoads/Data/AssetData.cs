@@ -112,11 +112,11 @@ namespace AdaptiveRoads.Manager {
             try {
                 VersionString = info.GetString("VersionString");
             } catch {
-                VersionString = default(Version).ToString(3);
+                VersionString = "0.0.0";
             }
             try {
                 var version = SerializationUtil.DeserializationVersion = new Version(VersionString);
-                if(version < new Version("1,8")) {
+                if(version < new Version(1,8)) {
                     Log.Warning($"old asset data (version:{version})");
                 }
             } catch { }
