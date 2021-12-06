@@ -1,3 +1,7 @@
+- why switching segments causes graphic errors. does it happen to props to?
+- unbroken median flag.
+- expressions for custom flags.
+
 tracks:
 - check node/segment flags at segment's/node's : start/end/both
 - why do I need to refresh roads 2 times on load?
@@ -6,6 +10,7 @@ tracks:
 - remove custom flags when network is deleted.
 - list scrollbars
 - group DC components.
+
 
 
 ----------------------------
