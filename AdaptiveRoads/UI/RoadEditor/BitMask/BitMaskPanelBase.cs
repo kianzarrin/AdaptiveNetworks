@@ -14,6 +14,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
     using System.Collections.Generic;
     using PrefabMetadata.API;
     using PrefabMetadata.Helpers;
+    using AdaptiveRoads.CustomScript;
 
     internal struct FlagDataT {
         public delegate void SetHandlerD(IConvertible flag);
@@ -103,22 +104,46 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
                 if (Helpers.ControlIsPressed) {
                     Enum flag = DropDown.GetItemUserData(index) as Enum;
                     var cfa = flag.GetEnumMemberAttributes<CustomFlagAttribute>();
+                    var efa = flag.GetEnumMemberAttributes<ExpressionFlagAttribute>();
                     if (!cfa.IsNullorEmpty()) {
-                        if(!DropDown.GetChecked(index)) // gaurd for stack overflow.
+                        if (!DropDown.GetChecked(index)) // guard for stack overflow.
                             DropDown.SetChecked(index, true);
                         var panel = MiniPanel.Display();
                         panel.AddUIComponent<UILabel>().text = "Rename " + flag.ToString();
 
-                        var field = panel.AddTextField();
-                        field.width = 200;
+                        var nameField = panel.AddTextField();
+                        nameField.width = 200;
                         Assertion.NotNull(Target);
                         string flagName = NetInfoExtionsion.Net.GetCustomFlagName(flag: flag, target: Target);
-                        field.text = flagName ?? "";
+                        nameField.text = flagName ?? "";
 
                         panel.AddButton("Rename", null, () => {
-                            NetInfoExtionsion.Net.RenameCustomFlag(flag: flag, target: Target, name: field.text);
+                            NetInfoExtionsion.Net.RenameCustomFlag(flag: flag, target: Target, name: nameField.text);
                             DropDown.triggerButton.Invoke(nameof(SimulateClick), 0);
                         });
+                    } else if (!efa.IsNullorEmpty()) {
+                        if (!DropDown.GetChecked(index)) // guard for stack overflow.
+                            DropDown.SetChecked(index, true);
+                        var panel = MiniPanel.Display();
+                        panel.AddUIComponent<UILabel>().text = "Rename " + flag.ToString();
+
+                        var nameField = panel.AddTextField();
+                        nameField.width = 200;
+                        Assertion.NotNull(Target);
+                        var exp = NetInfoExtionsion.Net.GetExpression(flag: flag, target: Target);
+                        nameField.text = exp?.Name ?? "";
+
+                        panel.AddUIComponent<UILabel>().text = "path to script: ";
+
+                        var pathField = panel.AddTextField();
+                        pathField.width = 400;
+                        pathField.Hint = "path .cs script to calculate this flag (see tutorial in wiki)";
+
+                        panel.AddButton("Assign Script", null, () => {
+                            NetInfoExtionsion.Net.AssignScript(flag: flag, target: Target, name: nameField.text, path: pathField.name);
+                            DropDown.triggerButton.Invoke(nameof(SimulateClick), 0);
+                        });
+
                     }
                 }
             } catch (Exception ex) { ex.Log(); }
@@ -207,7 +232,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
                 padding.left = 5;
                 padding.right = 21;
 
-                uibutton.text = text; // must set text to mearure text once and only once.
+                uibutton.text = text; // must set text to measure text once and only once.
 
                 using (UIFontRenderer uifontRenderer = ObtainTextRenderer(uibutton)) {
                     float p2uRatio = uibutton.GetUIView().PixelsToUnits();
@@ -277,6 +302,13 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
                             if(!cfName.IsNullorEmpty())
                                 hints.Insert(0, "display name : " + cfName);
                             hints.Add("CTRL+Click => Rename custom flag");
+                        }
+                        bool isExpression = !flag.GetEnumMemberAttributes<ExpressionFlagAttribute>().IsNullorEmpty();
+                        if (isExpression) {
+                            var exp = NetInfoExtionsion.Net.GetExpression(flag, Target);
+                            if (exp != null)
+                                hints.Insert(0, "expression : " + exp.Name);
+                            hints.Add("CTRL+Click => Assign script");
                         }
                     } else if (userData != null) {
                         hints.Add(userData.ToString());

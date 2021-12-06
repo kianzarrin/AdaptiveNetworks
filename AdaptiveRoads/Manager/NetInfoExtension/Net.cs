@@ -8,6 +8,7 @@ namespace AdaptiveRoads.Manager {
     using PrefabMetadata.Helpers;
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Runtime.Serialization;
     using UnityEngine;
@@ -33,7 +34,7 @@ namespace AdaptiveRoads.Manager {
                 ret.CustomLaneFlagNames = ret.CustomLaneFlagNames
                     ?.Select(item => item?.ToDictionary(entry => entry.Key, entry => entry.Value))
                     ?.ToArray();
-                for(int i = 0; i < ret.Tracks.Length; ++i) {
+                for (int i = 0; i < ret.Tracks.Length; ++i) {
                     ret.Tracks[i] = ret.Tracks[i].Clone();
                 }
 
@@ -48,7 +49,7 @@ namespace AdaptiveRoads.Manager {
             }
 
             public void ReleaseModels() {
-                foreach(var track in Tracks) {
+                foreach (var track in Tracks) {
                     track.ReleaseModel();
                 }
             }
@@ -135,26 +136,26 @@ namespace AdaptiveRoads.Manager {
 
             static CustomFlags GatherUsedCustomFlags(NetInfo info) {
                 var ret = CustomFlags.None;
-                foreach(var item in info.m_nodes) {
-                    if(item.GetMetaData() is Node metaData)
+                foreach (var item in info.m_nodes) {
+                    if (item.GetMetaData() is Node metaData)
                         ret |= metaData.UsedCustomFlags;
                 }
 
-                foreach(var item in info.m_segments) {
-                    if(item.GetMetaData() is Segment metaData)
+                foreach (var item in info.m_segments) {
+                    if (item.GetMetaData() is Segment metaData)
                         ret |= metaData.UsedCustomFlags;
                 }
 
-                foreach(var lane in info.m_lanes) {
+                foreach (var lane in info.m_lanes) {
                     var props = lane.m_laneProps?.m_props;
-                    if(props.IsNullorEmpty()) continue;
-                    foreach(var item in props) {
-                        if(item.GetMetaData() is LaneProp metaData)
+                    if (props.IsNullorEmpty()) continue;
+                    foreach (var item in props) {
+                        if (item.GetMetaData() is LaneProp metaData)
                             ret |= metaData.UsedCustomFlags;
                     }
                 }
 
-                foreach(var track in info.GetMetaData()?.Tracks ?? Enumerable.Empty<Track>()) {
+                foreach (var track in info.GetMetaData()?.Tracks ?? Enumerable.Empty<Track>()) {
                     ret |= track.UsedCustomFlags;
                 }
 
@@ -164,52 +165,52 @@ namespace AdaptiveRoads.Manager {
             private void FillCustomLaneFlagNames() {
                 try {
                     CustomLaneFlagNames = null;
-                    if(CustomLaneFlagNames.IsNullorEmpty()) return;
+                    if (CustomLaneFlagNames.IsNullorEmpty()) return;
                     CustomLaneFlagNames = new Dictionary<NetLaneExt.Flags, string>[Template.m_lanes.Length];
-                    for(int laneIndex = 0; laneIndex < CustomLaneFlagNames.Length; ++laneIndex) {
+                    for (int laneIndex = 0; laneIndex < CustomLaneFlagNames.Length; ++laneIndex) {
                         var lane = Template.m_lanes[laneIndex];
-                        if(CustomLaneFlagNames0.TryGetValue(lane, out var dict)) {
+                        if (CustomLaneFlagNames0.TryGetValue(lane, out var dict)) {
                             CustomLaneFlagNames[laneIndex] = dict;
                         }
                     }
-                } catch(Exception ex) { ex.Log(); }
+                } catch (Exception ex) { ex.Log(); }
             }
 
             public string GetCustomLaneFlagName(NetLaneExt.Flags flag, int laneIndex) {
                 try {
-                    if(CustomLaneFlagNames0 is not null) {
+                    if (CustomLaneFlagNames0 is not null) {
                         // edit prefab
                         var lane = Template.m_lanes[laneIndex];
-                        if(CustomLaneFlagNames0.TryGetValue(lane, out var dict) &&
+                        if (CustomLaneFlagNames0.TryGetValue(lane, out var dict) &&
                             dict.TryGetValue(flag, out string name)) {
                             return name;
                         }
 
-                    } else if(CustomLaneFlagNames is not null) {
+                    } else if (CustomLaneFlagNames is not null) {
                         // normal
                         Assertion.InRange(CustomLaneFlagNames, laneIndex);
                         var dict = CustomLaneFlagNames[laneIndex];
-                        if(dict != null && dict.TryGetValue(flag, out string name)) {
+                        if (dict != null && dict.TryGetValue(flag, out string name)) {
                             return name;
                         }
                     }
-                } catch(Exception ex) { ex.Log(); }
+                } catch (Exception ex) { ex.Log(); }
 
                 return null;
             }
 
             public static string GetCustomFlagName(Enum flag, object target) {
                 try {
-                    if(flag is NetLaneExt.Flags laneFlag) {
-                        if(target is NetLaneProps.Prop prop) {
+                    if (flag is NetLaneExt.Flags laneFlag) {
+                        if (target is NetLaneProps.Prop prop) {
                             var netInfo = prop.GetParent(laneIndex: out int laneIndex, out _);
                             return netInfo?.GetMetaData()?.GetCustomLaneFlagName(laneFlag, laneIndex);
-                        } else if(target is Track track) {
+                        } else if (target is Track track) {
                             var netInfo = track.ParentInfo;
-                            for(int laneIndex = 0; laneIndex < netInfo.m_lanes.Length; ++laneIndex) {
-                                if(track.HasTrackLane(laneIndex)) {
+                            for (int laneIndex = 0; laneIndex < netInfo.m_lanes.Length; ++laneIndex) {
+                                if (track.HasTrackLane(laneIndex)) {
                                     string name = netInfo?.GetMetaData()?.GetCustomLaneFlagName(laneFlag, laneIndex);
-                                    if(!name.IsNullorEmpty()) return name;
+                                    if (!name.IsNullorEmpty()) return name;
                                 }
                             }
                             return null;
@@ -222,12 +223,40 @@ namespace AdaptiveRoads.Manager {
                         //  (target as NetInfo.Segment)?.GetParent(out _) ??
                         //  (target as NetLaneProps.Prop)?.GetParent(out _, out _);
                         var dict = netInfo?.GetMetaData()?.CustomFlagNames;
-                        if(dict != null && dict.TryGetValue(flag, out string name)) {
+                        if (dict != null && dict.TryGetValue(flag, out string name)) {
                             return name;
                         }
                     }
-                } catch(Exception ex) { ex.Log(); }
+                } catch (Exception ex) { ex.Log(); }
                 return null;
+            }
+
+            public static ExpressionWrapper GetExpression(Enum flag, object target) {
+                try {
+                    var netInfo = RoadEditorUtils.GetSelectedNetInfo(out _);
+                    var dict = netInfo?.GetMetaData()?.ScriptedFlags;
+                    if (dict != null && dict.TryGetValue(flag, out var exp)) {
+                        return exp;
+                    }
+                } catch (Exception ex) { ex.Log(); }
+                return null;
+            }
+
+            public static void AssignScript(Enum flag, object target, string name, string path) {
+                try {
+                    var netInfo = RoadEditorUtils.GetSelectedNetInfo(out _);
+                    netInfo.GetMetaData().AssignScript(flag: flag, name: name, path: path);
+                } catch (Exception ex) { ex.Log(); }
+            }
+
+            public void AssignScript(Enum flag, string name, string path) {
+                try {
+                    if (path.IsNullOrWhiteSpace())
+                        ScriptedFlags.Remove(flag);
+                    else 
+                        ScriptedFlags[flag] = new ExpressionWrapper(new FileInfo(path), name);
+                    OnCustomFlagRenamed?.Invoke();
+                } catch (Exception ex) { ex.Log(); }
             }
 
             public static event Action OnCustomFlagRenamed; // TODO move out
