@@ -61,14 +61,15 @@ namespace AdaptiveRoads.CustomScript {
         public PredicateBase Instance;
 
 
-        public PredicateBase GetPredicateInstance(ushort segmentID, ushort nodeID) {
+        public PredicateBase GetPredicateInstance(ushort segmentID, ushort nodeID, int laneIndex = -1) {
             Instance.NodeID = nodeID;
             Instance.SegmentID = segmentID;
+            Instance.LaneIndex = laneIndex;
             return Instance;
         }
 
-        public bool Condition(ushort segmentID, ushort nodeID) {
-            var instance = GetPredicateInstance(segmentID, nodeID);
+        public bool Condition(ushort segmentID, ushort nodeID, int laneIndex = -1) {
+            var instance = GetPredicateInstance(segmentID, nodeID, laneIndex);
             return instance.Condition();
         }
     }

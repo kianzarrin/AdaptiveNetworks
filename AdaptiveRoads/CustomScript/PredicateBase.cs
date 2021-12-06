@@ -30,7 +30,7 @@ namespace AdaptiveRoads.CustomScript {
         public ref NetSegmentExt Segment => ref SegmentID.ToSegmentExt();
         public ref NetNodeExt Node => ref NodeID.ToNodeExt();
         public ref NetSegmentEnd SegmentEnd => ref Segment.GetEnd(NodeID);
-        public uint LaneId => Segment.LaneIDs[LaneIndex];
+        public uint LaneId => LaneIndex >= 0 ? Segment.LaneIDs[LaneIndex] : 0;
         public ref NetLaneExt Lane => ref LaneId.ToLaneExt();
         public ref NetLaneExt Lanes(int laneIndex) => ref Segment.LaneIDs[laneIndex].ToLaneExt();
     }

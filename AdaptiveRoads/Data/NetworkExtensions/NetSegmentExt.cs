@@ -1,4 +1,5 @@
 namespace AdaptiveRoads.Manager {
+    using AdaptiveRoads.CustomScript;
     using AdaptiveRoads.Data.NetworkExtensions;
     using AdaptiveRoads.Util;
     using ColossalFramework;
@@ -38,7 +39,7 @@ namespace AdaptiveRoads.Manager {
         }
 
         [Flags]
-        public enum Flags {
+        public enum Flags : Int64 {
             None = 0,
 
             [Hint(HintExtension.VANILLA)]
@@ -63,6 +64,16 @@ namespace AdaptiveRoads.Manager {
             [CustomFlag] Custom6 = 1 << 30,
             [CustomFlag] Custom7 = 1 << 31,
             CustomsMask = Custom0 | Custom1 | Custom2 | Custom3 | Custom4 | Custom5 | Custom6 | Custom7,
+
+            [ExpressionFlag] Expression0 = 1L << 32,
+            [ExpressionFlag] Expression1 = 1L << 33,
+            [ExpressionFlag] Expression2 = 1L << 34,
+            [ExpressionFlag] Expression3 = 1L << 35,
+            [ExpressionFlag] Expression4 = 1L << 36,
+            [ExpressionFlag] Expression5 = 1L << 37,
+            [ExpressionFlag] Expression6 = 1L << 38,
+            [ExpressionFlag] Expression7 = 1L << 39,
+            ExpressionMask = Expression0 | Expression1 | Expression2 | Expression3 | Expression4 | Expression5 | Expression6 | Expression7,
         }
 
         public ref NetSegmentEnd Start => ref NetworkExtensionManager.Instance.GetSegmentEnd(SegmentID, startNode: true);
@@ -137,7 +148,7 @@ namespace AdaptiveRoads.Manager {
                 End.UpdateDirections();
                 End.UpdateCorners();
 
-                if(Log.VERBOSE) Log.Debug($"NetSegmentExt.UpdateAllFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
+                if (Log.VERBOSE) Log.Debug($"NetSegmentExt.UpdateAllFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
                 if(Log.VERBOSE) Log.Debug($"NetSegmentExt:{NetInfoExt}, TrackLaneCount={NetInfoExt?.TrackLaneCount}");
             } catch(Exception ex) {
                 Log.Exception(
@@ -146,6 +157,29 @@ namespace AdaptiveRoads.Manager {
                     $"startNode:{Start.NodeID} endNode:{End.NodeID}",
                     showErrorOnce_);
                 showErrorOnce_ = false;
+            }
+        }
+
+        public void UpdateScriptedFlags() {
+            try {
+                if (NetInfoExt == null) return;
+
+                foreach (var scriptedFlag in Flags.ExpressionMask.ExtractPow2Flags()) {
+                    bool condition = false;
+                    if (NetInfoExt.ScriptedFlags.TryGetValue(scriptedFlag, out var expression)) {
+                        condition = expression.Condition(segmentID: SegmentID, nodeID: 0);
+                    }
+                    m_flags = m_flags.SetFlags(scriptedFlag, condition);
+                }
+
+                Start.UpdateScriptedFlags();
+                End.UpdateScriptedFlags();
+
+                foreach(var laneID in LaneIDs) {
+                    laneID.ToLaneExt().UpdateScriptedFlags();
+                }
+            } catch (Exception ex) {
+                ex.Log();
             }
         }
 

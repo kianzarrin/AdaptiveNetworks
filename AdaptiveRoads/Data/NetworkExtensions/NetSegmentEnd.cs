@@ -15,6 +15,7 @@ namespace AdaptiveRoads.Manager {
     using AdaptiveRoads.Data.NetworkExtensions;
     using UnityEngine;
     using Log = KianCommons.Log;
+    using AdaptiveRoads.CustomScript;
 
     public struct NetSegmentEnd {
         #region shortcuts for dummies
@@ -109,6 +110,17 @@ namespace AdaptiveRoads.Manager {
             [CustomFlag] Custom6 = 1 << 30,
             [CustomFlag] Custom7 = 1L << 31,
             CustomsMask = Custom0 | Custom1 | Custom2 | Custom3 | Custom4 | Custom5 | Custom6 | Custom7,
+
+            [ExpressionFlag] Expression0 = 1L << 34,
+            [ExpressionFlag] Expression1 = 1L << 35,
+            [ExpressionFlag] Expression2 = 1L << 36,
+            [ExpressionFlag] Expression3 = 1L << 37,
+            [ExpressionFlag] Expression4 = 1L << 38,
+            [ExpressionFlag] Expression5 = 1L << 39,
+            [ExpressionFlag] Expression6 = 1L << 40,
+            [ExpressionFlag] Expression7 = 1L << 41,
+            ExpressionMask = Expression0 | Expression1 | Expression2 | Expression3 | Expression4 | Expression5 | Expression6 | Expression7,
+
         }
 
         public Flags m_flags;
@@ -188,6 +200,22 @@ namespace AdaptiveRoads.Manager {
             flags = flags.SetFlags(Flags.LanesDecrease, lanesDecrease);
 
             m_flags = flags;
+        }
+
+        public void UpdateScriptedFlags() {
+            try {
+                var net = Segment.NetInfoExt;
+                if (net == null) return;
+                foreach (var scriptedFlag in Flags.ExpressionMask.ExtractPow2Flags()) {
+                    bool condition = false;
+                    if (net.ScriptedFlags.TryGetValue(scriptedFlag, out var expression)) {
+                        condition = expression.Condition(segmentID: SegmentID, nodeID: NodeID);
+                    }
+                    m_flags = m_flags.SetFlags(scriptedFlag, condition);
+                }
+            } catch (Exception ex) {
+                ex.Log();
+            }
         }
 
         public override string ToString() {
