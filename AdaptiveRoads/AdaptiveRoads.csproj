@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net35</TargetFramework>
     <Deterministic>false</Deterministic>
@@ -8,6 +8,7 @@
     <DebugSymbols>true</DebugSymbols>
     <PathMap>$(MSBuildProjectDirectory)\=$(ProjectName)\</PathMap>
     <Configurations>Debug;Release;FAST_TEST_PATCHES;Workshop;DebugQuayRoads</Configurations>
+    <ProduceReferenceAssemblies>true</ProduceReferenceAssemblies>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='DEBUG'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>

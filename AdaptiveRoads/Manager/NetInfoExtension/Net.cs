@@ -1,4 +1,5 @@
 namespace AdaptiveRoads.Manager {
+    using AdaptiveRoads.CustomScript;
     using AdaptiveRoads.UI.RoadEditor.Bitmask;
     using AdaptiveRoads.Util;
     using ColossalFramework;
@@ -27,6 +28,7 @@ namespace AdaptiveRoads.Manager {
                 ret.NodeConnectGroupsHash = ret.NodeConnectGroupsHash?.ToArray();
                 ret.QuayRoadsProfile = QuayRoadsProfile?.ToArray();
                 ret.CustomFlagNames = ret.CustomFlagNames?.ToDictionary(entry => entry.Key, entry => entry.Value);
+                ret.ScriptedFlags = ret.ScriptedFlags?.ToDictionary(entry => entry.Key, entry => entry.Value);
                 ret.CustomLaneFlagNames0 = ret.CustomLaneFlagNames0?.ToDictionary(entry => entry.Key, entry => entry.Value);
                 ret.CustomLaneFlagNames = ret.CustomLaneFlagNames
                     ?.Select(item => item?.ToDictionary(entry => entry.Key, entry => entry.Value))
@@ -111,6 +113,8 @@ namespace AdaptiveRoads.Manager {
             public CustomFlags UsedCustomFlags;
 
             public Dictionary<Enum, string> CustomFlagNames = new Dictionary<Enum, string>();
+
+            public Dictionary<Enum, ExpressionWrapper> ScriptedFlags = new Dictionary<Enum, ExpressionWrapper>();
 
             [NonSerialized]
             public Dictionary<NetInfo.Lane, Dictionary<NetLaneExt.Flags, string>> CustomLaneFlagNames0;

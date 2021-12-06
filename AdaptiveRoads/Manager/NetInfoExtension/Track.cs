@@ -69,7 +69,7 @@ namespace AdaptiveRoads.Manager {
             // deserialization
             public Track(SerializationInfo info, StreamingContext context) {
                 try {
-                    Log.Called();
+                    if (Log.VERBOSE) Log.Called();
                     var package = PackageManagerUtil.PersistencyPackage;
                     var sharing = LSMUtil.GetSharing();
                     Assertion.NotNull(package, "package");

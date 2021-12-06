@@ -1,7 +1,5 @@
 namespace AdaptiveRoads.Manager {
     using AdaptiveRoads.Data.NetworkExtensions;
-    using AdaptiveRoads.Data;
-
     using AdaptiveRoads.Util;
     using ColossalFramework;
     using ColossalFramework.Math;
@@ -67,8 +65,10 @@ namespace AdaptiveRoads.Manager {
             CustomsMask = Custom0 | Custom1 | Custom2 | Custom3 | Custom4 | Custom5 | Custom6 | Custom7,
         }
 
-        public ref NetSegmentEnd Start => ref NetworkExtensionManager.Instance.GetSegmentEnd(SegmentID, true);
-        public ref NetSegmentEnd End => ref NetworkExtensionManager.Instance.GetSegmentEnd(SegmentID, false);
+        public ref NetSegmentEnd Start => ref NetworkExtensionManager.Instance.GetSegmentEnd(SegmentID, startNode: true);
+        public ref NetSegmentEnd End => ref NetworkExtensionManager.Instance.GetSegmentEnd(SegmentID, startNode: false);
+        public ref NetSegmentEnd Head => ref NetworkExtensionManager.Instance.GetSegmentEnd(SegmentID, Segment.GetHeadNode());
+        public ref NetSegmentEnd Tail => ref NetworkExtensionManager.Instance.GetSegmentEnd(SegmentID, Segment.GetTailNode());
 
         public override string ToString() =>
             $"NetSegmentExt(SegmentID:{SegmentID} info={SegmentID.ToSegment().Info} flags:{m_flags}"

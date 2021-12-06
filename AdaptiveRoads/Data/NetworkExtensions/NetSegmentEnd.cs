@@ -17,6 +17,11 @@ namespace AdaptiveRoads.Manager {
     using Log = KianCommons.Log;
 
     public struct NetSegmentEnd {
+        #region shortcuts for dummies
+        public ref NetNodeExt Node => ref NodeID.ToNodeExt();
+        public ref NetSegmentExt Segment => ref SegmentID.ToSegmentExt();
+        #endregion
+
         [Flags]
         public enum Flags : Int64 {
             None = 0,
@@ -155,8 +160,10 @@ namespace AdaptiveRoads.Manager {
             bool speedChange = TMPEHelpers.SpeedChanges(NodeID);
             bool twoSegments = NodeID.ToNode().CountSegments() == 2;
 
+#pragma warning disable CS0618 // Type or member is obsolete
             flags = flags.SetFlags(Flags.SpeedChange, speedChange);
             flags = flags.SetFlags(Flags.TwoSegments, twoSegments);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             bool lanesIncrease = false, lanesDecrease = false;
             if(twoSegments) {
