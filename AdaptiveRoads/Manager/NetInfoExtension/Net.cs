@@ -247,28 +247,33 @@ namespace AdaptiveRoads.Manager {
                     Log.Called(flag, target, name, path);
                     path = path/*?.Replace('\\', '/')*/?.RemoveChars('"', '\'')?.Trim();
                     Log.Debug("path=" + path);
-                    FileInfo source = null;
+                    FileInfo file = null;
                     if (!path.IsNullorEmpty()) {
-                        source = new FileInfo(path);
-                        if (!source.Exists) {
+                        file = new FileInfo(path);
+                        if (!file.Exists) {
                             throw new Exception($"{path} does not exists");
                         }
                     }
                     var netInfo = RoadEditorUtils.GetSelectedNetInfo(out _);
-                    netInfo.GetMetaData().AssignCSScript(flag: flag, name: name, source: source);
+                    netInfo.GetMetaData().AssignCSScript(flag: flag, name: name, file: file);
                 } catch (Exception ex) { ex.Log(); }
             }
 
-            public void AssignCSScript(Enum flag, string name, FileInfo source) {
+            public void AssignCSScript(Enum flag, string name, FileInfo file) {
                 try {
-                    Log.Called(flag, name, source);
-                    if (source == null)
+                    Log.Called(flag, name, file);
+                    if (file == null)
                         ScriptedFlags.Remove(flag);
                     else {
-                        if (ScriptCompiler.CompileSource(source, out FileInfo dllFile)) {
-                            ScriptedFlags[flag] = new ExpressionWrapper(dllFile, name);
+                        FileInfo dllFile = null;
+                        if (file.Extension == ".cs") {
+                            if (!ScriptCompiler.CompileSource(file, out dllFile)) {
+                                throw new Exception("failed to compile " + file);
+                            }
+                        } else if(file.Extension == ".dll") {
+                            dllFile = file;
                         } else {
-                            throw new Exception("failed to compile " + source);
+                            throw new Exception($"File type not recognized : " + file);
                         }
                     }
                     OnCustomFlagRenamed?.Invoke();

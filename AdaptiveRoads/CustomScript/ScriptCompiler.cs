@@ -93,9 +93,11 @@ namespace AdaptiveRoads.CustomScript {
                 Directory.CreateDirectory(outputPath);
                 string dllPath = Path.Combine(outputPath, randomName + ".dll");
 
-                var AR = Path.Combine(PluginUtil.GetCurrentAssemblyPlugin().modPath, "AdaptiveRoads.dll");
-                Assertion.Assert(File.Exists(AR), "File.Exists(AR)");
-                var additionalAssemblies = GameAssemblies.Concat(new[] { AR }).ToArray();
+                // TODO: compile with reference assemblies.
+                var ARFiles =  Directory.GetFiles(PluginUtil.GetCurrentAssemblyPlugin().modPath, "*.dll");
+                var TMPEFiles = Directory.GetFiles(PluginUtil.GetTrafficManager().modPath, "*.dll");
+                var HarmonyFiles = Directory.GetFiles(PluginUtil.GetPlugin(typeof(HarmonyLib.Harmony).Assembly).modPath, "*.dll");
+                var additionalAssemblies = GameAssemblies.Concat(ARFiles).Concat(TMPEFiles).Concat(HarmonyFiles).ToArray();
 
                 Log.Info($"Calling PluginManager.CompileSourceInFolder({sourcePath}, {outputPath}, {additionalAssemblies.ToSTR()})");
                 PluginManager.CompileSourceInFolder(sourcePath, outputPath, additionalAssemblies);
