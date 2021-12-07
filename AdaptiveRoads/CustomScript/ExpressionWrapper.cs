@@ -62,6 +62,7 @@ namespace AdaptiveRoads.CustomScript {
 
 
         public PredicateBase GetPredicateInstance(ushort segmentID, ushort nodeID, int laneIndex = -1) {
+            Assertion.NotNull(Instance, "Instance");
             Instance.NodeID = nodeID;
             Instance.SegmentID = segmentID;
             Instance.LaneIndex = laneIndex;
@@ -69,8 +70,15 @@ namespace AdaptiveRoads.CustomScript {
         }
 
         public bool Condition(ushort segmentID, ushort nodeID, int laneIndex = -1) {
-            var instance = GetPredicateInstance(segmentID, nodeID, laneIndex);
-            return instance.Condition();
+            try {
+                var instance = GetPredicateInstance(segmentID, nodeID, laneIndex);
+                return instance.Condition();
+            }catch(Exception ex) {
+                ex.Log($"failed to get condition from {Instance}", showInPannel: false);
+                return false;
+            }
         }
+
+        public override string ToString() => $"ExpressionWrapper(Name={Name}, Instance={Instance})";
     }
 }

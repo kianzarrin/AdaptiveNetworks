@@ -24,8 +24,10 @@ namespace AdaptiveRoads.CustomScript {
     public abstract class PredicateBase {
         public abstract bool Condition();
         public ushort SegmentID;
-        public int LaneIndex;
         public ushort NodeID;
+        public int LaneIndex;
+
+        public override string ToString() => $"{this.GetType()}(SegmentID={SegmentID}, NodeID={NodeID}, LaneIndex={LaneIndex}, )";
 
         public ref NetSegmentExt Segment => ref SegmentID.ToSegmentExt();
         public ref NetNodeExt Node => ref NodeID.ToNodeExt();

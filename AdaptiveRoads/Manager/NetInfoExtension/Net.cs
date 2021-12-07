@@ -275,8 +275,11 @@ namespace AdaptiveRoads.Manager {
                         } else {
                             throw new Exception($"File type not recognized : " + file);
                         }
+                        ScriptedFlags[flag] = new ExpressionWrapper(dllFile, name);
                     }
                     OnCustomFlagRenamed?.Invoke();
+                    NetworkExtensionManager.Instance.RecalculateARPrefabs();
+                    Log.Debug(ScriptedFlags.ToSTR());
                 } catch (Exception ex) { ex.Log(); }
             }
 
