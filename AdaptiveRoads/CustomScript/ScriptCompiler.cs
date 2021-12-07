@@ -72,31 +72,38 @@ namespace AdaptiveRoads.CustomScript {
         }
 
 
-        public static bool CompileSource(FileInfo file, out string dllPath) {
+        public static bool CompileSource(FileInfo file, out FileInfo dllFile) {
             try {
-                var randomName = $"tmp_{file.ComputeHash()}";
+                var randomName = $"AR_ScriptedFlag_{file.ComputeHash()}";
 
                 // write source files to SourcesPath\randomName\*.*
                 var sourcePath = Path.Combine(SourcesPath, randomName);
-                Directory.CreateDirectory(sourcePath);
+
+                if(Directory.Exists(sourcePath))
+                    Directory.Delete(sourcePath, recursive: true);
+                Directory.CreateDirectory(sourcePath); // clean slate
+
                 var sourceFilePath = Path.Combine(sourcePath, file.Name);
-                file.CopyTo(sourceFilePath);
+                file.CopyTo(sourceFilePath, overwrite:true);
 
                 Log.Debug("Source files copied to " + sourcePath);
 
                 // compile sources to DllsPath\randomName\randomName.dll
                 var outputPath = Path.Combine(DllsPath, randomName);
                 Directory.CreateDirectory(outputPath);
-                dllPath = Path.Combine(outputPath, randomName + ".dll");
+                string dllPath = Path.Combine(outputPath, randomName + ".dll");
 
-                var AR = Path.Combine(PluginUtil.GetCurrentAssemblyPlugin().modPath, nameof(AdaptiveRoads));
+                var AR = Path.Combine(PluginUtil.GetCurrentAssemblyPlugin().modPath, "AdaptiveRoads.dll");
+                Assertion.Assert(File.Exists(AR), "File.Exists(AR)");
                 var additionalAssemblies = GameAssemblies.Concat(new[] { AR }).ToArray();
 
+                Log.Info($"Calling PluginManager.CompileSourceInFolder({sourcePath}, {outputPath}, {additionalAssemblies.ToSTR()})");
                 PluginManager.CompileSourceInFolder(sourcePath, outputPath, additionalAssemblies);
-                return File.Exists(dllPath);
+                dllFile = new FileInfo(dllPath);
+                return dllFile.Exists;
             } catch (Exception ex) {
                 Log.Exception(ex);
-                dllPath = null;
+                dllFile = null;
                 return false;
             }
         }

@@ -242,19 +242,35 @@ namespace AdaptiveRoads.Manager {
                 return null;
             }
 
-            public static void AssignScript(Enum flag, object target, string name, string path) {
+            public static void AssignCSScript(Enum flag, object target, string name, string path) {
                 try {
+                    Log.Called(flag, target, name, path);
+                    path = path/*?.Replace('\\', '/')*/?.RemoveChars('"', '\'')?.Trim();
+                    Log.Debug("path=" + path);
+                    FileInfo source = null;
+                    if (!path.IsNullorEmpty()) {
+                        source = new FileInfo(path);
+                        if (!source.Exists) {
+                            throw new Exception($"{path} does not exists");
+                        }
+                    }
                     var netInfo = RoadEditorUtils.GetSelectedNetInfo(out _);
-                    netInfo.GetMetaData().AssignScript(flag: flag, name: name, path: path);
+                    netInfo.GetMetaData().AssignCSScript(flag: flag, name: name, source: source);
                 } catch (Exception ex) { ex.Log(); }
             }
 
-            public void AssignScript(Enum flag, string name, string path) {
+            public void AssignCSScript(Enum flag, string name, FileInfo source) {
                 try {
-                    if (path.IsNullOrWhiteSpace())
+                    Log.Called(flag, name, source);
+                    if (source == null)
                         ScriptedFlags.Remove(flag);
-                    else 
-                        ScriptedFlags[flag] = new ExpressionWrapper(new FileInfo(path), name);
+                    else {
+                        if (ScriptCompiler.CompileSource(source, out FileInfo dllFile)) {
+                            ScriptedFlags[flag] = new ExpressionWrapper(dllFile, name);
+                        } else {
+                            throw new Exception("failed to compile " + source);
+                        }
+                    }
                     OnCustomFlagRenamed?.Invoke();
                 } catch (Exception ex) { ex.Log(); }
             }

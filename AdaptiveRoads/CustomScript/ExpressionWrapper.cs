@@ -15,7 +15,7 @@ namespace AdaptiveRoads.CustomScript {
         #region life-cycle
         private ExpressionWrapper() { }
 
-        public ExpressionWrapper(FileInfo file, string name) : this(file.OpenRead().ReadToEnd(), name) { }
+        public ExpressionWrapper(FileInfo dllFile, string name) : this(dllFile.OpenRead().ReadToEnd(), name) { }
 
         public ExpressionWrapper(byte[] data, string name) {
             Name = name;

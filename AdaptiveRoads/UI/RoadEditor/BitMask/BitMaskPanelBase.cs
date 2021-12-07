@@ -15,6 +15,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
     using PrefabMetadata.API;
     using PrefabMetadata.Helpers;
     using AdaptiveRoads.CustomScript;
+    using System.IO;
 
     internal struct FlagDataT {
         public delegate void SetHandlerD(IConvertible flag);
@@ -137,10 +138,10 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
 
                         var pathField = panel.AddTextField();
                         pathField.width = 400;
-                        pathField.Hint = "path .cs script to calculate this flag (see tutorial in wiki)";
+                        pathField.Hint = "path to .cs script to calculate this flag (see tutorial in wiki)";
 
                         panel.AddButton("Assign Script", null, () => {
-                            NetInfoExtionsion.Net.AssignScript(flag: flag, target: Target, name: nameField.text, path: pathField.name);
+                            NetInfoExtionsion.Net.AssignCSScript(flag: flag, target: Target, name: nameField.text, path: pathField.text);
                             DropDown.triggerButton.Invoke(nameof(SimulateClick), 0);
                         });
 
