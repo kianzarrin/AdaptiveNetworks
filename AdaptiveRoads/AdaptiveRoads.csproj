@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net35</TargetFramework>
     <Deterministic>false</Deterministic>
@@ -7,13 +7,10 @@
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <PathMap>$(MSBuildProjectDirectory)\=$(ProjectName)\</PathMap>
-    <Configurations>Debug;Release;FAST_TEST_PATCHES;Workshop;DebugQuayRoads</Configurations>
+    <Configurations>Debug;Release;FAST_TEST_PATCHES;Workshop;</Configurations>
     <ProduceReferenceAssemblies>true</ProduceReferenceAssemblies>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='DEBUG'">
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='DebugQuayRoads'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='FAST_TEST_PATCHES'">
@@ -38,12 +35,6 @@
       ../libs/
     </AssemblySearchPaths>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugQuayRoads|AnyCPU'">
-    <DefineConstants>TRACE;DEBUG;QUAY_ROADS_SHOW</DefineConstants>
-  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CitiesHarmony.API" Version="2.0.0" />
     <PackageReference Include="GitInfo" Version="2.1.2">
@@ -60,7 +51,6 @@
   <ItemGroup>
     <Reference Include="Assembly-CSharp" />
     <Reference Include="ColossalManaged" />
-    <Reference Include="CSUtil.Commons" />
     <Reference Include="ICities" />
     <Reference Include="UnityEngine" />
     <Reference Include="UnityEngine.UI" />
