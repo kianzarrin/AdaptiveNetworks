@@ -1,25 +1,18 @@
 namespace AdaptiveRoads.Util {
     using ColossalFramework;
-    using ColossalFramework.IO;
-    using ColossalFramework.Math;
-    using CSUtil.Commons;
     using KianCommons;
-    using System;
+    using System.Linq;
     using TrafficManager;
     using TrafficManager.API.Manager;
-    using TrafficManager.API.Traffic.Data;
-    using TrafficManager.API.Traffic.Enums;
     using TrafficManager.Manager.Impl;
     using UnityEngine;
-    using Log = KianCommons.Log;
-    using System.Linq;
 
     internal static class TMPEHelpers {
         static IManagerFactory TMPE => Constants.ManagerFactory;
         static ISpeedLimitManager SLMan => TMPE?.SpeedLimitManager as SpeedLimitManager;
         static IRoutingManager RMan = RoutingManager.Instance;
         public static float GetLaneSpeedLimit(this LaneData lane) {
-            if(SLMan != null)
+            if (SLMan != null)
                 return (SLMan as SpeedLimitManager).GetGameSpeedLimit(lane.LaneID);
             else
                 return lane.LaneInfo.m_speedLimit;
@@ -31,8 +24,8 @@ namespace AdaptiveRoads.Util {
 
         public static float GetMaxSpeedLimit(ushort segmentID, NetInfo.Direction direction) {
             float ret = -1;
-            foreach(var lane in NetUtil.IterateSegmentLanes(segmentID)) {
-                if(lane.IsSpeedLane() && lane.LaneInfo.m_finalDirection == direction) {
+            foreach (var lane in NetUtil.IterateSegmentLanes(segmentID)) {
+                if (lane.IsSpeedLane() && lane.LaneInfo.m_finalDirection == direction) {
                     ret = Mathf.Max(ret, lane.GetLaneSpeedLimit());
                 }
             }
@@ -74,7 +67,7 @@ namespace AdaptiveRoads.Util {
         }
 
 
-        public static LaneTransitionData []GetForwardRoutings(uint laneID, ushort nodeID) {
+        public static LaneTransitionData[] GetForwardRoutings(uint laneID, ushort nodeID) {
             bool startNode = laneID.ToLane().m_segment.ToSegment().IsStartNode(nodeID);
             uint routingIndex = RMan.GetLaneEndRoutingIndex(laneID, startNode);
             return RMan.LaneEndForwardRoutings[routingIndex].transitions;
