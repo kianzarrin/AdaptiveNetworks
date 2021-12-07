@@ -17,6 +17,11 @@ namespace AdaptiveRoads.Manager {
     public struct NetNodeExt {
         public ushort NodeID;
         public Flags m_flags;
+        #region expression for dummies
+        public ref NetNode VanillaNode => ref NodeID.ToNode();
+        ushort[] SegmentIDs => new NodeSegmentIterator(NodeID).ToArray();
+        #endregion
+
 
         const int CUSTOM_FLAG_SHIFT = 24;
         public bool IsEmpty => (m_flags & Flags.CustomsMask) == Flags.None;
