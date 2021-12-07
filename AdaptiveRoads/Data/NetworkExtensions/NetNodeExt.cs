@@ -19,7 +19,7 @@ namespace AdaptiveRoads.Manager {
         public Flags m_flags;
         #region expression for dummies
         public ref NetNode VanillaNode => ref NodeID.ToNode();
-        ushort[] SegmentIDs => new NodeSegmentIterator(NodeID).ToArray();
+        public ushort[] SegmentIDs => new NodeSegmentIterator(NodeID).ToArray();
         #endregion
 
 
