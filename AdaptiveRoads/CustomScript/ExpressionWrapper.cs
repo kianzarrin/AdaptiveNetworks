@@ -27,7 +27,6 @@ namespace AdaptiveRoads.CustomScript {
             try {
                 if (Log.VERBOSE) Log.Called();
                 SerializationUtil.GetObjectFields(info, this);
-                Init(AssemblyData);
             } catch (Exception ex) {
                 ex.Log();
             }
@@ -38,10 +37,11 @@ namespace AdaptiveRoads.CustomScript {
             try {
                 if (Log.VERBOSE) Log.Called();
                 SerializationUtil.SetObjectFields(info, this);
+                Init(AssemblyData);
             } catch (Exception ex) {
                 ex.Log();
             }
-            Log.Succeeded();
+            Log.Succeeded(this.ToSTR());
         }
 
         private void Init(byte []data) {
@@ -72,6 +72,7 @@ namespace AdaptiveRoads.CustomScript {
         public bool Condition(ushort segmentID, ushort nodeID, int laneIndex = -1) {
             try {
                 var instance = GetPredicateInstance(segmentID, nodeID, laneIndex);
+                if (Log.VERBOSE) Log.Debug("Getting condition for " + this, false);
                 return instance.Condition();
             }catch(Exception ex) {
                 ex.Log($"failed to get condition from {Instance}", showInPannel: false);

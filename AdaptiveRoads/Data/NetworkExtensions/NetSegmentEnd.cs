@@ -204,6 +204,7 @@ namespace AdaptiveRoads.Manager {
 
         public void UpdateScriptedFlags() {
             try {
+                if (Log.VERBOSE) Log.Called(this);
                 var net = Segment.NetInfoExt;
                 if (net == null) return;
                 foreach (var scriptedFlag in Flags.ExpressionMask.ExtractPow2Flags()) {
