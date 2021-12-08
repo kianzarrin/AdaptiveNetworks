@@ -4,6 +4,7 @@
     <Deterministic>false</Deterministic>
     <AssemblyVersion>3.2.6.*</AssemblyVersion>
     <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <PathMap>$(MSBuildProjectDirectory)\=$(ProjectName)\</PathMap>

@@ -97,9 +97,11 @@ namespace AdaptiveRoads.Util {
         public static bool DoesSegmentGoToSegment(ushort sourceSegmentID, ushort targetSegmentID, ushort nodeID) {
             foreach (uint laneID in new LaneIDIterator(sourceSegmentID)) {
                 var routings = TMPEHelpers.GetForwardRoutings(laneID, nodeID);
-                foreach (var routing in routings) {
-                    if (routing.segmentId == targetSegmentID)
-                        return true;
+                if (routings != null) {
+                    foreach (var routing in routings) {
+                        if (routing.segmentId == targetSegmentID)
+                            return true;
+                    }
                 }
             }
             return false;
