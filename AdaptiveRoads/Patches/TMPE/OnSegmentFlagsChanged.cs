@@ -14,9 +14,13 @@ namespace AdaptiveRoads.Patches.TMPE {
     static class OnSegmentFlagsChanged {
         static IEnumerable<MethodBase> TargetMethods() {
             /************* speed limit */
-            // public bool SpeedLimitManager.SetSpeedLimit(*)
+            // public bool SpeedLimitManager.SetSpeedLimit(ushort segmentId, *)
+            // public bool SpeedLimitManager.SetSegmentSpeedLimit(ushort segmentId, *) // new TMPE
+            // public bool SetLaneSpeedLimit(ushort segmentId, ...) // new TMPE
             foreach (var m in AccessTools.GetDeclaredMethods(typeof(SpeedLimitManager))) {
-                if (m.Name == nameof(SpeedLimitManager.SetSpeedLimit))
+                if (m.Name == nameof(SpeedLimitManager.SetSpeedLimit) ||
+                    m.Name == "SetSegmentSpeedLimit" ||
+                    m.Name == "SetLaneSpeedLimit")
                     yield return m;
             }
 
