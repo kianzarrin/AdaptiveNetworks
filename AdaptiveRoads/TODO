@@ -1,8 +1,5 @@
 - why switching segments causes graphic errors. does it happen to props to?
 - unbroken median flag.
-- expressions for custom flags.
-- add missing hint for control+click to select DPT
-- BUG: custom flags are not saved/loaded properly.
 
 tracks:
 - check node/segment flags at segment's/node's : start/end/both

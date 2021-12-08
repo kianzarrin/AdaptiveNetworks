@@ -185,6 +185,7 @@
     <Compile Include="FbxUtil\UnityFBXExporter\FBXUnityMaterialGetter.cs" />
     <Compile Include="FbxUtil\UnityFBXExporter\FBXUnityMeshGetter.cs" />
     <Compile Include="KianCommons\KianCommons\Util\TypeUtil.cs" />
+    <Compile Include="KianCommons\KianCommons\Util\unsafe\FastSegmentList.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\prefab-metadata\PrefabMetadata.csproj" />

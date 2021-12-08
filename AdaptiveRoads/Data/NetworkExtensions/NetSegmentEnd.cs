@@ -101,6 +101,9 @@ namespace AdaptiveRoads.Manager {
             [Hint("next segment has more lanes (only valid when there are two segments)")]
             LanesDecrease = 1L << 33,
 
+            [Hint("has continues junction median to at least one other segment (provided that there are DC nodes)")]
+            HasUnbrokenMedian = 1L << 42,
+
             [CustomFlag] Custom0 = 1 << 24,
             [CustomFlag] Custom1 = 1 << 25,
             [CustomFlag] Custom2 = 1 << 26,
@@ -198,6 +201,12 @@ namespace AdaptiveRoads.Manager {
             }
             flags = flags.SetFlags(Flags.LanesIncrase, lanesIncrease);
             flags = flags.SetFlags(Flags.LanesDecrease, lanesDecrease);
+
+            bool hasUnbrokenMedian = false;
+            if (SegmentID.ToSegment().Info?.m_netAI is RoadBaseAI) {
+                hasUnbrokenMedian = DirectConnectUtil.HasUnbrokenMedian(segmentID: SegmentID, nodeID: NodeID);
+            }
+            flags = flags.SetFlags(Flags.LanesDecrease, hasUnbrokenMedian);
 
             m_flags = flags;
         }
