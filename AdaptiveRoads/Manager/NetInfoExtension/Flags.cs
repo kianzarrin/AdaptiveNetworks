@@ -26,6 +26,14 @@ namespace AdaptiveRoads.Manager {
             public bool CheckFlags(NetNode.Flags flags) => flags.CheckFlags(Required, Forbidden);
         }
 
+        [Serializable]
+        [FlagPair]
+        public struct VanillaLaneInfoFlags {
+            [BitMask]
+            public NetLane.Flags Required, Forbidden;
+            public bool CheckFlags(NetLane.Flags flags) => flags.CheckFlags(Required, Forbidden);
+        }
+
         [FlagPair(MergeWithEnum = typeof(NetSegment.Flags))]
         [FlagPair(MergeWithEnum = typeof(NetSegmentFlags))]
         [Serializable]

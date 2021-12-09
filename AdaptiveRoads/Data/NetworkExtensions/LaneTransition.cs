@@ -158,9 +158,12 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             if (Node.m_flags.IsFlagSet(NetNode.Flags.Junction)) {
                 return trackInfo.CheckNodeFlags(
                     NodeExt.m_flags, Node.m_flags,
-                    SegmentExtA.m_flags, SegmentA.m_flags, LaneExtA.m_flags);
+                    SegmentExtA.m_flags, SegmentA.m_flags,
+                    LaneExtA.m_flags, LaneA.Flags());
             } else { // bend
-                return  trackInfo.CheckSegmentFlags(SegmentExtA.m_flags, SegmentA.m_flags, LaneExtA.m_flags);
+                return  trackInfo.CheckSegmentFlags(
+                    SegmentExtA.m_flags, SegmentA.m_flags,
+                    LaneExtA.m_flags, LaneA.Flags());
             }
         }
 

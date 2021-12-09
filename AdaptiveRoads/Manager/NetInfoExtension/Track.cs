@@ -268,6 +268,9 @@ namespace AdaptiveRoads.Manager {
             public SegmentInfoFlags SegmentFlags;
 
             [CustomizableProperty("Lane")]
+            public VanillaLaneInfoFlags VanillaLaneFlags;
+
+            [CustomizableProperty("Lane Extension")]
             [Hint("checked on segment lanes and bend nodes.\n" +
                 "flags for source lane is also checked on node transitions.")]
             public LaneInfoFlags LaneFlags;
@@ -285,15 +288,20 @@ namespace AdaptiveRoads.Manager {
 
             public bool CheckNodeFlags
                 (NetNodeExt.Flags nodeFlags, NetNode.Flags vanillaNodeFlags,
-                NetSegmentExt.Flags sourceSegmentFlags, NetSegment.Flags startVanillaSegmentFlags, NetLaneExt.Flags laneFalgs) =>
-                RenderNode && NodeFlags.CheckFlags(nodeFlags) && VanillaNodeFlags.CheckFlags(vanillaNodeFlags) &&
+                NetSegmentExt.Flags sourceSegmentFlags, NetSegment.Flags startVanillaSegmentFlags,
+                NetLaneExt.Flags laneFalgs, NetLane.Flags vanillaLaneFlags) =>
+                RenderNode &&
+                NodeFlags.CheckFlags(nodeFlags) && VanillaNodeFlags.CheckFlags(vanillaNodeFlags) &&
                 SegmentFlags.CheckFlags(sourceSegmentFlags) && VanillaSegmentFlags.CheckFlags(startVanillaSegmentFlags) &&
-                LaneFlags.CheckFlags(laneFalgs);
+                LaneFlags.CheckFlags(laneFalgs) && VanillaLaneFlags.CheckFlags(vanillaLaneFlags);
 
 
-            public bool CheckSegmentFlags(NetSegmentExt.Flags segmentFlags, NetSegment.Flags vanillaSegmentFlags, NetLaneExt.Flags laneFalgs) =>
-                RenderSegment && SegmentFlags.CheckFlags(segmentFlags) && VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags)
-                && LaneFlags.CheckFlags(laneFalgs);
+            public bool CheckSegmentFlags(
+                NetSegmentExt.Flags segmentFlags, NetSegment.Flags vanillaSegmentFlags,
+                NetLaneExt.Flags laneFalgs, NetLane.Flags vanillaLaneFlags) =>
+                RenderSegment &&
+                SegmentFlags.CheckFlags(segmentFlags) && VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags)
+                && LaneFlags.CheckFlags(laneFalgs) && VanillaLaneFlags.CheckFlags(vanillaLaneFlags);
 
             public CustomFlags UsedCustomFlags => new CustomFlags {
                 Segment = SegmentFlags.UsedCustomFlags,
