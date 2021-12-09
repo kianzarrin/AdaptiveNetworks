@@ -1,5 +1,7 @@
 tracks:
-- why do I need to refresh roads 2 times on load?
+    - why do I need to refresh roads 2 times on load?
+    - check for vanilla lane flags as well (need to add a whole mixed flag thing)
+
 
 - fix unbroken median flag.
     - why do I need to check for relaxed conditions for trams?

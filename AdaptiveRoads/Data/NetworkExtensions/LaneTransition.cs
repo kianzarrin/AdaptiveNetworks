@@ -152,10 +152,17 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             return ret;
         }
 
-        private bool Check(NetInfoExtionsion.Track trackInfo) =>
-            trackInfo.HasTrackLane(laneIndexA) &&
-            trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags,
-                SegmentExtA.m_flags, SegmentA.m_flags, LaneExtA.m_flags);
+        private bool Check(NetInfoExtionsion.Track trackInfo) {
+            if (!trackInfo.HasTrackLane(laneIndexA))
+                return false;
+            if (Node.m_flags.IsFlagSet(NetNode.Flags.Junction)) {
+                return trackInfo.CheckNodeFlags(
+                    NodeExt.m_flags, Node.m_flags,
+                    SegmentExtA.m_flags, SegmentA.m_flags, LaneExtA.m_flags);
+            } else { // bend
+                return  trackInfo.CheckSegmentFlags(SegmentExtA.m_flags, SegmentA.m_flags, LaneExtA.m_flags);
+            }
+        }
 
         public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo) {
             if(Nodeless) return;

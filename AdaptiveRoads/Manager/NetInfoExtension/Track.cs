@@ -251,23 +251,23 @@ namespace AdaptiveRoads.Manager {
             public bool HasTrackLane(int laneIndex) => ((1ul << laneIndex) & LaneIndeces) != 0;
 
             #region flags
-            [CustomizableProperty("Render On Segments")]
+            [CustomizableProperty("Render On Segments/bend-nodes")]
             public bool RenderSegment = true;
 
-            [Hint("Renders on junction/bend nodes")]
-            [CustomizableProperty("Render On Nodes")]
+            [Hint("Renders on junction (not bend nodes)")]
+            [CustomizableProperty("Render On Junctions")]
             public bool RenderNode = true;
 
             [CustomizableProperty("Segment")]
             public VanillaSegmentInfoFlags VanillaSegmentFlags;
 
             [CustomizableProperty("Segment Extension")]
-            [Hint("checked on segments.\n" +
+            [Hint("checked on segments and bend nodes.\n" +
                 "flags for source segment is also checked on nodes.")]
             public SegmentInfoFlags SegmentFlags;
 
             [CustomizableProperty("Lane")]
-            [Hint("checked on segment lanes.\n" +
+            [Hint("checked on segment lanes and bend nodes.\n" +
                 "flags for source lane is also checked on node transitions.")]
             public LaneInfoFlags LaneFlags;
 
@@ -275,11 +275,11 @@ namespace AdaptiveRoads.Manager {
             public VanillaNodeInfoFlags VanillaNodeFlags;
 
             [CustomizableProperty("Node Extension")]
-            [Hint("Only checked on nodes (including bend nodes)")]
+            [Hint("Only checked on junctions (not bend nodes)")]
             public NodeInfoFlags NodeFlags;
 
             [CustomizableProperty("Tiling")]
-            [Hint("network tiling value")]
+            [Hint("network tiling value (length wise texture scale)")]
             public float Tiling;
 
             public bool CheckNodeFlags
