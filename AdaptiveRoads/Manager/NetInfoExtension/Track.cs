@@ -263,13 +263,13 @@ namespace AdaptiveRoads.Manager {
             public VanillaSegmentInfoFlags VanillaSegmentFlags;
 
             [CustomizableProperty("Segment Extension")]
-            [Hint("checked on segments and bend nodes.\n" +
-                "flags for source segment is also checked on nodes.")]
+            [Hint("checked on segments.\n" +
+                "flags for source segment is also checked on all nodes (both junction and bend).")]
             public SegmentInfoFlags SegmentFlags;
 
             [CustomizableProperty("Lane")]
-            [Hint("checked on segment lanes and bend nodes.\n" +
-                "flags for source lane is also checked on node transitions.")]
+            [Hint("checked on segment lanes and node transitions (both junction and bend).\n" +
+                "flags for source lane is also checked on all node (both junction and bend) transitions.")]
             public LaneInfoFlags LaneFlags;
 
             [CustomizableProperty("Node")]
