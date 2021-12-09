@@ -1,9 +1,9 @@
-- why switching segments causes graphic errors. does it happen to props to?
-
 tracks:
 - why do I need to refresh roads 2 times on load?
 
-- test unbroken median flag.
+- fix unbroken median flag.
+    - why do I need to check for relaxed conditions for trams?
+
 
 -----------------
 - remove custom flags when network is deleted.

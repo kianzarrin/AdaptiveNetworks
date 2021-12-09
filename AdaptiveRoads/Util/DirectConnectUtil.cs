@@ -1,8 +1,11 @@
 namespace AdaptiveRoads.Util {
+    using CSUtil.Commons;
     using KianCommons;
     using KianCommons.Math;
     using System.Diagnostics;
     using System.Linq;
+    using TrafficManager.API.Traffic.Enums;
+    using TrafficManager.Manager.Impl;
     using UnityEngine;
     using VectorUtil = KianCommons.Math.VectorUtil;
 
@@ -93,18 +96,70 @@ namespace AdaptiveRoads.Util {
 
         /// <summary>
         /// Determines if any lane from source segment goes to the target segment
-        /// based on lane transitions
+        /// based on lane arrows and lane connections.
         public static bool DoesSegmentGoToSegment(ushort sourceSegmentID, ushort targetSegmentID, ushort nodeID) {
-            foreach (uint laneID in new LaneIDIterator(sourceSegmentID)) {
-                var routings = TMPEHelpers.GetForwardRoutings(laneID, nodeID);
-                if (routings != null) {
-                    foreach (var routing in routings) {
-                        if (routing.segmentId == targetSegmentID)
-                            return true;
-                    }
+            bool startNode = NetUtil.IsStartNode(sourceSegmentID, nodeID);
+            if (sourceSegmentID == targetSegmentID) {
+                return JunctionRestrictionsManager.Instance.IsUturnAllowed(sourceSegmentID, startNode);
+            }
+            ArrowDirection arrowDir = ExtSegmentEndManager.Instance.GetDirection(sourceSegmentID, targetSegmentID, nodeID);
+            LaneArrows arrow = ArrowDir2LaneArrows(arrowDir);
+            var sourceLanes = new LaneDataIterator(
+                sourceSegmentID,
+                startNode,
+                LaneArrowManager.LANE_TYPES,
+                LaneArrowManager.VEHICLE_TYPES);
+            //Log.Debug("DoesSegmentGoToSegment: sourceLanes=" + sourceLanes.ToSTR());
+
+            foreach (LaneData sourceLane in sourceLanes) {
+                bool connected;
+                if (LaneConnectionManager.Instance.HasConnections(sourceLane.LaneID, startNode)) {
+                    connected = IsLaneConnectedToSegment(sourceLane.LaneID, targetSegmentID);
+                    //Log.Debug($"IsLaneConnectedToSegment({sourceLane},{targetSegmentID}) = {connected}");
+
+                } else {
+                    LaneArrows arrows = LaneArrowManager.Instance.GetFinalLaneArrows(sourceLane.LaneID);
+                    connected = (arrows & arrow) != 0;
                 }
+                if (connected)
+                    return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Determines if there is any lane connection from source lane to target segment.
+        /// </summary>
+        public static bool IsLaneConnectedToSegment(uint sourceLaneId, ushort targetSegmentID) {
+            ushort sourceSegmentID = sourceLaneId.ToLane().m_segment;
+            ushort nodeID = sourceSegmentID.ToSegment().GetSharedNode(targetSegmentID);
+            bool sourceStartNode = NetUtil.IsStartNode(sourceSegmentID, nodeID);
+            bool targetStartNode = NetUtil.IsStartNode(targetSegmentID, nodeID);
+
+
+            var targetLanes = new LaneDataIterator(
+                targetSegmentID,
+                !targetStartNode,// going away from start node.
+                LaneConnectionManager.LANE_TYPES,
+                LaneConnectionManager.VEHICLE_TYPES);
+            foreach (LaneData targetLane in targetLanes) {
+                if (LaneConnectionManager.Instance.AreLanesConnected(sourceLaneId, targetLane.LaneID, sourceStartNode))
+                    return true;
+            }
+            return false;
+        }
+
+        public static LaneArrows ArrowDir2LaneArrows(ArrowDirection arrowDir) {
+            switch (arrowDir) {
+                case ArrowDirection.Forward:
+                    return LaneArrows.Forward;
+                case ArrowDirection.Left:
+                    return LaneArrows.Left;
+                case ArrowDirection.Right:
+                    return LaneArrows.Right;
+                default:
+                    return LaneArrows.None;
+            }
         }
         #endregion
 
