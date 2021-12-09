@@ -206,9 +206,10 @@ namespace AdaptiveRoads.Manager {
             if (SegmentID.ToSegment().Info?.m_netAI is RoadBaseAI) {
                 hasUnbrokenMedian = DirectConnectUtil.HasUnbrokenMedian(segmentID: SegmentID, nodeID: NodeID);
             }
-            flags = flags.SetFlags(Flags.LanesDecrease, hasUnbrokenMedian);
+            flags = flags.SetFlags(Flags.HasUnbrokenMedian, hasUnbrokenMedian);
 
             m_flags = flags;
+            //Log.Succeeded(this.ToSTR());
         }
 
         public void UpdateScriptedFlags() {

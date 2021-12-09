@@ -7,6 +7,7 @@ namespace AdaptiveRoads.Util {
     using TrafficManager.API.Traffic.Enums;
     using TrafficManager.Manager.Impl;
     using UnityEngine;
+    using Log = KianCommons.Log;
     using VectorUtil = KianCommons.Math.VectorUtil;
 
     internal static class DirectConnectUtil {
@@ -33,7 +34,8 @@ namespace AdaptiveRoads.Util {
 
         #region Broken Median detection
         public static bool HasUnbrokenMedian(ushort segmentID, ushort nodeID) {
-            return new NodeSegmentIterator(nodeID).Any(segmentID2 => !OpenMedian(segmentID, segmentID2));
+            return new NodeSegmentIterator(nodeID).Any(HasUnbrokenMedianWith);
+            bool HasUnbrokenMedianWith(ushort _segmentID2) => !OpenMedian(segmentID, _segmentID2);
         }
 
         public static bool OpenMedian(ushort segmentID1, ushort segmentID2) {
