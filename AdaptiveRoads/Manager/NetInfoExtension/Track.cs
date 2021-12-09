@@ -251,11 +251,12 @@ namespace AdaptiveRoads.Manager {
             public bool HasTrackLane(int laneIndex) => ((1ul << laneIndex) & LaneIndeces) != 0;
 
             #region flags
-            [CustomizableProperty("Render On Segments/bend-nodes")]
+            [Hint("Renders on segments + bend nodes)")]
+            [CustomizableProperty("Render Segments")]
             public bool RenderSegment = true;
 
             [Hint("Renders on junction (not bend nodes)")]
-            [CustomizableProperty("Render On Junctions")]
+            [CustomizableProperty("Render Junctions")]
             public bool RenderNode = true;
 
             [CustomizableProperty("Segment")]
