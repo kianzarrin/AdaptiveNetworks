@@ -266,7 +266,7 @@ namespace AdaptiveRoads.Manager {
                 "flags for source segment is also checked on all nodes (both junction and bend).")]
             public SegmentInfoFlags SegmentFlags;
 
-            [CustomizableProperty("Lane")]
+            //[CustomizableProperty("Lane")]
             public VanillaLaneInfoFlags VanillaLaneFlags;
 
             [CustomizableProperty("Lane Extension")]
