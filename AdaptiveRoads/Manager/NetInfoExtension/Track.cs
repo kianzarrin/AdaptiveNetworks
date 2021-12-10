@@ -236,7 +236,6 @@ namespace AdaptiveRoads.Manager {
                 "1 unit in blender means the mesh will be as wide as the lane")]
             public bool ScaleToLaneWidth;
 
-
             //[CustomizableProperty("Low Priority")]
             [Hint("Other tracks with DC node take priority")]
             public bool IgnoreDC;
@@ -263,16 +262,16 @@ namespace AdaptiveRoads.Manager {
             public VanillaSegmentInfoFlags VanillaSegmentFlags;
 
             [CustomizableProperty("Segment Extension")]
-            [Hint("checked on segments and bend nodes.\n" +
-                "flags for source segment is also checked on nodes.")]
+            [Hint("checked on segments.\n" +
+                "flags for source segment is also checked on all nodes (both junction and bend).")]
             public SegmentInfoFlags SegmentFlags;
 
             [CustomizableProperty("Lane")]
             public VanillaLaneInfoFlags VanillaLaneFlags;
 
             [CustomizableProperty("Lane Extension")]
-            [Hint("checked on segment lanes and bend nodes.\n" +
-                "flags for source lane is also checked on node transitions.")]
+            [Hint("checked on segment lanes.\n" +
+                "flags for source lane is also checked on all nodes (both junction and bend) transitions.")]
             public LaneInfoFlags LaneFlags;
 
             [CustomizableProperty("Node")]
