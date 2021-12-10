@@ -236,7 +236,6 @@ namespace AdaptiveRoads.Manager {
                 "1 unit in blender means the mesh will be as wide as the lane")]
             public bool ScaleToLaneWidth;
 
-
             //[CustomizableProperty("Low Priority")]
             [Hint("Other tracks with DC node take priority")]
             public bool IgnoreDC;
