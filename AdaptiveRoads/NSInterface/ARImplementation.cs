@@ -20,33 +20,39 @@ namespace AdaptiveRoads.NSInterface {
         public override int Index { get; set; }
 
         public override void OnSkinApplied(ICloneable data, InstanceID instanceID) {
-            Log.Called(data.ToSTR(), instanceID.ToSTR());
-            if(instanceID.Type == InstanceType.NetSegment) {
-                ushort segmentID = instanceID.NetSegment;
-                var prefab = segmentID.ToSegment().Info;
-                var customFlags = data as ARCustomFlags ?? new ARCustomFlags(Prefab.m_lanes.Length);
+            try {
+                Log.Called(data, instanceID);
+                if (instanceID.Type == InstanceType.NetSegment) {
+                    ushort segmentID = instanceID.NetSegment;
+                    var prefab = segmentID.ToSegment().Info;
+                    if (prefab?.GetMetaData() == null) return;
+                    var customFlags = data as ARCustomFlags ?? new ARCustomFlags(prefab.m_lanes.Length);
 
-                ref var segmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
-                segmentExt.m_flags = segmentExt.m_flags.SetMaskedFlags(customFlags.Segment, NetSegmentExt.Flags.CustomsMask);
+                    ref var segmentExt = ref segmentID.ToSegmentExt();
+                    segmentExt.m_flags = segmentExt.m_flags.SetMaskedFlags(customFlags.Segment, NetSegmentExt.Flags.CustomsMask);
 
-                segmentExt.Start.m_flags = segmentExt.Start.m_flags.SetMaskedFlags(customFlags.SegmentEnd, NetSegmentEnd.Flags.CustomsMask);
-                segmentExt.End.m_flags = segmentExt.End.m_flags.SetMaskedFlags(customFlags.SegmentEnd, NetSegmentEnd.Flags.CustomsMask);
+                    segmentExt.Start.m_flags = segmentExt.Start.m_flags.SetMaskedFlags(customFlags.SegmentEnd, NetSegmentEnd.Flags.CustomsMask);
+                    segmentExt.End.m_flags = segmentExt.End.m_flags.SetMaskedFlags(customFlags.SegmentEnd, NetSegmentEnd.Flags.CustomsMask);
 
-                foreach(var lane in NetUtil.IterateLanes(segmentID)) {
-                    ref var laneExt = ref NetworkExtensionManager.Instance.LaneBuffer[lane.LaneIndex];
-                    laneExt.m_flags = laneExt.m_flags.SetMaskedFlags(customFlags.Lanes[lane.LaneIndex], NetLaneExt.Flags.CustomsMask);
+                    foreach (var lane in NetUtil.IterateLanes(segmentID)) {
+                        ref var laneExt = ref lane.LaneID.ToLaneExt();
+                        Log.Debug($"lane:{lane}");
+                        Assertion.InRange(customFlags.Lanes, lane.LaneIndex);
+                        laneExt.m_flags = laneExt.m_flags.SetMaskedFlags(customFlags.Lanes[lane.LaneIndex], NetLaneExt.Flags.CustomsMask);
+                    }
+                    Log.Succeeded($"segment:{segmentID} : " + customFlags);
+
+                } else if (instanceID.Type == InstanceType.NetNode) {
+                    ushort nodeID = instanceID.NetNode;
+                    var prefab = nodeID.ToNode().Info;
+                    if (prefab?.GetMetaData() == null) return;
+                    var customFlags = data as ARCustomFlags ?? new ARCustomFlags(prefab.m_lanes.Length);
+
+                    ref var nodeExt = ref nodeID.ToNodeExt();
+                    nodeExt.m_flags = nodeExt.m_flags.SetMaskedFlags(customFlags.Node, NetNodeExt.Flags.CustomsMask);
+                    Log.Succeeded($"node:{nodeID}) : " + customFlags);
                 }
-                Log.Info($"OnSkinApplied(segment:{segmentID}) : " + customFlags);
-
-            } else if(instanceID.Type == InstanceType.NetNode) {
-                ushort nodeID = instanceID.NetNode;
-                var prefab = nodeID.ToNode().Info;
-                var customFlags = data as ARCustomFlags ?? new ARCustomFlags(Prefab.m_lanes.Length);
-
-                ref var nodeExt = ref NetworkExtensionManager.Instance.NodeBuffer[nodeID];
-                nodeExt.m_flags = nodeExt.m_flags.SetMaskedFlags(customFlags.Node, NetNodeExt.Flags.CustomsMask);
-                Log.Info($"OnSkinApplied(node:{nodeID}) : " + customFlags);
-            }
+            } catch(Exception ex) { ex.Log(); }
         }
 
         #region persistency
