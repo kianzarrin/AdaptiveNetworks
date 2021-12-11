@@ -23,11 +23,11 @@ namespace AdaptiveRoads.Manager {
         public void Awake() {
             try {
                 this.m_roadLayer = LayerMask.NameToLayer("Road");
-                var oldIndinces = RenderManager.instance.m_indices;
-                if(oldIndinces.Length < MAX_HOLDER_COUNT) {
-                    RenderManager.instance.m_indices = new ushort[MAX_HOLDER_COUNT];
-                    Array.Copy(oldIndinces, RenderManager.instance.m_indices, oldIndinces.Length);
-                }
+                //var oldIndinces = RenderManager.instance.m_indices;
+                //if(oldIndinces.Length < MAX_HOLDER_COUNT) {
+                //    RenderManager.instance.m_indices = new ushort[MAX_HOLDER_COUNT];
+                //    Array.Copy(oldIndinces, RenderManager.instance.m_indices, oldIndinces.Length);
+                //}
                 RenderManager.RegisterRenderableManager(this);
             }catch(Exception ex) {
                 ex.Log();
