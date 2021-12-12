@@ -106,8 +106,10 @@ namespace AdaptiveRoads.UI {
                 }) as UICheckBox;
             }
 
-            var btn = general.AddCheckbox("Left Hand Traffic", NetUtil.LHT, RoadUtils.SetDirection) as UICheckBox;
-            btn.eventVisibilityChanged += (_, __) => btn.isChecked = NetUtil.LHT;
+            if (!Helpers.InStartupMenu) {
+                var btn = general.AddCheckbox("Left Hand Traffic", NetUtil.LHT, RoadUtils.SetDirection) as UICheckBox;
+                btn.eventVisibilityChanged += (_, __) => btn.isChecked = NetUtil.LHT;
+            }
 
             if(inAssetEditor) { 
                 var dd = general.AddDropdown(
