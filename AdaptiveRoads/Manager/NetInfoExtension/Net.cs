@@ -28,16 +28,17 @@ namespace AdaptiveRoads.Manager {
                 ret.ConnectGroupsHash = ret.ConnectGroupsHash?.ToArray();
                 ret.NodeConnectGroupsHash = ret.NodeConnectGroupsHash?.ToArray();
                 ret.QuayRoadsProfile = QuayRoadsProfile?.ToArray();
-                ret.CustomFlagNames = ret.CustomFlagNames?.ToDictionary(entry => entry.Key, entry => entry.Value);
-                ret.ScriptedFlags = ret.ScriptedFlags?.ToDictionary(entry => entry.Key, entry => entry.Value);
-                ret.CustomLaneFlagNames0 = ret.CustomLaneFlagNames0?.ToDictionary(entry => entry.Key, entry => entry.Value);
+                ret.CustomFlagNames = ret.CustomFlagNames?.ShallowClone();
+                ret.ScriptedFlags = ret.ScriptedFlags?.ShallowClone();
+                ret.CustomLaneFlagNames0 = ret.CustomLaneFlagNames0?.ShallowClone();
+                //Log.Debug($"CustomLaneFlagNames={CustomLaneFlagNames} before cloning");
                 ret.CustomLaneFlagNames = ret.CustomLaneFlagNames
-                    ?.Select(item => item?.ToDictionary(entry => entry.Key, entry => entry.Value))
+                    ?.Select(item => item?.ShallowClone())
                     ?.ToArray();
+                //Log.Debug($"CustomLaneFlagNames={CustomLaneFlagNames} after cloning");
                 for (int i = 0; i < ret.Tracks.Length; ++i) {
                     ret.Tracks[i] = ret.Tracks[i].Clone();
                 }
-
                 return ret;
             }
 
@@ -57,13 +58,16 @@ namespace AdaptiveRoads.Manager {
             #region serialization
             //serialization
             public void GetObjectData(SerializationInfo info, StreamingContext context) {
+                //Log.Called();
                 FillCustomLaneFlagNames();
                 SerializationUtil.GetObjectFields(info, this);
             }
 
             // deserialization
-            public Net(SerializationInfo info, StreamingContext context) =>
+            public Net(SerializationInfo info, StreamingContext context) {
+                //Log.Called();
                 SerializationUtil.SetObjectFields(info, this);
+            }
             #endregion
 
             [NonSerialized]
@@ -164,8 +168,9 @@ namespace AdaptiveRoads.Manager {
 
             private void FillCustomLaneFlagNames() {
                 try {
+                    //Log.Called();
                     CustomLaneFlagNames = null;
-                    if (CustomLaneFlagNames.IsNullorEmpty()) return;
+                    if (CustomLaneFlagNames0.IsNullorEmpty()) return;
                     CustomLaneFlagNames = new Dictionary<NetLaneExt.Flags, string>[Template.m_lanes.Length];
                     for (int laneIndex = 0; laneIndex < CustomLaneFlagNames.Length; ++laneIndex) {
                         var lane = Template.m_lanes[laneIndex];
@@ -173,11 +178,14 @@ namespace AdaptiveRoads.Manager {
                             CustomLaneFlagNames[laneIndex] = dict;
                         }
                     }
+                    //Log.Succeeded($"CustomLaneFlagNames0={CustomLaneFlagNames0.ToSTR()} CustomLaneFlagNames={CustomLaneFlagNames}.ToSTR()");
                 } catch (Exception ex) { ex.Log(); }
             }
 
             public string GetCustomLaneFlagName(NetLaneExt.Flags flag, int laneIndex) {
                 try {
+                    //Log.Called();
+                    //Log.Debug($"CustomLaneFlagNames0={CustomLaneFlagNames0.ToSTR()} CustomLaneFlagNames={CustomLaneFlagNames.ToSTR()}");
                     if (CustomLaneFlagNames0 is not null) {
                         // edit prefab
                         var lane = Template.m_lanes[laneIndex];
@@ -284,7 +292,7 @@ namespace AdaptiveRoads.Manager {
             }
 
             public static event Action OnCustomFlagRenamed; // TODO move out
-            public void RenameCustomFlag(Enum flag, string name) {
+            void RenameCustomFlag(Enum flag, string name) {
                 try {
                     CustomFlagNames ??= new Dictionary<Enum, string>();
                     if(name.IsNullOrWhiteSpace() || name == flag.ToString())
@@ -295,7 +303,7 @@ namespace AdaptiveRoads.Manager {
                 } catch(Exception ex) { ex.Log(); }
             }
 
-            public void RenameCustomFlag(int laneIndex, NetLaneExt.Flags flag, string name) {
+            void RenameCustomFlag(int laneIndex, NetLaneExt.Flags flag, string name) {
                 try {
                     Assertion.NotNull(Template, "Template");
                     var lane = Template.m_lanes[laneIndex];
@@ -345,21 +353,15 @@ namespace AdaptiveRoads.Manager {
             public NetLaneExt.Flags GetUsedCustomFlagsLane(int laneIndex) {
                 NetLaneExt.Flags ret = default;
                 try {
-                    if(CustomLaneFlagNames0 is not null) {
-                        // edit prefab
-                        var laneInfo = Template.m_lanes[laneIndex];
-                        if(CustomLaneFlagNames0.TryGetValue(laneInfo, out var dict)) {
-                            foreach(var flag in dict.Keys) ret |= flag;
-                        }
-                    } else if(CustomLaneFlagNames is not null) {
-                        // normal
-                        Assertion.InRange(CustomLaneFlagNames, laneIndex);
-                        var dict = CustomLaneFlagNames[laneIndex];
-                        if(dict != null) {
-                            foreach(var flag in dict.Keys) ret |= flag;
+                    var props = Template.m_lanes[laneIndex]?.m_laneProps?.m_props;
+                    if (props != null) {
+                        foreach (var prop in props) {
+                            if (prop.GetMetaData() is LaneProp propExt) {
+                                ret |= propExt.UsedCustomFlags.Lane;
+                            }
                         }
                     }
-                } catch(Exception ex) { ex.Log(); }
+                } catch (Exception ex) { ex.Log(); }
                 return ret;
             }
             #endregion
