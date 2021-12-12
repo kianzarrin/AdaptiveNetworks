@@ -182,6 +182,23 @@ namespace AdaptiveRoads.Manager {
                 } catch (Exception ex) { ex.Log(); }
             }
 
+            private void FillCustomLaneFlagNames0() {
+                try {
+                    //Log.Called();
+                    CustomLaneFlagNames0 = null;
+                    if (CustomLaneFlagNames.IsNullorEmpty()) return;
+                    CustomLaneFlagNames0 = new Dictionary<NetInfo.Lane, Dictionary<NetLaneExt.Flags, string>>();
+                    for (int laneIndex = 0; laneIndex < CustomLaneFlagNames.Length; ++laneIndex) {
+                        var lane = Template.m_lanes[laneIndex];
+                        var dict = CustomLaneFlagNames[laneIndex];
+                        if (!dict.IsNullorEmpty()) {
+                            CustomLaneFlagNames0[lane] = dict ;
+                        }
+                    }
+                    //Log.Succeeded($"CustomLaneFlagNames0={CustomLaneFlagNames0.ToSTR()} CustomLaneFlagNames={CustomLaneFlagNames}.ToSTR()");
+                } catch (Exception ex) { ex.Log(); }
+            }
+
             public string GetCustomLaneFlagName(NetLaneExt.Flags flag, int laneIndex) {
                 try {
                     //Log.Called();
@@ -370,6 +387,7 @@ namespace AdaptiveRoads.Manager {
                 try {
                     Assertion.NotNull(netInfo, "netInfo");
                     Template = netInfo;
+                    FillCustomLaneFlagNames0();
                     RecalculateTracks(netInfo);
                     UpdateTextureScales(netInfo);
                     RefreshLevelOfDetail(netInfo);
