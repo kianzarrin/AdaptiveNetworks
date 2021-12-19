@@ -1,13 +1,8 @@
 tracks:
     - why do I need to refresh roads 2 times on load?
 
-- fix unbroken median flag.
-    - why do I need to check for relaxed conditions for trams?
-
-
 -----------------
 - remove custom flags when network is deleted.
-- list scrollbars
 - group DC components.
 
 ----------------------------
@@ -16,3 +11,5 @@ version 4:
     - patch AssetImporterAssetTemplate.RefreshCoroutine() to speed up prop model loading time
         micro-benchmark UIComponent.Find<T>(string) to see how much time they take up
     - check track's node/segment flags at segment's/node's : start/end/both (on demand if somebody ask for this feature)
+    - auto train track maker.
+    - generate AR props for vanilla roads.
