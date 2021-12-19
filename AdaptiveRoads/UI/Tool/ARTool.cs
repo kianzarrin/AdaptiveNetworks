@@ -250,14 +250,14 @@ namespace AdaptiveRoads.UI.Tool {
         protected override void Awake() {
             try {
                 base.Awake();
-                string sprites = UUIHelpers.GetFullPath<LifeCycle.UserMod>("uui_ar.png");
+                string iconPath = UUIHelpers.GetFullPath<LifeCycle.UserMod>("uui_ar.png");
                 button_ = UUIHelpers.RegisterToolButton(
-                    name: nameof(ARTool),
+                    name: "AdaptiveNetworks",
                     groupName: null, // default group
-                    tooltip: "Adaptive Roads",
-                    spritefile: sprites,
+                    tooltip: "Adaptive Networks",
                     tool: this,
-                    activationKey: ModSettings.Hotkey);
+                    icon: UUIHelpers.LoadTexture(iconPath),
+                    hotkeys: new UUIHotKeys { ActivationKey = ModSettings.Hotkey });
             } catch (Exception ex) {
                 ex.Log();
             }
