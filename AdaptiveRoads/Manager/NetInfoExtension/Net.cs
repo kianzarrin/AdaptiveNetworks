@@ -375,7 +375,12 @@ namespace AdaptiveRoads.Manager {
                         foreach (var prop in props) {
                             if (prop.GetMetaData() is LaneProp propExt) {
                                 ret |= propExt.UsedCustomFlags.Lane;
-                            }
+                            } 
+                        }
+                    }
+                    foreach(var track in Tracks) {
+                        if (track.HasTrackLane(laneIndex)) {
+                            ret |= track.UsedCustomFlags.Lane;
                         }
                     }
                 } catch (Exception ex) { ex.Log(); }

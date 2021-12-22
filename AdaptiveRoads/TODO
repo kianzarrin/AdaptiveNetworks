@@ -1,3 +1,5 @@
+- AR tool icon
+
 tracks:
     - why do I need to refresh roads 2 times on load?
 
@@ -13,3 +15,10 @@ version 4:
     - check track's node/segment flags at segment's/node's : start/end/both (on demand if somebody ask for this feature)
     - auto train track maker.
     - generate AR props for vanilla roads.
+    - elevations:
+        - add
+        - share elevations.
+        - change
+    - anti distortion for crossings
+    - height offset for node/segment meshes.
+
