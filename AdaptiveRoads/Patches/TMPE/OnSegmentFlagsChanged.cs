@@ -7,6 +7,7 @@ using System.Reflection;
 using AdaptiveRoads.Manager;
 using System.Diagnostics;
 using TrafficManager.API.Traffic.Enums;
+using System.Linq;
 
 namespace AdaptiveRoads.Patches.TMPE {
     [InGamePatch]
@@ -20,8 +21,12 @@ namespace AdaptiveRoads.Patches.TMPE {
             foreach (var m in AccessTools.GetDeclaredMethods(typeof(SpeedLimitManager))) {
                 if (m.Name == nameof(SpeedLimitManager.SetSpeedLimit) ||
                     m.Name == "SetSegmentSpeedLimit" ||
-                    m.Name == "SetLaneSpeedLimit")
-                    yield return m;
+                    m.Name == "SetLaneSpeedLimit") {
+                    if (m.GetParameters().Any(p => p.Name == "segmentId")) {
+                        // one overload SetLaneSpeedLimit does not have segmentId
+                        yield return m;
+                    }
+                }
             }
 
             /************* parking */
