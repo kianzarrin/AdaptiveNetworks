@@ -128,7 +128,7 @@ namespace AdaptiveRoads.Manager {
                 LaneCurve.CheckRange(laneCurve);
             public CustomFlags UsedCustomFlags => new CustomFlags {
                 Segment = SegmentFlags.UsedCustomFlags,
-                SegmentEnd = SegmentStartFlags.UsedCustomFlags | SegmentStartFlags.UsedCustomFlags,
+                SegmentEnd = SegmentStartFlags.UsedCustomFlags | SegmentEndFlags.UsedCustomFlags,
                 Lane = LaneFlags.UsedCustomFlags,
                 Node = StartNodeFlags.UsedCustomFlags | EndNodeFlags.UsedCustomFlags
             };
