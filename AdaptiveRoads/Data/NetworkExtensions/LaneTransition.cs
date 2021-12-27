@@ -3,6 +3,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
     using ColossalFramework;
     using ColossalFramework.Math;
     using KianCommons;
+    using System;
     using UnityEngine;
     using Log = KianCommons.Log;
 
@@ -29,9 +30,24 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 Log.Warning("neither has track for this lane index");
                 return; //empty
             }
+
             if( (prio1 >= prio2 && hasTrackLane) || !hasTrackLane2) {
-                LaneIDSource = laneID1;
-                LaneIDTarget = laneID2;
+                if (prio1 == prio2) {
+                    var segmentIDs = NodeID.ToNodeExt().SegmentIDs;
+                    int segmentIndex1 = Array.IndexOf(segmentIDs, segmentID1);
+                    int segmentIndex2 = Array.IndexOf(segmentIDs, segmentID2);
+                    // make it consistent (TODO why does not work?)
+                    if (segmentIndex1 < segmentIndex2) {
+                        LaneIDSource = laneID1;
+                        LaneIDTarget = laneID2;
+                    } else {
+                        LaneIDSource = laneID1;
+                        LaneIDTarget = laneID2;
+                    }
+                } else {
+                    LaneIDSource = laneID1;
+                    LaneIDTarget = laneID2;
+                }
             } else {
                 LaneIDSource = laneID2;
                 LaneIDTarget = laneID1;
