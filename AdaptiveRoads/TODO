@@ -1,6 +1,4 @@
 bugs:
-    - AR tool icon
-    - AR on linux
     - fit window to flag names
 tracks:
     - why do I need to refresh roads 2 times on load?

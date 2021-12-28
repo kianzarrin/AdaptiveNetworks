@@ -11,7 +11,7 @@ namespace AdaptiveRoads.UI.Tool {
     using System.Linq;
     using AdaptiveRoads.Data.NetworkExtensions;
 
-    public class FlagsPanel : UIPanel {
+    public class FlagsPanel : UIPanel , IFittable {
         static string FileName => ModSettings.FILE_NAME;
 
         public string AtlasName => $"{GetType().FullName}_rev" + this.VersionOf();
@@ -177,6 +177,7 @@ namespace AdaptiveRoads.UI.Tool {
             }
         }
         protected override void OnPositionChanged() {
+            Assertion.AssertStack();
             base.OnPositionChanged();
             Log.DebugWait("OnPositionChanged called", id: "OnPositionChanged called".GetHashCode(), seconds: 0.2f, copyToGameLog: false);
 
@@ -191,23 +192,28 @@ namespace AdaptiveRoads.UI.Tool {
             Log.DebugWait("absolutePosition: " + absolutePosition, id: "absolutePosition: ".GetHashCode(), seconds: 0.2f, copyToGameLog: false);
         }
 
-        void Refresh() {
-            dragHandle_.FitChildren();
-            dragHandle_.width = Mathf.Max(width, dragHandle_.width);
-            dragHandle_.height = 32;
-            lblCaption_.anchor = UIAnchorStyle.CenterHorizontal |  UIAnchorStyle.CenterVertical;
-            FitChildren();
-            foreach (var lpc in GetComponentsInChildren<LanePanelCollapsable>()) {
-                lpc.FitParent();
-            }
-            Invalidate();
-        }
-
         static UIPanel AddSpacePanel(UIPanel parent, int space) {
             var panel = parent.AddUIComponent<UIPanel>();
             panel.height = space;
             panel.width = 1;
             return panel;
+        }
+
+
+        void Refresh() {
+            Log.Called();
+            (this as IFittable).FitRecursive();
+        }
+
+
+        void IFittable.Fit2Children() {
+            dragHandle_.FitChildrenHorizontally();
+        }
+
+        void IFittable.Fit2Parent() {
+            dragHandle_.width = width;
+            dragHandle_.height = 32;
+            lblCaption_.anchor = UIAnchorStyle.CenterHorizontal | UIAnchorStyle.CenterVertical;
         }
     }
 }

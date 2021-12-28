@@ -8,7 +8,7 @@ namespace AdaptiveRoads.UI.Tool {
     using UnityEngine;
     using AdaptiveRoads.Data.NetworkExtensions;
 
-    public class SegmentFlagToggle : UICheckBoxExt {
+    public class SegmentFlagToggle : AutoSizeCheckbox {
         static NetworkExtensionManager man_ => NetworkExtensionManager.Instance;
         UISprite[] Sprites => GetComponentsInChildren<UISprite>();
 

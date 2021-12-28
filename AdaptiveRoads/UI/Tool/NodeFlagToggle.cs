@@ -6,7 +6,7 @@ namespace AdaptiveRoads.UI.Tool {
     using AdaptiveRoads.Manager;
     using System.Collections.Generic;
 
-    public class NodeFlagToggle : UICheckBoxExt {
+    public class NodeFlagToggle : AutoSizeCheckbox {
         static NetworkExtensionManager man_ => NetworkExtensionManager.Instance;
 
         ushort nodeID_;

@@ -6,7 +6,7 @@ namespace AdaptiveRoads.UI.Tool {
     using UnityEngine;
     using AdaptiveRoads.Manager;
 
-    public class LanePanelCollapsable : UIPanel {
+    public class LanePanelCollapsable : UIPanel, IFittable {
         public override void Awake() {
             base.Awake();
             autoLayout = true;
@@ -44,6 +44,7 @@ namespace AdaptiveRoads.UI.Tool {
             var innerPanel = AddPanel(ret);
             caption.SetTarget(innerPanel);
             innerPanel.name = "lanePanel";
+            innerPanel.eventSizeChanged += InnerPanel_eventSizeChanged;
 
             var laneIDs = lanes?.Select(item => item.LaneID).ToArray();
             foreach(var flag in mask.ExtractPow2Flags()) {
@@ -53,14 +54,17 @@ namespace AdaptiveRoads.UI.Tool {
             return ret;
         }
 
-        public void FitParent() {
+        private static void InnerPanel_eventSizeChanged(UIComponent innerPanel, Vector2 _) {
+            Log.Called();
+            (innerPanel.parent as IFittable)?.FitRoot();
+        }
+
+        void IFittable.Fit2Children() => this.FitChildrenHorizontally();
+        
+        void IFittable.Fit2Parent() {
             autoFitChildrenHorizontally = false;
             autoSize = false;
             width = parent.width - (parent as UIPanel).padding.horizontal;
-
-            var caption = GetComponentInChildren<LaneCaptionButton>();
-            caption.autoSize = false;
-            caption.width = width;
         }
     }
 }

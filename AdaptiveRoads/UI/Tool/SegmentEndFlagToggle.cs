@@ -5,7 +5,7 @@ namespace AdaptiveRoads.UI.Tool {
     using KianCommons;
     using AdaptiveRoads.Manager;
 
-    public class SegmentEndFlagToggle : UICheckBoxExt {
+    public class SegmentEndFlagToggle : AutoSizeCheckbox {
         static NetworkExtensionManager man_ => NetworkExtensionManager.Instance;
 
         ushort segmentID_;

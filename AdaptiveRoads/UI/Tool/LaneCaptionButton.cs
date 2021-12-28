@@ -1,21 +1,13 @@
 namespace AdaptiveRoads.UI.Tool {
-    using ColossalFramework;
     using ColossalFramework.UI;
     using KianCommons;
     using KianCommons.UI;
-    using System;
-    using UnityEngine;
-    using System.Collections.Generic;
-    using System.Linq;
-    using static KianCommons.ReflectionHelpers;
-    using AdaptiveRoads.Manager;
-    using static KianCommons.Assertion;
 
-    public class LaneCaptionButton : UIButtonExt {
+    public class LaneCaptionButton : UIButtonExt, IFittable {
         LaneData lane_;
         UIPanel panel_;
 
-        public static LaneCaptionButton Add(UIPanel parent,  LaneData lane) {
+        public static LaneCaptionButton Add(UIPanel parent, LaneData lane) {
             var ret = parent.AddUIComponent<LaneCaptionButton>();
             ret.lane_ = lane;
             ret.Init();
@@ -45,6 +37,12 @@ namespace AdaptiveRoads.UI.Tool {
                 panel_.Show();
                 text = text.Replace("▼", "▲");
             }
+        }
+
+        public void Fit2Children() => this.FitChildrenHorizontally();
+        public void Fit2Parent() {
+            autoSize = false;
+            this.width = parent.width;
         }
     }
 
