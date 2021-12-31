@@ -25,7 +25,7 @@ namespace AdaptiveRoads.Patches {
             var net = __instance.m_info.GetMetaData();
             if (net is null) {
 #if DEBUGQUAYROADS
-                Log.Debug("No AR data found for: \n segmentId: " + segmentID + "name: " + data.Info.name);
+                Log.Debug("No AN data found for: \n segmentId: " + segmentID + "name: " + data.Info.name);
 #endif
                 return true;
             }

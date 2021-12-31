@@ -129,7 +129,7 @@ namespace AdaptiveRoads.UI {
             }
 
             if(!Helpers.InStartupMenu) {
-                general.AddButton("Refresh AR networks", RefreshARNetworks);
+                general.AddButton("Refresh AN networks", RefreshARNetworks);
             }
 
             if(inAssetEditor) {
@@ -159,11 +159,11 @@ namespace AdaptiveRoads.UI {
             }
 
             string msg =
-                "this operation removes all AR metadata. " +
+                "this operation removes all AN metadata. " +
                 "Are you sure you want to continue?";
 
             UIView.library.ShowModal<ConfirmPanel>("ConfirmPanel", CallbackFunc)
-                .SetMessage("Remove AR Metadata?", msg);
+                .SetMessage("Remove AN Metadata?", msg);
 
             void CallbackFunc(UIComponent comp, int accepted) {
                 if (accepted == 1) {

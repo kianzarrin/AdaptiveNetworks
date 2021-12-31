@@ -9,7 +9,7 @@ namespace AdaptiveRoads.NSInterface.UI {
 
     public class SegmentFlagToggle : UICheckBoxExt {
         private NetSegmentExt.Flags flag_;
-        ARImplementation Impl => ARImplementation.Instance;
+        ANImplementation Impl => ANImplementation.Instance;
         ARCustomFlags ARCustomFlags => Impl.ARCustomFlags;
 
         public static SegmentFlagToggle Add(UIPanel parent, NetSegmentExt.Flags flag) {

@@ -107,7 +107,7 @@ namespace AdaptiveRoads.UI.Tool {
                 } else if(HoveredSegmentID.ToSegment().Info.TrackLaneCount() > 0)
                     hints.Add("ALT + Click => modify segmentEnd angle");
                 if(hints.Count == 0)
-                    hints.Add("no custom AR flags to modify");
+                    hints.Add("This road has no custom AN flags to modify.");
                 ShowToolInfo(true, hints.JoinLines(), HitPos);
             } else {
                 ShowToolInfo(false, "", default);

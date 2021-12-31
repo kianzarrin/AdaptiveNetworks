@@ -14,7 +14,7 @@ namespace AdaptiveRoads.NSInterface {
     using AdaptiveRoads.Data.NetworkExtensions;
 
 
-    public class ARImplementation : NSIntegrationBase<ARImplementation> {
+    public class ANImplementation : NSIntegrationBase<ANImplementation> {
         public override string ID => "Adaptive Roads";
 
         public override int Index { get; set; }
@@ -77,7 +77,7 @@ namespace AdaptiveRoads.NSInterface {
                 return TextureUtil.GetTextureFromFile("NS.png");
             }
         }
-        public override string Tooltip => "Adaptive Roads";
+        public override string Tooltip => "Adaptive Networks";
 
         UIPanel container_;
         UIPanel subContainer_;

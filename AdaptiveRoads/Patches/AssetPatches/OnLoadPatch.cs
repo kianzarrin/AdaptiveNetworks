@@ -26,7 +26,7 @@ namespace AdaptiveRoads.Patches.AssetPatches {
         /// <summary>
         /// when loading asset from a file, IAssetData.OnAssetLoaded() is called for all assets but the one that is loaded from the file.
         /// this postfix calls IAssetData.OnAssetLoaded() for asset loaded from file.
-        /// Note: even if new road instantiated based on an AR Road, we still need to do this because
+        /// Note: even if new road instantiated based on an AN Road, we still need to do this because
         ///       NetInfo metadata is stored in external array
         ///       also we cannot be sure that it is always instantiated properly.
         /// </summary>
