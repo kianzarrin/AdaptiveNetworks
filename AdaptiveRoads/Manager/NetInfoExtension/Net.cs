@@ -304,6 +304,7 @@ namespace AdaptiveRoads.Manager {
                     }
                     OnCustomFlagRenamed?.Invoke();
                     NetworkExtensionManager.Instance.RecalculateARPrefabs();
+                    NetworkExtensionManager.Instance.UpdateAllNetworkFlags();
                     Log.Debug(ScriptedFlags.ToSTR());
                 } catch (Exception ex) { ex.Log(); }
             }

@@ -29,6 +29,7 @@ namespace AdaptiveRoads.CustomScript {
 
         public static Assembly AddAssembly(byte[] data) {
             string checksum = ComputeHash(data);
+            Log.Info($"Adding Assembly with checksum:{checksum} reuse={LoadedAssemblies[checksum]}", true);
             LoadedAssemblies[checksum] ??= Assembly.Load(data);
             return LoadedAssemblies[checksum] as Assembly;
         }
