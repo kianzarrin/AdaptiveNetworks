@@ -80,6 +80,6 @@ namespace AdaptiveRoads.CustomScript {
             }
         }
 
-        public override string ToString() => $"ExpressionWrapper(Name={Name}, Instance={Instance}, Assembly='{AssemblyData}')";
+        public override string ToString() => $"ExpressionWrapper(Name={Name}, Instance={Instance}, Assembly='{Asm.GetName().Name} V{Asm.VersionOf()}')";
     }
 }
