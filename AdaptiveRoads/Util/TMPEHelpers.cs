@@ -7,7 +7,7 @@ namespace AdaptiveRoads.Util {
     using TrafficManager.Manager.Impl;
     using UnityEngine;
 
-    internal static class TMPEHelpers {
+    public static class TMPEHelpers {
         static IManagerFactory TMPE => Constants.ManagerFactory;
         static ISpeedLimitManager SLMan => TMPE?.SpeedLimitManager as SpeedLimitManager;
         static IRoutingManager RMan = RoutingManager.Instance;

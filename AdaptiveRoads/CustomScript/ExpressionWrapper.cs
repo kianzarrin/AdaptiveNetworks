@@ -15,7 +15,9 @@ namespace AdaptiveRoads.CustomScript {
         #region life-cycle
         private ExpressionWrapper() { }
 
-        public ExpressionWrapper(FileInfo dllFile, string name) : this(dllFile.OpenRead().ReadToEnd(), name) { }
+        public ExpressionWrapper(FileInfo dllFile, string name) : this(dllFile.OpenRead().ReadToEnd(), name) {
+            filePath = dllFile.FullName;
+        }
 
         public ExpressionWrapper(byte[] data, string name) {
             Name = name;
@@ -59,7 +61,8 @@ namespace AdaptiveRoads.CustomScript {
         public Assembly Asm;
         [NonSerialized]
         public PredicateBase Instance;
-
+        [NonSerialized]
+        public string filePath; // to aid with hot-reload
 
         public PredicateBase GetPredicateInstance(ushort segmentID, ushort nodeID, int laneIndex = -1) {
             Assertion.NotNull(Instance, "Instance");
