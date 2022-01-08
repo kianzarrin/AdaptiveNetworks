@@ -31,13 +31,14 @@ namespace AdaptiveRoads.CustomScript {
             Assembly ret;
 
             if (LoadedAssemblies.TryGetValue(checksum, out ret)) {
-                Log.Info($"Reusing {ret} with checksum:{checksum}", true);
+                Log.Info($"Reusing assembly '{ret}' with checksum:{checksum}", true);
             } else {
                 ret = Assembly.Load(data);
                 if(LoadedAssemblies.Values.Any(item => item.FullName == ret.FullName)) {
                     new Exception("CS cannot load assemblies with identical name/version. Please change version.").Log();
                 }
                 LoadedAssemblies[checksum] = ret;
+                Log.Info($"Added assembly '{ret}' with checksum:{checksum}", true);
             }
 
             return ret;
