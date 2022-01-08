@@ -55,15 +55,25 @@ namespace AdaptiveRoads.UI.RoadEditor {
             if (text2 == "") {
                 value = 0;
                 return true;
+            } else {
+                return uint.TryParse(text2, out value);
             }
-
-            var ret = uint.TryParse(text2, out value);
-            return ret;
         }
 
         public uint Value {
             set => text = value.ToString() + PostFix;
-            get => uint.Parse(StrippedText);
+            get {
+                if(TryGetValue(out uint ret)){
+                    return ret;
+                } else {
+                    return 0;
+                }
+            }
+        }
+
+        protected override void OnSubmit() {
+            base.OnSubmit();
+            Value = Value;
         }
     }
 }
