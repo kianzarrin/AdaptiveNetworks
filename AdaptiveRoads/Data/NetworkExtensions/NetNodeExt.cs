@@ -58,6 +58,9 @@ namespace AdaptiveRoads.Manager {
             [Hint("the junction has segments with different speed limits.")]
             SpeedChange = 1 << 12,
 
+            [Hint("the junction has segments with pedestrian traffic")]
+            Pedestrians = 1 << 13,
+
             [CustomFlag] Custom0 = 1 << 24,
             [CustomFlag] Custom1 = 1 << 25,
             [CustomFlag] Custom2 = 1 << 26,
@@ -105,9 +108,11 @@ namespace AdaptiveRoads.Manager {
                     m_flags = m_flags.SetFlags(Flags.KeepClearAll, keepClearAll);
 
 
+                    bool pedestrians = TMPEHelpers.HasPedestrianCrossings(NodeID);
                     bool speedChange = TMPEHelpers.SpeedChanges(NodeID);
                     bool twoSegments = NodeID.ToNode().CountSegments() == 2;
 
+                    m_flags = m_flags.SetFlags(Flags.Pedestrians, pedestrians);
                     m_flags = m_flags.SetFlags(Flags.SpeedChange, speedChange);
                     m_flags = m_flags.SetFlags(Flags.TwoSegments, twoSegments);
 

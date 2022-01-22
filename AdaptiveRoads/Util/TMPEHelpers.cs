@@ -66,6 +66,10 @@ namespace AdaptiveRoads.Util {
             return speedChange;
         }
 
+        public static bool HasPedestrianCrossings(ushort nodeID)
+            => nodeID.ToNode().IterateSegments()
+                .SelectMany(segmentID => new LaneDataIterator(segmentID, laneType: NetInfo.LaneType.Pedestrian))
+                .Any();
 
         public static LaneTransitionData[] GetForwardRoutings(uint laneID, ushort nodeID) {
             bool startNode = laneID.ToLane().m_segment.ToSegment().IsStartNode(nodeID);
