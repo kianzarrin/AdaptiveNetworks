@@ -356,7 +356,7 @@ namespace AdaptiveRoads.Util {
                 if(props == null || props.Length == 0) return;
                 NetLaneProps.Prop[] m_props = groupPanel.GetArray() as NetLaneProps.Prop[];
                 if(ModSettings.ARMode) {
-                    // extend in AR mode
+                    // extend in AN mode
                     props = props.Select(_p => _p.Extend().Base).ToArray();
                 } else {
                     // undo extend in Vanilla mode.

@@ -8,7 +8,7 @@ namespace AdaptiveRoads.NSInterface.UI {
 
     public class SegmentEndFlagToggle : UICheckBoxExt {
         NetSegmentEnd.Flags flag_;
-        ARImplementation Impl => ARImplementation.Instance;
+        ANImplementation Impl => ANImplementation.Instance;
         ARCustomFlags ARCustomFlags => Impl.ARCustomFlags;
         public static void Add(UIPanel parent, NetSegmentEnd.Flags flag) {
             var toggle = parent.AddUIComponent<SegmentEndFlagToggle>();

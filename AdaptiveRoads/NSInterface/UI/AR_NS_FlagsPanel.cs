@@ -13,7 +13,7 @@ namespace AdaptiveRoads.NSInterface.UI {
 
     public class AR_NS_FlagsPanel : UIPanel {
         internal int HoveredLaneIndex { get; private set; } = -1;
-        static ARImplementation Impl => ARImplementation.Instance;
+        static ANImplementation Impl => ANImplementation.Instance;
         static NetInfo Prefab => Impl.Prefab;
 
         public override void Awake() {

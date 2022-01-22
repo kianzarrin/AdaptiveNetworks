@@ -88,7 +88,7 @@ namespace AdaptiveRoads.LifeCycle {
                 if(!InRoadEditor) return;
                 if(ModSettings.VanillaMode) {
                     // just in case there is extended infos by mistake.
-                    // in AR mode I first need to pause simulation
+                    // in AN mode I first need to pause simulation
                     NetInfoExtionsion.Ensure_EditedNetInfos();
                     return;
                 }

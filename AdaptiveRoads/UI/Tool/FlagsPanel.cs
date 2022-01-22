@@ -91,11 +91,11 @@ namespace AdaptiveRoads.UI.Tool {
 
                     lblCaption_ = dragHandle_.AddUIComponent<UILabel>();
                     if (SegmentMode)
-                        lblCaption_.text = "AR Custom Segment Flags";
+                        lblCaption_.text = "AN Custom Segment Flags";
                     else if (NodeMode)
-                        lblCaption_.text = "AR Custom Node Flags";
+                        lblCaption_.text = "AN Custom Node Flags";
                     else if (SegmentEndMode)
-                        lblCaption_.text = "AR Custom SegmentEnd Flags";
+                        lblCaption_.text = "AN Custom SegmentEnd Flags";
 
                     lblCaption_.name = "AR_caption";
                 }

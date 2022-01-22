@@ -10,8 +10,6 @@ namespace AdaptiveRoads.CustomScript {
     using ColossalFramework.Plugins;
     using System.Collections;
 
-
-
     internal static class ScriptCompiler {
         private static readonly string WorkspacePath = Path.Combine(Application.temporaryCachePath, "AdaptiveRoads");
         private static readonly string SourcesPath = Path.Combine(WorkspacePath, "src");
@@ -25,12 +23,25 @@ namespace AdaptiveRoads.CustomScript {
             "UnityEngine.dll",
         };
 
-        private static Hashtable LoadedAssemblies = new Hashtable();
+        private static Dictionary<string,Assembly> LoadedAssemblies = new ();
 
         public static Assembly AddAssembly(byte[] data) {
+            Log.Called();
             string checksum = ComputeHash(data);
-            LoadedAssemblies[checksum] ??= Assembly.Load(data);
-            return LoadedAssemblies[checksum] as Assembly;
+            Assembly ret;
+
+            if (LoadedAssemblies.TryGetValue(checksum, out ret)) {
+                Log.Info($"Reusing assembly '{ret}' with checksum:{checksum}", true);
+            } else {
+                ret = Assembly.Load(data);
+                if(LoadedAssemblies.Values.Any(item => item.FullName == ret.FullName)) {
+                    new Exception("CS cannot load assemblies with identical name/version. Please change version.").Log();
+                }
+                LoadedAssemblies[checksum] = ret;
+                Log.Info($"Added assembly '{ret}' with checksum:{checksum}", true);
+            }
+
+            return ret;
         }
 
         static ScriptCompiler() {

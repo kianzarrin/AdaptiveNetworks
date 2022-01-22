@@ -54,8 +54,8 @@ namespace AdaptiveRoads.Manager {
             "    that excludes pavements/medians";
 
         public const string VANILLA =
-            "if required, it will not be rendered when Adaptive Roads mod is enabled.\n" +
-            "if forbidden, it will only be rendered when Adaptive Roads mod is enabled.";
+            "if required, it will not be rendered when Adaptive Networks mod is enabled.\n" +
+            "if forbidden, it will only be rendered when Adaptive Networks mod is enabled.";
 
 
         public static Type GetMappedEnumWithHints(Type enumType) {

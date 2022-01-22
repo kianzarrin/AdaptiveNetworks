@@ -13,7 +13,7 @@ namespace AdaptiveRoads.Patches.metadata {
                 if(PluginUtil.GetNetworkSkins().IsActive()) {
                     Log.ShowModalException(
                         "Incompatible mod",
-                        "NS2 is incompatible with AR in Road editor.",
+                        "NS2 is incompatible with AN in Road editor.",
                         error: true);
                 }
 

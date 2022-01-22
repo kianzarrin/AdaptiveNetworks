@@ -139,6 +139,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
                         var pathField = panel.AddTextField();
                         pathField.width = 400;
                         pathField.Hint = "path to .dll or .cs script which calculates this flag (see tutorial)";
+                        pathField.text = exp?.filePath ?? "";
 
                         panel.AddButton("Assign Script", null, () => {
                             NetInfoExtionsion.Net.AssignCSScript(flag: flag, target: Target, name: nameField.text, path: pathField.text);

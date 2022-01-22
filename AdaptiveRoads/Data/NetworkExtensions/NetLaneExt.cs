@@ -158,6 +158,7 @@ namespace AdaptiveRoads.Manager{
                 SpeedLimit = lane.GetLaneSpeedLimit();
 
                 UpdateCorners();
+                if(Log.VERBOSE) Log.Succeeded(ToString());
                 //Log.Debug("NetLaneExt.UpdateLane() result: " + this);
             } catch(Exception ex) {
                 Log.Exception(ex, this.ToString(), false);

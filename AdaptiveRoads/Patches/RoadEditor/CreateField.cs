@@ -58,7 +58,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
                 if (IsUIReplaced(field)) {
                     if (VanillaCanMerge(field))
-                        return false; // will be merged with AR dd later
+                        return false; // will be merged with AN dd later
                     var container = GetContainer(__instance, groupName);
                     var uidata = GetVanillaFlagUIData(field, target);
 
@@ -423,7 +423,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             flagData: arDatas[i].FlagData);
                     }
                 } else if (arDatas.IsNullorEmpty()) {
-                    // only AR data is optional and hidden
+                    // only AN data is optional and hidden
                     Assertion.Equal(vanillas.Length, 2, "vanillas.Length");
                     for (int i = 0; i < 2; ++i) {
                         BitMaskPanel.Add(
