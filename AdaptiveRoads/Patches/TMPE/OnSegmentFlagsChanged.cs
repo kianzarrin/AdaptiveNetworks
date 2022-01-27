@@ -19,7 +19,7 @@ namespace AdaptiveRoads.Patches.TMPE {
             // public bool SpeedLimitManager.SetSegmentSpeedLimit(ushort segmentId, *) // new TMPE
             // public bool SetLaneSpeedLimit(ushort segmentId, ...) // new TMPE
             foreach (var m in AccessTools.GetDeclaredMethods(typeof(SpeedLimitManager))) {
-                if (m.Name == nameof(SpeedLimitManager.SetSpeedLimit) ||
+                if (m.Name == "SetSpeedLimit" ||
                     m.Name == "SetSegmentSpeedLimit" ||
                     m.Name == "SetLaneSpeedLimit") {
                     if (m.GetParameters().Any(p => p.Name == "segmentId")) {
