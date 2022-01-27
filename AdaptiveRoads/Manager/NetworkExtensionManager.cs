@@ -126,7 +126,6 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
-
         // should be called from simulation thread.
         void LoadImpl() {
             LogCalled();

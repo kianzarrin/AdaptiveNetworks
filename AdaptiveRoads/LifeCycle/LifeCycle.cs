@@ -116,10 +116,20 @@ namespace AdaptiveRoads.LifeCycle {
                     HarmonyUtil.InstallHarmony<PreloadPatchAttribute>(HARMONY_ID_MANUAL);
                     preloadPatchesApplied_ = true;
                 }
-                TrafficManager.Notifier.Instance.EventLevelLoaded -= NetworkExtensionManager.OnTMPELoaded;
-                //TrafficManager.Notifier.Instance.EventLevelLoaded += NetworkExtensionManager.OnTMPELoaded;
+                TrafficManager.Notifier.Instance.EventLevelLoaded -= OnTMPELOaded;
+                TrafficManager.Notifier.Instance.EventLevelLoaded += OnTMPELOaded;
             } catch (Exception ex) {
                 Log.Exception(ex);
+            }
+        }
+
+        static bool tmpeLoaded_ = false;
+        static bool loaded_ = false;
+        public static void OnTMPELOaded() {
+            tmpeLoaded_ = true;
+            if (loaded_) {
+                // if TMPE was loaded last, then update everything here.
+                NetworkExtensionManager.OnTMPELoaded();
             }
         }
 
@@ -129,6 +139,7 @@ namespace AdaptiveRoads.LifeCycle {
                 Log.Debug("testing stack trace:\n" + Environment.StackTrace, false);
                 Log.Info($"Scene={Scene} LoadMode={Mode}");
 
+                loaded_ = true;
                 _ = NetworkExtensionManager.Instance;
 
                 Log.Info($"Scene={Scene} LoadMode={Mode}");
@@ -143,7 +154,6 @@ namespace AdaptiveRoads.LifeCycle {
 
                 NetInfoExtionsion.Ensure_EditedNetInfos();
 
-                NetworkExtensionManager.OnTMPELoaded();
 
                 ARTool.Create();
 
@@ -151,7 +161,12 @@ namespace AdaptiveRoads.LifeCycle {
                 if (testPWValues) {
                     UI.Debug.PWSelector.Create();
                     UI.Debug.PWModifier.Create();
-                }   
+                }
+
+                if (tmpeLoaded_) {
+                    // wait to load TMPE
+                    NetworkExtensionManager.OnTMPELoaded();
+                }
 
                 Log.Flush();
                 Log.Succeeded();
@@ -163,6 +178,7 @@ namespace AdaptiveRoads.LifeCycle {
         public static void Unload() {
             try {
                 LogCalled();
+                loaded_ = tmpeLoaded_ = false;
                 UI.Debug.PWSelector.Release();
                 UI.Debug.PWModifier.Release();
                 ARTool.Release();
