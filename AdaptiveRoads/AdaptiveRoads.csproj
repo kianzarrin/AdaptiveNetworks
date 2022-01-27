@@ -2,17 +2,16 @@
   <PropertyGroup>
     <TargetFramework>net35</TargetFramework>
     <Deterministic>false</Deterministic>
-    <AssemblyVersion>3.1.4.*</AssemblyVersion>
+    <AssemblyVersion>3.3.2.*</AssemblyVersion>
     <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <PathMap>$(MSBuildProjectDirectory)\=$(ProjectName)\</PathMap>
-    <Configurations>Debug;Release;FAST_TEST_PATCHES;Workshop;DebugQuayRoads</Configurations>
+    <Configurations>Debug;Release;FAST_TEST_PATCHES;Workshop;</Configurations>
+    <ProduceReferenceAssemblies>true</ProduceReferenceAssemblies>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='DEBUG'">
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='DebugQuayRoads'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='FAST_TEST_PATCHES'">
@@ -37,12 +36,6 @@
       ../libs/
     </AssemblySearchPaths>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugQuayRoads|AnyCPU'">
-    <DefineConstants>TRACE;DEBUG;QUAY_ROADS_SHOW</DefineConstants>
-  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CitiesHarmony.API" Version="2.0.0" />
     <PackageReference Include="GitInfo" Version="2.1.2">
@@ -59,7 +52,6 @@
   <ItemGroup>
     <Reference Include="Assembly-CSharp" />
     <Reference Include="ColossalManaged" />
-    <Reference Include="CSUtil.Commons" />
     <Reference Include="ICities" />
     <Reference Include="UnityEngine" />
     <Reference Include="UnityEngine.UI" />
@@ -127,6 +119,7 @@
     <Compile Include="KianCommons\KianCommons\Math\ControlPoint2.cs" />
     <Compile Include="KianCommons\KianCommons\Math\ControlPoint3.cs" />
     <Compile Include="KianCommons\KianCommons\Math\CubicBezier3.cs" />
+    <Compile Include="KianCommons\KianCommons\Math\Grid.cs" />
     <Compile Include="KianCommons\KianCommons\Math\LineUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Math\MathUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Math\VecetorUtils.cs" />
@@ -189,6 +182,7 @@
     <Compile Include="FbxUtil\UnityFBXExporter\FBXUnityMaterialGetter.cs" />
     <Compile Include="FbxUtil\UnityFBXExporter\FBXUnityMeshGetter.cs" />
     <Compile Include="KianCommons\KianCommons\Util\TypeUtil.cs" />
+    <Compile Include="KianCommons\KianCommons\Util\unsafe\FastSegmentList.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\prefab-metadata\PrefabMetadata.csproj" />

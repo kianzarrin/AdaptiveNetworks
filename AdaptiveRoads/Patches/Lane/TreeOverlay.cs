@@ -10,6 +10,7 @@ using System;
 using UnityEngine;
 using AdaptiveRoads.UI.RoadEditor;
 using System.Linq;
+using static KianCommons.ReflectionHelpers;
 
 namespace AdaptiveRoads.Patches.Lane {
     public static class TreeOverlay {
@@ -19,9 +20,7 @@ namespace AdaptiveRoads.Patches.Lane {
 
         static MethodInfo mGetTreeVariation = GetMethod(typeof(TreeInfo), nameof(TreeInfo.GetVariation));
 
-        static FieldInfo f_minScale =
-            typeof(TreeInfo).GetField(nameof(TreeInfo.m_minScale)) ??
-            throw new Exception("f_minScale is null");
+        static FieldInfo f_minRoadScale = GetField<TreeInfo>(nameof(TreeInfo.m_minRoadScale));
 
         static FieldInfo f_angle =
             typeof(NetLaneProps.Prop).GetField(nameof(NetLaneProps.Prop.m_angle)) ??
@@ -42,7 +41,7 @@ namespace AdaptiveRoads.Patches.Lane {
             int iStLocPos = codes.Search(_c => _c.IsStLoc(typeof(Vector3), method), startIndex: iPosition);
             CodeInstruction ldPos = codes[iStLocPos].BuildLdLocFromStLoc();
 
-            int iMinScale = codes.Search(_c => _c.LoadsField(f_minScale), startIndex: iStFinalTree);
+            int iMinScale = codes.Search(_c => _c.LoadsField(f_minRoadScale), startIndex: iStFinalTree); // TODO fix for new DLC!
             int iStScale = codes.Search(_c => _c.IsStLoc(typeof(float), method), startIndex: iMinScale);
             CodeInstruction ldScale = codes[iStScale].BuildLdLocFromStLoc();
 

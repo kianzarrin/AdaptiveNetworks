@@ -13,7 +13,7 @@ namespace AdaptiveRoads.NSInterface.UI {
 
     public class AR_NS_FlagsPanel : UIPanel {
         internal int HoveredLaneIndex { get; private set; } = -1;
-        static ARImplementation Impl => ARImplementation.Instance;
+        static ANImplementation Impl => ANImplementation.Instance;
         static NetInfo Prefab => Impl.Prefab;
 
         public override void Awake() {
@@ -39,13 +39,13 @@ namespace AdaptiveRoads.NSInterface.UI {
                 base.Start();
                 LogCalled();
 
-                if(Impl.PrefabCustomFlags.Segment != default) {
+                if(Impl.PrefabUsedCustomFlags.Segment != default) {
                     AddSegmentFlags(this);
                 }
-                if(Impl.PrefabCustomFlags.SegmentEnd != default) {
+                if(Impl.PrefabUsedCustomFlags.SegmentEnd != default) {
                     AddSegmentEndFlags(this);
                 }
-                if(Impl.PrefabCustomFlags.Node != default) {
+                if(Impl.PrefabUsedCustomFlags.Node != default) {
                     AddNodeFlags(this);
                 }
                 SizeChanged(default, default);
@@ -57,13 +57,13 @@ namespace AdaptiveRoads.NSInterface.UI {
             AssertNotNull(container, "container");
 
             var subPanel = AddPanel(container, 1);
-            var mask = Impl.PrefabCustomFlags.Segment;
+            var mask = Impl.PrefabUsedCustomFlags.Segment;
             foreach(var flag in mask.ExtractPow2Flags()) {
                 SegmentFlagToggle.Add(subPanel, flag);
             }
 
             foreach(int laneIndex in Prefab.m_sortedLanes) {
-                var laneMask = Prefab.GetUsedCustomFlagsLane(laneIndex);
+                var laneMask = Prefab.GetMetaData()?.GetUsedCustomFlagsLane(laneIndex) ?? default;
                 //Log.Info($"lane:{lane} laneMask:" + laneMask);
                 if(laneMask != 0)
                     AddLaneFlags(container, laneIndex, laneMask);
@@ -92,7 +92,7 @@ namespace AdaptiveRoads.NSInterface.UI {
             AssertNotNull(container, "container");
             var subPanel = AddPanel(container, 1);
 
-            var mask = Impl.PrefabCustomFlags.SegmentEnd;
+            var mask = Impl.PrefabUsedCustomFlags.SegmentEnd;
             foreach(var flag in mask.ExtractPow2Flags()) {
                 SegmentEndFlagToggle.Add(subPanel, flag: flag);
             }
@@ -102,7 +102,7 @@ namespace AdaptiveRoads.NSInterface.UI {
             AssertNotNull(container, "container");
             var subPanel = AddPanel(container, 1);
 
-            var mask = Impl.PrefabCustomFlags.Node;
+            var mask = Impl.PrefabUsedCustomFlags.Node;
             foreach(var flag in mask.ExtractPow2Flags()) {
                 NodeFlagToggle.Add(subPanel, flag);
             }

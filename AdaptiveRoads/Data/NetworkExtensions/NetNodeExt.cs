@@ -1,4 +1,5 @@
 namespace AdaptiveRoads.Manager {
+    using AdaptiveRoads.CustomScript;
     using AdaptiveRoads.Data.NetworkExtensions;
     using AdaptiveRoads.Util;
     using ColossalFramework;
@@ -16,6 +17,11 @@ namespace AdaptiveRoads.Manager {
     public struct NetNodeExt {
         public ushort NodeID;
         public Flags m_flags;
+        #region expression for dummies
+        public ref NetNode VanillaNode => ref NodeID.ToNode();
+        public ushort[] SegmentIDs => new NodeSegmentIterator(NodeID).ToArray();
+        #endregion
+
 
         const int CUSTOM_FLAG_SHIFT = 24;
         public bool IsEmpty => (m_flags & Flags.CustomsMask) == Flags.None;
@@ -27,7 +33,7 @@ namespace AdaptiveRoads.Manager {
         public void Init(ushort nodeID) => NodeID = nodeID;
 
         [Flags]
-        public enum Flags {
+        public enum Flags : Int64 {
             None = 0,
             [Hint(HintExtension.VANILLA)]
             Vanilla = 1 << 0,
@@ -61,6 +67,16 @@ namespace AdaptiveRoads.Manager {
             [CustomFlag] Custom6 = 1 << 30,
             [CustomFlag] Custom7 = 1 << 31,
             CustomsMask = Custom0 | Custom1 | Custom2 | Custom3 | Custom4 | Custom5 | Custom6 | Custom7,
+
+            [ExpressionFlag] Expression0 = 1L << 32,
+            [ExpressionFlag] Expression1 = 1L << 33,
+            [ExpressionFlag] Expression2 = 1L << 34,
+            [ExpressionFlag] Expression3 = 1L << 35,
+            [ExpressionFlag] Expression4 = 1L << 36,
+            [ExpressionFlag] Expression5 = 1L << 37,
+            [ExpressionFlag] Expression6 = 1L << 38,
+            [ExpressionFlag] Expression7 = 1L << 39,
+            ExpressionMask = Expression0 | Expression1 | Expression2 | Expression3 | Expression4 | Expression5 | Expression6 | Expression7,
         }
 
         public static IJunctionRestrictionsManager JRMan =>
@@ -100,6 +116,22 @@ namespace AdaptiveRoads.Manager {
                 }
             } catch(Exception ex) {
                 ex.Log("node=" + this);
+            }
+        }
+
+        public void UpdateScriptedFlags() {
+            try {
+                var net = NodeID.ToNode().Info?.GetMetaData();
+                if (net == null) return;
+                foreach (var scriptedFlag in Flags.ExpressionMask.ExtractPow2Flags()) {
+                    bool condition = false;
+                    if (net.ScriptedFlags.TryGetValue(scriptedFlag, out var expression)) {
+                        condition = expression.Condition(segmentID: 0, nodeID: NodeID);
+                    }
+                    m_flags = m_flags.SetFlags(scriptedFlag, condition);
+                }
+            } catch (Exception ex) {
+                ex.Log();
             }
         }
 

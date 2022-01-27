@@ -11,7 +11,7 @@ namespace AdaptiveRoads.UI.Tool {
     using System.Linq;
     using AdaptiveRoads.Data.NetworkExtensions;
 
-    public class FlagsPanel : UIPanel {
+    public class FlagsPanel : UIPanel , IFittable {
         static string FileName => ModSettings.FILE_NAME;
 
         public string AtlasName => $"{GetType().FullName}_rev" + this.VersionOf();
@@ -91,11 +91,11 @@ namespace AdaptiveRoads.UI.Tool {
 
                     lblCaption_ = dragHandle_.AddUIComponent<UILabel>();
                     if (SegmentMode)
-                        lblCaption_.text = "AR Custom Segment Flags";
+                        lblCaption_.text = "AN Custom Segment Flags";
                     else if (NodeMode)
-                        lblCaption_.text = "AR Custom Node Flags";
+                        lblCaption_.text = "AN Custom Node Flags";
                     else if (SegmentEndMode)
-                        lblCaption_.text = "AR Custom SegmentEnd Flags";
+                        lblCaption_.text = "AN Custom SegmentEnd Flags";
 
                     lblCaption_.name = "AR_caption";
                 }
@@ -126,7 +126,7 @@ namespace AdaptiveRoads.UI.Tool {
             }
 
             foreach (var lane in NetUtil.GetSortedLanes(segmentID_)) {
-                var laneMask = segmentID_.ToSegment().Info.GetUsedCustomFlagsLane(lane.LaneIndex);
+                var laneMask = segmentID_.ToSegmentExt().NetInfoExt.GetUsedCustomFlagsLane(lane.LaneIndex);
 
                 //Log.Info($"lane:{lane} laneMask:" + laneMask);
                 if (laneMask != 0)
@@ -177,6 +177,7 @@ namespace AdaptiveRoads.UI.Tool {
             }
         }
         protected override void OnPositionChanged() {
+            Assertion.AssertStack();
             base.OnPositionChanged();
             Log.DebugWait("OnPositionChanged called", id: "OnPositionChanged called".GetHashCode(), seconds: 0.2f, copyToGameLog: false);
 
@@ -191,23 +192,28 @@ namespace AdaptiveRoads.UI.Tool {
             Log.DebugWait("absolutePosition: " + absolutePosition, id: "absolutePosition: ".GetHashCode(), seconds: 0.2f, copyToGameLog: false);
         }
 
-        void Refresh() {
-            dragHandle_.FitChildren();
-            dragHandle_.width = Mathf.Max(width, dragHandle_.width);
-            dragHandle_.height = 32;
-            lblCaption_.anchor = UIAnchorStyle.CenterHorizontal |  UIAnchorStyle.CenterVertical;
-            FitChildren();
-            foreach (var lpc in GetComponentsInChildren<LanePanelCollapsable>()) {
-                lpc.FitParent();
-            }
-            Invalidate();
-        }
-
         static UIPanel AddSpacePanel(UIPanel parent, int space) {
             var panel = parent.AddUIComponent<UIPanel>();
             panel.height = space;
             panel.width = 1;
             return panel;
+        }
+
+
+        void Refresh() {
+            Log.Called();
+            (this as IFittable).FitRecursive();
+        }
+
+
+        void IFittable.Fit2Children() {
+            dragHandle_.FitChildrenHorizontally();
+        }
+
+        void IFittable.Fit2Parent() {
+            dragHandle_.width = width;
+            dragHandle_.height = 32;
+            lblCaption_.anchor = UIAnchorStyle.CenterHorizontal | UIAnchorStyle.CenterVertical;
         }
     }
 }

@@ -87,13 +87,14 @@ namespace AdaptiveRoads.Util {
                 RearrangeArray(groupPanel);
                 e.Use();
                 e.state = UIDragDropState.Dropped;
-            } catch(Exception ex) {
+            } catch (Exception ex) {
                 Log.Exception(ex);
             }
         }
 
         public static void OnDragEnd(UICustomControl dpt, UIDragEventParameter e) {
             try {
+                Assertion.NotNull(dpt, "dpt");
                 LogCalled();
                 e.Use();
                 GameObject.Destroy(Bar?.gameObject);
@@ -127,6 +128,8 @@ namespace AdaptiveRoads.Util {
                     ar.SetValue(element, i);
                 }
                 groupPanel.SetArray(ar);
+
+                RoadEditorUtils.RefreshAllNetworks();
             } catch(Exception ex) {
                 Log.Exception(ex);
                 throw ex;
@@ -173,6 +176,7 @@ namespace AdaptiveRoads.Util {
         public static bool IsDPTSelected(UICustomControl dpt) => SelectedDPTs.Contains(dpt);
 
         public static void OnToggleDPT(UICustomControl dpt) {
+            Assertion.NotNull(dpt, "dpt");
             VerifySelectedDPTs(dpt);
             if(IsDPTSelected(dpt))
                 DeselectDPT(dpt);
@@ -185,12 +189,13 @@ namespace AdaptiveRoads.Util {
         /// if not a match, it is removed from selection.
         /// </summary>
         public static void VerifySelectedDPTs(UICustomControl dpt) {
+            Assertion.NotNull(dpt, "dpt");
             bool predicateRemove(UICustomControl dpt2) {
                 if(!dpt2 || !dpt2.isActiveAndEnabled) return true;
-                var target1 = GetDPTTargetObject(dpt);
-                var target2 = GetDPTTargetObject(dpt2);
-                Log.Debug($"target1={target1} and target2={target2}");
-                return target1 != target2;
+                var field1 = GetDPTField(dpt);
+                var field2 = GetDPTField(dpt2);
+                Log.Debug($"field1={field1} and field2={field2}");
+                return field1 != field2;
             }
             var removeDPTs = SelectedDPTs.Where(predicateRemove).ToList();
             foreach(var dpt3 in removeDPTs)
@@ -199,6 +204,7 @@ namespace AdaptiveRoads.Util {
 
         static void SelectDPT(UICustomControl dpt) {
             try {
+                Assertion.NotNull(dpt, "dpt");
                 SetDPTColor(dpt, SELECT_COLOR);
                 SelectedDPTs.Add(dpt);
             } catch(Exception ex) {
@@ -208,6 +214,7 @@ namespace AdaptiveRoads.Util {
 
         static void DeselectDPT(UICustomControl dpt) {
             try {
+                Assertion.NotNull(dpt, "dpt");
                 ToggleDPTColor(dpt, false);
                 SelectedDPTs.Remove(dpt);
             } catch { }
@@ -224,6 +231,7 @@ namespace AdaptiveRoads.Util {
 
         static Color SELECT_COLOR = new Color32(188, 255, 206, 255);
         public static void SetDPTColor(UICustomControl dpt, Color c) {
+            Assertion.NotNull(dpt, "dpt");
             var m_SelectButton = GetDPTSelectButton(dpt);
             m_SelectButton.color = c;
             m_SelectButton.focusedColor = c;
@@ -233,6 +241,7 @@ namespace AdaptiveRoads.Util {
         }
 
         public static void OnDPTMoreOptions(UICustomControl dpt) {
+            Assertion.NotNull(dpt, "dpt");
             Log.Debug("OnDPTMoreOptions() called");
             VerifySelectedDPTs(dpt);
             if(!SelectedDPTs.Contains(dpt)) {
@@ -347,7 +356,7 @@ namespace AdaptiveRoads.Util {
                 if(props == null || props.Length == 0) return;
                 NetLaneProps.Prop[] m_props = groupPanel.GetArray() as NetLaneProps.Prop[];
                 if(ModSettings.ARMode) {
-                    // extend in AR mode
+                    // extend in AN mode
                     props = props.Select(_p => _p.Extend().Base).ToArray();
                 } else {
                     // undo extend in Vanilla mode.
@@ -410,6 +419,16 @@ namespace AdaptiveRoads.Util {
                 MiniPanel.CloseAll();
             } catch(Exception ex) {
                 Log.Exception(ex);
+            }
+        }
+
+        public static void RefreshAllNetworks() {
+            if (!Helpers.InSimulationThread())
+                SimulationManager.instance.m_ThreadingWrapper.QueueSimulationThread(RefreshAllNetworks);
+            for(ushort nodeId =1; nodeId < NetManager.MAX_NODE_COUNT; ++nodeId) {
+                if (NetUtil.IsNodeValid(nodeId)) {
+                    NetManager.instance.UpdateNode(nodeId);
+                }
             }
         }
 

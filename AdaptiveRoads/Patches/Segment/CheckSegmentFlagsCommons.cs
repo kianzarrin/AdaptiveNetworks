@@ -34,7 +34,7 @@ namespace AdaptiveRoads.Patches.Segment {
             if (reverse) {
                 Helpers.Swap(ref segmentTailFlags, ref segmentHeadFlags);
                 Helpers.Swap(ref nodeTailFlags, ref nodeHeadFlags);
-                Log.DebugWait($"CheckSegmentFlagsCommons: segment:{segmentID} is reverse");
+                //Log.DebugWait($"CheckSegmentFlagsCommons: segment:{segmentID} is reverse");
             }
 
             {

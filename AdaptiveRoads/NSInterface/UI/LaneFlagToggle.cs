@@ -9,8 +9,8 @@ namespace AdaptiveRoads.NSInterface.UI {
     public class LaneFlagToggle : UICheckBoxExt {
         int laneIndex_;
         NetLaneExt.Flags flag_;
-        static NetInfo Prefab => ARImplementation.Instance.Prefab;
-        ARCustomFlags ARCustomFlags => ARImplementation.Instance.ARCustomFlags;
+        static NetInfo Prefab => ANImplementation.Instance.Prefab;
+        ARCustomFlags ARCustomFlags => ANImplementation.Instance.ARCustomFlags;
 
         public static LaneFlagToggle Add(UIPanel parent, int laneIndex, NetLaneExt.Flags flag) {
             var toggle = parent.AddUIComponent<LaneFlagToggle>();
@@ -40,7 +40,7 @@ namespace AdaptiveRoads.NSInterface.UI {
                 base.OnCheckChanged(component, value);
                 ARCustomFlags.Lanes[laneIndex_] = ARCustomFlags.Lanes[laneIndex_].SetFlags(flag_, value);
                 Log.Info($"ARCustomFlags.Lanes[{laneIndex_}] became " + ARCustomFlags.Lanes[laneIndex_]);
-                ARImplementation.Instance.Change();
+                ANImplementation.Instance.Change();
             } catch(Exception ex) { ex.Log(); }
         }
     }

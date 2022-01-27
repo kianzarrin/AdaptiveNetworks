@@ -69,8 +69,9 @@ namespace AdaptiveRoads.Util {
             NetLaneExt.Flags arrows = 0;
             ushort segmentID = lane.SegmentID;
             foreach(var transition in GetForwardTransisions(lane.LaneID, lane.StartNode)) {
-                ushort segmentID2 = transition.segmentId;
-                arrows |= ArrowDirectionUtil.GetArrowExt(segmentID, segmentID2);
+                if (transition.type is LaneEndTransitionType.Default or LaneEndTransitionType.LaneConnection) {
+                    arrows |= ArrowDirectionUtil.GetArrowExt(segmentID, transition.segmentId);
+                }
             }
             return arrows;//.LogRet($"GetArrowsExt(lane:{lane.LaneID} segment:{lane.SegmentID})");
         }

@@ -16,6 +16,7 @@ namespace AdaptiveRoads.Patches.Parking {
     [InGamePatch]
     [UsedImplicitly]
     [HarmonyPatch(typeof(PassengerCarAI), "FindParkingSpaceRoadSide")]
+    [PreloadPatch]
     static class ParkingAnglePatch {
         delegate Quaternion LookRotation(Vector3 forward);
         static MethodInfo mLookRotation => TranspilerUtils.DeclaredMethod<LookRotation>(typeof(Quaternion));

@@ -166,7 +166,7 @@
             test if UnifiedUI is present and enable.
             </summary>
         </member>
-        <member name="M:UnifiedUI.Helpers.UUIHotKeys.AddInToolKeys(ColossalFramework.SavedInputKey)">
+        <member name="M:UnifiedUI.Helpers.UUIHotKeys.AddInToolKey(ColossalFramework.SavedInputKey)">
             <summary>
             add in-mod hotkey. this will take priority over (suppress) the activation key of other mods.
             when your mod is active.
@@ -705,22 +705,22 @@
             <summary>Branch: master</summary>
         </member>
         <member name="F:ThisAssembly.Git.Commit">
-            <summary>Commit: e51bf51</summary>
+            <summary>Commit: 9a4321d</summary>
         </member>
         <member name="F:ThisAssembly.Git.Sha">
-            <summary>Sha: e51bf514cab2cf9423ba6c9a333ae132ea447610</summary>
+            <summary>Sha: 9a4321d6324e32cd6745a46d848615f3da3e9b10</summary>
         </member>
         <member name="F:ThisAssembly.Git.CommitDate">
-            <summary>Commit date: 2021-08-07T15:36:42+03:00</summary>
+            <summary>Commit date: 2021-11-09T09:12:10+02:00</summary>
         </member>
         <member name="F:ThisAssembly.Git.Commits">
             <summary>Commits on top of base version: 0</summary>
         </member>
         <member name="F:ThisAssembly.Git.Tag">
-            <summary>Tag: V2.0.1</summary>
+            <summary>Tag: V2.1.12</summary>
         </member>
         <member name="F:ThisAssembly.Git.BaseTag">
-            <summary>Base tag: V2.0.1</summary>
+            <summary>Base tag: V2.1.12</summary>
         </member>
         <member name="T:ThisAssembly.Git.BaseVersion">
             <summary>Provides access to the base version information used to determine the <see cref="T:ThisAssembly.Git.SemVer" />.</summary>      
@@ -729,10 +729,10 @@
             <summary>Major: 2</summary>
         </member>
         <member name="F:ThisAssembly.Git.BaseVersion.Minor">
-            <summary>Minor: 0</summary>
+            <summary>Minor: 1</summary>
         </member>
         <member name="F:ThisAssembly.Git.BaseVersion.Patch">
-            <summary>Patch: 1</summary>
+            <summary>Patch: 12</summary>
         </member>
         <member name="T:ThisAssembly.Git.SemVer">
             <summary>Provides access to SemVer information for the current assembly.</summary>
@@ -741,10 +741,10 @@
             <summary>Major: 2</summary>
         </member>
         <member name="F:ThisAssembly.Git.SemVer.Minor">
-            <summary>Minor: 0</summary>
+            <summary>Minor: 1</summary>
         </member>
         <member name="F:ThisAssembly.Git.SemVer.Patch">
-            <summary>Patch: 1</summary>
+            <summary>Patch: 12</summary>
         </member>
         <member name="F:ThisAssembly.Git.SemVer.Label">
             <summary>Label: </summary>

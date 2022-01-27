@@ -3,6 +3,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
     using ColossalFramework;
     using ColossalFramework.Math;
     using KianCommons;
+    using System;
     using UnityEngine;
     using Log = KianCommons.Log;
 
@@ -29,9 +30,24 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 Log.Warning("neither has track for this lane index");
                 return; //empty
             }
+
             if( (prio1 >= prio2 && hasTrackLane) || !hasTrackLane2) {
-                LaneIDSource = laneID1;
-                LaneIDTarget = laneID2;
+                if (prio1 == prio2) {
+                    var segmentIDs = NodeID.ToNodeExt().SegmentIDs;
+                    int segmentIndex1 = Array.IndexOf(segmentIDs, segmentID1);
+                    int segmentIndex2 = Array.IndexOf(segmentIDs, segmentID2);
+                    // make it consistent (TODO why does not work?)
+                    if (segmentIndex1 < segmentIndex2) {
+                        LaneIDSource = laneID1;
+                        LaneIDTarget = laneID2;
+                    } else {
+                        LaneIDSource = laneID1;
+                        LaneIDTarget = laneID2;
+                    }
+                } else {
+                    LaneIDSource = laneID1;
+                    LaneIDTarget = laneID2;
+                }
             } else {
                 LaneIDSource = laneID2;
                 LaneIDTarget = laneID1;
@@ -152,10 +168,20 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             return ret;
         }
 
-        private bool Check(NetInfoExtionsion.Track trackInfo) =>
-            trackInfo.HasTrackLane(laneIndexA) &&
-            trackInfo.CheckNodeFlags(NodeExt.m_flags, Node.m_flags,
-                SegmentExtA.m_flags, SegmentA.m_flags, LaneExtA.m_flags);
+        private bool Check(NetInfoExtionsion.Track trackInfo) {
+            if (!trackInfo.HasTrackLane(laneIndexA))
+                return false;
+            if (Node.m_flags.IsFlagSet(NetNode.Flags.Junction)) {
+                return trackInfo.CheckNodeFlags(
+                    NodeExt.m_flags, Node.m_flags,
+                    SegmentExtA.m_flags, SegmentA.m_flags,
+                    LaneExtA.m_flags, LaneA.Flags());
+            } else { // bend
+                return  trackInfo.CheckSegmentFlags(
+                    SegmentExtA.m_flags, SegmentA.m_flags,
+                    LaneExtA.m_flags, LaneA.Flags());
+            }
+        }
 
         public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo) {
             if(Nodeless) return;

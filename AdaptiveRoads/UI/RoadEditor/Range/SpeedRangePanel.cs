@@ -12,9 +12,13 @@ namespace AdaptiveRoads.UI.RoadEditor {
     using KianCommons.Plugins;
 
     public class SpeedRangePanel : UIPanel, IHint {
+        /// <summary>Ingame speed units, max possible speed</summary>
+        const float MAX_SPEED = 10f * 2f; // 1000 km/h
+
         static float HUMAN_TO_GAME => 1 / GAME_TO_HUMAN;
-        const float MAX_SPEED = 20;
+
         static float MAX_HUMAN_SPEED => MAX_SPEED * GAME_TO_HUMAN;
+
         static float GAME_TO_HUMAN =>
             (SpeedUnitType)SpeedUnit.value switch {
                 SpeedUnitType.KPH => ApiConstants.SPEED_TO_KMPH,

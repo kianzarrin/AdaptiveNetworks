@@ -107,7 +107,7 @@ namespace AdaptiveRoads.UI.Tool {
                 } else if(HoveredSegmentID.ToSegment().Info.TrackLaneCount() > 0)
                     hints.Add("ALT + Click => modify segmentEnd angle");
                 if(hints.Count == 0)
-                    hints.Add("no custom AR flags to modify");
+                    hints.Add("This road has no custom AN flags to modify.");
                 ShowToolInfo(true, hints.JoinLines(), HitPos);
             } else {
                 ShowToolInfo(false, "", default);
@@ -250,14 +250,14 @@ namespace AdaptiveRoads.UI.Tool {
         protected override void Awake() {
             try {
                 base.Awake();
-                string sprites = UUIHelpers.GetFullPath<LifeCycle.UserMod>("uui_ar.png");
+                string iconPath = UUIHelpers.GetFullPath<LifeCycle.UserMod>("uui_ar.png");
                 button_ = UUIHelpers.RegisterToolButton(
-                    name: nameof(ARTool),
+                    name: "AdaptiveNetworks",
                     groupName: null, // default group
-                    tooltip: "Adaptive Roads",
-                    spritefile: sprites,
+                    tooltip: "Adaptive Networks",
                     tool: this,
-                    activationKey: ModSettings.Hotkey);
+                    icon: UUIHelpers.LoadTexture(iconPath),
+                    hotkeys: new UUIHotKeys { ActivationKey = ModSettings.Hotkey });
             } catch (Exception ex) {
                 ex.Log();
             }

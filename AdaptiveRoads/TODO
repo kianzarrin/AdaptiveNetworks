@@ -1,15 +1,23 @@
 tracks:
-- check node/segment flags at segment's/node's : start/end/both
-- why do I need to refresh roads 2 times on load?
+    - why do I need to refresh roads 2 times on load?
+    - why source segment for lane transition is different for forward/backward lane.
 
 -----------------
 - remove custom flags when network is deleted.
-- list scrollbars
 - group DC components.
 
-
 ----------------------------
-version 3:
+version 4:
     - export/import road xml.
     - patch AssetImporterAssetTemplate.RefreshCoroutine() to speed up prop model loading time
         micro-benchmark UIComponent.Find<T>(string) to see how much time they take up
+    - check track's node/segment flags at segment's/node's : start/end/both (on demand if somebody ask for this feature)
+    - auto train track maker.
+    - generate AR props for vanilla roads.
+    - elevations:
+        - add
+        - share elevations.
+        - change
+    - anti distortion for crossings
+    - height offset for node/segment meshes.
+

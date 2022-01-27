@@ -155,33 +155,44 @@ namespace AdaptiveRoads.UI.RoadEditor {
                         Hint1 = dataUI.GetHint();
                         break;
                     } else if (panel.containsMouse) {
+                        const string toggleHint = "Click => toggle";
+                        const string selectHint = "Control + Click => multi-select";
+                        const string menuHint = "Right-Click => show more options";
+                        const string dptHint = toggleHint + "\n" + selectHint;
+                        const string labelButtonHint = toggleHint + "\n" + menuHint;
                         var customControl = panel.GetComponent<UICustomControl>();
-                        string hotkeys1 = "Click => toggle" +
-                            "\nRight-Click => show more options";
-                        if(customControl is RoadEditorCollapsiblePanel groupPanel
+                        if (customControl is RoadEditorCollapsiblePanel groupPanel
                             && groupPanel.LabelButton.containsMouse) {
-                            string hotkeys2 = hotkeys1 + "\nControl + Click => multi-select";
+                            // label button of a group panel.
                             var target = groupPanel.GetTarget();
                             string label = groupPanel.LabelButton.text;
                             if(label == "Props") {
-                                Hint2 = hotkeys2;
+                                // props group button
+                                Hint2 = labelButtonHint;
                             } else if(
                                 groupPanel.GetArray() is NetInfo.Lane[] m_lanes
                                 && m_lanes.Any(_lane => _lane.HasProps())
                                 && target == NetInfoExtionsion.EditedNetInfo) {
-                                Hint2 = hotkeys2;
+                                // lanes group button for basic elevation
+                                Hint2 = labelButtonHint;
                             }
                         } else if(
                             panel.GetComponent(DPTType) is UICustomControl toggle &&
                             GetDPTSelectButton(toggle).containsMouse) {
+                            // any dpt button
+                            Hint2 = dptHint;
+
                             object element = GetDPTTargetElement(toggle);
                             var target = GetDPTTargetObject(toggle);
-                            if(element is NetLaneProps.Prop prop) {
+                            if (element is NetLaneProps.Prop prop) {
+                                // prop dpt
                                 Hint1 = prop.Summary();
-                                Hint2 = hotkeys1;
-                            } else if(element is NetInfo.Lane lane && lane.HasProps()
-                                && target == NetInfoExtionsion.EditedNetInfo) {
-                                Hint2 = hotkeys1;
+                                Hint2 += "\n" + menuHint;
+                            } else if (
+                                element is NetInfo.Lane lane &&
+                                lane.HasProps() && target == NetInfoExtionsion.EditedNetInfo) {
+                                // props on this lane can be copied to other elevations so we need menu.
+                                Hint2 += "\n" + menuHint;
                             }
                         } else if(customControl is REPropertySet propertySet) {
                             var field = propertySet.GetTargetField();

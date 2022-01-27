@@ -15,7 +15,6 @@ namespace AdaptiveRoads.NSInterface {
         public ARCustomFlags(int nLanes) {
             Lanes = new NetLaneExt.Flags[nLanes];
         }
-        public ARCustomFlags(NetInfo prefab) : this(prefab.m_lanes.Length) { }
 
         public ARCustomFlags Clone() {
             var ret = MemberwiseClone() as ARCustomFlags;

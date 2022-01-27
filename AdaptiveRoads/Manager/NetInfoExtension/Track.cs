@@ -69,7 +69,7 @@ namespace AdaptiveRoads.Manager {
             // deserialization
             public Track(SerializationInfo info, StreamingContext context) {
                 try {
-                    Log.Called();
+                    if (Log.VERBOSE) Log.Called();
                     var package = PackageManagerUtil.PersistencyPackage;
                     var sharing = LSMUtil.GetSharing();
                     Assertion.NotNull(package, "package");
@@ -236,7 +236,6 @@ namespace AdaptiveRoads.Manager {
                 "1 unit in blender means the mesh will be as wide as the lane")]
             public bool ScaleToLaneWidth;
 
-
             //[CustomizableProperty("Low Priority")]
             [Hint("Other tracks with DC node take priority")]
             public bool IgnoreDC;
@@ -251,11 +250,12 @@ namespace AdaptiveRoads.Manager {
             public bool HasTrackLane(int laneIndex) => ((1ul << laneIndex) & LaneIndeces) != 0;
 
             #region flags
-            [CustomizableProperty("Render On Segments")]
+            [Hint("Renders on segments + bend nodes)")]
+            [CustomizableProperty("Render Segments")]
             public bool RenderSegment = true;
 
-            [Hint("Renders on junction/bend nodes")]
-            [CustomizableProperty("Render On Nodes")]
+            [Hint("Renders on junction (not bend nodes)")]
+            [CustomizableProperty("Render Junctions")]
             public bool RenderNode = true;
 
             [CustomizableProperty("Segment")]
@@ -263,36 +263,44 @@ namespace AdaptiveRoads.Manager {
 
             [CustomizableProperty("Segment Extension")]
             [Hint("checked on segments.\n" +
-                "flags for source segment is also checked on nodes.")]
+                "flags for source segment is also checked on all nodes (both junction and bend).")]
             public SegmentInfoFlags SegmentFlags;
 
-            [CustomizableProperty("Lane")]
+            //[CustomizableProperty("Lane")]
+            public VanillaLaneInfoFlags VanillaLaneFlags;
+
+            [CustomizableProperty("Lane Extension")]
             [Hint("checked on segment lanes.\n" +
-                "flags for source lane is also checked on node transitions.")]
+                "flags for source lane is also checked on all nodes (both junction and bend) transitions.")]
             public LaneInfoFlags LaneFlags;
 
             [CustomizableProperty("Node")]
             public VanillaNodeInfoFlags VanillaNodeFlags;
 
             [CustomizableProperty("Node Extension")]
-            [Hint("Only checked on nodes (including bend nodes)")]
+            [Hint("Only checked on junctions (not bend nodes)")]
             public NodeInfoFlags NodeFlags;
 
             [CustomizableProperty("Tiling")]
-            [Hint("network tiling value")]
+            [Hint("network tiling value (length wise texture scale)")]
             public float Tiling;
 
             public bool CheckNodeFlags
                 (NetNodeExt.Flags nodeFlags, NetNode.Flags vanillaNodeFlags,
-                NetSegmentExt.Flags sourceSegmentFlags, NetSegment.Flags startVanillaSegmentFlags, NetLaneExt.Flags laneFalgs) =>
-                RenderNode && NodeFlags.CheckFlags(nodeFlags) && VanillaNodeFlags.CheckFlags(vanillaNodeFlags) &&
+                NetSegmentExt.Flags sourceSegmentFlags, NetSegment.Flags startVanillaSegmentFlags,
+                NetLaneExt.Flags laneFalgs, NetLane.Flags vanillaLaneFlags) =>
+                RenderNode &&
+                NodeFlags.CheckFlags(nodeFlags) && VanillaNodeFlags.CheckFlags(vanillaNodeFlags) &&
                 SegmentFlags.CheckFlags(sourceSegmentFlags) && VanillaSegmentFlags.CheckFlags(startVanillaSegmentFlags) &&
-                LaneFlags.CheckFlags(laneFalgs);
+                LaneFlags.CheckFlags(laneFalgs) && VanillaLaneFlags.CheckFlags(vanillaLaneFlags);
 
 
-            public bool CheckSegmentFlags(NetSegmentExt.Flags segmentFlags, NetSegment.Flags vanillaSegmentFlags, NetLaneExt.Flags laneFalgs) =>
-                RenderSegment && SegmentFlags.CheckFlags(segmentFlags) && VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags)
-                && LaneFlags.CheckFlags(laneFalgs);
+            public bool CheckSegmentFlags(
+                NetSegmentExt.Flags segmentFlags, NetSegment.Flags vanillaSegmentFlags,
+                NetLaneExt.Flags laneFalgs, NetLane.Flags vanillaLaneFlags) =>
+                RenderSegment &&
+                SegmentFlags.CheckFlags(segmentFlags) && VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags)
+                && LaneFlags.CheckFlags(laneFalgs) && VanillaLaneFlags.CheckFlags(vanillaLaneFlags);
 
             public CustomFlags UsedCustomFlags => new CustomFlags {
                 Segment = SegmentFlags.UsedCustomFlags,

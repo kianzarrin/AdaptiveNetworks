@@ -8,7 +8,7 @@ namespace AdaptiveRoads.UI.Tool {
     using System.Linq;
     using AdaptiveRoads.Data.NetworkExtensions;
 
-    public class LaneFlagToggle : UICheckBoxExt {
+    public class LaneFlagToggle : AutoSizeCheckbox {
         static NetworkExtensionManager man_ => NetworkExtensionManager.Instance;
         UISprite[] Sprites => GetComponentsInChildren<UISprite>();
 

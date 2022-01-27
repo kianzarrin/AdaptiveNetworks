@@ -14,8 +14,14 @@ namespace AdaptiveRoads.Manager {
     using AdaptiveRoads.Data.NetworkExtensions;
     using UnityEngine;
     using Log = KianCommons.Log;
+    using AdaptiveRoads.CustomScript;
 
     public struct NetSegmentEnd {
+        #region shortcuts for dummies
+        public ref NetNodeExt Node => ref NodeID.ToNodeExt();
+        public ref NetSegmentExt Segment => ref SegmentID.ToSegmentExt();
+        #endregion
+
         [Flags]
         public enum Flags : Int64 {
             None = 0,
@@ -94,6 +100,9 @@ namespace AdaptiveRoads.Manager {
             [Hint("next segment has more lanes (only valid when there are two segments)")]
             LanesDecrease = 1L << 33,
 
+            [Hint("has continues junction median to at least one other segment (provided that there are DC nodes)")]
+            HasUnbrokenMedian = 1L << 42,
+
             [CustomFlag] Custom0 = 1 << 24,
             [CustomFlag] Custom1 = 1 << 25,
             [CustomFlag] Custom2 = 1 << 26,
@@ -103,6 +112,17 @@ namespace AdaptiveRoads.Manager {
             [CustomFlag] Custom6 = 1 << 30,
             [CustomFlag] Custom7 = 1L << 31,
             CustomsMask = Custom0 | Custom1 | Custom2 | Custom3 | Custom4 | Custom5 | Custom6 | Custom7,
+
+            [ExpressionFlag] Expression0 = 1L << 34,
+            [ExpressionFlag] Expression1 = 1L << 35,
+            [ExpressionFlag] Expression2 = 1L << 36,
+            [ExpressionFlag] Expression3 = 1L << 37,
+            [ExpressionFlag] Expression4 = 1L << 38,
+            [ExpressionFlag] Expression5 = 1L << 39,
+            [ExpressionFlag] Expression6 = 1L << 40,
+            [ExpressionFlag] Expression7 = 1L << 41,
+            ExpressionMask = Expression0 | Expression1 | Expression2 | Expression3 | Expression4 | Expression5 | Expression6 | Expression7,
+
         }
 
         public Flags m_flags;
@@ -156,8 +176,10 @@ namespace AdaptiveRoads.Manager {
             bool speedChange = TMPEHelpers.SpeedChanges(NodeID);
             bool twoSegments = NodeID.ToNode().CountSegments() == 2;
 
+#pragma warning disable CS0618 // Type or member is obsolete
             flags = flags.SetFlags(Flags.SpeedChange, speedChange);
             flags = flags.SetFlags(Flags.TwoSegments, twoSegments);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             bool lanesIncrease = false, lanesDecrease = false;
             if(twoSegments) {
@@ -181,7 +203,31 @@ namespace AdaptiveRoads.Manager {
             flags = flags.SetFlags(Flags.LanesIncrase, lanesIncrease);
             flags = flags.SetFlags(Flags.LanesDecrease, lanesDecrease);
 
+            bool hasUnbrokenMedian = false;
+            if (SegmentID.ToSegment().Info?.m_netAI is RoadBaseAI) {
+                hasUnbrokenMedian = DirectConnectUtil.HasUnbrokenMedian(segmentID: SegmentID, nodeID: NodeID);
+            }
+            flags = flags.SetFlags(Flags.HasUnbrokenMedian, hasUnbrokenMedian);
+
             m_flags = flags;
+            //Log.Succeeded(this.ToSTR());
+        }
+
+        public void UpdateScriptedFlags() {
+            try {
+                if (Log.VERBOSE) Log.Called(this);
+                var net = Segment.NetInfoExt;
+                if (net == null) return;
+                foreach (var scriptedFlag in Flags.ExpressionMask.ExtractPow2Flags()) {
+                    bool condition = false;
+                    if (net.ScriptedFlags.TryGetValue(scriptedFlag, out var expression)) {
+                        condition = expression.Condition(segmentID: SegmentID, nodeID: NodeID);
+                    }
+                    m_flags = m_flags.SetFlags(scriptedFlag, condition);
+                }
+            } catch (Exception ex) {
+                ex.Log();
+            }
         }
 
         public override string ToString() {

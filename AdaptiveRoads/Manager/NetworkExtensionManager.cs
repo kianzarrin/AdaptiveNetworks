@@ -151,7 +151,15 @@ namespace AdaptiveRoads.Manager {
                     if(!NetUtil.IsNodeValid(nodeID)) continue;
                     NodeBuffer[nodeID].UpdateFlags();
                 }
-                for(ushort segmentID = 0; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
+                for (ushort segmentID = 0; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
+                    if (!NetUtil.IsSegmentValid(segmentID)) continue;
+                    SegmentBuffer[segmentID].UpdateScriptedFlags();
+                }
+                for (ushort nodeID = 0; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID) {
+                    if (!NetUtil.IsNodeValid(nodeID)) continue;
+                    NodeBuffer[nodeID].UpdateScriptedFlags();
+                }
+                for (ushort segmentID = 0; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
                     if(!NetUtil.IsSegmentValid(segmentID)) continue;
                     NetManager.instance.UpdateSegmentRenderer(segmentID, true);
                 }
@@ -254,6 +262,36 @@ namespace AdaptiveRoads.Manager {
                 for (int maskIndex = 0; maskIndex < m_updatedSegments.Length; maskIndex++) {
                     ulong bitmask = m_updatedSegments[maskIndex];
                     if (bitmask != 0) {
+                        for (int bitIndex = 0; bitIndex < 64; bitIndex++) {
+                            if ((bitmask & 1UL << bitIndex) != 0UL) {
+                                ushort segmentID = (ushort)(maskIndex << 6 | bitIndex);
+                                if (Log.VERBOSE) Log.Debug($"updating segment:{segmentID} ...");
+                                SegmentBuffer[segmentID].UpdateScriptedFlags();
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (updateNodes) {
+                for (int maskIndex = 0; maskIndex < m_updatedNodes.Length; maskIndex++) {
+                    ulong bitmask = m_updatedNodes[maskIndex];
+                    if (bitmask != 0) {
+                        for (int bitIndex = 0; bitIndex < 64; bitIndex++) {
+                            if ((bitmask & 1UL << bitIndex) != 0) {
+                                ushort nodeID = (ushort)(maskIndex << 6 | bitIndex);
+                                if (Log.VERBOSE) Log.Debug($"updating node:{nodeID} ...");
+                                NodeBuffer[nodeID].UpdateScriptedFlags();
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (updateSegments) {
+                for (int maskIndex = 0; maskIndex < m_updatedSegments.Length; maskIndex++) {
+                    ulong bitmask = m_updatedSegments[maskIndex];
+                    if (bitmask != 0) {
                         m_updatedSegments[maskIndex] = 0;
                         for (int bitIndex = 0; bitIndex < 64; bitIndex++) {
                             if ((bitmask & 1UL << bitIndex) != 0UL) {
@@ -269,7 +307,6 @@ namespace AdaptiveRoads.Manager {
                 for(int maskIndex = 0; maskIndex < m_updatedNodes.Length; maskIndex++) {
                     ulong bitmask = m_updatedNodes[maskIndex];
                     if(bitmask != 0) {
-
                         m_updatedNodes[maskIndex] = 0;
                         for(int bitIndex = 0; bitIndex < 64; bitIndex++) {
                             if((bitmask & 1UL << bitIndex) != 0) {

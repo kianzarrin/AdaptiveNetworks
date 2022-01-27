@@ -5,13 +5,13 @@ namespace AdaptiveRoads.Util {
     using TrafficManager.API.Manager;
     using UnityEngine;
 
-    internal static class TMPEHelpers {
+    public static class TMPEHelpers {
         static IManagerFactory TMPE => TrafficManager.Constants.ManagerFactory;
         static ISpeedLimitManager SLMan => TMPE?.SpeedLimitManager;
         static IRoutingManager RMan = TMPE?.RoutingManager;
         public static float GetLaneSpeedLimit(this LaneData lane) {
             if(SLMan != null)
-                return SLMan.GetGameSpeedLimit(lane.LaneID);
+                return SLMan.GetGameSpeedLimit(lane.LaneID, lane.LaneInfo);
             else
                 return lane.LaneInfo.m_speedLimit;
         }
@@ -22,8 +22,8 @@ namespace AdaptiveRoads.Util {
 
         public static float GetMaxSpeedLimit(ushort segmentID, NetInfo.Direction direction) {
             float ret = -1;
-            foreach(var lane in NetUtil.IterateSegmentLanes(segmentID)) {
-                if(lane.IsSpeedLane() && lane.LaneInfo.m_finalDirection == direction) {
+            foreach (var lane in NetUtil.IterateSegmentLanes(segmentID)) {
+                if (lane.IsSpeedLane() && lane.LaneInfo.m_finalDirection == direction) {
                     ret = Mathf.Max(ret, lane.GetLaneSpeedLimit());
                 }
             }

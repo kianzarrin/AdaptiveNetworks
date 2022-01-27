@@ -8,7 +8,7 @@ namespace AdaptiveRoads.NSInterface.UI {
 
     public class NodeFlagToggle : UICheckBoxExt {
         NetNodeExt.Flags flag_;
-        ARImplementation Impl => ARImplementation.Instance;
+        ANImplementation Impl => ANImplementation.Instance;
         ARCustomFlags ARCustomFlags => Impl.ARCustomFlags;
 
         public static NodeFlagToggle Add(UIPanel parent, NetNodeExt.Flags flag) {

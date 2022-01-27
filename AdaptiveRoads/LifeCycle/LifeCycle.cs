@@ -38,7 +38,7 @@ namespace AdaptiveRoads.LifeCycle {
 #endif
 
                 HarmonyHelper.EnsureHarmonyInstalled();
-                ARImplementation.Install();
+                ANImplementation.Install();
 
                 //LoadingManager.instance.m_simulationDataReady += SimulationDataReady; // load/update data
                 LoadingManager.instance.m_levelPreLoaded += Preload;
@@ -95,7 +95,7 @@ namespace AdaptiveRoads.LifeCycle {
 
         public static void Disable() {
             Log.Buffered = false;
-            ARImplementation.Uninstall();
+            ANImplementation.Uninstall();
 
             //LoadingManager.instance.m_simulationDataReady -= SimulationDataReady;
             LoadingManager.instance.m_levelPreLoaded -= Preload;
