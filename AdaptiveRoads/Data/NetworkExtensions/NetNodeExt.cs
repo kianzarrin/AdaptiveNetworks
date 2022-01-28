@@ -242,8 +242,8 @@ namespace AdaptiveRoads.Manager {
         private bool LanesConnect(uint laneIDSource, uint laneIDTarget) {
             ref var lane = ref laneIDSource.ToLaneExt().LaneData;
             ref var lane2 = ref laneIDTarget.ToLaneExt().LaneData;
-            bool hasTracks = lane.LaneInfo.m_vehicleType.IsFlagSet(NetInfoExtionsion.Track.TRACK_VEHICLE_TYPES);
-            bool hasTracks2 = lane2.LaneInfo.m_vehicleType.IsFlagSet(NetInfoExtionsion.Track.TRACK_VEHICLE_TYPES);
+            bool hasTracks = lane.LaneInfo.m_vehicleType.IsFlagSet(NetInfoExtionsion.Track.TRACK_VehicleTypes);
+            bool hasTracks2 = lane2.LaneInfo.m_vehicleType.IsFlagSet(NetInfoExtionsion.Track.TRACK_VehicleTypes);
             if(hasTracks != hasTracks2)
                 return false;
 

@@ -10,7 +10,6 @@ namespace AdaptiveRoads.Manager{
     using TrafficManager;
     using TrafficManager.API.Manager;
     using TrafficManager.API.Traffic.Enums;
-    using TrafficManager.Manager.Impl;
     using UnityEngine;
     using Log = KianCommons.Log;
     using AdaptiveRoads.CustomScript;
@@ -115,8 +114,6 @@ namespace AdaptiveRoads.Manager{
         static IManagerFactory TMPE => Constants.ManagerFactory;
         static IParkingRestrictionsManager PMan => TMPE?.ParkingRestrictionsManager;
         static IVehicleRestrictionsManager VRMan => TMPE?.VehicleRestrictionsManager;
-        static ISpeedLimitManager SLMan => TMPE?.SpeedLimitManager as SpeedLimitManager;
-        static IRoutingManager RMan => TMPE?.RoutingManager as RoutingManager;
 
         // pass in segmentID for the sake of MOM lane problem.
         public void UpdateLane(LaneData lane, ushort segmentID) {

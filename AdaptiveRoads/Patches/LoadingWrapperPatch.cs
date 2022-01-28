@@ -1,10 +1,7 @@
 namespace AdaptiveRoads.Patches {
-    using AdaptiveRoads.Util;
     using HarmonyLib;
     using KianCommons;
     using System;
-    using TrafficManager.Manager.Impl;
-    using System.Reflection;
 
     [HarmonyPatch(typeof(LoadingWrapper), "OnLevelLoaded")]
     [PreloadPatch]

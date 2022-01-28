@@ -11,18 +11,14 @@ namespace AdaptiveRoads.LifeCycle {
     using UnityEngine.SceneManagement;
     using static KianCommons.ReflectionHelpers;
     using AdaptiveRoads.Util;
-    using TrafficManager.Manager.Impl;
     using AdaptiveRoads.UI.Tool;
     using AdaptiveRoads.NSInterface;
     using KianCommons.Serialization;
     using UnityEngine;
-    using AdaptiveRoads.Data.NetworkExtensions;
 
     public static class LifeCycle {
         public static string HARMONY_ID = "CS.Kian.AdaptiveRoads";
         public static string HARMONY_ID_MANUAL = "CS.Kian.AdaptiveRoads.Manual";
-
-        static IDisposable ObserverDisposable;
 
         public static SimulationManager.UpdateMode UpdateMode => SimulationManager.instance.m_metaData.m_updateMode;
         public static LoadMode Mode => (LoadMode)UpdateMode;
@@ -120,8 +116,20 @@ namespace AdaptiveRoads.LifeCycle {
                     HarmonyUtil.InstallHarmony<PreloadPatchAttribute>(HARMONY_ID_MANUAL);
                     preloadPatchesApplied_ = true;
                 }
+                TrafficManager.Notifier.Instance.EventLevelLoaded -= OnTMPELOaded;
+                TrafficManager.Notifier.Instance.EventLevelLoaded += OnTMPELOaded;
             } catch (Exception ex) {
                 Log.Exception(ex);
+            }
+        }
+
+        static bool tmpeLoaded_ = false;
+        static bool loaded_ = false;
+        public static void OnTMPELOaded() {
+            tmpeLoaded_ = true;
+            if (loaded_) {
+                // if TMPE was loaded last, then update everything here.
+                NetworkExtensionManager.OnTMPELoaded();
             }
         }
 
@@ -131,8 +139,10 @@ namespace AdaptiveRoads.LifeCycle {
                 Log.Debug("testing stack trace:\n" + Environment.StackTrace, false);
                 Log.Info($"Scene={Scene} LoadMode={Mode}");
 
+                loaded_ = true;
                 _ = NetworkExtensionManager.Instance;
 
+                Log.Info($"Scene={Scene} LoadMode={Mode}");
                 if(Scene != "AssetEditor") {
                     Log.Info("Applying in game patches");
                     HarmonyUtil.InstallHarmony<InGamePatchAttribute>(HARMONY_ID);
@@ -144,17 +154,19 @@ namespace AdaptiveRoads.LifeCycle {
 
                 NetInfoExtionsion.Ensure_EditedNetInfos();
 
-                ObserverDisposable = GeometryManager.Instance.Subscribe(new ARTMPEObsever());
 
                 ARTool.Create();
-
-                NetworkExtensionManager.Instance.OnLoad();
 
                 const bool testPWValues = false;
                 if (testPWValues) {
                     UI.Debug.PWSelector.Create();
                     UI.Debug.PWModifier.Create();
-                }   
+                }
+
+                if (tmpeLoaded_) {
+                    // wait to load TMPE
+                    NetworkExtensionManager.OnTMPELoaded();
+                }
 
                 Log.Flush();
                 Log.Succeeded();
@@ -166,10 +178,10 @@ namespace AdaptiveRoads.LifeCycle {
         public static void Unload() {
             try {
                 LogCalled();
+                loaded_ = tmpeLoaded_ = false;
                 UI.Debug.PWSelector.Release();
                 UI.Debug.PWModifier.Release();
                 ARTool.Release();
-                ObserverDisposable?.Dispose();
                 HintBox.Release();
                 HarmonyUtil.UninstallHarmony(HARMONY_ID);
                 NetworkExtensionManager.RawInstance?.OnUnload();
@@ -181,6 +193,7 @@ namespace AdaptiveRoads.LifeCycle {
         public static void Exit() {
             Log.Buffered = false;
             Log.Info("LifeCycle.Exit() called");
+            TrafficManager.Notifier.Instance.EventLevelLoaded -= NetworkExtensionManager.OnTMPELoaded;
             HarmonyUtil.UninstallHarmony(HARMONY_ID_MANUAL);
             preloadPatchesApplied_ = false;
             if(TrackManager.exists) GameObject.Destroy(TrackManager.instance.gameObject);
