@@ -15,8 +15,6 @@ namespace AdaptiveRoads.Patches {
     [HarmonyPatch]
     [PreloadPatch]
     static class SegmentModifyMaskPatch {
-        static bool Prepare() => ModifyMaskCommon.Prepare();
-
         static IEnumerable<MethodBase> TargetMethods() {
             yield return GetMethod(typeof(NetAI), "SegmentModifyMask");
             yield return GetMethod(typeof(PedestrianWayAI), "SegmentModifyMask");
@@ -41,7 +39,6 @@ namespace AdaptiveRoads.Patches {
     [HarmonyPatch]
     [PreloadPatch]
     static class SegmentModifyMaskPatchT {
-        static bool Prepare() => ModifyMaskCommon.Prepare();
         static IEnumerable<MethodBase> TargetMethods() {
             yield return GetMethod(typeof(CanalAI), "SegmentModifyMask");
             yield return GetMethod(typeof(FloodWallAI), "SegmentModifyMask");
@@ -57,8 +54,6 @@ namespace AdaptiveRoads.Patches {
     [HarmonyPatch]
     [PreloadPatch]
     static class NodeModifyMaskPatch {
-        static bool Prepare() => ModifyMaskCommon.Prepare();
-
         static IEnumerable<MethodBase> TargetMethods() {
             yield return GetMethod(typeof(NetAI), "NodeModifyMask");
             yield return GetMethod(typeof(PedestrianPathAI), "NodeModifyMask");
@@ -95,8 +90,6 @@ namespace AdaptiveRoads.Patches {
     [HarmonyPatch]
     [PreloadPatch]
     static class NodeModifyMaskPatchT {
-        static bool Prepare() => ModifyMaskCommon.Prepare();
-
         //some overrides use rightT and leftT as argument name instead of right and left
         static IEnumerable<MethodBase> TargetMethods() {
             yield return GetMethod(typeof(CableCarPathAI), "NodeModifyMask");
@@ -113,11 +106,6 @@ namespace AdaptiveRoads.Patches {
     }
 
     static class ModifyMaskCommon {
-        // linux and (and possibly Mac) crash with this patch:
-        // new harmony fixes this problem
-        static bool IsAffectedOS => Application.platform is RuntimePlatform.LinuxPlayer or RuntimePlatform.OSXPlayer;
-        internal static bool Prepare() => !IsAffectedOS || typeof(Harmony).VersionOf() >= new Version("2.1.1");
-
         internal static bool ModifyMask(ProfileSection[] profile, bool invert, int index, ref TerrainModify.Surface surface, ref TerrainModify.Heights heights, ref TerrainModify.Edges edges, ref float leftT, ref float rightT, ref float leftStartY, ref float rightStartY, ref float leftEndY, ref float rightEndY, ref bool __result) {
             if (index >= profile.Length) {
                 __result = false;
