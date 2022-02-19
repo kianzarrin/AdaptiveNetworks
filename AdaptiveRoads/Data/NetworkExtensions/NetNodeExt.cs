@@ -97,6 +97,10 @@ namespace AdaptiveRoads.Manager {
                 m_flags = m_flags.SetFlags(Flags.DCR_Mod, NetworkExtensionManager.Instance.DCR);
                 m_flags = m_flags.SetFlags(Flags.HUT_Mod, NetworkExtensionManager.Instance.HUT);
 
+                var info = VanillaNode.Info;
+                bool samePrefab = SegmentIDs.All(item=>item.ToSegment().Info == info);
+                m_flags = m_flags.SetFlags(Flags.SamePrefab, samePrefab);
+
                 if(JRMan != null) {
                     bool keepClearAll = true;
                     foreach(var segmentID in NetUtil.IterateNodeSegments(NodeID)) {
@@ -106,7 +110,6 @@ namespace AdaptiveRoads.Manager {
 
                     }
                     m_flags = m_flags.SetFlags(Flags.KeepClearAll, keepClearAll);
-
 
                     bool speedChange = TMPEHelpers.SpeedChanges(NodeID);
                     bool twoSegments = NodeID.ToNode().CountSegments() == 2;
