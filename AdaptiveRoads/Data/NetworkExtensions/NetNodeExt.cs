@@ -58,6 +58,9 @@ namespace AdaptiveRoads.Manager {
             [Hint("the junction has segments with different speed limits.")]
             SpeedChange = 1 << 12,
 
+            [Hint("all segments at the junction have same prefab")]
+            SamePrefab = 1 << 13,
+
             [CustomFlag] Custom0 = 1 << 24,
             [CustomFlag] Custom1 = 1 << 25,
             [CustomFlag] Custom2 = 1 << 26,
