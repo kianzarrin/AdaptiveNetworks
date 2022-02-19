@@ -25,7 +25,10 @@ namespace AdaptiveRoads.Manager {
 
         const int CUSTOM_FLAG_SHIFT = 24;
         public bool IsEmpty => (m_flags & Flags.CustomsMask) == Flags.None;
+
+        [Obsolete("use VanillaSegment instead")]
         public ref NetSegment Segment => ref SegmentID.ToSegment();
+        public ref NetSegment VanillaSegment => ref SegmentID.ToSegment();
 
         #region cache
         public uint[] LaneIDs;
