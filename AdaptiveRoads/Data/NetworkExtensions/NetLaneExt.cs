@@ -302,21 +302,21 @@ namespace AdaptiveRoads.Manager{
             }
         }
 
-        public bool CalculateGroupData(ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays) {
+        public bool CalculateGroupData(int layer, ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays) {
             var infoExt = LaneData.SegmentID.ToSegmentExt().NetInfoExt;
             if(infoExt == null || infoExt.TrackLaneCount == 0)
                 return false;
 
             bool result = false;
             foreach(var trackInfo in infoExt.Tracks) {
-                if(Check(trackInfo)) {
+                if(/*trackInfo.m_layer == layer && */Check(trackInfo)) {
                     result |= RenderData.CalculateGroupData(trackInfo, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
                 }
             }
             return result;
         }
 
-        public void PopulateGroupData(int groupX, int groupZ, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData meshData) {
+        public void PopulateGroupData(int groupX, int groupZ, int layer, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData meshData) {
             var infoExt = LaneData.SegmentID.ToSegmentExt().NetInfoExt;
             if(infoExt == null || infoExt.TrackLaneCount == 0)
                 return;
@@ -324,7 +324,7 @@ namespace AdaptiveRoads.Manager{
             var renderData0 = GenerateRenderData(ref OutLine, groupPosition);
             var wireRenderData0 = GenerateRenderData(ref WireOutLine, groupPosition);
             foreach(var trackInfo in infoExt.Tracks) {
-                if(Check(trackInfo)) {
+                if(/*trackInfo.m_layer == layer &&*/ Check(trackInfo)) {
                     TrackRenderData renderData;
                     if(trackInfo.m_requireWindSpeed) {
                         renderData = wireRenderData0.GetDataFor(trackInfo);

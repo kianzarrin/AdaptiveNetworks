@@ -247,7 +247,7 @@ namespace AdaptiveRoads.Manager {
                 if(NetInfoExt.HasTrackLane(laneIndex)) {
                     var laneID = LaneIDs[laneIndex];
                     ref var laneExt = ref laneID.ToLaneExt();
-                    result |= laneExt.CalculateGroupData(ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
+                    result |= laneExt.CalculateGroupData(layer, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
                 }
             }
             return result;
@@ -268,7 +268,7 @@ namespace AdaptiveRoads.Manager {
                 if(NetInfoExt.HasTrackLane(laneIndex)) {
                     var laneID = LaneIDs[laneIndex];
                     ref var laneExt = ref laneID.ToLaneExt();
-                    laneExt.PopulateGroupData(groupX, groupZ, ref vertexIndex, ref triangleIndex, groupPosition, data);
+                    laneExt.PopulateGroupData(groupX, groupZ, layer: layer, ref vertexIndex, ref triangleIndex, groupPosition, data);
                 }
             }
         }
