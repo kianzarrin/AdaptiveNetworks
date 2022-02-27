@@ -204,7 +204,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
 
 
         public bool CalculateGroupData(ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays) {
-            if(!Nodeless || InfoExtA == null || InfoExtA.TrackLaneCount == 0)
+            if(Nodeless || InfoExtA == null || InfoExtA.TrackLaneCount == 0)
                 return false;
 
             bool result = false;
@@ -217,7 +217,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         }
 
         public void PopulateGroupData(int groupX, int groupZ, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData meshData) {
-            if(!Nodeless || InfoExtA == null || InfoExtA.TrackLaneCount == 0)
+            if(Nodeless || InfoExtA == null || InfoExtA.TrackLaneCount == 0)
                 return;
 
             var renderData0 = GenerateRenderData(ref OutLine, groupPosition);

@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>net35</TargetFramework>
     <Deterministic>false</Deterministic>
-    <AssemblyVersion>3.4.5.*</AssemblyVersion>
+    <AssemblyVersion>3.4.6.*</AssemblyVersion>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DebugType>full</DebugType>
