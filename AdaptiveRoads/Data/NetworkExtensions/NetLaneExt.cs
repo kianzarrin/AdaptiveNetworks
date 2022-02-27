@@ -309,7 +309,7 @@ namespace AdaptiveRoads.Manager{
 
             bool result = false;
             foreach(var trackInfo in infoExt.Tracks) {
-                if(/*trackInfo.m_layer == layer && */Check(trackInfo)) {
+                if(trackInfo.m_layer == layer && Check(trackInfo)) {
                     result |= RenderData.CalculateGroupData(trackInfo, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
                 }
             }
@@ -324,7 +324,7 @@ namespace AdaptiveRoads.Manager{
             var renderData0 = GenerateRenderData(ref OutLine, groupPosition);
             var wireRenderData0 = GenerateRenderData(ref WireOutLine, groupPosition);
             foreach(var trackInfo in infoExt.Tracks) {
-                if(/*trackInfo.m_layer == layer &&*/ Check(trackInfo)) {
+                if(trackInfo.m_layer == layer && Check(trackInfo)) {
                     TrackRenderData renderData;
                     if(trackInfo.m_requireWindSpeed) {
                         renderData = wireRenderData0.GetDataFor(trackInfo);

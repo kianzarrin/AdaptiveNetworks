@@ -275,7 +275,7 @@ namespace AdaptiveRoads.Manager {
                 return false;
             bool result = false;
             foreach(var transtion in Transitions) {
-                result |= transtion.CalculateGroupData(ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
+                result |= transtion.CalculateGroupData(layer, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
             }
             return result;
         }
@@ -287,7 +287,7 @@ namespace AdaptiveRoads.Manager {
             if(Transitions.IsNullorEmpty())
                 return;
             foreach(var transtion in Transitions) {
-                transtion.PopulateGroupData(groupX, groupZ, ref vertexIndex, ref triangleIndex, groupPosition, data);
+                transtion.PopulateGroupData(groupX, groupZ, layer: layer, ref vertexIndex, ref triangleIndex, groupPosition, data);
             }
         }
         #endregion

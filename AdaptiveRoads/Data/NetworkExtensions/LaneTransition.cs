@@ -203,27 +203,27 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         }
 
 
-        public bool CalculateGroupData(ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays) {
+        public bool CalculateGroupData(int layer, ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays) {
             if(Nodeless || InfoExtA == null || InfoExtA.TrackLaneCount == 0)
                 return false;
 
             bool result = false;
             foreach(var trackInfo in InfoExtA.Tracks) {
-                if(Check(trackInfo)) {
+                if (trackInfo.m_layer == layer && Check(trackInfo)) {
                     result |= RenderData.CalculateGroupData(trackInfo, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
                 }
             }
             return result;
         }
 
-        public void PopulateGroupData(int groupX, int groupZ, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData meshData) {
+        public void PopulateGroupData(int groupX, int groupZ, int layer, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData meshData) {
             if(Nodeless || InfoExtA == null || InfoExtA.TrackLaneCount == 0)
                 return;
 
             var renderData0 = GenerateRenderData(ref OutLine, groupPosition);
             var wireRenderData0 = GenerateRenderData(ref WireOutLine, groupPosition);
             foreach(var trackInfo in InfoExtA.Tracks) {
-                if(Check(trackInfo)) {
+                if (trackInfo.m_layer == layer && Check(trackInfo)) {
                     TrackRenderData renderData;
                     if(trackInfo.m_requireWindSpeed) {
                         renderData = wireRenderData0.GetDataFor(trackInfo, AntiFlickerIndex);
