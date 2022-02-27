@@ -129,7 +129,8 @@ namespace AdaptiveRoads.Manager {
                     }
                     if(this.m_material) {
                         this.m_trackMaterial = new Material(this.m_material);
-                        this.m_trackMaterial.EnableKeyword("NET_SEGMENT");
+                        if(UseKeywordNETSEGMENT)
+                            this.m_trackMaterial.EnableKeyword("NET_SEGMENT");
                         Color color = this.m_material.color;
                         color.a = 0f;
                         this.m_trackMaterial.color = color;
@@ -170,7 +171,6 @@ namespace AdaptiveRoads.Manager {
                     m_combinedLod?.m_material?.SetTiling(Mathf.Abs(Tiling));
                 }
             }
-
 
             public const VehicleInfo.VehicleType TRACK_VehicleTypes =
                 VehicleInfo.VehicleType.Tram |
@@ -284,6 +284,10 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Tiling")]
             [Hint("network tiling value (length wise texture scale)")]
             public float Tiling;
+
+            [CustomizableProperty("use NET_SEGMENT keyword")]
+            [Hint("This helps to bend wires.")]
+            public bool UseKeywordNETSEGMENT = true;
 
             public bool CheckNodeFlags
                 (NetNodeExt.Flags nodeFlags, NetNode.Flags vanillaNodeFlags,

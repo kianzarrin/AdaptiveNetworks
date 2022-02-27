@@ -485,9 +485,10 @@ namespace AdaptiveRoads.Manager {
                 // work around private fields/methods.
                 var tempSegment = TempSegmentInfo(trackInfo);
                 Template.InitMeshData(tempSegment, atlasRect, rgbAtlas, xysAtlas, aprAtlas);
-
-                trackInfo.m_combinedLod = tempSegment.m_combinedLod; // TODO: is this redundant?
-                trackInfo.m_lodMaterial = tempSegment.m_lodMaterial; // TODO: is this redundant?
+                if (!trackInfo.UseKeywordNETSEGMENT)
+                    tempSegment.m_combinedLod.m_material.DisableKeyword("NET_SEGMENT");
+                //trackInfo.m_combinedLod = tempSegment.m_combinedLod; // TODO: is this redundant?
+                //trackInfo.m_lodMaterial = tempSegment.m_lodMaterial; // TODO: is this redundant?
 
             }
 
