@@ -487,9 +487,7 @@ namespace AdaptiveRoads.Manager {
                 Template.InitMeshData(tempSegment, atlasRect, rgbAtlas, xysAtlas, aprAtlas);
                 if (!trackInfo.UseKeywordNETSEGMENT)
                     tempSegment.m_combinedLod.m_material.DisableKeyword("NET_SEGMENT");
-                //trackInfo.m_combinedLod = tempSegment.m_combinedLod; // TODO: is this redundant?
-                //trackInfo.m_lodMaterial = tempSegment.m_lodMaterial; // TODO: is this redundant?
-
+                trackInfo.m_combinedLod = tempSegment.m_combinedLod;
             }
 
             void RecalculateParkingAngle() {
