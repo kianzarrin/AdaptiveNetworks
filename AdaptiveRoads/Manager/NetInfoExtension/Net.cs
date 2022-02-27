@@ -484,8 +484,11 @@ namespace AdaptiveRoads.Manager {
                 if(Log.VERBOSE) Log.Debug("InitMeshData() for trackInfo called");
                 // work around private fields/methods.
                 var tempSegment = TempSegmentInfo(trackInfo);
-                Template.InitMeshData(TempSegmentInfo(trackInfo), atlasRect, rgbAtlas, xysAtlas, aprAtlas);
-                trackInfo.m_combinedLod = tempSegment.m_combinedLod;
+                Template.InitMeshData(tempSegment, atlasRect, rgbAtlas, xysAtlas, aprAtlas);
+
+                trackInfo.m_combinedLod = tempSegment.m_combinedLod; // TODO: is this redundant?
+                trackInfo.m_lodMaterial = tempSegment.m_lodMaterial; // TODO: is this redundant?
+
             }
 
             void RecalculateParkingAngle() {

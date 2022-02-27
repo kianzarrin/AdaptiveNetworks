@@ -83,7 +83,7 @@ namespace AdaptiveRoads.Manager {
                         int net_z1 = (renderGroup.m_z + 1) * resolutionRatio - 1; // = net_z + 5
                         for(int net_z = net_z0; net_z <= net_z1; net_z++) {
                             for(int net_x = net_x0; net_x <= net_x1; net_x++) {
-                                int gridIndex = net_z * 270 + net_x;
+                                int gridIndex = net_z * NetManager.NODEGRID_RESOLUTION + net_x;
                                 ushort segmentID = NetManager.instance.m_segmentGrid[gridIndex];
                                 int watchdog = 0;
                                 while(segmentID != 0) {
@@ -143,7 +143,8 @@ namespace AdaptiveRoads.Manager {
                 int net_z1 = (groupZ + 1) * resolutionRatio - 1;
                 for(int net_z = net_z0; net_z <= net_z1; net_z++) {
                     for(int net_x = net_x0; net_x <= net_x1; net_x++) {
-                        ushort segmentID = NetManager.instance.m_segmentGrid[net_z * NetManager.NODEGRID_RESOLUTION + net_x];
+                        int gridIndex = net_z * NetManager.NODEGRID_RESOLUTION + net_x;
+                        ushort segmentID = NetManager.instance.m_segmentGrid[gridIndex];
                         int watchdog = 0;
                         while(segmentID != 0) {
                             ret |= segmentID.ToSegmentExt().CalculateGroupData(layer, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
