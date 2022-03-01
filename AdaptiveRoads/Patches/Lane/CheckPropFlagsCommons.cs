@@ -11,10 +11,6 @@ see : https://github.com/boformer/NetworkSkins2/blob/0d165621204f77a0183f2ef7699
 
 var customLanesLocalVar = il.DeclareLocal(typeof(NetInfo.Lane[])); // variable type
 customLanesLocalVar.SetLocalSymInfo("customLanes"); // variable name
-
-
-var beginLabel = il.DefineLabel();
-codes[index].labels.Add(beginLabel);
 */
 
 namespace AdaptiveRoads.Patches.Lane {
@@ -25,105 +21,74 @@ namespace AdaptiveRoads.Patches.Lane {
     using ColossalFramework;
 
     public static class CheckPropFlagsCommons {
-        //public class StateT {
-        //    public NetLaneExt.Flags laneFlags;
-        //    public NetSegmentExt.Flags segmentFlags;
-        //    public NetSegment.Flags vanillaSegmentFlags;
-        //    public NetNodeExt.Flags startNodeFlags, endNodeFlags;
-        //    public NetSegmentEnd.Flags segmentStartFags, segmentEndFlags;
-        //}
+        public struct StateT {
+            public bool Initialized;
 
-        //public static StateT InitState(NetInfo.Lane laneInfo, uint laneID) {
-        //    ushort segmentID = laneID.ToLane().m_segment;
-        //    ref NetSegment segment = ref segmentID.ToSegment();
+            public NetLaneExt.Flags laneFlags;
+            public NetSegmentExt.Flags segmentFlags;
+            public NetSegment.Flags vanillaSegmentFlags;
+            public NetNodeExt.Flags startNodeFlags, endNodeFlags;
+            public NetSegmentEnd.Flags segmentStartFags, segmentEndFlags;
 
-        //    bool segmentInverted = segment.m_flags.IsFlagSet(NetSegment.Flags.Invert);
-        //    bool backward = (laneInfo.m_finalDirection & NetInfo.Direction.Both) == NetInfo.Direction.Backward ||
-        //        (laneInfo.m_finalDirection & NetInfo.Direction.AvoidBoth) == NetInfo.Direction.AvoidForward;
-        //    bool reverse = segmentInverted != backward; // xor
+            public float laneSpeed, forwardSpeed, backwardSpeed;
+            public float SegmentCurve, laneCurve;
 
-        //    ushort startNodeID = reverse ? segment.m_startNode : segment.m_endNode; // tail
-        //    ushort endNodeID = !reverse ? segment.m_startNode : segment.m_endNode; // head
+            public void Init(NetInfo.Lane laneInfo, uint laneID) {
+                ushort segmentID = laneID.ToLane().m_segment;
+                ref NetSegment segment = ref segmentID.ToSegment();
+                ref NetLane netLane = ref laneID.ToLane();
 
-        //    ref NetLaneExt netLaneExt = ref NetworkExtensionManager.Instance.LaneBuffer[laneID];
-        //    ref NetSegmentExt netSegmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
-        //    ref NetNodeExt netNodeExtStart = ref NetworkExtensionManager.Instance.NodeBuffer[startNodeID];
-        //    ref NetNodeExt netNodeExtEnd = ref NetworkExtensionManager.Instance.NodeBuffer[endNodeID];
-        //    ref NetSegmentEnd netSegmentStart = ref netSegmentExt.GetEnd(startNodeID);
-        //    ref NetSegmentEnd netSegmentEnd = ref netSegmentExt.GetEnd(endNodeID);
+                bool reverse = segment.IsInvert() != laneInfo.IsGoingBackward(); // xor
 
-        //    return new StateT {
-        //        laneFlags = netLaneExt.m_flags, segmentFlags = netSegmentExt.m_flags, vanillaSegmentFlags = segment.m_flags,
-        //        startNodeFlags = netNodeExtStart.m_flags, endNodeFlags =netNodeExtEnd.m_flags,
-        //        segmentStartFags = netSegmentStart.m_flags, segmentEndFlags = netSegmentEnd.m_flags,
-        //    };
-        //}
+                ushort startNodeID = !reverse ? segment.m_startNode : segment.m_endNode; // tail
+                ushort endNodeID = reverse ? segment.m_startNode : segment.m_endNode; // head
 
-        //public static bool CheckFlags2(NetLaneProps.Prop prop, NetInfo.Lane laneInfo, uint laneID, ref StateT state) {
-        //    var propInfoExt = prop?.GetExt();
-        //    if (propInfoExt == null)
-        //        return true;
-        //    if (state == null)
-        //        state = InitState(laneInfo, laneID);
+                ref NetLaneExt netLaneExt = ref NetworkExtensionManager.Instance.LaneBuffer[laneID];
+                ref NetSegmentExt netSegmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
+                ref NetNodeExt netNodeExtStart = ref NetworkExtensionManager.Instance.NodeBuffer[startNodeID];
+                ref NetNodeExt netNodeExtEnd = ref NetworkExtensionManager.Instance.NodeBuffer[endNodeID];
+                ref NetSegmentEnd netSegmentStart = ref netSegmentExt.GetEnd(startNodeID);
+                ref NetSegmentEnd netSegmentEnd = ref netSegmentExt.GetEnd(endNodeID);
 
-        //    return propInfoExt.CheckFlags(
-        //        state.laneFlags, state.segmentFlags, state.vanillaSegmentFlags,
-        //        state.startNodeFlags, state.endNodeFlags,
-        //        state.segmentStartFags, state.segmentEndFlags);
-        //}
+                laneFlags = netLaneExt.m_flags; segmentFlags = netSegmentExt.m_flags; vanillaSegmentFlags = segment.m_flags;
+                startNodeFlags = netNodeExtStart.m_flags; endNodeFlags = netNodeExtEnd.m_flags;
+                segmentStartFags = netSegmentStart.m_flags; segmentEndFlags = netSegmentEnd.m_flags;
+                laneSpeed = netLaneExt.SpeedLimit;
+                forwardSpeed = netSegmentExt.ForwardSpeedLimit;
+                backwardSpeed = netSegmentExt.BackwardSpeedLimit;
+                SegmentCurve = netSegmentExt.Curve; laneCurve = netLane.m_curve;
+
+                Initialized = true;
+            }
+        }
 
         // TODO use the other checkflags.
         public static Stopwatch timer = new Stopwatch();
-        public static bool CheckFlags(NetLaneProps.Prop prop, NetInfo.Lane laneInfo, uint laneID) {
+        public static bool CheckFlags(NetLaneProps.Prop prop, NetInfo.Lane laneInfo, uint laneID, ref StateT state) {
+#if DEBUG
             timer.Start();
+#endif
             var propInfoExt = prop?.GetMetaData();
-            //var propIndex = prop as NetInfoExtension.Lane.Prop;
-            //Log.DebugWait($"CheckFlags called for lane:{laneID} propInfoExt={propInfoExt} propIndex={propIndex} prop={prop}", (int)laneID);
             if (propInfoExt == null) return true;
-            //var laneInfoExt = laneInfo?.GetExt();
-            //if (laneInfoExt == null) return true;
 
-            // TODO prepare data at the beginning.
-            ushort segmentID = laneID.ToLane().m_segment;
-            ref NetSegment segment = ref segmentID.ToSegment();
-            ref NetLane netLane = ref laneID.ToLane();
+            if (!state.Initialized) state.Init(laneInfo, laneID);
 
-            bool reverse = segment.IsInvert() != laneInfo.IsGoingBackward(); // xor
-
-            ushort startNodeID = !reverse ? segment.m_startNode : segment.m_endNode; // tail
-            ushort endNodeID = reverse ? segment.m_startNode : segment.m_endNode; // head
-
-            ref NetLaneExt netLaneExt = ref NetworkExtensionManager.Instance.LaneBuffer[laneID];
-            ref NetSegmentExt netSegmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
-            ref NetNodeExt netNodeExtStart = ref NetworkExtensionManager.Instance.NodeBuffer[startNodeID];
-            ref NetNodeExt netNodeExtEnd = ref NetworkExtensionManager.Instance.NodeBuffer[endNodeID];
-            ref NetSegmentEnd netSegmentStart = ref netSegmentExt.GetEnd(startNodeID);
-            ref NetSegmentEnd netSegmentEnd = ref netSegmentExt.GetEnd(endNodeID);
-
-            //if (propIndex.LaneIndex == 1 && propIndex.Index == 1)         
-            //{
-            //    //Log.DebugWait($"calling propInfoExt.CheckFlags called for lane{laneID} " +
-            //    //    $"netSegmentStart.m_flags={netSegmentStart.m_flags}, netSegmentEnd.m_flags={netSegmentEnd.m_flags} " +
-            //    //    $"propInfoExt.SegmentEndFlags.Required={propInfoExt.SegmentEndFlags.Required}",
-            //    //    id: (int)laneID, copyToGameLog: false);
-            //}
-            //Log.DebugWait($"[speed={netLaneExt.SpeedLimit} laneExt={netLaneExt}");
             var ret = propInfoExt.Check(
-                netLaneExt.m_flags, netSegmentExt.m_flags, segment.m_flags,
-                netNodeExtStart.m_flags, netNodeExtEnd.m_flags,
-                netSegmentStart.m_flags, netSegmentEnd.m_flags,
-                laneSpeed: netLaneExt.SpeedLimit,
-                forwardSpeedLimit: netSegmentExt.ForwardSpeedLimit,
-                backwardSpeedLimit: netSegmentExt.BackwardSpeedLimit,
-                netSegmentExt.Curve, netLane.m_curve);
-            timer.Stop();
+                state.laneFlags, state.segmentFlags, state.vanillaSegmentFlags,
+                state.startNodeFlags, state.endNodeFlags,
+                state.segmentStartFags, state.segmentEndFlags,
+                laneSpeed: state.laneSpeed,
+                forwardSpeedLimit: state.forwardSpeed,
+                backwardSpeedLimit: state.backwardSpeed,
+                segmentCurve: state.SegmentCurve, laneCurve: state.laneCurve);
+#if DEBUG
+            timer.Start();
+#endif
             return ret;
         }
 
         static MethodInfo mCheckFlagsExt =>
-            typeof(CheckPropFlagsCommons)
-            .GetMethod("CheckFlags")
-            ?? throw new Exception("mCheckFlagsExt is null");
+            typeof(CheckPropFlagsCommons).GetMethod(nameof(CheckFlags), throwOnError: true);
 
         static MethodInfo mCheckFlags =>
             typeof(NetLaneProps.Prop)
@@ -131,7 +96,7 @@ namespace AdaptiveRoads.Patches.Lane {
             ?? throw new Exception("mCheckFlags is null");
 
         // returns the position of First DrawMesh after index.
-        public static void PatchCheckFlags(List<CodeInstruction> codes, MethodBase method) {
+        public static void PatchCheckFlags(List<CodeInstruction> codes, MethodBase method, ILGenerator il) {
             var index = SearchInstruction(codes, new CodeInstruction(OpCodes.Callvirt, mCheckFlags), 0, counter: 1);
             Assertion.Assert(index != 0, "index!=0");
 
@@ -139,11 +104,16 @@ namespace AdaptiveRoads.Patches.Lane {
             CodeInstruction LDArg_laneInfo = GetLDArg(method, "laneInfo");
             CodeInstruction LDArg_laneID = GetLDArg(method, "laneID");
 
+            var stateVar = il.DeclareLocal(typeof(StateT)); // variable type
+            stateVar.SetLocalSymInfo("laneStateCache"); // variable name
+            var LoadRefState = new CodeInstruction(OpCodes.Ldloca, stateVar.LocalIndex);
+
             { // insert our checkflags after base checkflags
                 var newInstructions = new[]{
                     LDLoc_prop,
                     LDArg_laneInfo,
                     LDArg_laneID,
+                    LoadRefState,
                     new CodeInstruction(OpCodes.Call, mCheckFlagsExt),
                     new CodeInstruction(OpCodes.And),
                 };

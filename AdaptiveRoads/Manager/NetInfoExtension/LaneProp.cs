@@ -103,7 +103,6 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Catenary")]
             public bool Catenary;
 
-            internal static System.Diagnostics.Stopwatch timer = new();
             /// <param name="laneSpeed">game speed</param>
             /// <param name="forwardSpeedLimit">game speed</param>
             /// <param name="backwardSpeedLimit">game speed</param>
@@ -114,9 +113,8 @@ namespace AdaptiveRoads.Manager {
                 NetNodeExt.Flags startNodeFlags, NetNodeExt.Flags endNodeFlags,
                 NetSegmentEnd.Flags segmentStartFlags, NetSegmentEnd.Flags segmentEndFlags,
                 float laneSpeed, float forwardSpeedLimit, float backwardSpeedLimit,
-                float segmentCurve, float laneCurve) {
-                timer.Start();
-                var ret = LaneFlags.CheckFlags(laneFlags) &&
+                float segmentCurve, float laneCurve) =>
+                LaneFlags.CheckFlags(laneFlags) &&
                 SegmentFlags.CheckFlags(segmentFlags) &&
                 VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags) &&
                 SegmentStartFlags.CheckFlags(segmentStartFlags) &&
@@ -128,9 +126,7 @@ namespace AdaptiveRoads.Manager {
                 BackwardSpeedLimit.CheckRange(backwardSpeedLimit) &&
                 SegmentCurve.CheckRange(segmentCurve) &&
                 LaneCurve.CheckRange(laneCurve);
-                timer.Stop();
-                return ret;
-            }
+            
             public CustomFlags UsedCustomFlags => new CustomFlags {
                 Segment = SegmentFlags.UsedCustomFlags,
                 SegmentEnd = SegmentStartFlags.UsedCustomFlags | SegmentEndFlags.UsedCustomFlags,

@@ -18,10 +18,10 @@ namespace AdaptiveRoads.Patches.Lane {
         public static MethodBase TargetMethod() => typeof(global::NetLane).
             GetMethod("PopulateGroupData", BindingFlags.Public | BindingFlags.Instance, true);
 
-        public static IEnumerable<CodeInstruction> Transpiler(MethodBase original, IEnumerable<CodeInstruction> instructions) {
+        public static IEnumerable<CodeInstruction> Transpiler(MethodBase original, IEnumerable<CodeInstruction> instructions, ILGenerator il) {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
-                CheckPropFlagsCommons.PatchCheckFlags(codes, original);
+                CheckPropFlagsCommons.PatchCheckFlags(codes, original, il);
                 Log.Info($"{ReflectionHelpers.ThisMethod} patched {original} successfully!");
                 return codes;
             }

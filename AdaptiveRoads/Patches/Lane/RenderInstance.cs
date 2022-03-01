@@ -6,6 +6,7 @@ namespace AdaptiveRoads.Patches.Lane {
     using System;
     using System.Collections.Generic;
     using System.Reflection;
+    using System.Reflection.Emit;
 
     [HarmonyPatch]
     [InGamePatch]
@@ -15,10 +16,10 @@ namespace AdaptiveRoads.Patches.Lane {
         static MethodBase TargetMethod() => ReflectionHelpers.GetMethod(
             typeof(NetLane), nameof(NetLane.RenderInstance));
 
-        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, MethodBase original) {
+        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, MethodBase original, ILGenerator il) {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
-                CheckPropFlagsCommons.PatchCheckFlags(codes, original);
+                CheckPropFlagsCommons.PatchCheckFlags(codes, original, il);
                 Log.Info($"{ReflectionHelpers.ThisMethod} patched {original} successfully!");
                 return codes;
             } catch(Exception e) {

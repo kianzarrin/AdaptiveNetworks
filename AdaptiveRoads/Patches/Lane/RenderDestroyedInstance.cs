@@ -19,10 +19,10 @@ namespace AdaptiveRoads.Patches.Lane {
             typeof(NetLane).GetMethod(nameof(NetLane.RenderDestroyedInstance), true);
 
         public static IEnumerable<CodeInstruction> Transpiler(
-            MethodBase original, IEnumerable<CodeInstruction> instructions) {
+            MethodBase original, IEnumerable<CodeInstruction> instructions, ILGenerator il) {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
-                CheckPropFlagsCommons.PatchCheckFlags(codes, original);
+                CheckPropFlagsCommons.PatchCheckFlags(codes, original, il);
                 Log.Info($"{ReflectionHelpers.ThisMethod} patched {original} successfully!");
                 return codes;
             }
