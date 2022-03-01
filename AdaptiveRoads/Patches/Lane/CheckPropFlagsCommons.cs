@@ -82,7 +82,7 @@ namespace AdaptiveRoads.Patches.Lane {
                 backwardSpeedLimit: state.backwardSpeed,
                 segmentCurve: state.SegmentCurve, laneCurve: state.laneCurve);
 #if DEBUG
-            timer.Start();
+            timer.Stop();
 #endif
             return ret;
         }
