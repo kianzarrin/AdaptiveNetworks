@@ -1,15 +1,13 @@
-using HarmonyLib;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Diagnostics;
-
 namespace AdaptiveRoads.Patches.Lane {
+    using HarmonyLib;
+    using System.Collections.Generic;
+    using System.Reflection;
+    using System.Reflection.Emit;
+    using System.Diagnostics;
     using System;
     using KianCommons;
     using static KianCommons.Patches.TranspilerUtils;
     using AdaptiveRoads.Manager;
-    using ColossalFramework;
 
     public static class CheckPropFlagsCommons {
         public struct StateT {
