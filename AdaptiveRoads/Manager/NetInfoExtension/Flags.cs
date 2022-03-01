@@ -1,6 +1,7 @@
 namespace AdaptiveRoads.Manager {
     using KianCommons;
     using System;
+    using AdaptiveRoads.Data.NetworkExtensions;
 
     public static partial class NetInfoExtionsion {
         [Serializable]
