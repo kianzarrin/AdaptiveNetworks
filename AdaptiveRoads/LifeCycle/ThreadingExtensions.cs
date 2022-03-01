@@ -20,7 +20,7 @@ namespace AdaptiveRoads.LifeCycle {
                 var timer_propcheck = CheckPropFlagsCommons.timer;
                 var ns_propcheck = timer_propcheck.ElapsedMilliseconds;
 
-                Log.Debug($"propcheck = %{100 * ns_propcheck / ns_total}");
+                Log.Debug($"propcheck = %{100 * ns_propcheck / ns_total}", false);
 
                 timer.Restart();
                 timer_propcheck.Reset();
