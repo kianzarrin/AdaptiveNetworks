@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using KianCommons.Patches;
 using AdaptiveRoads.Data.NetworkExtensions;
+using System.Diagnostics;
 
 /* TODO use this to pass __state from prefix to transpiler or initialize it on first use:
 see : https://github.com/boformer/NetworkSkins2/blob/0d165621204f77a0183f2ef769914d96e3dbbac5/NetworkSkins/Patches/NetNode/NetNodeTerrainUpdatedPatch.cs
@@ -72,52 +73,51 @@ namespace AdaptiveRoads.Patches.Lane {
         //}
 
         // TODO use the other checkflags.
+        public static Stopwatch timer = new Stopwatch();
         public static bool CheckFlags(NetLaneProps.Prop prop, NetInfo.Lane laneInfo, uint laneID) {
-            try {
-                var propInfoExt = prop?.GetMetaData();
-                //var propIndex = prop as NetInfoExtension.Lane.Prop;
-                //Log.DebugWait($"CheckFlags called for lane:{laneID} propInfoExt={propInfoExt} propIndex={propIndex} prop={prop}", (int)laneID);
-                if (propInfoExt == null) return true;
-                //var laneInfoExt = laneInfo?.GetExt();
-                //if (laneInfoExt == null) return true;
+            timer.Start();
+            var propInfoExt = prop?.GetMetaData();
+            //var propIndex = prop as NetInfoExtension.Lane.Prop;
+            //Log.DebugWait($"CheckFlags called for lane:{laneID} propInfoExt={propInfoExt} propIndex={propIndex} prop={prop}", (int)laneID);
+            if (propInfoExt == null) return true;
+            //var laneInfoExt = laneInfo?.GetExt();
+            //if (laneInfoExt == null) return true;
 
-                // TODO prepare data at the beginning.
-                ushort segmentID = laneID.ToLane().m_segment;
-                ref NetSegment segment = ref segmentID.ToSegment();
-                ref NetLane netLane = ref laneID.ToLane();
+            // TODO prepare data at the beginning.
+            ushort segmentID = laneID.ToLane().m_segment;
+            ref NetSegment segment = ref segmentID.ToSegment();
+            ref NetLane netLane = ref laneID.ToLane();
 
-                bool reverse = segment.IsInvert() != laneInfo.IsGoingBackward(); // xor
+            bool reverse = segment.IsInvert() != laneInfo.IsGoingBackward(); // xor
 
-                ushort startNodeID = !reverse ? segment.m_startNode : segment.m_endNode; // tail
-                ushort endNodeID = reverse ? segment.m_startNode : segment.m_endNode; // head
+            ushort startNodeID = !reverse ? segment.m_startNode : segment.m_endNode; // tail
+            ushort endNodeID = reverse ? segment.m_startNode : segment.m_endNode; // head
 
-                ref NetLaneExt netLaneExt = ref NetworkExtensionManager.Instance.LaneBuffer[laneID];
-                ref NetSegmentExt netSegmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
-                ref NetNodeExt netNodeExtStart = ref NetworkExtensionManager.Instance.NodeBuffer[startNodeID];
-                ref NetNodeExt netNodeExtEnd = ref NetworkExtensionManager.Instance.NodeBuffer[endNodeID];
-                ref NetSegmentEnd netSegmentStart = ref netSegmentExt.GetEnd(startNodeID);
-                ref NetSegmentEnd netSegmentEnd = ref netSegmentExt.GetEnd(endNodeID);
+            ref NetLaneExt netLaneExt = ref NetworkExtensionManager.Instance.LaneBuffer[laneID];
+            ref NetSegmentExt netSegmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
+            ref NetNodeExt netNodeExtStart = ref NetworkExtensionManager.Instance.NodeBuffer[startNodeID];
+            ref NetNodeExt netNodeExtEnd = ref NetworkExtensionManager.Instance.NodeBuffer[endNodeID];
+            ref NetSegmentEnd netSegmentStart = ref netSegmentExt.GetEnd(startNodeID);
+            ref NetSegmentEnd netSegmentEnd = ref netSegmentExt.GetEnd(endNodeID);
 
-                //if (propIndex.LaneIndex == 1 && propIndex.Index == 1)         
-                //{
-                //    //Log.DebugWait($"calling propInfoExt.CheckFlags called for lane{laneID} " +
-                //    //    $"netSegmentStart.m_flags={netSegmentStart.m_flags}, netSegmentEnd.m_flags={netSegmentEnd.m_flags} " +
-                //    //    $"propInfoExt.SegmentEndFlags.Required={propInfoExt.SegmentEndFlags.Required}",
-                //    //    id: (int)laneID, copyToGameLog: false);
-                //}
-                //Log.DebugWait($"[speed={netLaneExt.SpeedLimit} laneExt={netLaneExt}");
-
-                return propInfoExt.Check(
-                    netLaneExt.m_flags, netSegmentExt.m_flags, segment.m_flags,
-                    netNodeExtStart.m_flags, netNodeExtEnd.m_flags,
-                    netSegmentStart.m_flags, netSegmentEnd.m_flags,
-                    laneSpeed: netLaneExt.SpeedLimit,
-                    forwardSpeedLimit: netSegmentExt.ForwardSpeedLimit,
-                    backwardSpeedLimit: netSegmentExt.BackwardSpeedLimit,
-                    netSegmentExt.Curve, netLane.m_curve);
-            } finally {
-
-            }
+            //if (propIndex.LaneIndex == 1 && propIndex.Index == 1)         
+            //{
+            //    //Log.DebugWait($"calling propInfoExt.CheckFlags called for lane{laneID} " +
+            //    //    $"netSegmentStart.m_flags={netSegmentStart.m_flags}, netSegmentEnd.m_flags={netSegmentEnd.m_flags} " +
+            //    //    $"propInfoExt.SegmentEndFlags.Required={propInfoExt.SegmentEndFlags.Required}",
+            //    //    id: (int)laneID, copyToGameLog: false);
+            //}
+            //Log.DebugWait($"[speed={netLaneExt.SpeedLimit} laneExt={netLaneExt}");
+            var ret = propInfoExt.Check(
+                netLaneExt.m_flags, netSegmentExt.m_flags, segment.m_flags,
+                netNodeExtStart.m_flags, netNodeExtEnd.m_flags,
+                netSegmentStart.m_flags, netSegmentEnd.m_flags,
+                laneSpeed: netLaneExt.SpeedLimit,
+                forwardSpeedLimit: netSegmentExt.ForwardSpeedLimit,
+                backwardSpeedLimit: netSegmentExt.BackwardSpeedLimit,
+                netSegmentExt.Curve, netLane.m_curve);
+            timer.Stop();
+            return ret;
         }
 
         static MethodInfo mCheckFlagsExt =>
