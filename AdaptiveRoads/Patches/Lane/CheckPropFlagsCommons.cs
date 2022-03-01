@@ -2,16 +2,7 @@ using HarmonyLib;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
-using KianCommons.Patches;
-using AdaptiveRoads.Data.NetworkExtensions;
 using System.Diagnostics;
-
-/* TODO use this to pass __state from prefix to transpiler or initialize it on first use:
-see : https://github.com/boformer/NetworkSkins2/blob/0d165621204f77a0183f2ef769914d96e3dbbac5/NetworkSkins/Patches/NetNode/NetNodeTerrainUpdatedPatch.cs
-
-var customLanesLocalVar = il.DeclareLocal(typeof(NetInfo.Lane[])); // variable type
-customLanesLocalVar.SetLocalSymInfo("customLanes"); // variable name
-*/
 
 namespace AdaptiveRoads.Patches.Lane {
     using System;
@@ -68,6 +59,7 @@ namespace AdaptiveRoads.Patches.Lane {
         public static Stopwatch timer3 = new Stopwatch();
 #endif
 
+        // Performance critical
         public static bool CheckFlags(NetLaneProps.Prop prop, NetInfo.Lane laneInfo, uint laneID, ref StateT state) {
 #if DEBUG
             timer.Start();
