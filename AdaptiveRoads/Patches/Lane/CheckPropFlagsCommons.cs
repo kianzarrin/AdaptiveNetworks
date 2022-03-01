@@ -62,14 +62,19 @@ namespace AdaptiveRoads.Patches.Lane {
             }
         }
 
-        // TODO use the other checkflags.
+#if DEBUG
         public static Stopwatch timer = new Stopwatch();
+        public static Stopwatch timer2 = new Stopwatch();
+#endif
+
         public static bool CheckFlags(NetLaneProps.Prop prop, NetInfo.Lane laneInfo, uint laneID, ref StateT state) {
 #if DEBUG
             timer.Start();
 #endif
             try {
+                timer2.Start();
                 var propInfoExt = prop?.GetMetaData();
+                timer2.Stop();
                 if (propInfoExt == null) return true;
 
                 if (!state.Initialized) state.Init(laneInfo, laneID);
