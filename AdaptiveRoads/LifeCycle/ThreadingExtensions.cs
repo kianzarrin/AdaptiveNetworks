@@ -15,20 +15,17 @@ namespace AdaptiveRoads.LifeCycle {
         public static Stopwatch timer;
         public override void OnUpdate(float realTimeDelta, float simulationTimeDelta) {
             timer ??= Stopwatch.StartNew();
-            var ms_total = timer.ElapsedMilliseconds;
-            if (ms_total > 1000) {
-                var timer_propcheck = CheckPropFlagsCommons.timer;
-                var timer_propcheck2 = CheckPropFlagsCommons.timer2;
-                var ms_propcheck = timer_propcheck.ElapsedMilliseconds;
-                var ms_propcheck2 = timer_propcheck2.ElapsedMilliseconds;
-
-                Log.Debug($"propcheck = %{100 * ms_propcheck / ms_total}", false);
-                Log.Debug($"propcheck2 = %{100 * ms_propcheck2 / ms_total}", false);
-
+            if (timer.ElapsedMilliseconds > 1000) {
+                Handle(CheckPropFlagsCommons.timer, "propcheck");
+                Handle(CheckPropFlagsCommons.timer2, "propcheck2");
+                Handle(CheckPropFlagsCommons.timer3, "propcheck3");
                 timer.Restart();
-                timer_propcheck.Reset();
-                timer_propcheck2.Reset();
             }
+        }
+
+        public static void Handle(Stopwatch sw, string name) {
+            Log.Debug($"{name} = %{100 * sw.ElapsedMilliseconds / timer.ElapsedMilliseconds}", false);
+            sw.Reset();
         }
     }
 #endif

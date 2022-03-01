@@ -65,6 +65,7 @@ namespace AdaptiveRoads.Patches.Lane {
 #if DEBUG
         public static Stopwatch timer = new Stopwatch();
         public static Stopwatch timer2 = new Stopwatch();
+        public static Stopwatch timer3 = new Stopwatch();
 #endif
 
         public static bool CheckFlags(NetLaneProps.Prop prop, NetInfo.Lane laneInfo, uint laneID, ref StateT state) {
@@ -72,15 +73,24 @@ namespace AdaptiveRoads.Patches.Lane {
             timer.Start();
 #endif
             try {
+#if DEBUG
                 timer2.Start();
+#endif
                 var propInfoExt = prop?.GetMetaData();
                 // 3% FPS boost while sacrificing future proofing.
                 // var propInfoExt = (prop as PrefabMetadata.API.IInfoExtended<NetInfoExtionsion.LaneProp>)?.MetaData[0] as NetInfoExtionsion.LaneProp;
+#if DEBUG
                 timer2.Stop();
+#endif
                 if (propInfoExt == null) return true;
 
+#if DEBUG
+                timer3.Start();
+#endif
                 if (!state.Initialized) state.Init(laneInfo, laneID);
-
+#if DEBUG
+                timer3.Stop();
+#endif
                 return propInfoExt.Check(
                     state.laneFlags, state.segmentFlags, state.vanillaSegmentFlags,
                     state.startNodeFlags, state.endNodeFlags,
