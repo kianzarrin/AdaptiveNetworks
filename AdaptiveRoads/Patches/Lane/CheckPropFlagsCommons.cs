@@ -68,23 +68,25 @@ namespace AdaptiveRoads.Patches.Lane {
 #if DEBUG
             timer.Start();
 #endif
-            var propInfoExt = prop?.GetMetaData();
-            if (propInfoExt == null) return true;
+            try {
+                var propInfoExt = prop?.GetMetaData();
+                if (propInfoExt == null) return true;
 
-            if (!state.Initialized) state.Init(laneInfo, laneID);
+                if (!state.Initialized) state.Init(laneInfo, laneID);
 
-            var ret = propInfoExt.Check(
-                state.laneFlags, state.segmentFlags, state.vanillaSegmentFlags,
-                state.startNodeFlags, state.endNodeFlags,
-                state.segmentStartFags, state.segmentEndFlags,
-                laneSpeed: state.laneSpeed,
-                forwardSpeedLimit: state.forwardSpeed,
-                backwardSpeedLimit: state.backwardSpeed,
-                segmentCurve: state.SegmentCurve, laneCurve: state.laneCurve);
+                return propInfoExt.Check(
+                    state.laneFlags, state.segmentFlags, state.vanillaSegmentFlags,
+                    state.startNodeFlags, state.endNodeFlags,
+                    state.segmentStartFags, state.segmentEndFlags,
+                    laneSpeed: state.laneSpeed,
+                    forwardSpeedLimit: state.forwardSpeed,
+                    backwardSpeedLimit: state.backwardSpeed,
+                    segmentCurve: state.SegmentCurve, laneCurve: state.laneCurve);
+            } finally {
 #if DEBUG
-            timer.Stop();
+                timer.Stop();
 #endif
-            return ret;
+            }
         }
 
         static MethodInfo mCheckFlagsExt =>
