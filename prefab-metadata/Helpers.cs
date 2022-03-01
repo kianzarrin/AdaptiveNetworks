@@ -105,9 +105,11 @@ namespace PrefabMetadata.Helpers {
 
         public static MetaDataType GetMetaData<MetaDataType>(this IInfoExtended info)
             where MetaDataType : class {
-            if (info.MetaData != null) {
-                foreach (var item in info.MetaData) {
-                    if (item is MetaDataType ret)
+            var list = info.MetaData;
+            if (list != null) {
+                int n = list.Count;
+                for (int i = 0; i < n; ++i) {
+                    if (list[i] is MetaDataType ret)
                         return ret;
                 }
             }

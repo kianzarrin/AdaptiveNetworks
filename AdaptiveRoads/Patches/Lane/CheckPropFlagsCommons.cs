@@ -74,6 +74,8 @@ namespace AdaptiveRoads.Patches.Lane {
             try {
                 timer2.Start();
                 var propInfoExt = prop?.GetMetaData();
+                // 3% FPS boost while sacrificing future proofing.
+                // var propInfoExt = (prop as PrefabMetadata.API.IInfoExtended<NetInfoExtionsion.LaneProp>)?.MetaData[0] as NetInfoExtionsion.LaneProp;
                 timer2.Stop();
                 if (propInfoExt == null) return true;
 
