@@ -31,9 +31,9 @@ namespace AdaptiveRoads.Patches.AsymPavements {
         const int GEOMETRY_COUNT = 4;
         public static Operation[,] Operations = new Operation[CASE_COUNT, GEOMETRY_COUNT] {
                 //     right          right-reverse       left             left-reverse    */                                                
-                { Operation.PWBig  , Operation.PWAR   , Operation.PWAR   , Operation.PWBig  }, // case 1
+                { Operation.PWBig  , Operation.PWAR   , Operation.PWAR2   , Operation.PWBig  }, // case 1
                 { Operation.PWSmall, Operation.PWBig  , Operation.PWBig  , Operation.PWSmall}, // case 2
-                { Operation.PWAR   , Operation.PWBig  , Operation.PWBig  , Operation.PWAR   }, // case 3
+                { Operation.PWAR   , Operation.PWBig  , Operation.PWBig  , Operation.PWAR2   }, // case 3
                 { Operation.PWBig  , Operation.PWSmall, Operation.PWSmall, Operation.PWBig  }, // case 4
                 { Operation.PWBig  , Operation.PWBig  , Operation.PWBig  , Operation.PWBig  }, // case 5
                 { Operation.PWBig  , Operation.PWBig  , Operation.PWBig  , Operation.PWBig  }, // case 6
