@@ -23,13 +23,16 @@ namespace AdaptiveRoads.UI.Tool {
         public override void Start() {
             base.Start();
 
+            List<string> names = new List<string>();
+
             // this should appear first
             string name = CustomFlagAttribute.GetName(flag_, nodeID_.ToNode().Info);
-            List<string> names = new List<string>();
-            if(name!=null)
+            if (name != null)
+                names.Add(name);
+
             foreach (ushort segmentID in nodeID_.ToNode().IterateSegments()) {
                 string name0 = CustomFlagAttribute.GetName(flag_, segmentID.ToSegment().Info);
-                if(name0!=null && !names.Contains(name0))
+                if (name0 != null && !names.Contains(name0))
                     names.Add(name0);
             }
 
