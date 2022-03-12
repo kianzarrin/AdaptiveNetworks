@@ -168,6 +168,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         var f_terrainEndOffset = GetField<NetInfo>(nameof(NetInfo.m_terrainEndOffset));
                         __instance.CreateGenericField(groupName, f_terrainStartOffset, target);
                         __instance.CreateGenericField(groupName, f_terrainEndOffset, target);
+                        SetLabel(__instance, f_terrainStartOffset, "Terrain Start Offset");
+                        SetLabel(__instance, f_terrainEndOffset, "Terrain End Offset");
                     }
                     if (ModSettings.ARMode) {
                         ReplaceLabel(__instance, "Pavement Width", "Pavement Width Left");
@@ -207,6 +209,22 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     .Where(_lbl => _lbl.text == oldLabel);
                 if (labels == null) return;
                 foreach (var label in labels)
+                    label.text = newLabel;
+            } catch (Exception ex) {
+                ex.Log();
+            }
+        }
+
+        /// <summary>
+        /// replaces the label of the UI component for the given field with new label.
+        /// </summary>
+        /// <param name="component">this component and all its children are searched</param>
+        public static void SetLabel(Component component, FieldInfo fieldInfo, string newLabel) {
+            try {
+                var c = component.GetComponentsInChildren<REPropertySet>()
+                    .FirstOrDefault(item => item.GetTargetField() == fieldInfo);
+                var label = c?.GetComponentInChildren<UILabel>();
+                if(label != null)
                     label.text = newLabel;
             } catch (Exception ex) {
                 ex.Log();
