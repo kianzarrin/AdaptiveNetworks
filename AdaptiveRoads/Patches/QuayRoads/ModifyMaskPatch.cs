@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using static KianCommons.ReflectionHelpers;
 using JetBrains.Annotations;
 
-namespace AdaptiveRoads.Patches {
+namespace AdaptiveRoads.Patches.QuayRoads {
 
     [HarmonyPatch]
     [PreloadPatch]
