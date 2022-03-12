@@ -27,8 +27,8 @@ namespace AdaptiveRoads.LifeCycle {
             Log.Debug($"{name} = %{100 * sw.ElapsedMilliseconds / timer.ElapsedMilliseconds}", false);
             sw.Reset();
         }
-    }
 #endif
+    }
 
     public static class TimerExtensions {
         public static void Restart(this Stopwatch sw) {

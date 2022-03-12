@@ -8,6 +8,10 @@ namespace AdaptiveRoads.Patches.Corner {
     using AdaptiveRoads.Manager;
     using KianCommons.Math;
 
+    /// <summary>
+    /// Shifting needs to happen as early as possible because it is more than just a visual fix. it determines the position of the cars.
+    /// </summary>
+    [PreloadPatch]
     [InGamePatch]
     [UsedImplicitly]
     [HarmonyPatch]
@@ -19,8 +23,7 @@ namespace AdaptiveRoads.Patches.Corner {
             // out Vector3 cornerPos, out Vector3 cornerDirection, out bool smooth)
             return typeof(NetSegment).GetMethod(
                     nameof(NetSegment.CalculateCorner),
-                    BindingFlags.Public | BindingFlags.Instance) ??
-                    throw new System.Exception("CalculateCornerPatch Could not find target method.");
+                    BindingFlags.Public | BindingFlags.Instance, throwOnError: true);
         }
 
         /// <param name="segmentID">segment to calculate corner</param>
