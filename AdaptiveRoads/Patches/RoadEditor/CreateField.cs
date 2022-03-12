@@ -163,7 +163,13 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     }
                 } else if (target is NetInfo netInfo) {
                     Log.Debug($"{__instance.name}.CreateField.Postfix({groupName}, {field}, {target})"/* + Environment.StackTrace*/);
-                    if(ModSettings.ARMode) {
+                    if (field.Name == nameof(NetInfo.m_surfaceLevel)) {
+                        var f_terrainStartOffset = GetField<NetInfo>(nameof(NetInfo.m_terrainStartOffset));
+                        var f_terrainEndOffset = GetField<NetInfo>(nameof(NetInfo.m_terrainEndOffset));
+                        __instance.CreateGenericField(groupName, f_terrainStartOffset, target);
+                        __instance.CreateGenericField(groupName, f_terrainEndOffset, target);
+                    }
+                    if (ModSettings.ARMode) {
                         ReplaceLabel(__instance, "Pavement Width", "Pavement Width Left");
                         var net = netInfo.GetOrCreateMetaData();
                         AssertNotNull(net, $"{netInfo}");
