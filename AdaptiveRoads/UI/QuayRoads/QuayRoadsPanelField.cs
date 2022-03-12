@@ -68,6 +68,7 @@ namespace AdaptiveRoads.UI.QuayRoads {
                 propertyTextField.numericalOnly = true;
                 propertyTextField.allowFloats = true;
                 propertyTextField.allowNegative = true;
+                propertyTextField.width /= 3;
                 propertyTextField.eventTextSubmitted += (_, value) => {
                     float newValue = (float)LenientStringToDouble(value, (double)(float)AssetValue);
                     propertyTextField.text = newValue.ToString();
