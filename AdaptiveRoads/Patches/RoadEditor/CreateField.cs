@@ -164,12 +164,18 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 } else if (target is NetInfo netInfo) {
                     Log.Debug($"{__instance.name}.CreateField.Postfix({groupName}, {field}, {target})"/* + Environment.StackTrace*/);
                     if (field.Name == nameof(NetInfo.m_surfaceLevel)) {
-                        var f_terrainStartOffset = GetField<NetInfo>(nameof(NetInfo.m_terrainStartOffset));
-                        var f_terrainEndOffset = GetField<NetInfo>(nameof(NetInfo.m_terrainEndOffset));
-                        __instance.CreateGenericField(groupName, f_terrainStartOffset, target);
-                        __instance.CreateGenericField(groupName, f_terrainEndOffset, target);
-                        SetLabel(__instance, f_terrainStartOffset, "Terrain Start Offset");
-                        SetLabel(__instance, f_terrainEndOffset, "Terrain End Offset");
+                        ExposeField(
+                            roadEditorPanel: __instance,
+                            groupName: groupName,
+                            target: target,
+                            fieldName: nameof(NetInfo.m_terrainStartOffset),
+                            label: "Terrain Start Offset");
+                        ExposeField(
+                            roadEditorPanel: __instance,
+                            groupName: groupName,
+                            target: target,
+                            fieldName: nameof(NetInfo.m_terrainEndOffset),
+                            label: "Terrain End Offset");
                     }
                     if (ModSettings.ARMode) {
                         ReplaceLabel(__instance, "Pavement Width", "Pavement Width Left");
@@ -229,6 +235,15 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             } catch (Exception ex) {
                 ex.Log();
             }
+        }
+
+        /// <summary>
+        /// exposes a Vanilla field that does not have the CustomizablePropertyAttribute.
+        /// </summary>
+        public static void ExposeField(RoadEditorPanel roadEditorPanel, string groupName, object target, string fieldName,  string label) {
+            var fieldInfo = GetField(target.GetType(), fieldName, throwOnError: true);
+            roadEditorPanel.CreateGenericField(groupName, fieldInfo, target);
+            SetLabel(roadEditorPanel, fieldInfo, label);
         }
 
         static IEnumerable<FieldInfo> GetAfterFields(this FieldInfo before, object target) {
