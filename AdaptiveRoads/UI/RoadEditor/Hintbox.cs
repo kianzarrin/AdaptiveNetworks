@@ -198,10 +198,10 @@ namespace AdaptiveRoads.UI.RoadEditor {
                             var field = propertySet.GetTargetField();
                             if (field?.Name == "m_speedLimit") {
                                 Hint1 = "1 game unit is 50 kph (31.06856mph)";
-                            //} else if (field.Name == nameof(NetInfo.m_terrainStartOffset)) {
-                            //    Hint1 = "terrain offset for start node";
-                            //} else if (field.Name == nameof(NetInfo.m_terrainEndOffset)) {
-                            //    Hint2 = "terrain offset for end node";
+                            } else if (field.Name == nameof(NetInfo.m_terrainStartOffset)) {
+                                Hint1 = "change terrain height along segment (used for start of tunnel entrance)";
+                            } else if (field.Name == nameof(NetInfo.m_terrainEndOffset)) {
+                                Hint1 = "change terrain height along segment (used for end of tunnel entrance)";
                             } else if (field != null) {
                                 var hints = field.GetHints()
                                     .Concat(field.DeclaringType.GetHints())
