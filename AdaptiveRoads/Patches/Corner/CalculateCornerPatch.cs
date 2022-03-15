@@ -27,14 +27,15 @@ namespace AdaptiveRoads.Patches.Corner {
         /// <param name="segmentID">segment to calculate corner</param>
         /// <param name="start">true for start node</param>
         /// <param name="leftSide">going away from the node</param>
-        public static void Postfix(bool __runOriginal,
+        public static void Postfix( bool __runOriginal,
             ushort segmentID, bool start, bool leftSide,
             ref Vector3 cornerPos, ref Vector3 cornerDirection) {
             Shift(
                 segmentID: segmentID, start: start, leftSide: leftSide,
                 cornerPos: ref cornerPos, cornerDirection: ref cornerDirection);
-            if (__runOriginal) {
-                // if NCR takes over the node, then don't sharpen it.
+            // __runOriginal does not work? reported bug to harmony author
+            // if (__runOriginal)
+            {
                 Sharpen(
                     segmentID: segmentID, start: start, leftSide: leftSide,
                     cornerPos: ref cornerPos, cornerDirection: ref cornerDirection);
