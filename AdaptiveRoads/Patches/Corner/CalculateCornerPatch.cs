@@ -11,9 +11,9 @@ namespace AdaptiveRoads.Patches.Corner {
     /// <summary>
     /// Shifting needs to happen as early as possible because it is more than just a visual fix. it determines the position of the cars.
     /// </summary>
+    //[UsedImplicitly]
+    //[InGamePatch]
     [PreloadPatch]
-    [InGamePatch]
-    [UsedImplicitly]
     [HarmonyPatch]
     static class CalculateCornerPatch {
         [UsedImplicitly]
@@ -29,16 +29,18 @@ namespace AdaptiveRoads.Patches.Corner {
         /// <param name="segmentID">segment to calculate corner</param>
         /// <param name="start">true for start node</param>
         /// <param name="leftSide">going away from the node</param>
-        public static void Postfix(
+        public static void Postfix(bool __originalMethod,
             ushort segmentID, bool start, bool leftSide,
             ref Vector3 cornerPos, ref Vector3 cornerDirection) {
             Shift(
                 segmentID: segmentID, start: start, leftSide: leftSide,
                 cornerPos: ref cornerPos, cornerDirection: ref cornerDirection);
-            Sharpen(
-                segmentID: segmentID, start: start, leftSide: leftSide,
-                cornerPos: ref cornerPos, cornerDirection: ref cornerDirection);
-
+            if (__originalMethod) {
+                // if NCR takes over the node, then don't sharpen it.
+                Sharpen(
+                    segmentID: segmentID, start: start, leftSide: leftSide,
+                    cornerPos: ref cornerPos, cornerDirection: ref cornerDirection);
+            }
         }
 
         public static void Shift(
