@@ -163,7 +163,21 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     }
                 } else if (target is NetInfo netInfo) {
                     Log.Debug($"{__instance.name}.CreateField.Postfix({groupName}, {field}, {target})"/* + Environment.StackTrace*/);
-                    if(ModSettings.ARMode) {
+                    if (field.Name == nameof(NetInfo.m_surfaceLevel)) {
+                        ExposeField(
+                            roadEditorPanel: __instance,
+                            groupName: groupName,
+                            target: target,
+                            fieldName: nameof(NetInfo.m_terrainStartOffset),
+                            label: "Terrain Start Offset");
+                        ExposeField(
+                            roadEditorPanel: __instance,
+                            groupName: groupName,
+                            target: target,
+                            fieldName: nameof(NetInfo.m_terrainEndOffset),
+                            label: "Terrain End Offset");
+                    }
+                    if (ModSettings.ARMode) {
                         ReplaceLabel(__instance, "Pavement Width", "Pavement Width Left");
                         var net = netInfo.GetOrCreateMetaData();
                         AssertNotNull(net, $"{netInfo}");
@@ -205,6 +219,31 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             } catch (Exception ex) {
                 ex.Log();
             }
+        }
+
+        /// <summary>
+        /// replaces the label of the UI component for the given field with new label.
+        /// </summary>
+        /// <param name="component">this component and all its children are searched</param>
+        public static void SetLabel(Component component, FieldInfo fieldInfo, string newLabel) {
+            try {
+                var c = component.GetComponentsInChildren<REPropertySet>()
+                    .FirstOrDefault(item => item.GetTargetField() == fieldInfo);
+                var label = c?.GetComponentInChildren<UILabel>();
+                if(label != null)
+                    label.text = newLabel;
+            } catch (Exception ex) {
+                ex.Log();
+            }
+        }
+
+        /// <summary>
+        /// exposes a Vanilla field that does not have the CustomizablePropertyAttribute.
+        /// </summary>
+        public static void ExposeField(RoadEditorPanel roadEditorPanel, string groupName, object target, string fieldName,  string label) {
+            var fieldInfo = GetField(target.GetType(), fieldName, throwOnError: true);
+            roadEditorPanel.CreateGenericField(groupName, fieldInfo, target);
+            SetLabel(roadEditorPanel, fieldInfo, label);
         }
 
         static IEnumerable<FieldInfo> GetAfterFields(this FieldInfo before, object target) {
