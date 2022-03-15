@@ -27,13 +27,13 @@ namespace AdaptiveRoads.Patches.Corner {
         /// <param name="segmentID">segment to calculate corner</param>
         /// <param name="start">true for start node</param>
         /// <param name="leftSide">going away from the node</param>
-        public static void Postfix(bool __originalMethod,
+        public static void Postfix(bool __runOriginal,
             ushort segmentID, bool start, bool leftSide,
             ref Vector3 cornerPos, ref Vector3 cornerDirection) {
             Shift(
                 segmentID: segmentID, start: start, leftSide: leftSide,
                 cornerPos: ref cornerPos, cornerDirection: ref cornerDirection);
-            if (__originalMethod) {
+            if (__runOriginal) {
                 // if NCR takes over the node, then don't sharpen it.
                 Sharpen(
                     segmentID: segmentID, start: start, leftSide: leftSide,
