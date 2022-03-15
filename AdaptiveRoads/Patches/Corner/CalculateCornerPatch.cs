@@ -11,8 +11,6 @@ namespace AdaptiveRoads.Patches.Corner {
     /// <summary>
     /// Shifting needs to happen as early as possible because it is more than just a visual fix. it determines the position of the cars.
     /// </summary>
-    //[UsedImplicitly]
-    //[InGamePatch]
     [PreloadPatch]
     [HarmonyPatch]
     static class CalculateCornerPatch {
