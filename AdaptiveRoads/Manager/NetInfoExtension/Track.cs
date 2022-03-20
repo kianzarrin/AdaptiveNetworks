@@ -254,9 +254,14 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Render Segments")]
             public bool RenderSegment = true;
 
-            [Hint("Renders on junction (not bend nodes)")]
+            [Hint("Renders on junction")]
             [CustomizableProperty("Render Junctions")]
             public bool RenderNode = true;
+
+            [Hint("Treats Bend node as segment. if off, bend nodes use junction renderer")]
+            [CustomizableProperty("Bend nodes use segment renderer")]
+            public bool TreatBendAsSegment = true;
+            internal bool TreatBendAsNode => !TreatBendAsSegment;
 
             [CustomizableProperty("Segment")]
             public VanillaSegmentInfoFlags VanillaSegmentFlags;
@@ -278,7 +283,7 @@ namespace AdaptiveRoads.Manager {
             public VanillaNodeInfoFlags VanillaNodeFlags;
 
             [CustomizableProperty("Node Extension")]
-            [Hint("Only checked on junctions (not bend nodes)")]
+            [Hint("Only checked on junctions ")] // (not bend nodes if bend nodes as treated as segments)
             public NodeInfoFlags NodeFlags;
 
             [CustomizableProperty("Tiling")]

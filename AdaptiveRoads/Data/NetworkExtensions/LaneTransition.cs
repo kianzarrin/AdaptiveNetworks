@@ -171,12 +171,12 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         private bool Check(NetInfoExtionsion.Track trackInfo) {
             if (!trackInfo.HasTrackLane(laneIndexA))
                 return false;
-            if (Node.m_flags.IsFlagSet(NetNode.Flags.Junction)) {
+            if (trackInfo.TreatBendAsNode || Node.m_flags.IsFlagSet(NetNode.Flags.Junction)) {
                 return trackInfo.CheckNodeFlags(
                     NodeExt.m_flags, Node.m_flags,
                     SegmentExtA.m_flags, SegmentA.m_flags,
                     LaneExtA.m_flags, LaneA.Flags());
-            } else { // bend
+            } else { // tread bend as segment:
                 return  trackInfo.CheckSegmentFlags(
                     SegmentExtA.m_flags, SegmentA.m_flags,
                     LaneExtA.m_flags, LaneA.Flags());
