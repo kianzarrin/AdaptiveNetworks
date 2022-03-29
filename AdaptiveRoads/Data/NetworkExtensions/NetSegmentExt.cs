@@ -100,13 +100,34 @@ namespace AdaptiveRoads.Manager {
                 return ref End;
         }
 
+        private void HandleInvalidSegment() {
+            ushort segmentId = this.SegmentID;
+
+            for (int laneIdnex = 0; laneIdnex < this.LaneIDs.Length; ++laneIdnex){
+                uint laneId = this.LaneIDs[laneIdnex];
+                ref NetLaneExt laneExt = ref laneId.ToLaneExt();
+                laneExt = default;
+                laneExt.LaneData.LaneID = laneId;
+            }
+
+            this.Start = default;
+            this.Start.Init(segmentId, true);
+            this.End = default;
+            this.End.Init(segmentId, false);
+
+            this = default;
+            this.Init(segmentId);
+        }
+
         public void UpdateAllFlags() {
             try {
                 NetInfoExt = null;
                 LaneIDs = null;
                 if(!NetUtil.IsSegmentValid(SegmentID)) {
-                    if(SegmentID.ToSegment().m_flags.IsFlagSet(NetSegment.Flags.Created))
+                    if (this.Has(NetSegment.Flags.Created))
                         Log.Debug("Skip updating invalid segment:" + SegmentID);
+                    else
+                        HandleInvalidSegment();
                     return;
                 }
                 NetInfoExt = Segment.Info?.GetMetaData();

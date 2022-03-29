@@ -85,12 +85,20 @@ namespace AdaptiveRoads.Manager {
         public static IJunctionRestrictionsManager JRMan =>
             TrafficManager.Constants.ManagerFactory.JunctionRestrictionsManager;
 
+        private void HandleInvalidNode() {
+            ushort nodeId = this.NodeID;
+            this = default;
+            Init(nodeId);
+        }
+
         public void UpdateFlags() {
             try {
                 Transitions = null;
                 if(!NetUtil.IsNodeValid(NodeID)) {
-                    if(NodeID.ToNode().m_flags.IsFlagSet(NetSegment.Flags.Created))
+                    if (NodeID.ToNode().m_flags.IsFlagSet(NetSegment.Flags.Created))
                         Log.Debug("Skip updating invalid node:" + NodeID);
+                    else
+                        HandleInvalidNode();
                     return;
                 }
                 m_flags = m_flags.SetFlags(Flags.HC_Mod, NetworkExtensionManager.Instance.HTC);
