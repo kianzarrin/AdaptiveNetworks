@@ -26,20 +26,25 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         static bool Merge => true;
         static bool InRoadEditor => NetInfoExtionsion.EditedNetInfo != null;
 
+        static bool Is(this FieldInfo field, Type baseType, string name) {
+            return field.DeclaringType.IsAssignableFrom(baseType) && field.Name == name;
+        }
+
         /// <summary>
         /// replace built-in fields
         /// </summary>
         [HarmonyPatch(typeof(RoadEditorPanel), "CreateGenericField")]
         public static bool Prefix(RoadEditorPanel __instance,
             ref string groupName, FieldInfo field, object target) {
+            //Log.Called(__instance, groupName, field, target);
             try {
-                if (field == typeof(NetInfo.Node).GetField(nameof(NetInfo.Node.m_directConnect)))
+                if (field.Is(typeof(NetInfo.Node), nameof(NetInfo.Node.m_directConnect)))
                     groupName = NetInfoExtionsion.Node.DC_GROUP_NAME;
-                else if (field == typeof(NetInfo.Node).GetField(nameof(NetInfo.Node.m_connectGroup)))
+                if (field.Is(typeof(NetInfo.Node), nameof(NetInfo.Node.m_connectGroup)))
                     groupName = NetInfoExtionsion.Node.DC_GROUP_NAME;
 
                 // handle special track case.
-                if(target is not IInfoExtended &&
+                if (target is not IInfoExtended &&
                     CreateGenericComponentExt0(
                         roadEditorPanel: __instance,
                         groupName: groupName,
@@ -58,7 +63,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
                 if (IsUIReplaced(field)) {
                     if (VanillaCanMerge(field))
-                        return false; // will be merged with AN dd later
+                        return false; // will be merged with AN drop-down later
                     var container = GetContainer(__instance, groupName);
                     var uidata = GetVanillaFlagUIData(field, target);
 
@@ -71,7 +76,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         flagData: uidata.FlagData);
                     return false;
                 }
-
 
                 return true;
             } catch (Exception ex) {
@@ -89,10 +93,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             try {
                 var cpt = field.GetAttribute<CustomizablePropertyAttribute>();
                 string groupName = cpt.group;
-                if(field == typeof(NetInfo.Node).GetField(nameof(NetInfo.Node.m_directConnect)))
-                    groupName = NetInfoExtionsion.Node.DC_GROUP_NAME;
-                else if(field == typeof(NetInfo.Node).GetField(nameof(NetInfo.Node.m_connectGroup)))
-                    groupName = NetInfoExtionsion.Node.DC_GROUP_NAME;
 
                 if (target is NetLaneProps.Prop prop) {
                     Log.Debug($"{__instance.name}.CreateField.Postfix({groupName},{field},{target})"/* + Environment.StackTrace*/);
@@ -365,7 +365,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             RoadEditorPanel roadEditorPanel, string groupName, object target, FieldInfo fieldInfo) {
             Assert(fieldInfo.FieldType == typeof(NetInfo.ConnectGroup), "field type is connect group");
             Assert(fieldInfo.Name == nameof(NetInfo.m_connectGroup));
-
+            Log.Called(roadEditorPanel, groupName, target, fieldInfo);
             object metadata = null;
             if (target is NetInfo.Node nodeInfo)
                 metadata = nodeInfo.GetOrCreateMetaData();

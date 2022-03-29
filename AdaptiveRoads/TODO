@@ -4,7 +4,8 @@ tracks:
 
 -----------------
 - group DC components.
-
+- automatically add buttons.
+- do not modify model selection panels from other editors.
 ----------------------------
 version 4:
     - export/import road xml.
