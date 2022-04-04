@@ -55,6 +55,9 @@ namespace AdaptiveRoads.Manager{
                   "use this in conjunction with TwoSegment node flag to put split arrow road marking")]
             SplitUnique = 1 << 17,
 
+            [Hint("lane has lane connections (car/track, outgoing/incoming/dead-end)")]
+            LaneConnections = 1 << 18,
+
             [CustomFlag] Custom0 = 1 << 24,
             [CustomFlag] Custom1 = 1 << 25,
             [CustomFlag] Custom2 = 1 << 26,
@@ -114,6 +117,7 @@ namespace AdaptiveRoads.Manager{
         static IManagerFactory TMPE => Constants.ManagerFactory;
         static IParkingRestrictionsManager PMan => TMPE?.ParkingRestrictionsManager;
         static IVehicleRestrictionsManager VRMan => TMPE?.VehicleRestrictionsManager;
+        static ILaneConnectionManager LCMan => TMPE?.LaneConnectionManager;
 
         // pass in segmentID for the sake of MOM lane problem.
         public void UpdateLane(LaneData lane, ushort segmentID) {
@@ -151,7 +155,7 @@ namespace AdaptiveRoads.Manager{
                 m_flags = m_flags.SetFlags(Flags.SplitUnique, lane.IsSplitsUnique());
                 m_flags = m_flags.SetFlags(Flags.MergeUnique, lane.IsMergesUnique());
                 m_flags = (m_flags & ~Flags.AllDirections) | lane.GetArrowsExt();
-
+                m_flags = m_flags.SetFlags(Flags.LaneConnections, lane.LaneID.HasAnyConnections());
                 SpeedLimit = lane.GetLaneSpeedLimit();
 
                 UpdateCorners();

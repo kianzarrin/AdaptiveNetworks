@@ -7,9 +7,13 @@ namespace AdaptiveRoads.Util {
     using ColossalFramework.Math;
     using UnityEngine;
     using AdaptiveRoads.Manager;
+    using TrafficManager;
 
     internal static class LaneHelpers {
-        static IRoutingManager rman => TrafficManager.Constants.ManagerFactory?.RoutingManager;
+        static IManagerFactory TMPE => Constants.ManagerFactory;
+        static ILaneConnectionManager LCMan => TMPE?.LaneConnectionManager;
+        static IRoutingManager RMan => TMPE?.RoutingManager;
+
         internal static bool HasProps(this NetInfo.Lane lane) =>
             (lane?.m_laneProps?.m_props?.Length ?? 0) > 0;
 
@@ -18,9 +22,9 @@ namespace AdaptiveRoads.Util {
         /// </summary>
         /// <returns>valid forward transition from the given lane end to other lanes</returns>
         internal static IEnumerable<LaneTransitionData> GetForwardTransisions(uint laneID, bool startNode) {
-            Assertion.NotNull(rman);
-            uint index = rman.GetLaneEndRoutingIndex(laneID, startNode);
-            var transisions = rman.LaneEndForwardRoutings[index].transitions
+            Assertion.NotNull(RMan);
+            uint index = RMan.GetLaneEndRoutingIndex(laneID, startNode);
+            var transisions = RMan.LaneEndForwardRoutings[index].transitions
                 ?.Where(t => t.type != LaneEndTransitionType.Invalid);
             return transisions ?? Enumerable.Empty<LaneTransitionData>();
         }
@@ -30,9 +34,9 @@ namespace AdaptiveRoads.Util {
         /// </summary>
         /// <returns>valid backward transitions from other lanes to the given lane end</returns>
         internal static IEnumerable<LaneTransitionData> GetBackwardTransisions(uint laneID, bool startNode) {
-            Assertion.NotNull(rman);
-            uint index = rman.GetLaneEndRoutingIndex(laneID, startNode);
-            var transisions = rman.LaneEndBackwardRoutings[index].transitions
+            Assertion.NotNull(RMan);
+            uint index = RMan.GetLaneEndRoutingIndex(laneID, startNode);
+            var transisions = RMan.LaneEndBackwardRoutings[index].transitions
                 ?.Where(t => t.type != LaneEndTransitionType.Invalid);
             return transisions ?? Enumerable.Empty<LaneTransitionData>();
         }
@@ -75,6 +79,15 @@ namespace AdaptiveRoads.Util {
             }
             return arrows;//.LogRet($"GetArrowsExt(lane:{lane.LaneID} segment:{lane.SegmentID})");
         }
+
+        internal static bool HasAnyConnections(this uint laneId) {
+            if (LCMan != null) {
+                return LCMan.HasConnections(laneId, true) || LCMan.HasConnections(laneId, false);
+            } else {
+                return false;
+            }
+        }
+
 
 
         public static float CalculateCurve(this Bezier3 bezier) {

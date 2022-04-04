@@ -61,6 +61,9 @@ namespace AdaptiveRoads.Manager {
             [Hint("all segments at the junction have same prefab")]
             SamePrefab = 1 << 13,
 
+            [Hint("node has lane connections (car/track, outgoing/incoming/dead-end)")]
+            LaneConnections = 1 << 14,
+
             [CustomFlag] Custom0 = 1 << 24,
             [CustomFlag] Custom1 = 1 << 25,
             [CustomFlag] Custom2 = 1 << 26,
