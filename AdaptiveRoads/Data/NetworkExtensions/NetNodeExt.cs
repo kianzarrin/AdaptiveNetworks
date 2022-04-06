@@ -64,6 +64,12 @@ namespace AdaptiveRoads.Manager {
             [Hint("node has lane connections (car/track, outgoing/incoming/dead-end)")]
             LaneConnections = 1 << 14,
 
+            EqualLaneCount = 1 << 15,
+
+            OneExtraIncommingLane = 1 << 16,
+
+            OneExtraOutgoingLane = 1 << 17,
+
             [CustomFlag] Custom0 = 1 << 24,
             [CustomFlag] Custom1 = 1 << 25,
             [CustomFlag] Custom2 = 1 << 26,
@@ -96,7 +102,7 @@ namespace AdaptiveRoads.Manager {
 
         public void UpdateFlags() {
             try {
-                Transitions = null;
+                transitions_ = null;
                 if(!NetUtil.IsNodeValid(NodeID)) {
                     if (NodeID.ToNode().m_flags.IsFlagSet(NetSegment.Flags.Created))
                         Log.Debug("Skip updating invalid node:" + NodeID);
@@ -127,6 +133,13 @@ namespace AdaptiveRoads.Manager {
 
                     m_flags = m_flags.SetFlags(Flags.SpeedChange, speedChange);
                     m_flags = m_flags.SetFlags(Flags.TwoSegments, twoSegments);
+
+                    {
+                        LaneHelpers.CountCarLanes(NodeID, out int incoming, out int outgoign);
+                        m_flags = m_flags.SetFlags(Flags.EqualLaneCount, incoming == outgoign);
+                        m_flags = m_flags.SetFlags(Flags.OneExtraIncommingLane, incoming + 1 == outgoign);
+                        m_flags = m_flags.SetFlags(Flags.OneExtraOutgoingLane, incoming == outgoign + 1);
+                    }
 
                     GetTrackConnections();
                     if(Log.VERBOSE) Log.Debug($"NetNodeExt.UpdateFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
@@ -162,7 +175,7 @@ namespace AdaptiveRoads.Manager {
          *    - transition is between two lanes.
          *    - routing is a set of transitions.
          */
-        public struct Connection {
+        private struct Connection {
             public uint LaneID1;
             public uint LaneID2;
             public override bool Equals(object obj) {
@@ -176,11 +189,12 @@ namespace AdaptiveRoads.Manager {
             }
             public override int GetHashCode() => (int)(LaneID1 ^ LaneID2);
         }
-        public static HashSet<Connection> tempConnections_ = new HashSet<Connection>();
-        public LaneTransition[] Transitions;
+
+        private static Dictionary<Connection, bool> tempConnections_ = new ();
+        private LaneTransition[] transitions_;
         public void GetTrackConnections() {
             try {
-                Transitions = null;
+                transitions_ = null;
                 ref var node = ref NodeID.ToNode();
                 if(!node.IsValid())
                     return;
@@ -207,7 +221,13 @@ namespace AdaptiveRoads.Manager {
                             bool hasTrackLane2 = infoExt2 != null && infoExt2.HasTrackLane(routing.laneIndex);
                             if(hasTrackLane || hasTrackLane2) {
                                 if(LanesConnect(laneID, routing.laneId)) {
-                                    tempConnections_.Add(new Connection { LaneID1 = laneID, LaneID2 = routing.laneId });
+                                    bool matching = routing.type != LaneEndTransitionType.Relaxed && routing.distance == 0;
+                                    var key = new Connection { LaneID1 = laneID, LaneID2 = routing.laneId };
+                                    if (tempConnections_.ContainsKey(key)){
+                                        tempConnections_[key] |= matching;
+                                    } else {
+                                        tempConnections_[key] = matching;
+                                    }
                                 }
                             }
                         }
@@ -218,10 +238,12 @@ namespace AdaptiveRoads.Manager {
                 var transitions = new LaneTransition[n];
                 int n2 = n >> 1; // n/2
                 int index = 0;
-                foreach(var connection in tempConnections_) {
-                    transitions[index++].Init(connection.LaneID1, connection.LaneID2, NodeID, index - n2); // also calculates
+                foreach(var pair in tempConnections_) {
+                    var connection = pair.Key;
+                    bool mathcing = pair.Value;
+                    transitions[index++].Init(connection.LaneID1, connection.LaneID2, NodeID, index - n2, mathcing); // also calculates
                 }
-                Transitions = transitions;
+                transitions_ = transitions;
                 if(Log.VERBOSE) Log.Debug($"NetNodeExt.GetTrackConnections() succeeded for node:{NodeID} transitions.len={transitions.Length}", false);
             } catch(Exception ex) {
                 throw ex;
@@ -271,9 +293,9 @@ namespace AdaptiveRoads.Manager {
                 return;
             if(!NodeID.ToNode().Info.CheckNetLayers(layerMask))
                 return;
-            if(Transitions.IsNullorEmpty())
+            if(transitions_.IsNullorEmpty())
                 return;
-            foreach(var transition in Transitions)
+            foreach(var transition in transitions_)
                 transition.RenderTrackInstance(cameraInfo);
         }
 
@@ -282,10 +304,10 @@ namespace AdaptiveRoads.Manager {
                 return false;
             if(!NodeID.ToNode().Info.CheckNetLayers(1 << layer))
                 return false;
-            if(Transitions.IsNullorEmpty())
+            if(transitions_.IsNullorEmpty())
                 return false;
             bool result = false;
-            foreach(var transtion in Transitions) {
+            foreach(var transtion in transitions_) {
                 result |= transtion.CalculateGroupData(layer, ref vertexCount, ref triangleCount, ref objectCount, ref vertexArrays);
             }
             return result;
@@ -295,9 +317,9 @@ namespace AdaptiveRoads.Manager {
                 return;
             if(!NodeID.ToNode().Info.CheckNetLayers(1 << layer))
                 return;
-            if(Transitions.IsNullorEmpty())
+            if(transitions_.IsNullorEmpty())
                 return;
-            foreach(var transtion in Transitions) {
+            foreach(var transtion in transitions_) {
                 transtion.PopulateGroupData(groupX, groupZ, layer: layer, ref vertexIndex, ref triangleIndex, groupPosition, data);
             }
         }

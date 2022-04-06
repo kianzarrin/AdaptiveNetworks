@@ -131,5 +131,33 @@ namespace AdaptiveRoads.Util {
                 }
             }
         }
+
+        // Incoming toward the lane
+        public static void CountCarLanes(ushort nodeId, out int incoming, out int outgoing) {
+            incoming = outgoing = 0;
+            ref NetNode node = ref nodeId.ToNode();
+            foreach (ushort segmentId in node.IterateSegments()) {
+                ref NetSegment segment = ref segmentId.ToSegment();
+                bool startNode = segment.IsStartNode(nodeId);
+                bool invert = segment.IsInvert();
+                bool forwardIsIncomming = startNode == invert;
+                foreach (LaneData lane in NetUtil.IterateSegmentLanes(segmentId)) {
+                    var dir = lane.LaneInfo.m_finalDirection;
+                    bool forward = (dir & NetInfo.Direction.Forward) != 0;
+                    bool backward = (dir & NetInfo.Direction.Backward) != 0;
+                    if (forwardIsIncomming) {
+                        if (forward)
+                            incoming++;
+                        if (backward)
+                            outgoing++;
+                    } else {
+                        if (forward)
+                            outgoing++;
+                        if (backward)
+                            incoming++;
+                    }
+                }
+            }
+        }
     }
 }

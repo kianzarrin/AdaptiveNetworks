@@ -1,7 +1,6 @@
 namespace AdaptiveRoads.Data.NetworkExtensions {
     using AdaptiveRoads.Manager;
     using ColossalFramework;
-    using ColossalFramework.Math;
     using KianCommons;
     using System;
     using UnityEngine;
@@ -12,8 +11,10 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         public uint LaneIDSource; // dominant
         public uint LaneIDTarget;
         public int AntiFlickerIndex;
+        public bool Matching;
 
-        public void Init(uint laneID1, uint laneID2, ushort nodeID, int antiFlickerIndex) {
+        public void Init(uint laneID1, uint laneID2, ushort nodeID, int antiFlickerIndex, bool matching) {
+            Matching = matching;
             AntiFlickerIndex = antiFlickerIndex;
             ushort segmentID1 = laneID1.ToLane().m_segment;
             ushort segmentID2 = laneID2.ToLane().m_segment;
@@ -171,11 +172,16 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         private bool Check(NetInfoExtionsion.Track trackInfo) {
             if (!trackInfo.HasTrackLane(laneIndexA))
                 return false;
-            if (trackInfo.TreatBendAsNode || Node.m_flags.IsFlagSet(NetNode.Flags.Junction)) {
-                return trackInfo.CheckNodeFlags(
-                    NodeExt.m_flags, Node.m_flags,
-                    SegmentExtA.m_flags, SegmentA.m_flags,
-                    LaneExtA.m_flags, LaneA.Flags());
+            bool junction = Node.m_flags.IsFlagSet(NetNode.Flags.Junction);
+            if (trackInfo.TreatBendAsNode || junction) {
+                if (trackInfo.RequireMatching & !Matching) {
+                    return false;
+                } else {
+                    return trackInfo.CheckNodeFlags(
+                        NodeExt.m_flags, Node.m_flags,
+                        SegmentExtA.m_flags, SegmentA.m_flags,
+                        LaneExtA.m_flags, LaneA.Flags());
+                }
             } else { // tread bend as segment:
                 return  trackInfo.CheckSegmentFlags(
                     SegmentExtA.m_flags, SegmentA.m_flags,
@@ -201,7 +207,6 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 }
             }
         }
-
 
         public bool CalculateGroupData(int layer, ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays) {
             if(Nodeless || InfoExtA == null || InfoExtA.TrackLaneCount == 0)

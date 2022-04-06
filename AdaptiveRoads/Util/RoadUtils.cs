@@ -141,7 +141,6 @@ namespace AdaptiveRoads.Util {
                     NetManager.instance.UpdateSegment(segmentID);
                 }
             }
-
         }
     }
 }
