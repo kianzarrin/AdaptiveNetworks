@@ -64,10 +64,13 @@ namespace AdaptiveRoads.Manager {
             [Hint("node has lane connections (car/track, outgoing/incoming/dead-end)")]
             LaneConnections = 1 << 14,
 
+            [Hint("number of incoming lanes incoming toward the node is equal to outgoing lanes")]
             EqualLaneCount = 1 << 15,
 
+            [Hint("number of incoming lanes incoming toward the node is exactly one more than outgoing lanes")]
             OneExtraIncommingLane = 1 << 16,
 
+            [Hint("number of incoming lanes incoming toward the node is one less than outgoing lanes")]
             OneExtraOutgoingLane = 1 << 17,
 
             [CustomFlag] Custom0 = 1 << 24,
@@ -135,7 +138,7 @@ namespace AdaptiveRoads.Manager {
                     m_flags = m_flags.SetFlags(Flags.TwoSegments, twoSegments);
 
                     {
-                        LaneHelpers.CountCarLanes(NodeID, out int incoming, out int outgoign);
+                        LaneHelpers.CountNodeLanes(NodeID, out int incoming, out int outgoign);
                         m_flags = m_flags.SetFlags(Flags.EqualLaneCount, incoming == outgoign);
                         m_flags = m_flags.SetFlags(Flags.OneExtraIncommingLane, incoming + 1 == outgoign);
                         m_flags = m_flags.SetFlags(Flags.OneExtraOutgoingLane, incoming == outgoign + 1);
