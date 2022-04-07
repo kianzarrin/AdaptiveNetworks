@@ -101,11 +101,13 @@ namespace AdaptiveRoads.Manager {
         private void HandleInvalidSegment() {
             ushort segmentId = this.SegmentID;
 
-            for (int laneIdnex = 0; laneIdnex < this.LaneIDs.Length; ++laneIdnex){
-                uint laneId = this.LaneIDs[laneIdnex];
-                ref NetLaneExt laneExt = ref laneId.ToLaneExt();
-                laneExt = default;
-                laneExt.LaneData.LaneID = laneId;
+            if (LaneIDs != null) {
+                for (int laneIdnex = 0; laneIdnex < this.LaneIDs.Length; ++laneIdnex) {
+                    uint laneId = this.LaneIDs[laneIdnex];
+                    ref NetLaneExt laneExt = ref laneId.ToLaneExt();
+                    laneExt = default;
+                    laneExt.Init(laneId);
+                }
             }
 
             this.Start = default;
@@ -119,15 +121,16 @@ namespace AdaptiveRoads.Manager {
 
         public void UpdateAllFlags() {
             try {
-                NetInfoExt = null;
-                LaneIDs = null;
                 if(!NetUtil.IsSegmentValid(SegmentID)) {
                     if (this.Has(NetSegment.Flags.Created))
                         Log.Debug("Skip updating invalid segment:" + SegmentID);
                     else
                         HandleInvalidSegment();
+                    NetInfoExt = null;
+                    LaneIDs = null;
                     return;
                 }
+
                 NetInfoExt = Segment.Info?.GetMetaData();
                 LaneIDs = new LaneIDIterator(SegmentID).ToArray();
 
