@@ -142,7 +142,7 @@ namespace AdaptiveRoads.Manager {
             m_flags.SetMaskedFlags((Flags)(s.ReadInt32() << CUSTOM_FLAG_SHIFT), Flags.CustomsMask);
 
         public void Init(ushort segmentID, bool startNode) {
-            m_flags = Flags.None;
+            this = default;
             SegmentID = segmentID;
             StartNode = startNode;
         }

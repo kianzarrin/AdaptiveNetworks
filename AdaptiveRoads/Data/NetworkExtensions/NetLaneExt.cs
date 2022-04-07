@@ -105,10 +105,8 @@ namespace AdaptiveRoads.Manager{
             m_flags.SetMaskedFlags((Flags)(s.ReadInt32() << CUSTOM_FLAG_SHIFT), Flags.CustomsMask);
 
         public void Init(uint laneID) {
+            this = default;
             LaneData.LaneID = laneID;
-            LaneData.LaneIndex = 0;
-            LaneData.LaneInfo = null;
-            m_flags = Flags.None;
         }
 
 

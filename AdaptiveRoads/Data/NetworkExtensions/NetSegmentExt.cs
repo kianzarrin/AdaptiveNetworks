@@ -39,6 +39,7 @@ namespace AdaptiveRoads.Manager {
             m_flags.SetMaskedFlags((Flags)(s.ReadInt32() << CUSTOM_FLAG_SHIFT), Flags.CustomsMask);
 
         public void Init(ushort segmentID) {
+            this = default;
             SegmentID = segmentID;
         }
 
@@ -99,24 +100,17 @@ namespace AdaptiveRoads.Manager {
         }
 
         private void HandleInvalidSegment() {
-            ushort segmentId = this.SegmentID;
-
-            if (LaneIDs != null) {
+            if (this.LaneIDs != null) {
                 for (int laneIdnex = 0; laneIdnex < this.LaneIDs.Length; ++laneIdnex) {
                     uint laneId = this.LaneIDs[laneIdnex];
                     ref NetLaneExt laneExt = ref laneId.ToLaneExt();
-                    laneExt = default;
                     laneExt.Init(laneId);
                 }
             }
 
-            this.Start = default;
-            this.Start.Init(segmentId, true);
-            this.End = default;
-            this.End.Init(segmentId, false);
-
-            this = default;
-            this.Init(segmentId);
+            this.Start.Init(SegmentID, true);
+            this.End.Init(SegmentID, false);
+            this.Init(SegmentID);
         }
 
         public void UpdateAllFlags() {
@@ -126,8 +120,6 @@ namespace AdaptiveRoads.Manager {
                         Log.Debug("Skip updating invalid segment:" + SegmentID);
                     else
                         HandleInvalidSegment();
-                    NetInfoExt = null;
-                    LaneIDs = null;
                     return;
                 }
 

@@ -30,7 +30,10 @@ namespace AdaptiveRoads.Manager {
         public void Deserialize(SimpleDataSerializer s) => m_flags =
             m_flags.SetMaskedFlags((Flags)(s.ReadInt32() << CUSTOM_FLAG_SHIFT), Flags.CustomsMask);
 
-        public void Init(ushort nodeID) => NodeID = nodeID;
+        public void Init(ushort nodeID) {
+            this = default;
+            NodeID = nodeID;
+        }
 
         [Flags]
         public enum Flags : Int64 {
@@ -94,11 +97,7 @@ namespace AdaptiveRoads.Manager {
             ExpressionMask = Expression0 | Expression1 | Expression2 | Expression3 | Expression4 | Expression5 | Expression6 | Expression7,
         }
 
-        private void HandleInvalidNode() {
-            ushort nodeId = this.NodeID;
-            this = default;
-            Init(nodeId);
-        }
+        private void HandleInvalidNode() => Init(NodeID);
 
         public void UpdateFlags() {
             try {
