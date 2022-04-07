@@ -220,7 +220,7 @@ namespace AdaptiveRoads.Manager {
                         var routings = TMPEHelpers.GetForwardRoutings(laneID, NodeID);
                         if(routings == null) continue;
                         if(IsNodeless(segmentID: segmentID, nodeID: NodeID)) continue;
-                        Log.Debug($"routigns for lane:{laneID} are " + routings.ToSTR());
+                        //Log.Debug($"routigns for lane:{laneID} are " + routings.ToSTR());
                         foreach(LaneTransitionData routing in routings) {
                             if(routing.type == LaneEndTransitionType.Invalid /*|| routing.type == LaneEndTransitionType.Relaxed*/)
                                 continue;
@@ -232,7 +232,7 @@ namespace AdaptiveRoads.Manager {
                             if(hasTrackLane || hasTrackLane2) {
                                 if(LanesConnect(laneID, routing.laneId)) {
                                     bool matching = routing.type != LaneEndTransitionType.Relaxed && routing.distance == 0;
-                                    Log.Debug($"{laneID}->{routing.laneId} match={matching} routing:{routing}");
+                                    //Log.Debug($"{laneID}->{routing.laneId} match={matching} routing:{routing}");
                                     var key = new Connection { LaneID1 = laneID, LaneID2 = routing.laneId };
                                     if (tempConnections_.ContainsKey(key)){
                                         tempConnections_[key] |= matching;
