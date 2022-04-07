@@ -13,8 +13,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         public int AntiFlickerIndex;
         public bool Matching;
 
-        public void Init(uint laneID1, uint laneID2, ushort nodeID, int antiFlickerIndex, bool matching) {
-            Matching = matching;
+        public void Init(uint laneID1, uint laneID2, ushort nodeID, int antiFlickerIndex) {
             AntiFlickerIndex = antiFlickerIndex;
             ushort segmentID1 = laneID1.ToLane().m_segment;
             ushort segmentID2 = laneID2.ToLane().m_segment;

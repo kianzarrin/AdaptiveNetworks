@@ -199,7 +199,7 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
-        private static Dictionary<Connection, bool> tempConnections_ = new (Connection.Comparer);
+        private static HashSet<Connection> tempConnections_ = new (Connection.Comparer);
         private LaneTransition[] transitions_;
         public void GetTrackConnections() {
             try {
@@ -231,14 +231,8 @@ namespace AdaptiveRoads.Manager {
                             bool hasTrackLane2 = infoExt2 != null && infoExt2.HasTrackLane(routing.laneIndex);
                             if(hasTrackLane || hasTrackLane2) {
                                 if(LanesConnect(laneID, routing.laneId)) {
-                                    bool matching = routing.type != LaneEndTransitionType.Relaxed && routing.distance == 0;
-                                    //Log.Debug($"{laneID}->{routing.laneId} match={matching} routing:{routing}");
                                     var key = new Connection { LaneID1 = laneID, LaneID2 = routing.laneId };
-                                    if (tempConnections_.ContainsKey(key)){
-                                        tempConnections_[key] |= matching;
-                                    } else {
-                                        tempConnections_[key] = matching;
-                                    }
+                                    tempConnections_.Add(key);
                                 }
                             }
                         }
@@ -249,10 +243,8 @@ namespace AdaptiveRoads.Manager {
                 var transitions = new LaneTransition[n];
                 int n2 = n >> 1; // n/2
                 int index = 0;
-                foreach(var pair in tempConnections_) {
-                    var connection = pair.Key;
-                    bool mathcing = pair.Value;
-                    transitions[index++].Init(connection.LaneID1, connection.LaneID2, NodeID, index - n2, mathcing); // also calculates
+                foreach(var connection in tempConnections_) {
+                    transitions[index++].Init(connection.LaneID1, connection.LaneID2, NodeID, index - n2); // also calculates
                 }
                 transitions_ = transitions;
                 if(Log.VERBOSE) Log.Debug($"NetNodeExt.GetTrackConnections() succeeded for node:{NodeID} transitions.len={transitions.Length}", false);
