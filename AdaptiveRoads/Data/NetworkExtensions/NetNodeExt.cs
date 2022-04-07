@@ -23,7 +23,6 @@ namespace AdaptiveRoads.Manager {
         public ushort[] SegmentIDs => new NodeSegmentIterator(NodeID).ToArray();
         #endregion
 
-
         const int CUSTOM_FLAG_SHIFT = 24;
         public bool IsEmpty => (m_flags & Flags.CustomsMask) == Flags.None;
         public void Serialize(SimpleDataSerializer s) => s.WriteInt32(
@@ -178,22 +177,29 @@ namespace AdaptiveRoads.Manager {
          *    - transition is between two lanes.
          *    - routing is a set of transitions.
          */
-        private struct Connection {
+        private struct Connection : IEquatable<Connection> {
             public uint LaneID1;
             public uint LaneID2;
-            public override bool Equals(object obj) {
-                if(obj is Connection rhs) {
-                    if(LaneID1 == rhs.LaneID1 && LaneID2 == rhs.LaneID2)
-                        return true;
-                    if(LaneID1 == rhs.LaneID2 && LaneID2 == rhs.LaneID1)
-                        return true;
-                }
-                return false;
-            }
             public override int GetHashCode() => (int)(LaneID1 ^ LaneID2);
+            public override bool Equals(object obj) => obj is Connection rhs && this.Equals(rhs);
+            public bool Equals(Connection rhs) {
+                if (LaneID1 == rhs.LaneID1 && LaneID2 == rhs.LaneID2)
+                    return true;
+                else if (LaneID1 == rhs.LaneID2 && LaneID2 == rhs.LaneID1)
+                    return true;
+                else
+                    return false;
+            }
+
+            public static IEqualityComparer<Connection> Comparer { get; } = new EqualityComparer();
+
+            private sealed class EqualityComparer : IEqualityComparer<Connection> {
+                public bool Equals(Connection x, Connection y) => x.Equals(y);
+                public int GetHashCode(Connection obj) => obj.GetHashCode();
+            }
         }
 
-        private static Dictionary<Connection, bool> tempConnections_ = new ();
+        private static Dictionary<Connection, bool> tempConnections_ = new (Connection.Comparer);
         private LaneTransition[] transitions_;
         public void GetTrackConnections() {
             try {
@@ -214,6 +220,7 @@ namespace AdaptiveRoads.Manager {
                         var routings = TMPEHelpers.GetForwardRoutings(laneID, NodeID);
                         if(routings == null) continue;
                         if(IsNodeless(segmentID: segmentID, nodeID: NodeID)) continue;
+                        Log.Debug($"routigns for lane:{laneID} are " + routings.ToSTR());
                         foreach(LaneTransitionData routing in routings) {
                             if(routing.type == LaneEndTransitionType.Invalid /*|| routing.type == LaneEndTransitionType.Relaxed*/)
                                 continue;
@@ -225,6 +232,7 @@ namespace AdaptiveRoads.Manager {
                             if(hasTrackLane || hasTrackLane2) {
                                 if(LanesConnect(laneID, routing.laneId)) {
                                     bool matching = routing.type != LaneEndTransitionType.Relaxed && routing.distance == 0;
+                                    Log.Debug($"{laneID}->{routing.laneId} match={matching} routing:{routing}");
                                     var key = new Connection { LaneID1 = laneID, LaneID2 = routing.laneId };
                                     if (tempConnections_.ContainsKey(key)){
                                         tempConnections_[key] |= matching;

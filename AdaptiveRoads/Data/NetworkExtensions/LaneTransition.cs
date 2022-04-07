@@ -174,14 +174,11 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 return false;
             bool junction = Node.m_flags.IsFlagSet(NetNode.Flags.Junction);
             if (trackInfo.TreatBendAsNode || junction) {
-                if (trackInfo.RequireMatching & !Matching) {
-                    return false;
-                } else {
-                    return trackInfo.CheckNodeFlags(
-                        NodeExt.m_flags, Node.m_flags,
-                        SegmentExtA.m_flags, SegmentA.m_flags,
-                        LaneExtA.m_flags, LaneA.Flags());
-                }
+                // if (trackInfo.RequireMatching & !Matching) return false;
+                return trackInfo.CheckNodeFlags(
+                    NodeExt.m_flags, Node.m_flags,
+                    SegmentExtA.m_flags, SegmentA.m_flags,
+                    LaneExtA.m_flags, LaneA.Flags());
             } else { // tread bend as segment:
                 return  trackInfo.CheckSegmentFlags(
                     SegmentExtA.m_flags, SegmentA.m_flags,

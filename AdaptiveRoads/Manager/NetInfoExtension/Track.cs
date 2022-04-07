@@ -263,10 +263,10 @@ namespace AdaptiveRoads.Manager {
             public bool TreatBendAsSegment = true;
             internal bool TreatBendAsNode => !TreatBendAsSegment;
 
-            [Hint("Renders only prefered lane transitions - not lane changes. \n" +
-                "TMPE calculates transition cost. For cars that go straight transition cost is zero.")]
-            [CustomizableProperty("Prefered Transition Only")]
-            public bool RequireMatching = false;
+            //[Hint("Renders only preferred lane transitions - not lane changes. \n" +
+            //    "TMPE calculates transition cost. For cars that go straight transition cost is zero.")]
+            //[CustomizableProperty("Preferred Transition Only")]
+            //public bool RequireMatching = false;
 
             [CustomizableProperty("Segment")]
             public VanillaSegmentInfoFlags VanillaSegmentFlags;

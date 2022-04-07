@@ -137,8 +137,8 @@ namespace AdaptiveRoads.Util {
                 ref NetSegment segment = ref segmentId.ToSegment();
                 bool startNode = segment.IsStartNode(nodeId);
                 bool invert = segment.IsInvert();
-                bool forwardIsIncomming = startNode == invert;
-                Log.Debug($"forwardIsIncomming={forwardIsIncomming} for segment:{segmentId} node:{nodeId}");
+                bool forwardIsIncomming = startNode != invert;
+                //Log.Debug($"forwardIsIncomming={forwardIsIncomming} for segment:{segmentId} node:{nodeId}");
                 foreach (LaneData lane in new LaneDataIterator(segmentId)) {
                     var dir = lane.LaneInfo.m_finalDirection;
                     bool forward = (dir & NetInfo.Direction.Forward) != 0;
