@@ -185,8 +185,15 @@ namespace AdaptiveRoads.Manager {
             private void FillCustomLaneFlagNames0() {
                 try {
                     //Log.Called();
-                    CustomLaneFlagNames0 = null;
-                    if (CustomLaneFlagNames.IsNullorEmpty()) return;
+                    if (!CustomLaneFlagNames0.IsNullorEmpty()) {
+                        // already filled.
+                        return;
+                    }
+                    if (CustomLaneFlagNames.IsNullorEmpty()) {
+                        // no custom lane flag names exist
+                        CustomLaneFlagNames0 = null;
+                        return;
+                    }
                     CustomLaneFlagNames0 = new Dictionary<NetInfo.Lane, Dictionary<NetLaneExt.Flags, string>>();
                     for (int laneIndex = 0; laneIndex < CustomLaneFlagNames.Length; ++laneIndex) {
                         var lane = Template.m_lanes[laneIndex];
@@ -324,8 +331,8 @@ namespace AdaptiveRoads.Manager {
             void RenameCustomFlag(int laneIndex, NetLaneExt.Flags flag, string name) {
                 try {
                     Assertion.NotNull(Template, "Template");
-                    var lane = Template.m_lanes[laneIndex];
-                    Dictionary<NetLaneExt.Flags, string> dict = null;
+                    NetInfo.Lane lane = Template.m_lanes[laneIndex];
+                    Dictionary<NetLaneExt.Flags, string> dict;
 
                     CustomLaneFlagNames0 ??= new Dictionary<NetInfo.Lane, Dictionary<NetLaneExt.Flags, string>>();
                     if(!CustomLaneFlagNames0.TryGetValue(lane, out dict)) {
