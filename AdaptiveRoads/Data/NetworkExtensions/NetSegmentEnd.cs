@@ -15,6 +15,7 @@ namespace AdaptiveRoads.Manager {
     using UnityEngine;
     using Log = KianCommons.Log;
     using AdaptiveRoads.CustomScript;
+    using static AdaptiveRoads.Util.Shortcuts;
 
     public struct NetSegmentEnd {
         #region shortcuts for dummies
@@ -146,16 +147,11 @@ namespace AdaptiveRoads.Manager {
             StartNode = startNode;
         }
 
-
-        public static IJunctionRestrictionsManager JRMan => Constants.ManagerFactory?.JunctionRestrictionsManager;
-        public static ITrafficPriorityManager PMan => Constants.ManagerFactory?.TrafficPriorityManager;
-        public static ILaneArrowManager LaneArrowMan => Constants.ManagerFactory?.LaneArrowManager;
-
         public void UpdateFlags() {
             var flags = m_flags;
 
-            if(PMan != null) {
-                PriorityType p = PMan.GetPrioritySign(SegmentID, StartNode);
+            if(ParkingMan != null) {
+                PriorityType p = PrioMan.GetPrioritySign(SegmentID, StartNode);
                 flags = flags.SetFlags(Flags.Yield, p == PriorityType.Yield);
                 flags = flags.SetFlags(Flags.Stop, p == PriorityType.Stop);
                 flags = flags.SetFlags(Flags.PriorityMain, p == PriorityType.Main);

@@ -1,7 +1,6 @@
 namespace AdaptiveRoads.Manager {
     using AdaptiveRoads.CustomScript;
     using AdaptiveRoads.Data.NetworkExtensions;
-
     using AdaptiveRoads.Util;
     using ColossalFramework;
     using ColossalFramework.Math;
@@ -11,10 +10,9 @@ namespace AdaptiveRoads.Manager {
     using System.Linq;
     using UnityEngine;
     using Log = KianCommons.Log;
-    using TrafficManager.API.Manager;
+    using static AdaptiveRoads.Util.Shortcuts;
 
     public struct NetSegmentExt {
-        static ISpeedLimitManager SpeedLimitMan => TrafficManager.Constants.ManagerFactory?.SpeedLimitManager;
 
         public ushort SegmentID;
         public float Curve;
@@ -148,8 +146,8 @@ namespace AdaptiveRoads.Manager {
                         else
                             parkingRight = true;
                     }
-                    if(lane.LaneInfo.m_laneType.IsFlagSet(SpeedLimitMan.LaneTypes) &&
-                       lane.LaneInfo.m_vehicleType.IsFlagSet(SpeedLimitMan.VehicleTypes)) {
+                    if(lane.LaneInfo.m_laneType.IsFlagSet(SLMan.LaneTypes) &&
+                       lane.LaneInfo.m_vehicleType.IsFlagSet(SLMan.VehicleTypes)) {
                         if(speed0 == -1)
                             speed0 = laneExt.SpeedLimit;
                         else

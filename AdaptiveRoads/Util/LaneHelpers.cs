@@ -8,12 +8,9 @@ namespace AdaptiveRoads.Util {
     using UnityEngine;
     using AdaptiveRoads.Manager;
     using TrafficManager;
+    using static AdaptiveRoads.Util.Shortcuts;
 
     internal static class LaneHelpers {
-        static IManagerFactory TMPE => Constants.ManagerFactory;
-        static ILaneConnectionManager LCMan => TMPE?.LaneConnectionManager;
-        static IRoutingManager RMan => TMPE?.RoutingManager;
-
         internal static bool HasProps(this NetInfo.Lane lane) =>
             (lane?.m_laneProps?.m_props?.Length ?? 0) > 0;
 
@@ -141,6 +138,7 @@ namespace AdaptiveRoads.Util {
                 bool startNode = segment.IsStartNode(nodeId);
                 bool invert = segment.IsInvert();
                 bool forwardIsIncomming = startNode == invert;
+                Log.Debug($"forwardIsIncomming={forwardIsIncomming} for segment:{segmentId} node:{nodeId}");
                 foreach (LaneData lane in new LaneDataIterator(segmentId)) {
                     var dir = lane.LaneInfo.m_finalDirection;
                     bool forward = (dir & NetInfo.Direction.Forward) != 0;

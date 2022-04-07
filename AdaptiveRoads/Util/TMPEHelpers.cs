@@ -4,11 +4,9 @@ namespace AdaptiveRoads.Util {
     using System.Linq;
     using TrafficManager.API.Manager;
     using UnityEngine;
+    using static AdaptiveRoads.Util.Shortcuts;
 
     public static class TMPEHelpers {
-        static IManagerFactory TMPE => TrafficManager.Constants.ManagerFactory;
-        static ISpeedLimitManager SLMan => TMPE?.SpeedLimitManager;
-        static IRoutingManager RMan => TMPE?.RoutingManager;
         public static float GetLaneSpeedLimit(this LaneData lane) {
             if(SLMan != null)
                 return SLMan.GetGameSpeedLimit(lane.LaneID, lane.LaneInfo);

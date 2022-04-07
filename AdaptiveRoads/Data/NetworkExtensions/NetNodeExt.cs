@@ -13,6 +13,7 @@ namespace AdaptiveRoads.Manager {
     using TrafficManager.API.Traffic.Enums;
     using UnityEngine;
     using Log = KianCommons.Log;
+    using static AdaptiveRoads.Util.Shortcuts;
 
     public struct NetNodeExt {
         public ushort NodeID;
@@ -94,9 +95,6 @@ namespace AdaptiveRoads.Manager {
             ExpressionMask = Expression0 | Expression1 | Expression2 | Expression3 | Expression4 | Expression5 | Expression6 | Expression7,
         }
 
-        public static IJunctionRestrictionsManager JRMan =>
-            TrafficManager.Constants.ManagerFactory.JunctionRestrictionsManager;
-
         private void HandleInvalidNode() {
             ushort nodeId = this.NodeID;
             this = default;
@@ -136,13 +134,15 @@ namespace AdaptiveRoads.Manager {
 
                     m_flags = m_flags.SetFlags(Flags.SpeedChange, speedChange);
                     m_flags = m_flags.SetFlags(Flags.TwoSegments, twoSegments);
+                    m_flags = m_flags.SetFlags(Flags.LaneConnections, LCMan.HasNodeConnections(NodeID));
 
                     {
-                        LaneHelpers.CountNodeLanes(NodeID, out int incoming, out int outgoign);
-                        m_flags = m_flags.SetFlags(Flags.EqualLaneCount, incoming == outgoign);
-                        m_flags = m_flags.SetFlags(Flags.OneExtraIncommingLane, incoming + 1 == outgoign);
-                        m_flags = m_flags.SetFlags(Flags.OneExtraOutgoingLane, incoming == outgoign + 1);
+                        LaneHelpers.CountNodeLanes(NodeID, out int incoming, out int outgoing);
+                        m_flags = m_flags.SetFlags(Flags.EqualLaneCount, incoming == outgoing);
+                        m_flags = m_flags.SetFlags(Flags.OneExtraIncommingLane, incoming + 1 == outgoing);
+                        m_flags = m_flags.SetFlags(Flags.OneExtraOutgoingLane, incoming == outgoing + 1);
                     }
+
 
                     GetTrackConnections();
                     if(Log.VERBOSE) Log.Debug($"NetNodeExt.UpdateFlags() succeeded for {this}" /*Environment.StackTrace*/, false);

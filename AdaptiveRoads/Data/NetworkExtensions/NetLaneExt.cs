@@ -1,18 +1,15 @@
 namespace AdaptiveRoads.Manager{
     using AdaptiveRoads.Data.NetworkExtensions;
-    using AdaptiveRoads.Data;
     using AdaptiveRoads.Util;
     using ColossalFramework;
-    using ColossalFramework.Math;
     using KianCommons;
     using KianCommons.Serialization;
     using System;
-    using TrafficManager;
-    using TrafficManager.API.Manager;
     using TrafficManager.API.Traffic.Enums;
     using UnityEngine;
     using Log = KianCommons.Log;
     using AdaptiveRoads.CustomScript;
+    using static AdaptiveRoads.Util.Shortcuts;
 
     public struct NetLaneExt {
         [Flags]
@@ -114,10 +111,6 @@ namespace AdaptiveRoads.Manager{
             m_flags = Flags.None;
         }
 
-        static IManagerFactory TMPE => Constants.ManagerFactory;
-        static IParkingRestrictionsManager PMan => TMPE?.ParkingRestrictionsManager;
-        static IVehicleRestrictionsManager VRMan => TMPE?.VehicleRestrictionsManager;
-        static ILaneConnectionManager LCMan => TMPE?.LaneConnectionManager;
 
         // pass in segmentID for the sake of MOM lane problem.
         public void UpdateLane(LaneData lane, ushort segmentID) {
@@ -130,8 +123,8 @@ namespace AdaptiveRoads.Manager{
                 LaneData = lane;
 
                 bool parkingAllowed = LaneData.LaneInfo.m_laneType == NetInfo.LaneType.Parking;
-                if(PMan != null)
-                    parkingAllowed &= PMan.IsParkingAllowed(LaneData.SegmentID, LaneData.LaneInfo.m_finalDirection);
+                if(ParkingMan != null)
+                    parkingAllowed &= ParkingMan.IsParkingAllowed(LaneData.SegmentID, LaneData.LaneInfo.m_finalDirection);
                 m_flags = m_flags.SetFlags(Flags.ParkingAllowed, parkingAllowed);
 
                 ExtVehicleType mask = 0;
