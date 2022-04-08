@@ -143,11 +143,33 @@ namespace AdaptiveRoads.Manager {
 
 
                     GetTrackConnections();
-                    if(Log.VERBOSE) Log.Debug($"NetNodeExt.UpdateFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
+                    ShiftPilar();
+                    if (Log.VERBOSE) Log.Debug($"NetNodeExt.UpdateFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
                 }
             } catch(Exception ex) {
                 ex.Log("node=" + this);
             }
+        }
+
+        public void ShiftPilar() {
+            NetInfo info = VanillaNode.Info;
+            ushort buildingId = VanillaNode.m_building;
+            ref var building = ref BuildingManager.instance.m_buildings.m_buffer[VanillaNode.m_building];
+            bool isValid = info != null && buildingId != 0 &&
+                (building.m_flags & (Building.Flags.Created | Building.Flags.Deleted)) == Building.Flags.Created;
+            if (!isValid || !info.IsAdaptive())
+                return;
+            info.m_netAI.GetNodeBuilding(NodeID, ref VanillaNode, out BuildingInfo buildingInfo, out float heightOffset);
+            Vector3 center = default;
+            int counter = 0;
+            foreach(var segmentId in SegmentIDs) {
+                ref NetSegmentEnd segmentEnd = ref segmentId.ToSegmentExt().GetEnd(NodeID);
+                center += segmentEnd.Corner.Left.Position + segmentEnd.Corner.Right.Position;
+                counter += 2;
+            }
+            center /= counter;
+            center.y += heightOffset;
+            building.m_position = center;
         }
 
         public void UpdateScriptedFlags() {

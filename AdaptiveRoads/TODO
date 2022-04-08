@@ -1,3 +1,8 @@
+- check the gap
+- lane/track connect groups (might take time)
+- patch TMPE for better highway entrance.
+- apply shift in render thread when placing the road.
+
 tracks:
     - why do I need to refresh roads 2 times on load?
     - why source segment for lane transition is different for forward/backward lane.
