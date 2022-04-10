@@ -3,13 +3,17 @@ namespace AdaptiveRoads.Util {
 
     public static class CornerUtil {
         /// <summary>
-        /// all directions going away fromt he junction
+        /// all directions going away from the junction
         /// </summary>
         public static void CalculateTransformVectors(Vector3 dir, bool left, out Vector3 outward, out Vector3 forward) {
             Vector3 rightward = Vector3.Cross(Vector3.up, dir).normalized; // going away from the junction
             Vector3 leftward = -rightward;
             forward = new Vector3(dir.x, 0, dir.z).normalized; // going away from the junction
             outward = left ? leftward : rightward;
+        }
+
+        public static Vector3 CalculateRighwardNormal(Vector3 dir) {
+            return Vector3.Cross(Vector3.up, dir).normalized; // going away from the junction
         }
 
         /// <summary>

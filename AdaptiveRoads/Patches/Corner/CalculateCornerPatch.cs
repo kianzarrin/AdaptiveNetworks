@@ -50,11 +50,11 @@ namespace AdaptiveRoads.Patches.Corner {
             float shift = API.GetShift(segmentId: segmentID, nodeId: nodeId);
             if (shift == 0) return;
 
-            CornerUtil.CalculateTransformVectors(cornerDirection, leftSide, outward: out var outward, out var _);
+            var righward = CornerUtil.CalculateRighwardNormal(cornerDirection);
             bool headNode = segment.GetHeadNode() == nodeId;
-            if (headNode ^ leftSide)
+            if (headNode)
                 shift = -shift;
-            cornerPos += shift * outward;
+            cornerPos += shift * righward;
         }
 
         /// <param name="segmentID">segment to calculate corner</param>
