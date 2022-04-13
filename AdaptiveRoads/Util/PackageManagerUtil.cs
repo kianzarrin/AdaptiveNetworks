@@ -54,7 +54,9 @@ namespace AdaptiveRoads.Util {
                         package.packageMainAsset == AssetDataExtension.SaveName && // distinguish between WS package and the package being saved.
                         package.packagePath == null // when overwriting, there would be another package with the same name. The package being saved is the one that has no path.
                         ) {
-                        return package.LogRet();
+                        if(Log.VERBOSE)
+                            Log.Debug("SavingPackage -> " + package);
+                        return package;
                     }
                 }
                 Log.Error($"Failed to find saving package! packageName={packageName} SaveName={AssetDataExtension.SaveName}");
