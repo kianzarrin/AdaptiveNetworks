@@ -51,10 +51,10 @@ namespace AdaptiveRoads.Util {
                 Log.Debug("getting package with name = " + packageName );
                 foreach(Package package in PackageManager.allPackages) {
                     if( package.packageName == packageName &&
-                        package.packageMainAsset == AssetDataExtension.SaveName && // LUT also may have null path. but LUT does not have main asset
+                        package.packageMainAsset == AssetDataExtension.SaveName && // distinguish between WS package and the package being saved.
                         package.packagePath == null // when overwriting, there would be another package with the same name. The package being saved is the one that has no path.
                         ) {
-                        return package;
+                        return package.LogRet();
                     }
                 }
                 Log.Error($"Failed to find saving package! packageName={packageName} SaveName={AssetDataExtension.SaveName}");
