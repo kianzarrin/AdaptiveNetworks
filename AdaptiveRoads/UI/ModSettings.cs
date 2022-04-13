@@ -89,6 +89,13 @@ namespace AdaptiveRoads.UI {
         public static void OnSettingsUI(UIHelperBase helper) {
             bool inAssetEditor = HelpersExtensions.InAssetEditor;
 
+#if DEBUG
+            {
+                helper.AddUpdatingCheckbox("Verbose log", val => Log.VERBOSE = val, () => Log.VERBOSE);
+                helper.AddUpdatingCheckbox("Buffered log", val => Log.Buffered = val, () => Log.Buffered);
+            }
+#endif
+
             var general = helper.AddGroup("General") as UIHelper;
 
             var keymappingsPanel = general.AddKeymappingsPanel();
