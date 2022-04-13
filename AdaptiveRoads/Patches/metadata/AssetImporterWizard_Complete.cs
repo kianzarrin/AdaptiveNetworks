@@ -10,7 +10,7 @@ namespace AdaptiveRoads.Patches.metadata {
     public static class AssetImporterWizard_Complete {
 
         public static void Postfix(AssetImporterWizard __instance) {
-            //ExecuteOverlookedCode(__instance);
+            ExecuteOverlookedCode(__instance);
             OnLoadPatch.Postfix();
         }
 
