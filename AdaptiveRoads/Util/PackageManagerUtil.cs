@@ -7,8 +7,17 @@ namespace AdaptiveRoads.Util {
     using System.Linq;
 
     public static class PackageManagerUtil {
-        public static Package GetPackage(string name) =>
-            PackageManager.allPackages.FirstOrDefault(p => p.packageName == name);
+        public static Package GetPackage(string name, string mainAsset) {
+            // when updating road assets we will end up wit 2 packages with same name/mainAsset.
+            // only the local one is loaded in game. It also happens to be the latter which is why I use LastOrDefault().
+            var ret = PackageManager.allPackages.LastOrDefault(p => p.packageName == name && p.packageMainAsset == mainAsset);
+            if (Log.VERBOSE) {
+                Log.Debug(ReflectionHelpers.CurrentMethod(1, name, mainAsset) + " -> " + ret);
+                var packages = PackageManager.allPackages.Where(p => p.packageName == name);
+                Log.Debug("similar packages are: " + packages.Select(p => $"{p}, mainAsset={p.packageMainAsset}").ToSTR());
+            }
+            return ret;
+        }
 
         /// <summary>
         /// package of the asset that is being serialized/deserialized
@@ -26,14 +35,14 @@ namespace AdaptiveRoads.Util {
                     if(dotIndex > 0) {
                         Assertion.Assert(dotIndex > 0, $"dotIndex:{dotIndex} > 0");
                         string packageName = name.Substring(0, dotIndex);
-                        if(Log.VERBOSE) Log.Debug("getting package with name: " + packageName);
-                        return GetPackage(packageName)
-                            ?? throw new Exception($"Package {packageName} not found");
+                        string mainAseet = name.Substring(dotIndex + 1).Remove("_Data");
+                        return GetPackage(packageName, mainAseet)
+                            ?? throw new Exception($"Package '{packageName}' with main asset:'{mainAseet}' not found!");
                     } else {
                         throw new Exception("could not analyze package name: " + name);
                     }
                 }catch(Exception ex) {
-                    ex.Log($"failed to get package for CurrentBasicNetInfo={AssetDataExtension.CurrentBasicNetInfo} and ListingMetaData={AssetDataExtension.ListingMetaData}");
+                    ex.Log($"failed to get package for CurrentBasicNetInfo='{AssetDataExtension.CurrentBasicNetInfo}' and ListingMetaData='{AssetDataExtension.ListingMetaData}'");
                     throw ex;
                 }
             }
