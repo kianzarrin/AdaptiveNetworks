@@ -56,7 +56,7 @@ function:
     - PrimaryLevel or SecondaryLevel add 12m
   - some more stuff I don't understand right now, see public static void ApplyQuad(Vector3 a, Vector3 b, Vector3 c, Vector3 d, TerrainModify.Edges edges, TerrainModify.Heights heights, float[] heightArray)
 - for surface modification:
-  - something??
+  - appears to do some antialiasing that rendering then uses to create straight edges. This doesn't work once modifications get to close to another or angles become to sharp (most common case is that ped paths "connect" to sidewalks; I used to believe this was related to the connection created in pathfinding; but seems like it's just a glitch that coincides)
 #### surface flags
 basically Surface Painter mod
 - Clip
