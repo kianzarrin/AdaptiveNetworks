@@ -1,18 +1,7 @@
 - check the gap
 - lane/track connect groups (might take time)
 - patch TMPE for better highway entrance.
-- apply shift when NetTool is testing/visualising.
-    - shift render single node : OK
-    - shift render node : OK
-    - shift render segment : OK
-    - shift render column : OK
-    - shift test segment : missing
-    - shift test column : OK
-    - shift overlay node : OK
-    - shift overlay segment : OK
-    - test node/column position when inverting: missing (hard)
-    - shift direction arrow :  missing (low priority)
-- caveat : after hotreload, changing track lanes/lane connections sometimes does not auto-update networks.
+- manual update of roads needed in asset editor.
 
 tracks:
     - why do I need to refresh roads 2 times on load?

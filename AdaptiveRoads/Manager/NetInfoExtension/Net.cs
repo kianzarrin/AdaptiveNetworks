@@ -206,30 +206,27 @@ namespace AdaptiveRoads.Manager {
                 } catch (Exception ex) { ex.Log(); }
             }
 
-            public string GetCustomLaneFlagName(NetLaneExt.Flags flag, int laneIndex) {
+            public Dictionary<NetLaneExt.Flags, string> GetCustomLaneFlags(int laneIndex) {
                 try {
                     //Log.Called();
                     //Log.Debug($"CustomLaneFlagNames0={CustomLaneFlagNames0.ToSTR()} CustomLaneFlagNames={CustomLaneFlagNames.ToSTR()}");
                     if (CustomLaneFlagNames0 is not null) {
                         // edit prefab
                         var lane = Template.m_lanes[laneIndex];
-                        if (CustomLaneFlagNames0.TryGetValue(lane, out var dict) &&
-                            dict.TryGetValue(flag, out string name)) {
-                            return name;
-                        }
-
+                        return CustomLaneFlagNames0.GetorDefault(lane);
                     } else if (CustomLaneFlagNames is not null) {
                         // normal
                         Assertion.InRange(CustomLaneFlagNames, laneIndex);
-                        var dict = CustomLaneFlagNames[laneIndex];
-                        if (dict != null && dict.TryGetValue(flag, out string name)) {
-                            return name;
-                        }
+                        return CustomLaneFlagNames[laneIndex];
                     }
-                } catch (Exception ex) { ex.Log(); }
-
+                } catch (Exception ex) {
+                    ex.Log();
+                }
                 return null;
             }
+
+            public string GetCustomLaneFlagName(NetLaneExt.Flags flag, int laneIndex) =>
+                GetCustomLaneFlags(laneIndex)?.GetorDefault(flag);
 
             public static string GetCustomFlagName(Enum flag, object target) {
                 try {
