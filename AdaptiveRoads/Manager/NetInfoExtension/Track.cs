@@ -70,9 +70,8 @@ namespace AdaptiveRoads.Manager {
             public Track(SerializationInfo info, StreamingContext context) {
                 try {
                     if (Log.VERBOSE) Log.Called();
-                    var package = PackageManagerUtil.PersistencyPackage;
+                    var packages = PackageManagerUtil.GetLoadingPackages();
                     var sharing = LSMUtil.GetSharing();
-                    Assertion.NotNull(package, "package");
                     foreach(SerializationEntry item in info) {
                         FieldInfo field = this.GetType().GetField(item.Name, ReflectionHelpers.COPYABLE);
                         if(field != null) {
@@ -80,11 +79,11 @@ namespace AdaptiveRoads.Manager {
                             if(field.FieldType == typeof(Mesh)) {
                                 bool lod = field.Name.Contains("lod");
                                 string checksum = item.Value as string;
-                                val = LSMUtil.GetMesh(sharing, checksum, package, lod);
+                                val = LSMUtil.GetMesh(sharing, checksum, packages, lod);
                             } else if(field.FieldType == typeof(Material)) {
                                 bool lod = field.Name.Contains("lod");
                                 string checksum = item.Value as string;
-                                val = LSMUtil.GetMaterial(sharing, checksum, package, lod);
+                                val = LSMUtil.GetMaterial(sharing, checksum, packages, lod);
                             } else {
                                 val = Convert.ChangeType(item.Value, field.FieldType);
                             }

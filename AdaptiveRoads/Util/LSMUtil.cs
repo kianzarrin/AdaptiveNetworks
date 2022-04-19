@@ -44,38 +44,48 @@ namespace AdaptiveRoads.Util {
             return null;
         }
 
-        public static Mesh GetMesh(object sharing, string checksum, Package package, bool isLod) {
-            if(checksum.IsNullorEmpty())
-                return null;
-            Mesh ret;
-            if(sharing == null) {
-                ret = package.FindByChecksum(checksum)?.Instantiate<Mesh>();
-            } else {
-                bool isMain = !isLod;
-                ret = InvokeMethod(sharing, "GetMesh", checksum, package, isMain) as Mesh;
+        public static Mesh GetMesh(object sharing, string checksum, IEnumerable<Package> packages, bool isLod) {
+            if(checksum.IsNullorEmpty()) return null;
+            foreach (var package in packages) {
+                Mesh ret;
+                // search for mesh in the given packages
+                if (sharing == null) {
+                    ret = package.FindByChecksum(checksum)?.Instantiate<Mesh>();
+                } else {
+                    bool isMain = !isLod;
+                    ret = InvokeMethod(sharing, "GetMesh", checksum, package, isMain) as Mesh;
+                }
+                if (ret) {
+                    Log.Debug($"loaded {ret} with checksum:({checksum}) from {package}");
+                    return ret;
+                }
             }
-            if(ret) Log.Debug($"loaded {ret} with checksum:({checksum}) from {package}");
-            else Log.Error($"could not find mesh with checksum:({checksum}) from {package}");
-            return ret;
+            Log.Error($"could not find mesh with checksum:({checksum}) from {packages.ToSTR()}");
+            return null;
 
         }
 
-        public static Material GetMaterial(object sharing, string checksum, Package package, bool isLod) {
-            if(checksum.IsNullorEmpty())
-                return null;
-            Material ret;
-            if(sharing == null) {
-                ret = package.FindByChecksum(checksum)?.Instantiate<Material>();
-            } else {
-                bool isMain = !isLod;
-                ret = InvokeMethod(sharing, "GetMaterial", checksum, package, isMain) as Material;
+        public static Material GetMaterial(object sharing, string checksum, IEnumerable<Package> packages, bool isLod) {
+            if(checksum.IsNullorEmpty()) return null;
+            foreach (var package in packages) {
+                Material ret;
+                if (sharing == null) {
+                    ret = package.FindByChecksum(checksum)?.Instantiate<Material>();
+                } else {
+                    bool isMain = !isLod;
+                    ret = InvokeMethod(sharing, "GetMaterial", checksum, package, isMain) as Material;
+                }
+                if (ret) {
+                    Log.Debug($"loaded {ret} with checksum:({checksum}) from {package}");
+                    return ret;
+                }
             }
-            if(ret) Log.Debug($"loaded {ret} with checksum:({checksum}) from {package}");
-            else Log.Error($"could not find material with checksum:({checksum}) from {package}");
-            return ret;
+            Log.Error($"could not find material with checksum:({checksum}) from {packages.ToSTR()}");
+            return null;
         }
 
-        #region optimization
+#if OPTIMISATION
+    #region optimization
         public class Cache {
             public static class Delegates {
                 public delegate Mesh GetMesh(string checksum, Package package, bool isMain);
@@ -124,6 +134,7 @@ namespace AdaptiveRoads.Util {
                 return CacheInstance.GetMaterial(checksum, isLod);
             }
         }
-        #endregion
+#endregion
+#endif
     }
 }
