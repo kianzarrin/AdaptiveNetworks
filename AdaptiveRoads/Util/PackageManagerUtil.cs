@@ -27,15 +27,17 @@ namespace AdaptiveRoads.Util {
                     Log.Debug($"package from ListingMetaData({AssetDataExtension.ListingMetaData.name}) is {AssetDataExtension.ListingMetaData?.assetRef.package}");
                     var ret = AssetDataExtension.ListingMetaData?.assetRef.package
                         ?? throw new Exception($"ListingMetaData?.assetRef.package is null");
-                }
-                string name = AssetDataExtension.CurrentBasicNetInfo.name;
-                int dotIndex = name.LastIndexOf('.');
-                if (dotIndex > 0) {
-                    Assertion.Assert(dotIndex > 0, $"dotIndex:{dotIndex} > 0");
-                    string packageName = name.Substring(0, dotIndex);
-                    return GetPackages(packageName);
+                    return new[] { ret };
                 } else {
-                    throw new Exception("could not analyze package name for NetInfo " + AssetDataExtension.CurrentBasicNetInfo);
+                    string name = AssetDataExtension.CurrentBasicNetInfo.name;
+                    int dotIndex = name.LastIndexOf('.');
+                    if (dotIndex > 0) {
+                        Assertion.Assert(dotIndex > 0, $"dotIndex:{dotIndex} > 0");
+                        string packageName = name.Substring(0, dotIndex);
+                        return GetPackages(packageName);
+                    } else {
+                        throw new Exception("could not analyze package name for NetInfo " + AssetDataExtension.CurrentBasicNetInfo);
+                    }
                 }
             } catch (Exception ex) {
                 ex.Log($"failed to get package for CurrentBasicNetInfo='{AssetDataExtension.CurrentBasicNetInfo}' and ListingMetaData='{AssetDataExtension.ListingMetaData}'");
