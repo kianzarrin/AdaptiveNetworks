@@ -158,19 +158,12 @@ namespace AdaptiveRoads.Patches.Corner {
                 float scale = 1 / sin;
                 if (!leftSide)
                     scale = -scale;
-                float offset = 0;
-                if(nSegments > 2) {
-                    offset = .01f;
-                }
 
+                pos += dir2 * hw1 * scale;
+                pos += dir1 * hw2 * scale; // intersection.
 
-                Vector3 pos1 = pos + dir2 * hw1 * scale;
-                Vector3 pos2 = pos + dir1 * (hw2 * scale + offset);
-
-                if (LineUtil.Intersect(pos1.ToCS2D(), dir1.ToCS2D(), pos2.ToCS2D(), dir2.ToCS2D(), out Vector2 center)) {
-                    float h = (pos1.y + pos2.y) * 0.5f;
-                    cornerPos = center.ToCS3D(h);
-                }
+                const float OFFSET_SAFETYNET = 0.02f;
+                cornerPos = pos + dir1 * OFFSET_SAFETYNET;
             }
         }
     }
