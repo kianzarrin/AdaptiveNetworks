@@ -5,10 +5,10 @@ namespace AdaptiveRoads.Util {
     using System.Diagnostics;
     using System.Linq;
     using TrafficManager.API.Traffic.Enums;
-    using TrafficManager.Manager.Impl;
     using UnityEngine;
     using Log = KianCommons.Log;
     using VectorUtil = KianCommons.Math.VectorUtil;
+    using static Util.Shortcuts;
 
     internal static class DirectConnectUtil {
 
@@ -102,25 +102,25 @@ namespace AdaptiveRoads.Util {
         public static bool DoesSegmentGoToSegment(ushort sourceSegmentID, ushort targetSegmentID, ushort nodeID) {
             bool startNode = NetUtil.IsStartNode(sourceSegmentID, nodeID);
             if (sourceSegmentID == targetSegmentID) {
-                return JunctionRestrictionsManager.Instance.IsUturnAllowed(sourceSegmentID, startNode);
+                return JRMan.IsUturnAllowed(sourceSegmentID, startNode);
             }
-            ArrowDirection arrowDir = ExtSegmentEndManager.Instance.GetDirection(sourceSegmentID, targetSegmentID, nodeID);
+            ArrowDirection arrowDir = TMPE.ExtSegmentEndManager.GetDirection(sourceSegmentID, targetSegmentID, nodeID);
             LaneArrows arrow = ArrowDir2LaneArrows(arrowDir);
             var sourceLanes = new LaneDataIterator(
                 sourceSegmentID,
                 startNode,
-                LaneArrowManager.LANE_TYPES,
-                LaneArrowManager.VEHICLE_TYPES);
+                LaneArrowMan.LaneTypes,
+                LaneArrowMan.VehicleTypes);
             //Log.Debug("DoesSegmentGoToSegment: sourceLanes=" + sourceLanes.ToSTR());
 
             foreach (LaneData sourceLane in sourceLanes) {
                 bool connected;
-                if (LaneConnectionManager.Instance.HasConnections(sourceLane.LaneID, startNode)) {
+                if (LCMan.HasConnections(sourceLane.LaneID, startNode)) {
                     connected = IsLaneConnectedToSegment(sourceLane.LaneID, targetSegmentID);
                     //Log.Debug($"IsLaneConnectedToSegment({sourceLane},{targetSegmentID}) = {connected}");
 
                 } else {
-                    LaneArrows arrows = LaneArrowManager.Instance.GetFinalLaneArrows(sourceLane.LaneID);
+                    LaneArrows arrows = LaneArrowMan.GetFinalLaneArrows(sourceLane.LaneID);
                     connected = (arrows & arrow) != 0;
                 }
                 if (connected)
@@ -142,10 +142,10 @@ namespace AdaptiveRoads.Util {
             var targetLanes = new LaneDataIterator(
                 targetSegmentID,
                 !targetStartNode,// going away from start node.
-                LaneConnectionManager.LANE_TYPES,
-                LaneConnectionManager.VEHICLE_TYPES);
+                LCMan.LaneTypes,
+                LCMan.VehicleTypes);
             foreach (LaneData targetLane in targetLanes) {
-                if (LaneConnectionManager.Instance.AreLanesConnected(sourceLaneId, targetLane.LaneID, sourceStartNode))
+                if (LCMan.AreLanesConnected(sourceLaneId, targetLane.LaneID, sourceStartNode))
                     return true;
             }
             return false;
