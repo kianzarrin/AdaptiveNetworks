@@ -227,60 +227,62 @@ namespace AdaptiveRoads.Manager {
             m_segmentsUpdated = false;
             m_nodesUpdated = false;
 
-            if(updateSegments) {
-                for(int maskIndex = 0; maskIndex < m_updatedSegments.Length; maskIndex++) {
-                    ulong bitmask = m_updatedSegments[maskIndex];
-                    if(bitmask != 0) {
-                        for(int bitIndex = 0; bitIndex < 64; bitIndex++) {
-                            if((bitmask & 1UL << bitIndex) != 0UL) {
-                                ushort segmentID = (ushort)(maskIndex << 6 | bitIndex);
-                                if(Log.VERBOSE) Log.Debug($"updating segment:{segmentID} ...");
-                                SegmentBuffer[segmentID].UpdateAllFlags();
+            for (int i = 0; i < 2; ++i) {
+                if (updateSegments) {
+                    for (int maskIndex = 0; maskIndex < m_updatedSegments.Length; maskIndex++) {
+                        ulong bitmask = m_updatedSegments[maskIndex];
+                        if (bitmask != 0) {
+                            for (int bitIndex = 0; bitIndex < 64; bitIndex++) {
+                                if ((bitmask & 1UL << bitIndex) != 0UL) {
+                                    ushort segmentID = (ushort)(maskIndex << 6 | bitIndex);
+                                    if (Log.VERBOSE) Log.Debug($"updating segment:{segmentID} ...");
+                                    SegmentBuffer[segmentID].UpdateAllFlags();
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            if(updateNodes) {
-                for(int maskIndex = 0; maskIndex < m_updatedNodes.Length; maskIndex++) {
-                    ulong bitmask = m_updatedNodes[maskIndex];
-                    if(bitmask != 0) {
-                        for(int bitIndex = 0; bitIndex < 64; bitIndex++) {
-                            if((bitmask & 1UL << bitIndex) != 0) {
-                                ushort nodeID = (ushort)(maskIndex << 6 | bitIndex);
-                                if(Log.VERBOSE) Log.Debug($"updating node:{nodeID} ...");
-                                NodeBuffer[nodeID].UpdateFlags();
+                if (updateNodes) {
+                    for (int maskIndex = 0; maskIndex < m_updatedNodes.Length; maskIndex++) {
+                        ulong bitmask = m_updatedNodes[maskIndex];
+                        if (bitmask != 0) {
+                            for (int bitIndex = 0; bitIndex < 64; bitIndex++) {
+                                if ((bitmask & 1UL << bitIndex) != 0) {
+                                    ushort nodeID = (ushort)(maskIndex << 6 | bitIndex);
+                                    if (Log.VERBOSE) Log.Debug($"updating node:{nodeID} ...");
+                                    NodeBuffer[nodeID].UpdateFlags();
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            if (updateSegments) {
-                for (int maskIndex = 0; maskIndex < m_updatedSegments.Length; maskIndex++) {
-                    ulong bitmask = m_updatedSegments[maskIndex];
-                    if (bitmask != 0) {
-                        for (int bitIndex = 0; bitIndex < 64; bitIndex++) {
-                            if ((bitmask & 1UL << bitIndex) != 0UL) {
-                                ushort segmentID = (ushort)(maskIndex << 6 | bitIndex);
-                                if (Log.VERBOSE) Log.Debug($"updating segment:{segmentID} ...");
-                                SegmentBuffer[segmentID].UpdateScriptedFlags();
+                if (updateSegments) {
+                    for (int maskIndex = 0; maskIndex < m_updatedSegments.Length; maskIndex++) {
+                        ulong bitmask = m_updatedSegments[maskIndex];
+                        if (bitmask != 0) {
+                            for (int bitIndex = 0; bitIndex < 64; bitIndex++) {
+                                if ((bitmask & 1UL << bitIndex) != 0UL) {
+                                    ushort segmentID = (ushort)(maskIndex << 6 | bitIndex);
+                                    if (Log.VERBOSE) Log.Debug($"updating segment:{segmentID} ...");
+                                    SegmentBuffer[segmentID].UpdateScriptedFlags();
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            if (updateNodes) {
-                for (int maskIndex = 0; maskIndex < m_updatedNodes.Length; maskIndex++) {
-                    ulong bitmask = m_updatedNodes[maskIndex];
-                    if (bitmask != 0) {
-                        for (int bitIndex = 0; bitIndex < 64; bitIndex++) {
-                            if ((bitmask & 1UL << bitIndex) != 0) {
-                                ushort nodeID = (ushort)(maskIndex << 6 | bitIndex);
-                                if (Log.VERBOSE) Log.Debug($"updating node:{nodeID} ...");
-                                NodeBuffer[nodeID].UpdateScriptedFlags();
+                if (updateNodes) {
+                    for (int maskIndex = 0; maskIndex < m_updatedNodes.Length; maskIndex++) {
+                        ulong bitmask = m_updatedNodes[maskIndex];
+                        if (bitmask != 0) {
+                            for (int bitIndex = 0; bitIndex < 64; bitIndex++) {
+                                if ((bitmask & 1UL << bitIndex) != 0) {
+                                    ushort nodeID = (ushort)(maskIndex << 6 | bitIndex);
+                                    if (Log.VERBOSE) Log.Debug($"updating node:{nodeID} ...");
+                                    NodeBuffer[nodeID].UpdateScriptedFlags();
+                                }
                             }
                         }
                     }
