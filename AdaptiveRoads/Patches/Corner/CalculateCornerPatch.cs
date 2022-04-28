@@ -132,6 +132,27 @@ namespace AdaptiveRoads.Patches.Corner {
             float sin = Vector3.Cross(dir1, dir2).y;
             sin = -sin;
 
+            static bool SameDir(Vector3 tangent, Vector3 dir) {
+                return VectorUtils.DotXZ(tangent, VectorUtils.NormalizeXZ(dir)) > 0.95f;
+            }
+
+            Vector3 otherPos1 = segment1.GetOtherNode(nodeID).ToNode().m_position;
+            Vector3 otherPos2 = segment2.GetOtherNode(nodeID).ToNode().m_position;
+            bool isStraight1 = SameDir(dir1,  otherPos1 - pos);
+            bool isStraight2 = SameDir(dir2,  otherPos2 - pos);
+            if(!isStraight1 || !isStraight2) {
+                //var otherDir1 = otherPos1 - pos;
+                //var otherDir1n = VectorUtils.NormalizeXZ(otherDir1);
+                //float dotxz1 = VectorUtils.DotXZ(dir1, otherDir1n);
+                //Log.Debug($"isStraight1={isStraight1} dir1={dir1} otherDir1={otherDir1} otherDir1.normalizedXZ={otherDir1n} dotxz1={dotxz1}");
+                //var otherDir2 = otherPos2 - pos;
+                //var otherDir2n = VectorUtils.NormalizeXZ(otherDir2);
+                //float dotxz2 = VectorUtils.DotXZ(dir2, otherDir2n);
+                //Log.Debug($"isStraight2={isStraight2} dir2={dir2} otherDir2={otherDir2} otherDir2.normalizedXZ={otherDir2n} dotxz2={dotxz2}");
+                return;
+            }
+
+
             Log.Debug($"p3: node:{nodeID}, segment:{segmentID1} segmentId2:{segmentId2} leftSide={leftSide} sin={sin}", false);
             if (Mathf.Abs(sin) > 0.001) {
                 float scale = 1 / sin;
