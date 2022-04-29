@@ -33,7 +33,9 @@ namespace AdaptiveRoads {
         public static VehicleInfo.VehicleType NodeVehicleTypes(NetInfo.Node node) => node.GetMetaData()?.VehicleType ?? 0;
         public static NetInfo.LaneType NodeLaneTypes(NetInfo.Node node) => node.GetMetaData()?.LaneType ?? 0;
         public static bool HideBrokenMedians(NetInfo.Node node) => node.GetMetaData()?.HideBrokenMedians ?? true;
-
+        public static bool GetSharpCorners(NetInfo info) => info?.GetMetaData()?.SharpCorners ?? false;
+        public static void OverrideSharpner(bool value) => CalculateCornerPatch.OverideSharpner = value;
+        
 #pragma warning restore HAA0601
     }
 }

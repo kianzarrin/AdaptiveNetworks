@@ -14,7 +14,9 @@ namespace AdaptiveRoads.Patches.Corner {
     /// </summary>
     [PreloadPatch]
     [HarmonyPatch]
-    static class CalculateCornerPatch {
+    public static class CalculateCornerPatch {
+        public static bool OverideSharpner;
+
         [UsedImplicitly]
         [HarmonyBefore("CS.Kian.NodeController")]
         static MethodBase TargetMethod() {
@@ -34,9 +36,8 @@ namespace AdaptiveRoads.Patches.Corner {
             Shift(
                 segmentID: segmentID, start: start, leftSide: leftSide,
                 cornerPos: ref cornerPos, cornerDirection: ref cornerDirection);
-            // __runOriginal does not work? reported bug to harmony author
-            // if (__runOriginal)
-            {
+            // __runOriginal does not work. reported bug to harmony author
+             if (!OverideSharpner /*__runOriginal*/) {
                 Sharpen2(
                     segmentID1: segmentID, startNode: start, leftSide: leftSide,
                     cornerPos: ref cornerPos, cornerDirection: ref cornerDirection);
