@@ -86,7 +86,7 @@ namespace AdaptiveRoads.Patches.Corner {
             if (!leftSide)
                 angleDegree = -angleDegree;
 
-            Log.Debug($"p3: node:{nodeID}, segment:{segmentID} otherSegment:{otherSegmentID} leftSide={leftSide} angle={angleDegree}", false);
+            //Log.Debug($"p3: node:{nodeID}, segment:{segmentID} otherSegment:{otherSegmentID} leftSide={leftSide} angle={angleDegree}", false);
             float backward;
             if (MathUtil.EqualAprox(angleDegree, 90)) {
                 backward = 2;
@@ -154,7 +154,7 @@ namespace AdaptiveRoads.Patches.Corner {
             }
 
 
-            Log.Debug($"p3: node:{nodeID}, segment:{segmentID1} segmentId2:{segmentId2} leftSide={leftSide} sin={sin}", false);
+            //Log.Debug($"p3: node:{nodeID}, segment:{segmentID1} segmentId2:{segmentId2} leftSide={leftSide} sin={sin}", false);
             if (Mathf.Abs(sin) > 0.001) {
                 float scale = 1 / sin;
                 if (!leftSide)
