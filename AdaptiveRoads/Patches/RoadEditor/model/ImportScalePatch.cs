@@ -11,7 +11,19 @@ namespace AdaptiveRoads.Patches.RoadEditor.model {
 
     // remember import scale
     [HarmonyPatch]
-    static class ImportScalePatch {
+    public static class ImportScalePatch {
+        private static SavedFloat ImportScale;
+
+        static void Prepare() {
+            Log.Called();
+            ImportScale = new SavedFloat("Import Scale", AdaptiveRoads.UI.ModSettings.FILE_NAME, def: 0, autoUpdate: true);
+        }
+
+        public static void Release() {
+            Log.Called();
+            ImportScale = null; 
+        }
+
         static IEnumerable<MethodBase> TargetMethods() {
             yield return GetMethod(typeof(AssetImporterAssetImport), "Awake");
             yield return GetMethod(typeof(AssetImporterAssetImport), "ResetTransformFields");
@@ -29,7 +41,7 @@ namespace AdaptiveRoads.Patches.RoadEditor.model {
         static void Postfix(UITextField ___m_Scale) {
             try {
                 Log.Called();
-                Log.Debug(Environment.StackTrace);
+                //Log.Debug(Environment.StackTrace);
                 ___m_Scale.eventTextChanged -= ScaleTextChanged;
                 if (ImportScale.value != 0f) {
                     Log.Debug("saved import scale is " + ImportScale.value);
@@ -42,15 +54,13 @@ namespace AdaptiveRoads.Patches.RoadEditor.model {
             }
         }
 
-        private static SavedFloat ImportScale = new SavedFloat("Import Scale", AdaptiveRoads.UI.ModSettings.FILE_NAME, def: 0, autoUpdate:true);
         private static void ScaleTextChanged(UIComponent component, string value) {
             try {
-                if (float.TryParse(value, out float scale)) {
+                if (ImportScale != null  && float.TryParse(value, out float scale)) {
                     ImportScale.value = scale;
                     Log.Debug("ImportScale set to " + ImportScale.value);
                 }
-            }
-            catch(Exception ex) { ex.Log(); }
+            } catch(Exception ex) { ex.Log(); }
         }
     }
 }
