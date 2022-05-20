@@ -14,6 +14,7 @@ namespace AdaptiveRoads.LifeCycle {
 #if DEBUG
         public static Stopwatch timer;
         public override void OnUpdate(float realTimeDelta, float simulationTimeDelta) {
+            return;
             timer ??= Stopwatch.StartNew();
             if (timer.ElapsedMilliseconds > 1000) {
                 Handle(CheckPropFlagsCommons.timer, "propcheck");

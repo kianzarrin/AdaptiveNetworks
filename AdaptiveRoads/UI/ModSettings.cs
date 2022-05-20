@@ -45,7 +45,6 @@ namespace AdaptiveRoads.UI {
 
         public static readonly SavedBool ARMode = SavedBool(AR_MODE, true);
         public static bool VanillaMode => !ARMode;
-        public static readonly SavedBool DefaultScale100 = SavedBool("DefaultScale100", false);
 
         public static readonly SavedInt SpeedUnit = SavedInt("SpeedUnit", (int)SpeedUnitType.KPH);
 
@@ -132,7 +131,6 @@ namespace AdaptiveRoads.UI {
 
                 general.AddSavedToggle("hide irrelevant flags", HideIrrelavant);
                 general.AddSavedToggle("hide floating hint box", HideHints);
-                general.AddSavedToggle("Set default scale to 100", DefaultScale100);
             }
 
             if(!Helpers.InStartupMenu) {
