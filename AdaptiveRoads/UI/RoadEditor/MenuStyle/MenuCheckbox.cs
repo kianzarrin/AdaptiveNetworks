@@ -47,11 +47,11 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
         public virtual void OnCheckChanged(UIComponent component, bool value) {
             Invalidate();
 #if DEBUG
-            Log.Debug($"{this} check changed to {value}: text:{text} parent:{parent.ToSTR()}");
+            Log.Debug($"{this} check changed to {value}: label:{Label} parent:{parent.ToSTR()}");
 #endif
-    }
+        }
 
-    public virtual string Label {
+        public virtual string Label {
             get => label.text;
             set {
                 label.text = value;

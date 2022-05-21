@@ -369,7 +369,7 @@ namespace AdaptiveRoads.Manager {
                 SimulationManager.instance.AddAction(() => UpdateNode(nodeID, fromSegmentID, level));
                 return;
             }
-            Log.Debug($"mark node:{nodeID} info:{nodeID.ToNode().Info} update-level={level} from segment:{fromSegmentID}" /*+ Environment.StackTrace*/);
+            Log.Debug($"mark node:{nodeID} info:{nodeID.ToNode().Info} update-level={level} from segment:{fromSegmentID}" /*+ Environment.StackTrace*/,false);
             m_updatedNodes[nodeID >> 6] |= 1UL << (int)nodeID;
             m_nodesUpdated = true;
             if (level <= 0) {
@@ -389,7 +389,7 @@ namespace AdaptiveRoads.Manager {
                 SimulationManager.instance.AddAction(() => UpdateSegment(segmentID, fromNodeID, level));
                 return;
             }
-            Log.Debug($"mark segment:{segmentID} info:{segmentID.ToSegment().Info} update-level={level} from node:{fromNodeID}" /*+ Environment.StackTrace*/);
+            Log.Debug($"mark segment:{segmentID} info:{segmentID.ToSegment().Info} update-level={level} from node:{fromNodeID}" /*+ Environment.StackTrace*/,false);
             m_updatedSegments[segmentID >> 6] |= 1UL << (int)segmentID;
             m_segmentsUpdated = true;
             if (level <= 0) {

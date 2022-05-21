@@ -7,7 +7,7 @@ tracks:
     - why source segment for lane transition is different for forward/backward lane.
 
 -----------------
-- automatically add buttons.
+- automatically add buttons in road editor panels.
 - do not modify model selection panels from other editors.
 ----------------------------
 version 4:
@@ -23,4 +23,3 @@ version 4:
         - change
     - anti distortion for crossings
     - height offset for node/segment meshes.
-
