@@ -254,10 +254,10 @@ namespace AdaptiveRoads.Manager{
             Vector4 colorLocationStart = RenderManager.GetColorLocation(TrackManager.SEGMENT_HOLDER + LaneData.SegmentID);
             Vector4 colorLocationEnd = colorLocationStart;
             if(NetNode.BlendJunction(segment.m_startNode)) {
-                colorLocationStart = RenderManager.GetColorLocation(TrackManager.SEGMENT_HOLDER + segment.m_startNode);
+                colorLocationStart = RenderManager.GetColorLocation(TrackManager.NODE_HOLDER + segment.m_startNode);
             }
             if(NetNode.BlendJunction(segment.m_endNode)) {
-                colorLocationEnd = RenderManager.GetColorLocation(TrackManager.SEGMENT_HOLDER + segment.m_endNode);
+                colorLocationEnd = RenderManager.GetColorLocation(TrackManager.NODE_HOLDER + segment.m_endNode);
             }
             ret.ObjectIndex = new Vector4(colorLocationStart.x, colorLocationStart.y, colorLocationEnd.x, colorLocationEnd.y); // object index
             float vScale = info.m_netAI.GetVScale();
