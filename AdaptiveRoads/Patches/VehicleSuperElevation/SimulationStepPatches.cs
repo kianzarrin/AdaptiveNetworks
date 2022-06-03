@@ -10,9 +10,6 @@ namespace AdaptiveRoads.Patches.VehicleSuperElevation {
     static class TrainAI_SimulationStepPatch {
         internal static IEnumerable<MethodBase> TargetMethods() {
             yield return TargetMethod<TrainAI>();
-            var tmpeTarget = TargetTMPEMethod<TrainAI>();
-            if(tmpeTarget != null)
-                yield return tmpeTarget; //old TMPE
         }
 
         internal static void Postfix(ref Vehicle vehicleData, ref Vehicle.Frame frameData) =>

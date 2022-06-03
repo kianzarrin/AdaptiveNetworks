@@ -16,17 +16,6 @@ namespace AdaptiveRoads.Patches.VehicleSuperElevation {
         public static MethodBase TargetMethod<T>() =>
             DeclaredMethod<SimulationStepDelegate>(typeof(T), "SimulationStep");
 
-        public static MethodBase TargetTMPEMethod<T>() {
-            string typeName = "TrafficManager.Custom.AI.Custom" + typeof(T);
-            Type customType =
-                PluginUtil.GetTrafficManager().GetMainAssembly()
-                .GetType(typeName, throwOnError: false);
-
-            if(customType != null)
-                return DeclaredMethod<SimulationStepDelegate>(customType, "CustomSimulationStep");
-            return null;
-        }
-
         static PathUnit[] pathUnitBuffer => Singleton<PathManager>.instance.m_pathUnits.m_buffer;
 
         static string ToSTR(this ref PathUnit.Position pathPos) {

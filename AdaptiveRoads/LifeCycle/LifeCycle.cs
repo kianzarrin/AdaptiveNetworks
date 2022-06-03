@@ -16,6 +16,7 @@ namespace AdaptiveRoads.LifeCycle {
     using KianCommons.Serialization;
     using UnityEngine;
     using AdaptiveRoads.Patches.RoadEditor.model;
+    using static AdaptiveRoads.Util.Shortcuts;
 
     public static class LifeCycle {
         public static string HARMONY_ID = "CS.Kian.AdaptiveRoads";
@@ -117,8 +118,8 @@ namespace AdaptiveRoads.LifeCycle {
                     HarmonyUtil.InstallHarmony<PreloadPatchAttribute>(HARMONY_ID_MANUAL);
                     preloadPatchesApplied_ = true;
                 }
-                TrafficManager.Notifier.Instance.EventLevelLoaded -= OnTMPELOaded;
-                TrafficManager.Notifier.Instance.EventLevelLoaded += OnTMPELOaded;
+                TMPENotifier.EventLevelLoaded -= OnTMPELOaded;
+                TMPENotifier.EventLevelLoaded += OnTMPELOaded;
             } catch (Exception ex) {
                 Log.Exception(ex);
             }
@@ -195,7 +196,7 @@ namespace AdaptiveRoads.LifeCycle {
         public static void Exit() {
             Log.Buffered = false;
             Log.Info("LifeCycle.Exit() called");
-            TrafficManager.Notifier.Instance.EventLevelLoaded -= NetworkExtensionManager.OnTMPELoaded;
+            TMPENotifier.EventLevelLoaded -= NetworkExtensionManager.OnTMPELoaded;
             HarmonyUtil.UninstallHarmony(HARMONY_ID_MANUAL);
             preloadPatchesApplied_ = false;
             if(TrackManager.exists) GameObject.Destroy(TrackManager.instance.gameObject);

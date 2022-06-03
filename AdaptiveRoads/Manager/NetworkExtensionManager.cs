@@ -8,8 +8,7 @@ namespace AdaptiveRoads.Manager {
     using KianCommons.Plugins;
     using UnityEngine;
     using KianCommons.IImplict;
-    using System.Collections;
-    using TrafficManager;
+    using static Util.Shortcuts;
     using TrafficManager.API.Notifier;
 
     public static class NetworkExtensionManagerExtensions {
@@ -166,8 +165,8 @@ namespace AdaptiveRoads.Manager {
                     if(!NetUtil.IsNodeValid(nodeID)) continue;
                     NetManager.instance.UpdateNodeRenderer(nodeID, true);
                 }
-                Notifier.Instance.EventModified -= OnTMPEModified;
-                Notifier.Instance.EventModified += OnTMPEModified;
+                TMPENotifier.EventModified -= OnTMPEModified;
+                TMPENotifier.EventModified += OnTMPEModified;
             } catch(Exception ex) {
                 ex.Log();
             }
@@ -199,7 +198,7 @@ namespace AdaptiveRoads.Manager {
         }
 
         public void OnUnload() {
-            Notifier.Instance.EventModified -= OnTMPEModified;
+            TMPENotifier.EventModified -= OnTMPEModified;
             Destroy(gameObject);
             instance_ = null;
         }

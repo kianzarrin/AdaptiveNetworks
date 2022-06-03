@@ -55,7 +55,6 @@
     <Reference Include="ICities" />
     <Reference Include="UnityEngine" />
     <Reference Include="UnityEngine.UI" />
-    <Reference Include="TrafficManager" />
     <Reference Include="TMPE.API" />
     <Reference Include="CSUtil.Commons" />
     <Reference Include="UnifiedUILib">
