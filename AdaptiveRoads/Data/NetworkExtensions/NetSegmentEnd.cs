@@ -7,7 +7,7 @@ namespace AdaptiveRoads.Manager {
     using KianCommons.Serialization;
     using System;
     using System.Linq;
-    using TrafficManager;
+    using TrafficManager.API;
     using TrafficManager.API.Manager;
     using TrafficManager.API.Traffic.Data;
     using TrafficManager.API.Traffic.Enums;
@@ -259,7 +259,7 @@ namespace AdaptiveRoads.Manager {
             ushort segmentId, ushort nodeId,
             out bool right, out bool forward, out bool left) {
             bool startNode = segmentId.ToSegment().m_startNode == nodeId;
-            IExtSegmentEndManager segEndMan = Constants.ManagerFactory.ExtSegmentEndManager;
+            IExtSegmentEndManager segEndMan = Implementations.ManagerFactory.ExtSegmentEndManager;
             ExtSegmentEnd segEnd = segEndMan.ExtSegmentEnds[segEndMan.GetIndex(segmentId, startNode)];
 
             forward = left = right = false;

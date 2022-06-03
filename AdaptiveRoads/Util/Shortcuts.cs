@@ -1,13 +1,10 @@
 namespace AdaptiveRoads.Util {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using TrafficManager;
+    using TrafficManager.API;
     using TrafficManager.API.Manager;
+    using TrafficManager.API.Notifier;
 
     public static class Shortcuts {
-        public static IManagerFactory TMPE => Constants.ManagerFactory;
+        public static IManagerFactory TMPE => Implementations.ManagerFactory;
         public static IParkingRestrictionsManager ParkingMan => TMPE?.ParkingRestrictionsManager;
         public static ITrafficPriorityManager PrioMan => TMPE?.TrafficPriorityManager;
         public static IVehicleRestrictionsManager VRMan => TMPE?.VehicleRestrictionsManager;
@@ -16,7 +13,6 @@ namespace AdaptiveRoads.Util {
         public static ILaneArrowManager LaneArrowMan => TMPE?.LaneArrowManager;
         public static ISpeedLimitManager SLMan => TMPE?.SpeedLimitManager;
         public static IRoutingManager RMan => TMPE?.RoutingManager;
-
-
+        public static INotifier TMPENotifier => Implementations.Notifier;
     }
 }
