@@ -65,6 +65,10 @@ namespace AdaptiveRoads.Util {
 
         public static LaneTransitionData[] GetForwardRoutings(uint laneID, ushort nodeID) {
             bool startNode = laneID.ToLane().m_segment.ToSegment().IsStartNode(nodeID);
+            return GetForwardRoutings(laneID, startNode);
+        }
+
+        public static LaneTransitionData[] GetForwardRoutings(uint laneID, bool startNode) {
             uint routingIndex = RMan.GetLaneEndRoutingIndex(laneID, startNode);
             return RMan.LaneEndForwardRoutings[routingIndex].transitions;
         }

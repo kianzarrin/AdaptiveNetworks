@@ -11,7 +11,6 @@ namespace AdaptiveRoads.Util {
     using static Util.Shortcuts;
 
     internal static class DirectConnectUtil {
-
         #region custom connect groups
         [Conditional("Debug")]
         internal static void AssertNotEmpty(int[] ar, string name) => Assertion.AssertDebug(ar != null && ar.Length == 0, $"{name} must be null if empty");
@@ -33,11 +32,20 @@ namespace AdaptiveRoads.Util {
         #endregion
 
         #region Broken Median detection
+        public const NetInfo.LaneType LANE_TYPES = NetInfo.LaneType.Vehicle | NetInfo.LaneType.TransportVehicle;
+
+        public const VehicleInfo.VehicleType VEHICLE_TYPES =
+            VehicleInfo.VehicleType.Car
+            | VehicleInfo.VehicleType.Train
+            | VehicleInfo.VehicleType.Tram
+            | VehicleInfo.VehicleType.Metro
+            | VehicleInfo.VehicleType.Monorail
+            | VehicleInfo.VehicleType.Trolleybus;
+
         public static bool HasUnbrokenMedian(ushort segmentID, ushort nodeID) {
             return new NodeSegmentIterator(nodeID).Any(HasUnbrokenMedianWith);
             bool HasUnbrokenMedianWith(ushort _segmentID2) => !OpenMedian(segmentID, _segmentID2);
         }
-
         public static bool OpenMedian(ushort segmentID1, ushort segmentID2) {
             ushort nodeID = segmentID1.ToSegment().GetSharedNode(segmentID2);
             bool connected = DoesSegmentGoToSegment(segmentID1, segmentID2, nodeID);
@@ -63,7 +71,7 @@ namespace AdaptiveRoads.Util {
 
             GetGeometry(segmentID, otherSegmentID, out var farSegments, out var nearSegments);
             farSegments.Add(segmentID); // non of the far segments shall go to current segment.
-            nearSegments.Add(segmentID); // current segment shall not go to any of the far segments(including itself)
+            nearSegments.Add(segmentID); // current segment shall not go to any of the far segments(including iteself)
             //Log.Debug($"IsMedianBrokenHelper({segmentID} ,{otherSegmentID}) :\n" +
             //    $"farSegments={farSegments.ToSTR()} , nearSegments={nearSegments.ToSTR()}");
 
@@ -79,7 +87,7 @@ namespace AdaptiveRoads.Util {
         }
         #endregion
 
-        #region segment 2 segment connections
+        #region connections
         /// <summary>
         /// returns a list of all segments sourceSegmentID is connected to including itself
         /// if uturn is allowed.
@@ -89,7 +97,7 @@ namespace AdaptiveRoads.Util {
         /// <returns></returns>
         public static FastSegmentList GetTargetSegments(ushort sourceSegmentID, ushort nodeID) {
             var ret = new FastSegmentList();
-            foreach (ushort targetSegmentID in new NodeSegmentIterator(nodeID)) {
+            foreach (ushort targetSegmentID in NetUtil.IterateNodeSegments(nodeID)) {
                 if (DoesSegmentGoToSegment(sourceSegmentID, targetSegmentID, nodeID))
                     ret.Add(targetSegmentID);
             }
@@ -100,68 +108,41 @@ namespace AdaptiveRoads.Util {
         /// Determines if any lane from source segment goes to the target segment
         /// based on lane arrows and lane connections.
         public static bool DoesSegmentGoToSegment(ushort sourceSegmentID, ushort targetSegmentID, ushort nodeID) {
-            bool startNode = NetUtil.IsStartNode(sourceSegmentID, nodeID);
+            bool sourceStartNode = NetUtil.IsStartNode(sourceSegmentID, nodeID);
             if (sourceSegmentID == targetSegmentID) {
-                return JRMan.IsUturnAllowed(sourceSegmentID, startNode);
+                return JRMan.IsUturnAllowed(sourceSegmentID, sourceStartNode);
             }
-            ArrowDirection arrowDir = TMPE.ExtSegmentEndManager.GetDirection(sourceSegmentID, targetSegmentID, nodeID);
-            LaneArrows arrow = ArrowDir2LaneArrows(arrowDir);
+
             var sourceLanes = new LaneDataIterator(
                 sourceSegmentID,
-                startNode,
-                LaneArrowMan.LaneTypes,
-                LaneArrowMan.VehicleTypes);
+                sourceStartNode,
+                LANE_TYPES,
+                VEHICLE_TYPES);
             //Log.Debug("DoesSegmentGoToSegment: sourceLanes=" + sourceLanes.ToSTR());
-
             foreach (LaneData sourceLane in sourceLanes) {
-                bool connected;
-                if (LCMan.HasConnections(sourceLane.LaneID, startNode)) {
-                    connected = IsLaneConnectedToSegment(sourceLane.LaneID, targetSegmentID);
-                    //Log.Debug($"IsLaneConnectedToSegment({sourceLane},{targetSegmentID}) = {connected}");
-
-                } else {
-                    LaneArrows arrows = LaneArrowMan.GetFinalLaneArrows(sourceLane.LaneID);
-                    connected = (arrows & arrow) != 0;
-                }
-                if (connected)
+                if (IsLaneConnectedToSegment(sourceLane.LaneID, targetSegmentID, sourceStartNode)) {
                     return true;
+                }
             }
+
             return false;
         }
 
         /// <summary>
         /// Determines if there is any lane connection from source lane to target segment.
         /// </summary>
-        public static bool IsLaneConnectedToSegment(uint sourceLaneId, ushort targetSegmentID) {
-            ushort sourceSegmentID = sourceLaneId.ToLane().m_segment;
-            ushort nodeID = sourceSegmentID.ToSegment().GetSharedNode(targetSegmentID);
-            bool sourceStartNode = NetUtil.IsStartNode(sourceSegmentID, nodeID);
-            bool targetStartNode = NetUtil.IsStartNode(targetSegmentID, nodeID);
+        public static bool IsLaneConnectedToSegment(uint sourceLaneId, ushort targetSegmentID, bool startNode) {
+            foreach (var transition in TMPEHelpers.GetForwardRoutings(sourceLaneId, startNode)) {
+                if (transition.type is LaneEndTransitionType.Invalid or LaneEndTransitionType.Relaxed)
+                    continue;
 
+                if ((transition.group & LaneEndTransitionGroup.Vehicle) == 0)
+                    continue;
 
-            var targetLanes = new LaneDataIterator(
-                targetSegmentID,
-                !targetStartNode,// going away from start node.
-                LCMan.LaneTypes,
-                LCMan.VehicleTypes);
-            foreach (LaneData targetLane in targetLanes) {
-                if (LCMan.AreLanesConnected(sourceLaneId, targetLane.LaneID, sourceStartNode))
+                if (transition.segmentId == targetSegmentID)
                     return true;
             }
             return false;
-        }
-
-        public static LaneArrows ArrowDir2LaneArrows(ArrowDirection arrowDir) {
-            switch (arrowDir) {
-                case ArrowDirection.Forward:
-                    return LaneArrows.Forward;
-                case ArrowDirection.Left:
-                    return LaneArrows.Left;
-                case ArrowDirection.Right:
-                    return LaneArrows.Right;
-                default:
-                    return LaneArrows.None;
-            }
         }
         #endregion
 
