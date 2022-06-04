@@ -15,6 +15,8 @@ namespace AdaptiveRoads.Manager {
     public static partial class NetInfoExtionsion {
         [Serializable]
         public class Track : ICloneable, ISerializable {
+            private const int TRACK_RENDER_QUEUE = 2470;
+
             [Obsolete("only useful for the purpose of shallow clone", error: true)]
             public Track() { }
             public Track Clone() => this.ShalowClone();
@@ -127,8 +129,10 @@ namespace AdaptiveRoads.Manager {
                         this.m_layer = netInfo.m_prefabDataLayer;
                     }
                     if(this.m_material) {
+                        this.m_material.renderQueue = TRACK_RENDER_QUEUE;
                         this.m_trackMaterial = new Material(this.m_material);
-                        if(UseKeywordNETSEGMENT)
+                        m_trackMaterial.renderQueue = TRACK_RENDER_QUEUE;
+                        if (UseKeywordNETSEGMENT)
                             this.m_trackMaterial.EnableKeyword("NET_SEGMENT");
                         Color color = this.m_material.color;
                         color.a = 0f;
@@ -139,6 +143,9 @@ namespace AdaptiveRoads.Manager {
                         }
                     } else {
                         m_trackMaterial = null;
+                    }
+                    if (this.m_lodMaterial) {
+                        this.m_lodMaterial.renderQueue = TRACK_RENDER_QUEUE;
                     }
                     LaneCount = EnumBitMaskExtensions.CountOnes(LaneIndeces);
                     UpdateScale(netInfo);
