@@ -5,6 +5,7 @@ namespace AdaptiveRoads.Util {
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using UnityEngine;
     using static KianCommons.Helpers;
 
     internal static class RoadUtils {
@@ -140,6 +141,14 @@ namespace AdaptiveRoads.Util {
                 if(NetUtil.IsSegmentValid(segmentID)) {
                     NetManager.instance.UpdateSegment(segmentID);
                 }
+            }
+        }
+
+        public static void SetTiling(this Material material, float tiling) {
+            if (material) {
+                material.mainTextureScale = new Vector2(1, tiling);
+                // not sure if checksum changes if I change texture scale.to make sure checksum changes I also change the name.
+                material.name = "NetworkTiling " + tiling.ToString("R");
             }
         }
     }

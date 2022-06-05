@@ -431,14 +431,6 @@ namespace AdaptiveRoads.Util {
                 }
             }
         }
-
-        public static void SetTiling(this Material material, float tiling) {
-            if(material) {
-                material.mainTextureScale = new Vector2(1, tiling);
-                // not sure if checksum changes if I change texture scale.to make sure checksum changes I also change the name.
-                material.name = "NetworkTiling " + tiling.ToString("R"); 
-            }
-        }
     }
 }
 
