@@ -30,7 +30,13 @@ namespace AdaptiveRoads.LifeCycle {
 
         public static void Enable() {
             try {
+#if DEBUG
                 Log.Debug("Testing StackTrace:\n" + new StackTrace(true).ToString(), copyToGameLog: false);
+                //Log.VERBOSE = true;
+                var ANPlugin = PluginUtil.GetAdaptiveRoads();
+                //Log.VERBOSE = false;
+#endif
+
                 KianCommons.UI.TextureUtil.EmbededResources = false;
                 Log.VERBOSE = false;
                 Log.Buffered = true;
