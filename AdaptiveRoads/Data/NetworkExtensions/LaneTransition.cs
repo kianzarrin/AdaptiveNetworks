@@ -12,6 +12,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         public uint LaneIDTarget;
         public int AntiFlickerIndex;
         public bool Matching;
+        public NetNode.Flags DCFlags;
 
         public void Init(uint laneID1, uint laneID2, ushort nodeID, int antiFlickerIndex) {
             AntiFlickerIndex = antiFlickerIndex;
@@ -90,6 +91,8 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         public bool Nodeless => OutLine.Empty;
 
         public void Calculate() {
+            DCFlags = NetNodeExt.CalculateDCAsym(NodeID, segmentID_A, segmentID_D);
+
             Vector3 a, dirA;
             float angleA;
             if(SegmentA.IsStartNode(NodeID)) {
@@ -175,10 +178,10 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             if (trackInfo.TreatBendAsNode || junction) {
                 // if (trackInfo.RequireMatching & !Matching) return false;
                 return trackInfo.CheckNodeFlags(
-                    NodeExt.m_flags, Node.m_flags,
+                    NodeExt.m_flags, Node.m_flags | DCFlags,
                     SegmentExtA.m_flags, SegmentA.m_flags,
                     LaneExtA.m_flags, LaneA.Flags());
-            } else { // tread bend as segment:
+            } else { // treat bend as segment:
                 return  trackInfo.CheckSegmentFlags(
                     SegmentExtA.m_flags, SegmentA.m_flags,
                     LaneExtA.m_flags, LaneA.Flags());
