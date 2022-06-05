@@ -15,12 +15,17 @@ namespace AdaptiveRoads.Patches.Node {
         public static bool CheckFlagsDC(NetInfo.Node node, ushort nodeID, ushort segmentID, ushort segmentID2) {
             var nodeInfoExt = node?.GetMetaData();
             if (nodeInfoExt == null) return true;
-            if (segmentID == 0)
+            bool bend = segmentID == 0;
+            if (bend)
                 GetBendDCSegmentID(nodeID, out segmentID, out segmentID2);
 
             bool ret = CheckFlagsImpl(nodeInfoExt, nodeID, segmentID);
             if (nodeInfoExt.CheckTargetFlags)
                 ret = ret && CheckFlagsImpl(nodeInfoExt, nodeID, segmentID2);
+            if (!bend) {
+                // bend node already contains asym flags.
+                ret = ret && CheckFlagsDCImpl(node, nodeID, segmentID, segmentID2);
+            }
             return ret;
         }
 
@@ -45,6 +50,13 @@ namespace AdaptiveRoads.Patches.Node {
             return node.CheckFlags(
                 netNodeExt.m_flags, netSegmentEnd.m_flags,
                 netSegmentExt.m_flags, netSegment.m_flags);
+        }
+        static bool CheckFlagsDCImpl(NetInfo.Node nodeInfo, ushort nodeID, ushort segmentID1, ushort segmentID2) {
+            var dcFlags = NetNodeExt.CalculateDCAsym(nodeID, segmentID1, segmentID2);
+            return dcFlags.CheckFlags(
+                nodeInfo.m_flagsRequired & (NetNode.Flags.AsymBackward | NetNode.Flags.AsymBackward),
+                nodeInfo.m_flagsRequired & (NetNode.Flags.AsymBackward | NetNode.Flags.AsymBackward));
+            
         }
 
 

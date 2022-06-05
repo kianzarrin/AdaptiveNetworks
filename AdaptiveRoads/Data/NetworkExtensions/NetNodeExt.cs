@@ -347,6 +347,34 @@ namespace AdaptiveRoads.Manager {
                 transtion.PopulateGroupData(groupX, groupZ, layer: layer, ref vertexIndex, ref triangleIndex, groupPosition, data);
             }
         }
+
+        public static NetNode.Flags CalculateDCAsym(ushort nodeId, ushort segmentId1, ushort segmentId2) {
+            bool toward1 = IsToward(nodeId, segmentId1);
+            bool toward2 = IsToward(nodeId, segmentId2);
+            if (toward1 && toward2)
+                return NetNode.Flags.AsymBackward;
+            else if (!toward1 && !toward2)
+                return NetNode.Flags.AsymForward;
+            else
+                return default;
+
+            static bool IsToward(ushort nodeId, ushort segmentId) {
+                ref NetSegment segment = ref segmentId.ToSegment();
+                bool startNode = segment.IsStartNode(nodeId);
+                bool invert = segment.m_flags.IsFlagSet(NetSegment.Flags.Invert);
+                bool reverse = startNode ^ invert;
+                NetInfo netInfo = segment.Info;
+                int toward, away;
+                if (!reverse) {
+                    away = netInfo.m_backwardVehicleLaneCount;
+                    toward = netInfo.m_forwardVehicleLaneCount;
+                } else {
+                    away = netInfo.m_forwardVehicleLaneCount;
+                    toward = netInfo.m_backwardVehicleLaneCount;
+                }
+                return toward > away;
+            }
+        }
         #endregion
     }
 }
