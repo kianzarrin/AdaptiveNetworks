@@ -12,6 +12,15 @@ namespace AdaptiveRoads.Patches.Node {
     using AdaptiveRoads.Data.NetworkExtensions;
 
     public static class CheckNodeFlagsCommons {
+        public static NetNode.Flags AddDCFlags(NetNode.Flags flags, ushort nodeID, ushort segmentID, ushort segmentID2) {
+            bool bend = segmentID == 0;
+            if (!bend) {
+                // optimisation: bend node already has these flags.
+                flags |= NetNodeExt.CalculateDCAsym(nodeID, segmentID, segmentID2);
+            }
+            return flags;
+        }
+
         public static bool CheckFlagsDC(NetInfo.Node node, ushort nodeID, ushort segmentID, ushort segmentID2) {
             var nodeInfoExt = node?.GetMetaData();
             if (nodeInfoExt == null) return true;
@@ -22,10 +31,6 @@ namespace AdaptiveRoads.Patches.Node {
             bool ret = CheckFlagsImpl(nodeInfoExt, nodeID, segmentID);
             if (nodeInfoExt.CheckTargetFlags)
                 ret = ret && CheckFlagsImpl(nodeInfoExt, nodeID, segmentID2);
-            if (!bend) {
-                // bend node already contains asym flags.
-                ret = ret && CheckFlagsDCImpl(node, nodeID, segmentID, segmentID2);
-            }
             return ret;
         }
 
@@ -51,14 +56,6 @@ namespace AdaptiveRoads.Patches.Node {
                 netNodeExt.m_flags, netSegmentEnd.m_flags,
                 netSegmentExt.m_flags, netSegment.m_flags);
         }
-        static bool CheckFlagsDCImpl(NetInfo.Node nodeInfo, ushort nodeID, ushort segmentID1, ushort segmentID2) {
-            var dcFlags = NetNodeExt.CalculateDCAsym(nodeID, segmentID1, segmentID2);
-            return dcFlags.CheckFlags(
-                nodeInfo.m_flagsRequired & (NetNode.Flags.AsymBackward | NetNode.Flags.AsymBackward),
-                nodeInfo.m_flagsRequired & (NetNode.Flags.AsymBackward | NetNode.Flags.AsymBackward));
-            
-        }
-
 
         static void GetBendDCSegmentID(ushort nodeID, out ushort segmentID1, out ushort segmentID2) {
             // copy pasted from decompiler.
@@ -81,6 +78,7 @@ namespace AdaptiveRoads.Patches.Node {
             }
         }
 
+        static MethodInfo mAddDCFlags => typeof(CheckNodeFlagsCommons).GetMethod(nameof(AddDCFlags), throwOnError: true);
         static MethodInfo mCheckFlagsExt => typeof(CheckNodeFlagsCommons).GetMethod(nameof(CheckFlags), throwOnError: true);
         static MethodInfo mCheckFlagsExtDC => typeof(CheckNodeFlagsCommons).GetMethod(nameof(CheckFlagsDC), throwOnError: true);
         static MethodInfo mCheckFlags => typeof(NetInfo.Node).GetMethod("CheckFlags", throwOnError: true);
@@ -103,9 +101,23 @@ namespace AdaptiveRoads.Patches.Node {
             CodeInstruction ldNodeID = GetLDArg(method, "nodeID");
             CodeInstruction ldSegmentID = BuildSegmentLDLocFromPrevSTLoc(codes, iCheckFlags, counterGetSegment);
 
+            CodeInstruction ldSegmentID2 = null;
+            if (DC) {
+                ldSegmentID2 = BuildSegmentLDLocFromPrevSTLoc(codes, iCheckFlags, counterGetSegment - 1);
+
+                // call NetNode.Flags AddDCFlags(NetNode.Flags flags, ushort nodeID, ushort segmentID, ushort segmentID2)
+                codes.InsertInstructions(iCheckFlags, new[]{
+                    // flags already in stack
+                    ldNodeID,
+                    ldSegmentID,
+                    ldSegmentID2,
+                    new CodeInstruction(OpCodes.Call, mAddDCFlags),
+                });
+            }
+
+
             CodeInstruction[] newCodes;
             if (DC) {
-                CodeInstruction ldSegmentID2 = BuildSegmentLDLocFromPrevSTLoc(codes, iCheckFlags, counterGetSegment - 1);
                 newCodes = new[]{
                     ldNodeInfo,
                     ldNodeID,
