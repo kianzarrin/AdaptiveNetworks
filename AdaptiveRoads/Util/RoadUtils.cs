@@ -151,5 +151,14 @@ namespace AdaptiveRoads.Util {
                 material.name = "NetworkTiling " + tiling.ToString("R");
             }
         }
+
+        public static void FixRenderQueue(this Material material) {
+            string shader = material?.shader?.name;
+            if (shader == "Custom/Net/TrainBridge") {
+                material.renderQueue = 2470;
+            } else if (shader == "Custom/Net/Electricity") {
+                material.renderQueue = 3000;
+            }
+        }
     }
 }
