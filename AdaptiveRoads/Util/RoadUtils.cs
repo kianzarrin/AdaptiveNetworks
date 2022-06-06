@@ -157,7 +157,8 @@ namespace AdaptiveRoads.Util {
             if (shader == "Custom/Net/TrainBridge") {
                 material.renderQueue = 2470;
             } else if (shader == "Custom/Net/Electricity") {
-                material.renderQueue = 3000;
+                // game sets it to 3000 by default.
+                //material.renderQueue = 3000;
             }
         }
     }
