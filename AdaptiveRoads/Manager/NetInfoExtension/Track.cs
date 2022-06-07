@@ -26,6 +26,12 @@ namespace AdaptiveRoads.Manager {
                     if(lanes[laneIndex].m_vehicleType.IsFlagSet(TRACK_VehicleTypes))
                         LaneIndeces |= 1ul << laneIndex;
                 }
+                if(LaneIndeces == 0) {
+                    for (int laneIndex = 0; laneIndex < lanes.Length; ++laneIndex) {
+                        if (lanes[laneIndex].m_vehicleType.IsFlagSet(VehicleInfo.VehicleType.Bicycle))
+                            LaneIndeces |= 1ul << laneIndex;
+                    }
+                }
             }
 
             public void ReleaseModel() {

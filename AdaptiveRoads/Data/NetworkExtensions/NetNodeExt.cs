@@ -224,6 +224,7 @@ namespace AdaptiveRoads.Manager {
         private LaneTransition[] transitions_;
         public void GetTrackConnections() {
             try {
+                Log.Called();
                 transitions_ = null;
                 ref var node = ref NodeID.ToNode();
                 if(!node.IsValid())
@@ -233,26 +234,61 @@ namespace AdaptiveRoads.Manager {
 
                 tempConnections_.Clear();
                 foreach(var segmentID in NodeID.ToNode().IterateSegments()) {
-                    var infoExt = segmentID.ToSegment().Info?.GetMetaData();
-                    //if(infoExt == null) continue;
+                    //var infoExt = segmentID.ToSegment().Info?.GetMetaData();
                     var lanes = new LaneIDIterator(segmentID).ToArray();
                     for(int laneIndex = 0; laneIndex < lanes.Length; ++laneIndex) {
                         uint laneID = lanes[laneIndex];
                         var routings = TMPEHelpers.GetForwardRoutings(laneID, NodeID);
                         if(routings == null) continue;
                         if(IsNodeless(segmentID: segmentID, nodeID: NodeID)) continue;
-                        //Log.Debug($"routigns for lane:{laneID} are " + routings.ToSTR());
+                        //Log.Debug($"routings for lane:{laneID} are " + routings.ToSTR());
                         foreach(LaneTransitionData routing in routings) {
                             if(routing.type == LaneEndTransitionType.Invalid /*|| routing.type == LaneEndTransitionType.Relaxed*/)
                                 continue;
-                            var infoExt2 = routing.segmentId.ToSegment().Info?.GetMetaData();
-                            //if(infoExt2 == null) continue;
+                            //var infoExt2 = routing.segmentId.ToSegment().Info?.GetMetaData();
                             if(IsNodeless(segmentID: routing.segmentId, nodeID: NodeID)) continue;
-                            bool hasTrackLane = infoExt != null && infoExt.HasTrackLane(laneIndex);
-                            bool hasTrackLane2 = infoExt2 != null && infoExt2.HasTrackLane(routing.laneIndex);
-                            if(hasTrackLane || hasTrackLane2) {
-                                if(LanesConnect(laneID, routing.laneId)) {
-                                    var key = new Connection { LaneID1 = laneID, LaneID2 = routing.laneId };
+                            var key = new Connection { LaneID1 = laneID, LaneID2 = routing.laneId };
+                            tempConnections_.Add(key);
+                        }
+                    }
+                }
+
+                {
+                    foreach (ushort segmentId1 in SegmentIDs) {
+                        Log.Debug($"source: {segmentId1}");
+                        ref NetSegment segment1 = ref segmentId1.ToSegment();
+                        bool headNode1 = segment1.GetHeadNode() == NodeID;
+                        foreach (var lane1 in new LaneDataIterator(segmentId1, null, NetInfo.LaneType.Vehicle, VehicleInfo.VehicleType.Bicycle)) {
+                            bool outGoing;
+                            if (headNode1) {
+                                outGoing = lane1.LaneInfo.m_finalDirection.IsFlagSet(NetInfo.Direction.Forward);
+                            } else {
+                                outGoing = lane1.LaneInfo.m_finalDirection.IsFlagSet(NetInfo.Direction.Backward);
+                            }
+                            Log.Debug($"{lane1.LaneID} outgoing={outGoing}");
+                            if (!outGoing) {
+                                continue;
+                            }
+                            foreach (ushort segmentId2 in SegmentIDs) {
+                                if (segmentId2 == segmentId1) continue;
+                                bool headNode2 = segment1.GetHeadNode() == NodeID;
+                                Log.Debug($"target: {segmentId2}");
+                                ref NetSegment segment2 = ref segmentId2.ToSegment();
+                                bool startNode2 = segment2.IsStartNode(NodeID);
+                                foreach (var lane2 in new LaneDataIterator(segmentId2, null, NetInfo.LaneType.Vehicle, VehicleInfo.VehicleType.Bicycle)) {
+                                    bool incoming;
+                                    if (headNode2) {
+                                        incoming = lane2.LaneInfo.m_finalDirection.IsFlagSet(NetInfo.Direction.Forward);
+                                    } else {
+                                        incoming = lane2.LaneInfo.m_finalDirection.IsFlagSet(NetInfo.Direction.Backward);
+                                    }
+                                    Log.Debug($"{lane2.LaneID} incoming={incoming}");
+                                    if (!incoming) {
+                                        continue;
+                                    }
+
+                                    Log.Debug($"{lane1} -> {lane2}");
+                                    var key = new Connection { LaneID1 = lane1.LaneID, LaneID2 = lane2.LaneID };
                                     tempConnections_.Add(key);
                                 }
                             }
