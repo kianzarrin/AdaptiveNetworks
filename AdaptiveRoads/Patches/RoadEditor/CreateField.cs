@@ -17,6 +17,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using PrefabMetadata.API;
     using AdaptiveRoads.UI.QuayRoads;
     using ColossalFramework;
+    using AdaptiveRoads.Data;
 
     /// <summary>
     /// most of UI in road editor panels are managed here:
@@ -111,7 +112,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         bool backward = lane.IsGoingBackward();
                         bool unidirectional = forward || backward;
                         if (!unidirectional) {
-                            ButtonPanel.Add(
+                            EditorButtonPanel.Add(
                                 roadEditorPanel: __instance,
                                 container: __instance.m_Container,
                                 label: "Switch Forward/Backward",
@@ -124,7 +125,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                                 });
                         }
 
-                        ButtonPanel.Add(
+                        EditorButtonPanel.Add(
                             roadEditorPanel: __instance,
                             container: __instance.m_Container,
                             label: "Switch RHT/LHT",
@@ -189,7 +190,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         }
                         if (field.Name == nameof(NetInfo.m_surfaceLevel)) {
                             Log.Debug("adding QuayRoads button");
-                            var qrButtonPanel = ButtonPanel.Add(
+                            var qrButtonPanel = EditorButtonPanel.Add(
                             roadEditorPanel: __instance,
                             container: __instance.GetGroupPanel("Properties").m_Panel,
                             label: "Edit QuayRoads profile",
@@ -351,6 +352,11 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             target: metadata,
                             fieldInfo: fieldInfo);
                     }
+                } else if (fieldInfo.FieldType == typeof(UserDataInfo)) {
+                    CreateUserDataInfoSection(
+                        roadEditorPanel: roadEditorPanel,
+                        target: metadata,
+                        fieldInfo: fieldInfo);
                 } else {
                     return false;
                 }
@@ -385,6 +391,88 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 hint: uidata.Hint,
                 flagData: uidata.FlagData,
                 customFlagData: customdata);
+        }
+
+        public static void CreateUserDataInfoSection(RoadEditorPanel roadEditorPanel, object target, FieldInfo fieldInfo) {
+            Assert(fieldInfo.FieldType == typeof(UserDataInfo), "field type is UserDataInfo");
+            Log.Called(roadEditorPanel, target, fieldInfo);
+            string groupName = "Custom User Data";
+            NetInfo netInfo = RoadEditorUtils.GetSelectedNetInfo(out _);
+            var net = netInfo.GetMetaData();
+            UserDataInfo userDataInfo = fieldInfo.GetValue(target) as UserDataInfo;
+            var userValues = userDataInfo?.UserValues;
+            if (!userValues.IsNullorEmpty()) {
+                var userDatanames = net.UserDataNamesSet ??= new();
+                for (int i = 0; i < userValues.Length; ++i) {
+                    CreateUserDataValueEntry(
+                        roadEditorPanel: roadEditorPanel,
+                        groupName,
+                        target:target,
+                        fieldInfo:fieldInfo,
+                        index: i);
+                }
+            }
+
+            var groupPanel = roadEditorPanel.GetGroupPanel(groupName);
+            var addButton = groupPanel.Container.AddUIComponent<EditorButon>();
+            addButton.text = "Add New Selector";
+            addButton.width = 200;
+            addButton.eventClick += (c, __) => {
+                UserValueDropDownPanel.AddNewEntryMiniPanel(entry => {
+                    net.UserDataNamesSet ??= new();
+                    net.UserDataNamesSet.Segment.Add(entry);
+                    net.AllocateUserData(netInfo);
+                    CreateUserDataValueEntry(
+                        roadEditorPanel: roadEditorPanel,
+                        groupName,
+                        target: target,
+                        fieldInfo: fieldInfo,
+                        index: null);
+                });
+            };
+        }
+
+        /// <param name="index">null => last</param>
+        public static void CreateUserDataValueEntry(
+            RoadEditorPanel roadEditorPanel, string groupName, object target, FieldInfo fieldInfo, int ?index) {
+            Assert(fieldInfo.FieldType == typeof(UserDataInfo), "field type is UserDataInfo");
+            Log.Called(roadEditorPanel, target, fieldInfo);
+            var groupPanel = roadEditorPanel.GetGroupPanel(groupName);
+            NetInfo netInfo = RoadEditorUtils.GetSelectedNetInfo(out _);
+            var net = netInfo.GetMetaData();
+            UserDataInfo userDataInfo = fieldInfo.GetValue(target) as UserDataInfo;
+            var userDatanames = net.UserDataNamesSet ??= new();
+            var userValues = userDataInfo?.UserValues;
+            int i = index ?? userValues.Length - 1;
+
+            var data = new UserValueDropDownPanel.DataT {
+                Index = i,
+                Names = userDatanames.Segment.ValueNames[i],
+                Target = userDataInfo,
+            };
+            data.eventNamesUpdated += (names) => userDatanames.Segment.ValueNames[i] = names;
+            data.eventEntryRemoved += (index) => {
+                try {
+                    Log.Called(index);
+                    net.RemoveSegmentUserValue(netInfo, index);
+
+                    // fix indeces:
+                    var groupPanel = roadEditorPanel.GetGroupPanel(groupName);
+                    foreach(var panel in groupPanel.GetComponentsInChildren<UserValueDropDownPanel>()) {
+                        if (panel.Data.Index > index)
+                            panel.Data.Index--;
+                    }
+
+                } catch (Exception ex) {
+                    ex.Log();
+                }
+            };
+
+            var panel = UserValueDropDownPanel.Add(
+                roadEditorPanel: roadEditorPanel,
+                groupPanel: groupPanel,
+                hint: "user can select one value from the drop down. None => not used in this model",
+                data: data);
         }
 
         public static void CreateMergedComponent(

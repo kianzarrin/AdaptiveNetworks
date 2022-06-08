@@ -1,5 +1,6 @@
 namespace AdaptiveRoads.Manager {
     using AdaptiveRoads.CustomScript;
+    using AdaptiveRoads.Data;
     using AdaptiveRoads.UI.RoadEditor.Bitmask;
     using AdaptiveRoads.Util;
     using ColossalFramework;
@@ -35,6 +36,7 @@ namespace AdaptiveRoads.Manager {
                 ret.CustomLaneFlagNames = ret.CustomLaneFlagNames
                     ?.Select(item => item?.ShallowClone())
                     ?.ToArray();
+                ret.UserDataNamesSet = ret.UserDataNamesSet?.Clone();
                 //Log.Debug($"CustomLaneFlagNames={CustomLaneFlagNames} after cloning");
                 for (int i = 0; i < ret.Tracks.Length; ++i) {
                     ret.Tracks[i] = ret.Tracks[i].Clone();
@@ -112,6 +114,46 @@ namespace AdaptiveRoads.Manager {
             public float OneOverSinOfParkingAngle = 1;
 
             public Data.QuayRoads.ProfileSection[] QuayRoadsProfile = null;
+
+            #region UserData
+            public UserDataNamesSet UserDataNamesSet;
+            public void RemoveSegmentUserValue(NetInfo netInfo, int i) {
+                try {
+                    Log.Called(i);
+                    UserDataNamesSet?.Segment?.RemoveValueAt(i);
+                    foreach (var segment in netInfo.m_segments) {
+                        segment?.GetMetaData()?.UserData?.RemoveValueAt(i);
+                    }
+                    for (ushort segmentId = 1; segmentId < NetManager.MAX_SEGMENT_COUNT; ++segmentId) {
+                        ref NetSegment segment = ref segmentId.ToSegment();
+                        if (segment.IsValid() && segment.Info == netInfo) {
+                            segmentId.ToSegmentExt().UserData.RemoveValueAt(i);
+                        }
+                    }
+                    AllocateUserData(netInfo);
+                } catch(Exception ex) {
+                    ex.Log();
+                }
+            }
+            public void AllocateUserData(NetInfo netInfo) {
+                UserDataNamesSet ??= new();
+                foreach (var segment in netInfo.m_segments) {
+                    segment.GetOrCreateMetaData()?.AllocateUserData(UserDataNamesSet?.Segment);
+                }
+                for (ushort segmentId = 1; segmentId < NetManager.MAX_SEGMENT_COUNT; ++segmentId) {
+                    ref NetSegment segment = ref segmentId.ToSegment();
+                    if (segment.IsValid() && segment.Info == netInfo) {
+                        segmentId.ToSegmentExt().UserData.AllocateNames(UserDataNamesSet?.Segment);
+                    }
+                }
+            }
+            public void OptimizeUserData(NetInfo netInfo) {
+                foreach (var segment in netInfo.m_segments) {
+                    segment.GetOrCreateMetaData()?.AllocateUserData(UserDataNamesSet?.Segment);
+                }
+            }
+
+            #endregion
 
             #region Custom Flags
             [NonSerialized]
@@ -393,6 +435,7 @@ namespace AdaptiveRoads.Manager {
             }
             #endregion
 
+
             public void Recalculate(NetInfo netInfo) {
                 try {
                     Assertion.NotNull(netInfo, "netInfo");
@@ -404,6 +447,7 @@ namespace AdaptiveRoads.Manager {
                     UsedCustomFlags = GatherUsedCustomFlags(netInfo);
                     RecalculateParkingAngle();
                     RecalculateConnectGroups(netInfo);
+
                 } catch(Exception ex) { ex.Log(); }
             }
 
@@ -444,6 +488,10 @@ namespace AdaptiveRoads.Manager {
                     nodeInfo?.GetMetaData()?.SetupTiling(nodeInfo);
                 foreach(var segmentInfo in netInfo.m_segments)
                     segmentInfo?.GetMetaData()?.SetupTiling(segmentInfo);
+            }
+
+            public void RefreshUserData(NetInfo netInfo) {
+
             }
 
             void RecalculateTracks(NetInfo netInfo) {
@@ -513,7 +561,7 @@ namespace AdaptiveRoads.Manager {
                 NodeConnectGroupsHash = GetNodeConnectGroupsHash(netInfo).ToArray();
                 if(NodeConnectGroupsHash.IsNullorEmpty()) NodeConnectGroupsHash = null;
 
-                var itemSource = ItemSource.GetOrCreate(typeof(NetInfo.ConnectGroup));
+                var itemSource = ItemSource.GetOrCreate<NetInfo.ConnectGroup>();
                 foreach(var connectGroup in GetAllConnectGroups(netInfo))
                     itemSource.Add(connectGroup);
             }

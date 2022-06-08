@@ -7,7 +7,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
     using UnityEngine;
     using static KianCommons.ReflectionHelpers;
 
-    public class ButtonPanel : UIPanel, IHint {
+    public class EditorButtonPanel : UIPanel, IHint {
         public UIButton Button;
         string hint_;
         // used by QuayRoads to destroy its popups when the button is destroyed
@@ -19,14 +19,14 @@ namespace AdaptiveRoads.UI.RoadEditor {
             base.OnDestroy();
         }
 
-        public static ButtonPanel Add(
+        public static EditorButtonPanel Add(
             RoadEditorPanel roadEditorPanel,
             UIComponent container,
             string label,
             string hint,
             Action action) {
             Log.Debug($"ButtonPanel.Add(container:{container}, label:{label})");
-            var subPanel = UIView.GetAView().AddUIComponent(typeof(ButtonPanel)) as ButtonPanel;
+            var subPanel = UIView.GetAView().AddUIComponent(typeof(EditorButtonPanel)) as EditorButtonPanel;
             subPanel.Enable();
             subPanel.Button.text = label;
             subPanel.hint_ = hint;

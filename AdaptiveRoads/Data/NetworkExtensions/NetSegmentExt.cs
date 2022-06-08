@@ -20,6 +20,8 @@ namespace AdaptiveRoads.Manager {
         public float BackwardSpeedLimit; // max
         public float MaxSpeedLimit => Mathf.Max(ForwardSpeedLimit, BackwardSpeedLimit);
         public Flags m_flags;
+        public Data.UserData UserData;
+
 
         const int CUSTOM_FLAG_SHIFT = 24;
         public bool IsEmpty => (m_flags & Flags.CustomsMask) == Flags.None;
@@ -167,6 +169,8 @@ namespace AdaptiveRoads.Manager {
                 End.UpdateFlags();
                 End.UpdateDirections();
                 End.UpdateCorners();
+
+                UserData.AllocateNames(NetInfoExt?.UserDataNamesSet?.Segment);
 
                 if (Log.VERBOSE) Log.Debug($"NetSegmentExt.UpdateAllFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
                 if(Log.VERBOSE) Log.Debug($"NetSegmentExt:{NetInfoExt}, TrackLaneCount={NetInfoExt?.TrackLaneCount}");

@@ -6,7 +6,7 @@ using static KianCommons.ReflectionHelpers;
 using System;
 
 namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
-    class EditorMultiSelectDropDown : UICheckboxDropDown {
+    class EditorDropDown : UIDropDown {
         //public UIScrollablePanel Popup => GetFieldValue(this, "m_Popup") as UIScrollablePanel;
 
         public override void Awake() {
@@ -22,7 +22,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             }
         }
 
-        internal static void Init(UICheckboxDropDown dd) {
+        internal static void Init(UIDropDown dd) {
             try {
                 LogCalled();
                 dd.size = new Vector2(370, 22);
@@ -32,8 +32,6 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
 
                 dd.atlas = TextureUtil.InMapEditor;
                 dd.normalBgSprite = "TextFieldPanel";
-                dd.uncheckedSprite = "check-unchecked";
-                dd.checkedSprite = "check-checked";
 
                 dd.listBackground = "GenericPanelWhite";
                 dd.listWidth = 188;
@@ -103,10 +101,10 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
         }
 
         static  void OnDropDownOpen(
-            UICheckboxDropDown checkboxdropdown, UIScrollablePanel popup, ref bool overridden)
+            UIDropDown checkboxdropdown, UIListBox popup, ref bool overridden)
             => popup.eventMouseDown += (_, p) => HandleMouseDown(checkboxdropdown, p);
 
-        static void HandleMouseDown(UICheckboxDropDown c, UIMouseEventParameter p) {
+        static void HandleMouseDown(UIDropDown c, UIMouseEventParameter p) {
             if(p.buttons == UIMouseButton.Right) {
                 c.ClosePopup();
                 p.Use();

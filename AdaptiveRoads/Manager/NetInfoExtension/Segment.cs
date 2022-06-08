@@ -1,4 +1,5 @@
 namespace AdaptiveRoads.Manager {
+    using AdaptiveRoads.Data;
     using AdaptiveRoads.Util;
     using KianCommons;
     using KianCommons.Serialization;
@@ -46,6 +47,9 @@ namespace AdaptiveRoads.Manager {
             [Optional(SEGMENT_SEGMENT_END)]
             public SegmentEndInfoFlags Head;
 
+            [CustomizableProperty("Custom Data")]
+            public UserDataInfo UserData;
+
             [CustomizableProperty("Tiling")]
             [Hint("network tiling value")]
             public float Tiling;
@@ -64,7 +68,6 @@ namespace AdaptiveRoads.Manager {
                     VanillaHeadNode.CheckFlags(headNodeFlags) &
                     TailtNode.CheckFlags(tailNodeExtFlags) &
                     HeadNode.CheckFlags(headNodeExtFlags);
-                ;
             }
 
             public bool CheckFlags(NetSegmentExt.Flags flags,
@@ -104,7 +107,11 @@ namespace AdaptiveRoads.Manager {
 
             [Obsolete("only useful for the purpose of shallow clone", error: true)]
             public Segment() { }
-            public Segment Clone() => this.ShalowClone();
+            public Segment Clone() {
+                var ret = this.ShalowClone();
+                ret.UserData = ret.UserData?.ShalowClone();
+                return ret;
+            }
             public Segment(NetInfo.Segment template) { }
 
             #region serialization
@@ -124,6 +131,19 @@ namespace AdaptiveRoads.Manager {
                     segmentInfo.m_lodMaterial?.SetTiling(Tiling);
                     segmentInfo.m_combinedLod?.m_material?.SetTiling(Mathf.Abs(Tiling));
                 }
+            }
+
+            /// <summary>
+            /// only call in AR mode to allocate arrays for asset editor.
+            /// </summary>
+            /// <param name="names"></param>
+            public void AllocateUserData(UserDataNames names) {
+                UserData ??= new();
+                UserData.Allocate(names);
+            }
+            public void OptimizeUserData() {
+                if (UserData != null && UserData.IsEmptyOrDefault())
+                    UserData = null;
             }
         }
     }

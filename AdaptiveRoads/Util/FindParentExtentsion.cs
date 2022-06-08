@@ -1,5 +1,7 @@
 namespace AdaptiveRoads.Util {
     using AdaptiveRoads.Manager;
+    using PrefabMetadata.API;
+
     public static class FindParentExtentsion {
         public static NetInfo GetParent(this NetInfo.Node node, out int nodeIndex) {
             foreach (var netInfo in NetInfoExtionsion.EditedNetInfos) {
@@ -57,6 +59,16 @@ namespace AdaptiveRoads.Util {
             return null;
         }
 
+        public static NetInfo GetParent(this IInfoExtended child) {
+            if(child is NetInfo.Segment segment) {
+                return GetParent(segment, out _);
+            } else if (child is NetInfo.Node node) {
+                return GetParent(node, out _);
+            } else if (child is NetLaneProps.Prop prop) {
+                return GetParent(prop, out _, out _);
+            }
+            return null;
+        }
 
     }
 }

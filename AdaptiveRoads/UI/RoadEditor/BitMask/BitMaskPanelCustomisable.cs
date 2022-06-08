@@ -10,6 +10,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
 
     internal class ItemSource {
         static Dictionary<Type, ItemSource> sources_ = new Dictionary<Type, ItemSource>();
+        public static ItemSource GetOrCreate<T>() => GetOrCreate(typeof(T));
         public static ItemSource GetOrCreate(Type type) {
             if (!sources_.ContainsKey(type))
                 sources_[type] = new ItemSource();
@@ -128,7 +129,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
                     "Add custom connect group. this can be used \n" +
                     "in combination of the vanilla connect groups.\n" +
                     "If you do use custom connect groups, please also\n" +
-                    "set lane types and vehicle types for compatibilty with DC mods"});
+                    "set lane types and vehicle types for compatibility with DC mods"});
         }
         private void DropDown_eventCheckedChanged(UIComponent component, int value) {
             try {

@@ -1,11 +1,18 @@
-- transition flags?
 - drop downs
-- fix the gap (skew lane if junction is not straight)
+    - database Done
+    - persistency
+    - asset editor UI
+    - tool UI
+- fence (None lanes act as fence?)
 - lane/track connect groups (might take time)
-- manual update of roads needed in asset editor.
+- fix the gap (skew lane if junction is not straight)
+- transition expression flags?
+- solution for mixed lanes
+- optimizations:
+    - remove default metadata in game
+    - flag for simpler props to avoid further checks.
 
 tracks:
-    - why do I need to refresh roads 2 times on load?
     - why source segment for lane transition is different for forward/backward lane.
 
 -----------------

@@ -49,6 +49,8 @@ namespace AdaptiveRoads.Manager {
         public static IEnumerable<NetInfo> EditedNetInfos =>
             AllElevations(EditedNetInfo);
 
+        public static bool IsEditing(this NetInfo info) => EditedNetInfos.Contains(info);
+
         public static IEnumerable<NetInfo> AllElevations(this NetInfo ground) {
             if(ground == null) yield break;
 

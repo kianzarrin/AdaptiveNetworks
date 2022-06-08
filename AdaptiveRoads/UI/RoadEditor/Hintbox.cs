@@ -155,67 +155,76 @@ namespace AdaptiveRoads.UI.RoadEditor {
                         Hint1 = dataUI.GetHint();
                         break;
                     } else if (panel.containsMouse) {
-                        const string toggleHint = "Click => toggle";
-                        const string selectHint = "Control + Click => multi-select";
-                        const string menuHint = "Right-Click => show more options";
-                        const string dptHint = toggleHint + "\n" + selectHint;
-                        const string labelButtonHint = toggleHint + "\n" + menuHint;
-                        var customControl = panel.GetComponent<UICustomControl>();
-                        if (customControl is RoadEditorCollapsiblePanel groupPanel
-                            && groupPanel.LabelButton.containsMouse) {
-                            // label button of a group panel.
-                            var target = groupPanel.GetTarget();
-                            string label = groupPanel.LabelButton.text;
-                            if(label == "Props") {
-                                // props group button
-                                Hint2 = labelButtonHint;
-                            } else if(
-                                groupPanel.GetArray() is NetInfo.Lane[] m_lanes
-                                && m_lanes.Any(_lane => _lane.HasProps())
-                                && target == NetInfoExtionsion.EditedNetInfo) {
-                                // lanes group button for basic elevation
-                                Hint2 = labelButtonHint;
-                            }
-                        } else if(
-                            panel.GetComponent(DPTType) is UICustomControl toggle &&
-                            GetDPTSelectButton(toggle).containsMouse) {
-                            // any dpt button
-                            Hint2 = dptHint;
-
-                            object element = GetDPTTargetElement(toggle);
-                            var target = GetDPTTargetObject(toggle);
-                            if (element is NetLaneProps.Prop prop) {
-                                // prop dpt
-                                Hint1 = prop.Summary();
-                                Hint2 += "\n" + menuHint;
+                            const string toggleHint = "Click => toggle";
+                            const string selectHint = "Control + Click => multi-select";
+                            const string menuHint = "Right-Click => show more options";
+                            const string dptHint = toggleHint + "\n" + selectHint;
+                            const string labelButtonHint = toggleHint + "\n" + menuHint;
+                            var customControl = panel.GetComponent<UICustomControl>();
+                        try {
+                            if (customControl is RoadEditorCollapsiblePanel groupPanel
+                                && groupPanel.LabelButton.containsMouse) {
+                                // label button of a group panel.
+                                var target = groupPanel.GetTarget();
+                                string label = groupPanel.LabelButton.text;
+                                if (label == "Props") {
+                                    // props group button
+                                    Hint2 = labelButtonHint;
+                                } else if (
+                                    groupPanel.GetArray() is NetInfo.Lane[] m_lanes
+                                    && m_lanes.Any(_lane => _lane.HasProps())
+                                    && target == NetInfoExtionsion.EditedNetInfo) {
+                                    // lanes group button for basic elevation
+                                    Hint2 = labelButtonHint;
+                                }
                             } else if (
-                                element is NetInfo.Lane lane &&
-                                lane.HasProps() && target == NetInfoExtionsion.EditedNetInfo) {
-                                // props on this lane can be copied to other elevations so we need menu.
-                                Hint2 += "\n" + menuHint;
+                                panel.GetComponent(DPTType) is UICustomControl toggle &&
+                                GetDPTSelectButton(toggle).containsMouse) {
+                                // any dpt button
+                                Hint2 = dptHint;
+
+                                object element = GetDPTTargetElement(toggle);
+                                var target = GetDPTTargetObject(toggle);
+                                if (element is NetLaneProps.Prop prop) {
+                                    // prop dpt
+                                    Hint1 = prop.Summary();
+                                    Hint2 += "\n" + menuHint;
+                                } else if (
+                                    element is NetInfo.Lane lane &&
+                                    lane.HasProps() && target == NetInfoExtionsion.EditedNetInfo) {
+                                    // props on this lane can be copied to other elevations so we need menu.
+                                    Hint2 += "\n" + menuHint;
+                                }
+                            } else if (customControl is REPropertySet propertySet) {
+                                try {
+                                    var field = propertySet.GetTargetField();
+                                    if (field != null) {
+                                        if (field.Name == "m_speedLimit") {
+                                            Hint1 = "1 game unit is 50 kph (31.06856mph)";
+                                        } else if (field.Name == nameof(NetInfo.m_terrainStartOffset)) {
+                                            Hint1 = "change terrain height along segment (used for start of tunnel entrance)";
+                                        } else if (field.Name == nameof(NetInfo.m_terrainEndOffset)) {
+                                            Hint1 = "change terrain height along segment (used for end of tunnel entrance)";
+                                        } else {
+                                            var hints = field.GetHints()
+                                                .Concat(field.DeclaringType.GetHints())
+                                                .Concat(field.FieldType.GetHints());
+                                            Hint1 = hints.JoinLines();
+                                        }
+                                    }
+                                } catch(Exception ex) {
+                                    throw new Exception($"propertySet={propertySet}", ex);
+                                }
+                            } else if (customControl is RERefSet refset &&
+                                refset.m_SelectButton.containsMouse) {
+                                if (refset.GetTarget() is NetLaneProps.Prop) {
+                                    Hint2 = "Click => open prop import panel\n" +
+                                        "Alt + Click => enter prop name manually";
+                                }
                             }
-                        } else if(customControl is REPropertySet propertySet) {
-                            var field = propertySet.GetTargetField();
-                            if (field?.Name == "m_speedLimit") {
-                                Hint1 = "1 game unit is 50 kph (31.06856mph)";
-                            } else if (field.Name == nameof(NetInfo.m_terrainStartOffset)) {
-                                Hint1 = "change terrain height along segment (used for start of tunnel entrance)";
-                            } else if (field.Name == nameof(NetInfo.m_terrainEndOffset)) {
-                                Hint1 = "change terrain height along segment (used for end of tunnel entrance)";
-                            } else if (field != null) {
-                                var hints = field.GetHints()
-                                    .Concat(field.DeclaringType.GetHints())
-                                    .Concat(field.FieldType.GetHints());
-                                Hint1 = hints.JoinLines();
-                            }
-                        } else if(customControl is RERefSet refset &&
-                            refset.m_SelectButton.containsMouse) {
-                            if(refset.GetTarget() is NetLaneProps.Prop) {
-                                Hint2 = "Click => open prop import panel\n" +
-                                    "Alt + Click => enter prop name manually";
-                            }
+                        } catch (Exception ex) {
+                            throw new Exception($"customControl={customControl}", ex);
                         }
-                        
                     }
                 }
             } catch (Exception e) {
