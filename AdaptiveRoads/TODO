@@ -1,7 +1,7 @@
 - why can I see expressions in the custom flags panel in game?
 - transition flags?
 - drop downs
-- check the gap
+- fix the gap (skew lane if junction is not straight)
 - lane/track connect groups (might take time)
 - manual update of roads needed in asset editor.
 

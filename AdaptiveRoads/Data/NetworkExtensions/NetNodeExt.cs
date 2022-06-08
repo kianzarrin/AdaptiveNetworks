@@ -83,7 +83,7 @@ namespace AdaptiveRoads.Manager {
             [CustomFlag] Custom4 = 1 << 28,
             [CustomFlag] Custom5 = 1 << 29,
             [CustomFlag] Custom6 = 1 << 30,
-            [CustomFlag] Custom7 = 1 << 31,
+            [CustomFlag] Custom7 = 1L << 31,
             CustomsMask = Custom0 | Custom1 | Custom2 | Custom3 | Custom4 | Custom5 | Custom6 | Custom7,
 
             [ExpressionFlag] Expression0 = 1L << 32,
