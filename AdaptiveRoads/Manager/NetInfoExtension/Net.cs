@@ -1,6 +1,7 @@
 namespace AdaptiveRoads.Manager {
     using AdaptiveRoads.CustomScript;
     using AdaptiveRoads.Data;
+    using AdaptiveRoads.UI;
     using AdaptiveRoads.UI.RoadEditor.Bitmask;
     using AdaptiveRoads.Util;
     using ColossalFramework;
@@ -48,7 +49,7 @@ namespace AdaptiveRoads.Manager {
             public Net(NetInfo template) {
                 PavementWidthRight = template.m_pavementWidth;
                 UsedCustomFlags = GatherUsedCustomFlags(template);
-                Template = template;
+                ParentInfo = template;
             }
 
             public void ReleaseModels() {
@@ -62,6 +63,7 @@ namespace AdaptiveRoads.Manager {
             public void GetObjectData(SerializationInfo info, StreamingContext context) {
                 //Log.Called();
                 FillCustomLaneFlagNames();
+                OptimizeUserData(); // optimize for use in game
                 SerializationUtil.GetObjectFields(info, this);
             }
 
@@ -73,7 +75,7 @@ namespace AdaptiveRoads.Manager {
             #endregion
 
             [NonSerialized]
-            public NetInfo Template;
+            public NetInfo ParentInfo;
 
             public string[] ConnectGroups;
 
@@ -117,39 +119,48 @@ namespace AdaptiveRoads.Manager {
 
             #region UserData
             public UserDataNamesSet UserDataNamesSet;
-            public void RemoveSegmentUserValue(NetInfo netInfo, int i) {
+            public void RemoveSegmentUserValue(int i) {
                 try {
                     Log.Called(i);
                     UserDataNamesSet?.Segment?.RemoveValueAt(i);
-                    foreach (var segment in netInfo.m_segments) {
+                    foreach (var segment in ParentInfo.m_segments) {
                         segment?.GetMetaData()?.UserData?.RemoveValueAt(i);
                     }
                     for (ushort segmentId = 1; segmentId < NetManager.MAX_SEGMENT_COUNT; ++segmentId) {
                         ref NetSegment segment = ref segmentId.ToSegment();
-                        if (segment.IsValid() && segment.Info == netInfo) {
+                        if (segment.IsValid() && segment.Info == ParentInfo) {
                             segmentId.ToSegmentExt().UserData.RemoveValueAt(i);
                         }
                     }
-                    AllocateUserData(netInfo);
+                    AllocateUserData();
                 } catch(Exception ex) {
                     ex.Log();
                 }
             }
-            public void AllocateUserData(NetInfo netInfo) {
+
+            /// <summary>
+            /// call only for editing prefab
+            /// </summary>
+            public void AllocateUserData() {
                 UserDataNamesSet ??= new();
-                foreach (var segment in netInfo.m_segments) {
+                foreach (var segment in ParentInfo.m_segments) {
                     segment.GetOrCreateMetaData()?.AllocateUserData(UserDataNamesSet?.Segment);
                 }
                 for (ushort segmentId = 1; segmentId < NetManager.MAX_SEGMENT_COUNT; ++segmentId) {
                     ref NetSegment segment = ref segmentId.ToSegment();
-                    if (segment.IsValid() && segment.Info == netInfo) {
+                    if (segment.IsValid() && segment.Info == ParentInfo) {
                         segmentId.ToSegmentExt().UserData.Allocate(UserDataNamesSet?.Segment);
                     }
                 }
             }
-            public void OptimizeUserData(NetInfo netInfo) {
-                foreach (var segment in netInfo.m_segments) {
-                    segment.GetOrCreateMetaData()?.AllocateUserData(UserDataNamesSet?.Segment);
+
+
+            /// <summary>
+            /// call in game.
+            /// </summary>
+            public void OptimizeUserData() {
+                foreach (var segment in ParentInfo.m_segments) {
+                    segment.GetOrCreateMetaData()?.OptimizeUserData();
                 }
             }
 
@@ -213,9 +224,9 @@ namespace AdaptiveRoads.Manager {
                     //Log.Called();
                     CustomLaneFlagNames = null;
                     if (CustomLaneFlagNames0.IsNullorEmpty()) return;
-                    CustomLaneFlagNames = new Dictionary<NetLaneExt.Flags, string>[Template.m_lanes.Length];
+                    CustomLaneFlagNames = new Dictionary<NetLaneExt.Flags, string>[ParentInfo.m_lanes.Length];
                     for (int laneIndex = 0; laneIndex < CustomLaneFlagNames.Length; ++laneIndex) {
-                        var lane = Template.m_lanes[laneIndex];
+                        var lane = ParentInfo.m_lanes[laneIndex];
                         if (CustomLaneFlagNames0.TryGetValue(lane, out var dict)) {
                             CustomLaneFlagNames[laneIndex] = dict;
                         }
@@ -238,7 +249,7 @@ namespace AdaptiveRoads.Manager {
                     }
                     CustomLaneFlagNames0 = new Dictionary<NetInfo.Lane, Dictionary<NetLaneExt.Flags, string>>();
                     for (int laneIndex = 0; laneIndex < CustomLaneFlagNames.Length; ++laneIndex) {
-                        var lane = Template.m_lanes[laneIndex];
+                        var lane = ParentInfo.m_lanes[laneIndex];
                         var dict = CustomLaneFlagNames[laneIndex];
                         if (!dict.IsNullorEmpty()) {
                             CustomLaneFlagNames0[lane] = dict ;
@@ -254,7 +265,7 @@ namespace AdaptiveRoads.Manager {
                     //Log.Debug($"CustomLaneFlagNames0={CustomLaneFlagNames0.ToSTR()} CustomLaneFlagNames={CustomLaneFlagNames.ToSTR()}");
                     if (CustomLaneFlagNames0 is not null) {
                         // edit prefab
-                        var lane = Template.m_lanes[laneIndex];
+                        var lane = ParentInfo.m_lanes[laneIndex];
                         return CustomLaneFlagNames0.GetorDefault(lane);
                     } else if (CustomLaneFlagNames is not null) {
                         // normal
@@ -369,8 +380,8 @@ namespace AdaptiveRoads.Manager {
 
             void RenameCustomFlag(int laneIndex, NetLaneExt.Flags flag, string name) {
                 try {
-                    Assertion.NotNull(Template, "Template");
-                    NetInfo.Lane lane = Template.m_lanes[laneIndex];
+                    Assertion.NotNull(ParentInfo, "Template");
+                    NetInfo.Lane lane = ParentInfo.m_lanes[laneIndex];
                     Dictionary<NetLaneExt.Flags, string> dict;
 
                     CustomLaneFlagNames0 ??= new Dictionary<NetInfo.Lane, Dictionary<NetLaneExt.Flags, string>>();
@@ -417,7 +428,7 @@ namespace AdaptiveRoads.Manager {
             public NetLaneExt.Flags GetUsedCustomFlagsLane(int laneIndex) {
                 NetLaneExt.Flags ret = default;
                 try {
-                    var props = Template.m_lanes[laneIndex]?.m_laneProps?.m_props;
+                    var props = ParentInfo.m_lanes[laneIndex]?.m_laneProps?.m_props;
                     if (props != null) {
                         foreach (var prop in props) {
                             if (prop.GetMetaData() is LaneProp propExt) {
@@ -435,11 +446,10 @@ namespace AdaptiveRoads.Manager {
             }
             #endregion
 
-
             public void Recalculate(NetInfo netInfo) {
                 try {
                     Assertion.NotNull(netInfo, "netInfo");
-                    Template = netInfo;
+                    ParentInfo = netInfo;
                     FillCustomLaneFlagNames0();
                     RecalculateTracks(netInfo);
                     UpdateTextureScales(netInfo);
@@ -447,6 +457,11 @@ namespace AdaptiveRoads.Manager {
                     UsedCustomFlags = GatherUsedCustomFlags(netInfo);
                     RecalculateParkingAngle();
                     RecalculateConnectGroups(netInfo);
+                    if (ParentInfo.IsEditing()) {
+                        AllocateUserData();
+                    } else {
+                        OptimizeUserData();
+                    }
 
                 } catch(Exception ex) { ex.Log(); }
             }
@@ -536,7 +551,7 @@ namespace AdaptiveRoads.Manager {
                 if(Log.VERBOSE) Log.Debug("InitMeshData() for trackInfo called");
                 // work around private fields/methods.
                 var tempSegment = TempSegmentInfo(trackInfo);
-                Template.InitMeshData(tempSegment, atlasRect, rgbAtlas, xysAtlas, aprAtlas);
+                ParentInfo.InitMeshData(tempSegment, atlasRect, rgbAtlas, xysAtlas, aprAtlas);
                 if (!trackInfo.UseKeywordNETSEGMENT)
                     tempSegment.m_combinedLod.m_material.DisableKeyword("NET_SEGMENT");
                 trackInfo.m_combinedLod = tempSegment.m_combinedLod;

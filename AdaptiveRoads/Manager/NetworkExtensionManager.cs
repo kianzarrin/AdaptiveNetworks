@@ -53,7 +53,9 @@ namespace AdaptiveRoads.Manager {
         public static bool Exists => instance_ != null;
 
         internal int SerializationCapacity =>
-            (NetManager.MAX_NODE_COUNT + NetManager.MAX_SEGMENT_COUNT + NetManager.MAX_LANE_COUNT) * sizeof(int);
+            (NetManager.MAX_NODE_COUNT +
+            NetManager.MAX_SEGMENT_COUNT * 5 + // segment + segment Start + segment End + Segment UserValues (at least null) + Segment UserFlags (at least null)
+            NetManager.MAX_LANE_COUNT) * sizeof(int);
 
         public void Serialize(SimpleDataSerializer s) {
             try {
@@ -84,7 +86,18 @@ namespace AdaptiveRoads.Manager {
             } catch (Exception ex) {
                 ex.Log();
             }
+
+            if (s.Version >= new Version(3, 8)) {
+                // add to the end for forward compatibility
+                // user data
+                try {
+                    for (ushort i = 0; i < SegmentBuffer.Length; ++i)
+                        SegmentBuffer[i].SerializeUserData(s);
+                } catch (Exception ex) { ex.Log(); }
+            }
+
         }
+
         public static void Deserialize(SimpleDataSerializer s) {
             try {
                 instance_ = Create();
@@ -122,6 +135,14 @@ namespace AdaptiveRoads.Manager {
                 }
             } catch (Exception ex) {
                 ex.Log($"failed to deserialize lanes");
+            }
+
+            if (s.Version >= new Version(3, 8)) {
+                // user data
+                try {
+                    for (ushort i = 0; i < SegmentBuffer.Length; ++i)
+                        SegmentBuffer[i].DeserializeUserData(s);
+                } catch (Exception ex) { ex.Log(); }
             }
         }
 

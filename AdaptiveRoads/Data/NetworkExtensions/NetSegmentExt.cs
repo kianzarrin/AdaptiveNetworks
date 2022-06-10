@@ -39,6 +39,8 @@ namespace AdaptiveRoads.Manager {
             ((int)(Flags.CustomsMask & m_flags)) >> CUSTOM_FLAG_SHIFT);
         public void Deserialize(SimpleDataSerializer s) => m_flags =
             m_flags.SetMaskedFlags((Flags)(s.ReadInt32() << CUSTOM_FLAG_SHIFT), Flags.CustomsMask);
+        public void SerializeUserData(SimpleDataSerializer s) => UserData.Serialize(s);
+        public void DeserializeUserData(SimpleDataSerializer s) => UserData = Data.UserData.Deserialize(s);
 
         public void Init(ushort segmentID) {
             this = default;

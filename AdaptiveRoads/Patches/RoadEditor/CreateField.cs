@@ -421,7 +421,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 UserValueDropDownPanel.AddNewEntryMiniPanel(entry => {
                     net.UserDataNamesSet ??= new();
                     net.UserDataNamesSet.Segment.Add(entry);
-                    net.AllocateUserData(netInfo);
+                    net.AllocateUserData();
                     CreateUserDataValueEntry(
                         roadEditorPanel: roadEditorPanel,
                         groupName,
@@ -454,7 +454,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             data.eventEntryRemoved += (index) => {
                 try {
                     Log.Called(index);
-                    net.RemoveSegmentUserValue(netInfo, index);
+                    net.RemoveSegmentUserValue(index);
 
                     // fix indeces:
                     var groupPanel = roadEditorPanel.GetGroupPanel(groupName);

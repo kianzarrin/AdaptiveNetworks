@@ -4,6 +4,7 @@ namespace AdaptiveRoads.Data {
     using System.Linq;
     using AdaptiveRoads.Manager;
     using KianCommons;
+    using KianCommons.Serialization;
 
     public static class IntFlagsExtensions {
         public static bool IsAnyFlagSet(this int a, int b) => (a & b) != 0;
@@ -63,6 +64,23 @@ namespace AdaptiveRoads.Data {
         public int[] UserValues;
         public int[] UserFlags;
 
+        public void Serialize(SimpleDataSerializer s) {
+            if (IsEmptyOrDefault()) {
+                // if all values are default, then there is no need to store.
+                s.WriteInt32Array(null);
+                s.WriteInt32Array(null);
+            } else {
+                s.WriteInt32Array(UserValues);
+                s.WriteInt32Array(UserFlags);
+            }
+        }
+        public static UserData Deserialize(SimpleDataSerializer s) {
+            return new UserData {
+                UserValues = s.ReadInt32Array(),
+                UserFlags = s.ReadInt32Array(),
+            };
+        }
+
         public void Allocate(UserDataNames ?names) {
             UserValues = UserValues.SetArraySize(names?.ValueNames?.Length  , 0);
             UserFlags = UserFlags.SetArraySize(names?.FlagsNames?.Length, 0);
@@ -76,6 +94,24 @@ namespace AdaptiveRoads.Data {
         public void RemoveFlagAt(int i) {
             if (UserFlags != null && UserFlags.Length > i)
                 UserFlags = UserFlags?.RemoveAt(i);
+        }
+
+        public bool IsEmptyOrDefault() {
+            if (UserValues != null) {
+                foreach (var userValue in UserValues) {
+                    if (userValue != 0) {
+                        return false;
+                    }
+                }
+            }
+            if (UserFlags != null) {
+                foreach (var userFlags in UserFlags) {
+                    if (userFlags != 0) {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
     }
     #endregion
