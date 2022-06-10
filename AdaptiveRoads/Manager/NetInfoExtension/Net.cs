@@ -143,7 +143,7 @@ namespace AdaptiveRoads.Manager {
                 for (ushort segmentId = 1; segmentId < NetManager.MAX_SEGMENT_COUNT; ++segmentId) {
                     ref NetSegment segment = ref segmentId.ToSegment();
                     if (segment.IsValid() && segment.Info == netInfo) {
-                        segmentId.ToSegmentExt().UserData.AllocateNames(UserDataNamesSet?.Segment);
+                        segmentId.ToSegmentExt().UserData.Allocate(UserDataNamesSet?.Segment);
                     }
                 }
             }

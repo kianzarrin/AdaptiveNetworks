@@ -1,7 +1,8 @@
 - drop downs
-    - database Done
+    - storage Done
+    - check Done
     - persistency
-    - asset editor UI
+    - asset editor UI : done
     - tool UI
 - fence (None lanes act as fence?)
 - lane/track connect groups (might take time)

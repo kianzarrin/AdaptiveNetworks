@@ -77,9 +77,11 @@ namespace AdaptiveRoads.Manager {
                     NetNode.Flags headNodeFlags,
                     NetNodeExt.Flags tailNodeExtFlags,
                     NetNodeExt.Flags headNodeExtFlags,
+                    UserData userData,
                     bool turnAround) {
+                bool ret;
                 if(!turnAround) {
-                    return Forward.CheckFlags(flags) && CheckEndFlags(
+                    ret =Forward.CheckFlags(flags) && CheckEndFlags(
                         tailFlags: tailFlags,
                         headFlags: headFlags,
                         tailNodeFlags: tailNodeFlags,
@@ -89,15 +91,20 @@ namespace AdaptiveRoads.Manager {
                 } else {
                     Helpers.Swap(ref tailFlags, ref headFlags);
                     Helpers.Swap(ref tailNodeFlags, ref headNodeFlags);
-                    var ret = Backward.CheckFlags(flags) && CheckEndFlags(
+                    ret = Backward.CheckFlags(flags) && CheckEndFlags(
                         tailFlags: tailFlags,
                         headFlags: headFlags,
                         tailNodeFlags: tailNodeFlags,
                         headNodeFlags: headNodeFlags,
                         tailNodeExtFlags: tailNodeExtFlags,
                         headNodeExtFlags: headNodeExtFlags);
-                    return ret;
                 }
+
+                if(this.UserData != null) {
+                    ret = ret && this.UserData.Check(userData);
+                }
+
+                return ret;
             }
 
             public CustomFlags UsedCustomFlags => new CustomFlags {

@@ -63,7 +63,7 @@ namespace AdaptiveRoads.Data {
         public int[] UserValues;
         public int[] UserFlags;
 
-        public void AllocateNames(UserDataNames ?names) {
+        public void Allocate(UserDataNames ?names) {
             UserValues = UserValues.SetArraySize(names?.ValueNames?.Length  , 0);
             UserFlags = UserFlags.SetArraySize(names?.FlagsNames?.Length, 0);
         }
@@ -83,7 +83,7 @@ namespace AdaptiveRoads.Data {
     #region model data
     public struct UserValue {
         public int Value;
-        public bool Check(int value) => value > 0 && value == Value;
+        public bool Check(int value) => Value < 0 || value == Value;
     }
 
     [Serializable]
@@ -140,20 +140,20 @@ namespace AdaptiveRoads.Data {
             }
         }
 
-        public bool Check(UserData set) {
+        public bool Check(UserData userData) {
             if(UserValues != null)
             {
-                int n = Math.Min(set.UserValues?.Length ?? 0, UserValues.Length);
+                int n = Math.Min(UserValues.Length, userData.UserValues?.Length ?? 0);
                 for (int i = 0; i < n; ++i) {
-                    if (!UserValues[i].Check(set.UserValues[i]))
+                    if (!UserValues[i].Check(userData.UserValues[i]))
                         return false;
                 }
             }
 
             if(UserFlags != null) {
-                int n = Math.Min(set.UserFlags?.Length ?? 0, UserFlags.Length);
+                int n = Math.Min(UserFlags.Length, userData.UserFlags?.Length ?? 0);
                 for (int i = 0; i < n; ++i) {
-                    if (!UserFlags[i].Check(set.UserFlags[i]))
+                    if (!UserFlags[i].Check(userData.UserFlags[i]))
                         return false;
                 }
             }

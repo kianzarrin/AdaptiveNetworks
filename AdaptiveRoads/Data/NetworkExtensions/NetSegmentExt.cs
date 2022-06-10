@@ -85,8 +85,8 @@ namespace AdaptiveRoads.Manager {
 
         public ref NetSegmentEnd Start => ref NetworkExtensionManager.Instance.GetSegmentEnd(SegmentID, startNode: true);
         public ref NetSegmentEnd End => ref NetworkExtensionManager.Instance.GetSegmentEnd(SegmentID, startNode: false);
-        public ref NetSegmentEnd Head => ref NetworkExtensionManager.Instance.GetSegmentEnd(SegmentID, Segment.GetHeadNode());
-        public ref NetSegmentEnd Tail => ref NetworkExtensionManager.Instance.GetSegmentEnd(SegmentID, Segment.GetTailNode());
+        public ref NetSegmentEnd Head => ref NetworkExtensionManager.Instance.GetSegmentEnd(SegmentID, VanillaSegment.GetHeadNode());
+        public ref NetSegmentEnd Tail => ref NetworkExtensionManager.Instance.GetSegmentEnd(SegmentID, VanillaSegment.GetTailNode());
 
         public override string ToString() =>
             $"NetSegmentExt(SegmentID:{SegmentID} info={SegmentID.ToSegment().Info} flags:{m_flags}"
@@ -170,7 +170,7 @@ namespace AdaptiveRoads.Manager {
                 End.UpdateDirections();
                 End.UpdateCorners();
 
-                UserData.AllocateNames(NetInfoExt?.UserDataNamesSet?.Segment);
+                UserData.Allocate(NetInfoExt?.UserDataNamesSet?.Segment);
 
                 if (Log.VERBOSE) Log.Debug($"NetSegmentExt.UpdateAllFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
                 if(Log.VERBOSE) Log.Debug($"NetSegmentExt:{NetInfoExt}, TrackLaneCount={NetInfoExt?.TrackLaneCount}");
