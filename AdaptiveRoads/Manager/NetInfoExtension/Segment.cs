@@ -123,8 +123,10 @@ namespace AdaptiveRoads.Manager {
 
             #region serialization
             //serialization
-            public void GetObjectData(SerializationInfo info, StreamingContext context) =>
+            public void GetObjectData(SerializationInfo info, StreamingContext context) {
+                OptimizeUserData(); // avoid saving redundant stuff.
                 SerializationUtil.GetObjectFields(info, this);
+            }
 
             // deserialization
             public Segment(SerializationInfo info, StreamingContext context) =>

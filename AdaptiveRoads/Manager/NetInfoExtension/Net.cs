@@ -63,7 +63,6 @@ namespace AdaptiveRoads.Manager {
             public void GetObjectData(SerializationInfo info, StreamingContext context) {
                 //Log.Called();
                 FillCustomLaneFlagNames();
-                OptimizeUserData(); // optimize for use in game
                 SerializationUtil.GetObjectFields(info, this);
             }
 
