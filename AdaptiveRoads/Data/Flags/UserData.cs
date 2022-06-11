@@ -117,6 +117,7 @@ namespace AdaptiveRoads.Data {
     #endregion
 
     #region model data
+    [Serializable]
     public struct UserValue {
         public int Value;
         public bool Check(int value) => Value < 0 || value == Value;
@@ -129,6 +130,7 @@ namespace AdaptiveRoads.Data {
         public bool Check(int value) => value.CheckFlags(Required, Forbidden);
     }
 
+    [Serializable]
     public class UserDataInfo {
         [CustomizableProperty("Selectors")]
         public UserValue[] UserValues;
@@ -201,11 +203,13 @@ namespace AdaptiveRoads.Data {
 
 
     #region NetInfo data
+    [Serializable]
     public struct UserValueNames {
         public string Title;
         public string[] Items;
     }
 
+    [Serializable]
     public struct UserFlagsNames {
         public string Title;
         public string[] Items;
@@ -220,6 +224,7 @@ namespace AdaptiveRoads.Data {
         }
     }
 
+    [Serializable]
     public class UserDataNames {
         public UserValueNames[] ValueNames;
         public UserFlagsNames[] FlagsNames;
@@ -250,6 +255,7 @@ namespace AdaptiveRoads.Data {
         }
     }
 
+    [Serializable]
     public class UserDataNamesSet {
         public UserDataNames Node, Segment;
         public UserDataNamesSet() {

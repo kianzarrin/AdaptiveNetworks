@@ -137,6 +137,20 @@ namespace AdaptiveRoads.Manager {
                 }
             }
 
+            public void AllocateMetadata() {
+                Assertion.Assert(ParentInfo.GetMetaData() == this);
+                foreach (var segment in ParentInfo.m_segments)
+                    segment?.GetOrCreateMetaData();
+                foreach (var node in ParentInfo.m_nodes)
+                    node?.GetOrCreateMetaData();
+                foreach (var lane in ParentInfo.m_lanes) {
+                    var props = lane.m_laneProps?.m_props;
+                    if (props == null) continue;
+                    foreach (var prop in props)
+                        prop?.GetOrCreateMetaData();
+                }
+            }
+
             /// <summary>call only for editing prefab</summary>
             public void AllocateUserData() {
                 try {
@@ -466,6 +480,7 @@ namespace AdaptiveRoads.Manager {
                     RecalculateParkingAngle();
                     RecalculateConnectGroups(netInfo);
                     if (ParentInfo.IsEditing()) {
+                        AllocateMetadata();
                         AllocateUserData();
                     } else {
                         OptimizeUserData();
