@@ -238,17 +238,22 @@ namespace AdaptiveRoads.Manager {
                     var lanes = new LaneIDIterator(segmentID).ToArray();
                     for(int laneIndex = 0; laneIndex < lanes.Length; ++laneIndex) {
                         uint laneID = lanes[laneIndex];
+                        var laneInfo = segmentID.ToSegment().Info.m_lanes[laneIndex];
                         var routings = TMPEHelpers.GetForwardRoutings(laneID, NodeID);
                         if(routings == null) continue;
                         if(IsNodeless(segmentID: segmentID, nodeID: NodeID)) continue;
                         //Log.Debug($"routings for lane:{laneID} are " + routings.ToSTR());
                         foreach(LaneTransitionData routing in routings) {
-                            if(routing.type == LaneEndTransitionType.Invalid /*|| routing.type == LaneEndTransitionType.Relaxed*/)
+                            if(routing.type is LaneEndTransitionType.Invalid or LaneEndTransitionType.Relaxed)
                                 continue;
-                            //var infoExt2 = routing.segmentId.ToSegment().Info?.GetMetaData();
-                            if(IsNodeless(segmentID: routing.segmentId, nodeID: NodeID)) continue;
-                            var key = new Connection { LaneID1 = laneID, LaneID2 = routing.laneId };
-                            tempConnections_.Add(key);
+
+                            var laneInfo2 = routing.laneId.ToLane().m_segment.ToSegment().Info.m_lanes[routing.laneIndex];
+                            if (LanesConnect(laneInfo, laneInfo2, routing.group)) {
+                                //var infoExt2 = routing.segmentId.ToSegment().Info?.GetMetaData();
+                                if (IsNodeless(segmentID: routing.segmentId, nodeID: NodeID)) continue;
+                                var key = new Connection { LaneID1 = laneID, LaneID2 = routing.laneId };
+                                tempConnections_.Add(key);
+                            }
                         }
                     }
                 }
@@ -317,35 +322,28 @@ namespace AdaptiveRoads.Manager {
             return VectorUtils.LengthSqrXZ(diff) < 0.00001f;
         }
 
-        private bool GoodTurnAngle(ushort segmentID1, ushort segmentID2) {
-            if(segmentID1 == segmentID2)
-                return false; // u-turn.
-            ref var segment1 = ref segmentID1.ToSegment();
-            ref var segment2 = ref segmentID2.ToSegment();
-            var info1 = segment1.Info;
-            var info2 = segment2.Info;
-            var dir1 = segment1.GetDirection(NodeID);
-            var dir2 = segment2.GetDirection(NodeID);
-
-            var dot = VectorUtils.DotXZ(dir1, dir2);
-            float maxTurnAngleCos = Mathf.Min(info1.m_maxTurnAngleCos, info2.m_maxTurnAngleCos);
-            float turnThreshold = 0.01f - maxTurnAngleCos;
-            return dot < turnThreshold;
-        }
-
-        private bool LanesConnect(uint laneIDSource, uint laneIDTarget) {
-            ref var lane = ref laneIDSource.ToLaneExt().LaneData;
-            ref var lane2 = ref laneIDTarget.ToLaneExt().LaneData;
-            bool hasTracks = lane.LaneInfo.m_vehicleType.IsFlagSet(NetInfoExtionsion.Track.TRACK_VehicleTypes);
-            bool hasTracks2 = lane2.LaneInfo.m_vehicleType.IsFlagSet(NetInfoExtionsion.Track.TRACK_VehicleTypes);
-            if(hasTracks != hasTracks2)
+        private bool LanesConnect(NetInfo.Lane laneInfo1, NetInfo.Lane laneInfo2, LaneEndTransitionGroup group) {
+            if (!laneInfo1.CheckType(laneInfo2.m_laneType, laneInfo2.m_vehicleType)) {
+                // can't connect
                 return false;
-
-            if(hasTracks) {
-                return GoodTurnAngle(lane.SegmentID, lane2.SegmentID);
             }
 
-            return true; // bike
+            var group1 = laneInfo1.GetLaneEndTransitionGroup();
+            var group2 = laneInfo2.GetLaneEndTransitionGroup();
+            if (!group.IsFlagSet(group1) || !group.IsFlagSet(group2)) {
+                // workaround: TMPE redundant connections
+                return false;
+            }
+
+            bool track1 = laneInfo1.MatchesTrack();
+            bool track2 = laneInfo2.MatchesTrack();
+            bool trackRouting = group.IsFlagSet(LaneEndTransitionGroup.Track);
+            if ((track1 || track2) && !trackRouting) {
+                // car+tram lanes can't connect to car lanes
+                return false;
+            }
+
+            return true;
         }
 
         public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo, int layerMask) {
