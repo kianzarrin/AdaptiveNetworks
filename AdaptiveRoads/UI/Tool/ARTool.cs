@@ -146,10 +146,12 @@ namespace AdaptiveRoads.UI.Tool {
                 return GetUsedFlagsNode(HoveredNodeID) != 0;
             } else if (SegmentMode) {
                 var usedCustomFlags = GetUsedFlagsSegment(HoveredSegmentID);
-                return usedCustomFlags.Segment != 0 || usedCustomFlags.Lane != 0;
+                var userData = HoveredSegmentID.ToSegment().Info.GetMetaData()?.UserDataNamesSet?.Segment;
+                bool hasUserData = userData != null && !userData.IsEmpty();
+                return usedCustomFlags.Segment != 0 || usedCustomFlags.Lane != 0 || hasUserData;
             } else if (SegmentEndMode) {
                 bool hasCustomFlags = GetUsedFlagsSegmentEnd(segmentID:HoveredSegmentID, nodeID:HoveredNodeID) != 0;
-                bool canTilt = HoveredSegmentID.ToSegment().Info.TrackLaneCount() > 0;
+                bool canTilt = HoveredSegmentID.ToSegment().Info.GetMetaData()?.HasTitlableTracks ?? false;
                 return hasCustomFlags || canTilt;
             }
 

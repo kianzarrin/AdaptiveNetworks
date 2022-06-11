@@ -125,6 +125,13 @@ namespace AdaptiveRoads.UI.Tool {
                 SegmentFlagToggle.Add(container, segmentID_, segmentIDs_, flag);
             }
 
+            var valueNames = segmentID_.ToSegmentExt().NetInfoExt.UserDataNamesSet.Segment.ValueNames;
+            if (valueNames != null) {
+                for (int i = 0; i < valueNames.Length; ++i) {
+                    SegmentValueSelector.Add(container, segmentID_, segmentIDs_, i);
+                }
+            }
+
             foreach (var lane in NetUtil.GetSortedLanes(segmentID_)) {
                 var laneMask = segmentID_.ToSegmentExt().NetInfoExt.GetUsedCustomFlagsLane(lane.LaneIndex);
 

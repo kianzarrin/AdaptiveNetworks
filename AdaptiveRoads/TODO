@@ -1,9 +1,9 @@
 - drop downs
     - storage Done
     - check Done
-    - persistency
     - asset editor UI : done
-    - tool UI
+    - persistency :Done (not tested)
+    - tool UI : done( not tested)
 - fence (None lanes act as fence?)
 - lane/track connect groups (might take time)
 - fix the gap (skew lane if junction is not straight)

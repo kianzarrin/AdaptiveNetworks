@@ -189,6 +189,9 @@ namespace AdaptiveRoads.Manager {
             [NonSerialized]
             public int TrackLaneCount;
 
+            [NonSerialized]
+            public bool HasTitlableTracks;
+
             public bool HasTrackLane(int laneIndex) => ((1ul << laneIndex) & TrackLanes) != 0;
 
             static CustomFlags GatherUsedCustomFlags(NetInfo info) {
@@ -510,17 +513,17 @@ namespace AdaptiveRoads.Manager {
             }
 
             void RecalculateTracks(NetInfo netInfo) {
-                if(Tracks != null) {
+                if (Tracks != null) {
                     // has color been already assigned in NetInfo.InitializePrefab() ?
                     bool hasColor = netInfo.m_segments?.Any(item => item.m_material) ?? false;
                     hasColor = hasColor || (netInfo.m_nodes?.Any(item => item.m_material) ?? false);
                     TrackLanes = 0;
-                    for(int i = 0; i < Tracks.Length; i++) {
+                    for (int i = 0; i < Tracks.Length; i++) {
                         var track = Tracks[i];
                         track.Recalculate(netInfo);
                         track.CachedArrayIndex = i;
                         bool hasLod = track.m_mesh;
-                        if(!hasColor && track.m_material != null) {
+                        if (!hasColor && track.m_material != null) {
                             netInfo.m_color = track.m_material.color;
                             hasColor = true;
                         }
@@ -530,6 +533,21 @@ namespace AdaptiveRoads.Manager {
 
                     TrackLaneCount = EnumBitMaskExtensions.CountOnes(TrackLanes);
                     netInfo.m_requireDirectRenderers |= TrackLaneCount > 0;
+
+                    bool tiltable = false;
+                    var lanes = netInfo.m_lanes;
+                    if (lanes != null) {
+                        for (int laneIndex = 0; laneIndex < lanes.Length; ++laneIndex) {
+                            if (HasTrackLane(laneIndex) &&
+                                lanes[laneIndex].m_vehicleType.IsFlagSet(TrackUtils.TILTABLE_VEHICLE_TYPES)) {
+                                tiltable = true;
+                                break;
+                            }
+
+                        }
+                    }
+                    HasTitlableTracks = tiltable;
+
                 }
             }
 

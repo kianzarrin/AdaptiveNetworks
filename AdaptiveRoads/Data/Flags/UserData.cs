@@ -244,6 +244,10 @@ namespace AdaptiveRoads.Data {
         }
 
         public UserDataNames Clone() => this.ShalowClone();
+
+        public bool IsEmpty() {
+            return ValueNames.IsNullorEmpty() && FlagsNames.IsNullorEmpty();
+        }
     }
 
     public class UserDataNamesSet {
