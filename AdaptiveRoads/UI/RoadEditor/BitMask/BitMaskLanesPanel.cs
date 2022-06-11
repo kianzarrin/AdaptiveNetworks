@@ -37,6 +37,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             Field.SetValue(Target, value);
             OnPropertyChanged();
         }
+
         public NetInfo.Lane[] Lanes => ParentInfo.m_lanes;
 
         public override void OnDestroy() {

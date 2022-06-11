@@ -238,15 +238,24 @@ namespace AdaptiveRoads.Manager {
                     var lanes = new LaneIDIterator(segmentID).ToArray();
                     for(int laneIndex = 0; laneIndex < lanes.Length; ++laneIndex) {
                         uint laneID = lanes[laneIndex];
+                        var laneInfo = segmentID.ToSegment().Info.m_lanes[laneIndex];
                         var routings = TMPEHelpers.GetForwardRoutings(laneID, NodeID);
                         if(routings == null) continue;
                         if(IsNodeless(segmentID: segmentID, nodeID: NodeID)) continue;
                         //Log.Debug($"routings for lane:{laneID} are " + routings.ToSTR());
                         foreach(LaneTransitionData routing in routings) {
-                            if(routing.type == LaneEndTransitionType.Invalid /*|| routing.type == LaneEndTransitionType.Relaxed*/)
+                            if(routing.type is LaneEndTransitionType.Invalid or LaneEndTransitionType.Relaxed)
                                 continue;
+
+                            var laneInfo2 = routing.laneId.ToLane().m_segment.ToSegment().Info.m_lanes[routing.laneIndex];
+                            bool hasTrack = laneInfo.MatchesTrack() || laneInfo2.MatchesTrack();
+                            bool trackRouting = routing.group.IsFlagSet(LaneEndTransitionGroup.Track);
+                            if (hasTrack && !trackRouting) {
+                                continue;
+                            }
+
                             //var infoExt2 = routing.segmentId.ToSegment().Info?.GetMetaData();
-                            if(IsNodeless(segmentID: routing.segmentId, nodeID: NodeID)) continue;
+                            if (IsNodeless(segmentID: routing.segmentId, nodeID: NodeID)) continue;
                             var key = new Connection { LaneID1 = laneID, LaneID2 = routing.laneId };
                             tempConnections_.Add(key);
                         }
