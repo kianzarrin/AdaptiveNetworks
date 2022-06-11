@@ -147,10 +147,16 @@ namespace AdaptiveRoads.Manager {
             /// </summary>
             /// <param name="names"></param>
             public void AllocateUserData(UserDataNames names) {
+#if DEBUG
+                Log.Called(names);
+#endif
                 UserData ??= new();
                 UserData.Allocate(names);
             }
             public void OptimizeUserData() {
+#if DEBUG
+                Log.Called();
+#endif
                 if (UserData != null && UserData.IsEmptyOrDefault())
                     UserData = null;
             }

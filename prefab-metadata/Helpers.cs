@@ -123,21 +123,9 @@ namespace PrefabMetadata.Helpers {
         /// </summary>
         public static void SetMetaData<MetaDataType>(this IInfoExtended info, MetaDataType data)
             where MetaDataType : class, ICloneable {
-            if (info.MetaData == null) {
-                RemoveMetaData<MetaDataType>(info);
-                return;
-            }
-            if (info.MetaData == null)
-                info.MetaData = new List<ICloneable>();
-
-            var list = info.MetaData;
-            for (int i = 0; i < info.MetaData.Count; ++i) {
-                if (list[i] is MetaDataType) {
-                    list[i] = data;
-                    return;
-                }
-            }
-            list.Add(data);
+            RemoveMetaData<MetaDataType>(info);
+            info.MetaData ??= new List<ICloneable>();
+            info.MetaData.Add(data);
         }
 
         /// <summary>
@@ -146,17 +134,14 @@ namespace PrefabMetadata.Helpers {
         public static void RemoveMetaData<MetaDataType>(this IInfoExtended info)
             where MetaDataType : class, ICloneable {
             if (info.MetaData == null) return;
-            bool predicate(ICloneable _m) => !(_m is null || _m is MetaDataType);
-            info.MetaData = info.MetaData.Where(predicate).ToList();
-        }
-
-        public static T Clone<T>(T subinfo)
-            where T : class, new() {
-            if (subinfo is IInfoExtended<T> ext)
-                return ext.Clone() as T;
-            T ret = new T();
-            Util.CopyProperties<T>(ret, subinfo);
-            return ret;
+            bool predicate(ICloneable _m) => _m is null || _m is MetaDataType;
+            for (int i = 0; i < info.MetaData.Count; ) {
+                if (predicate(info.MetaData[i])) {
+                    info.MetaData.RemoveAt(i);
+                } else {
+                    i++;
+                }
+            }
         }
 
         public static List<ICloneable> Clone(this List<ICloneable> list) {
@@ -166,9 +151,6 @@ namespace PrefabMetadata.Helpers {
             }
             return ret;
         }
-
-        public static int IndexOf(Array array, object value)
-            => (array as IList).IndexOf(value);
     }
 }
 

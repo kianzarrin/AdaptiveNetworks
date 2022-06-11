@@ -137,29 +137,33 @@ namespace AdaptiveRoads.Manager {
                 }
             }
 
-            /// <summary>
-            /// call only for editing prefab
-            /// </summary>
+            /// <summary>call only for editing prefab</summary>
             public void AllocateUserData() {
-                UserDataNamesSet ??= new();
-                foreach (var segment in ParentInfo.m_segments) {
-                    segment.GetOrCreateMetaData()?.AllocateUserData(UserDataNamesSet?.Segment);
-                }
-                for (ushort segmentId = 1; segmentId < NetManager.MAX_SEGMENT_COUNT; ++segmentId) {
-                    ref NetSegment segment = ref segmentId.ToSegment();
-                    if (segment.IsValid() && segment.Info == ParentInfo) {
-                        segmentId.ToSegmentExt().UserData.Allocate(UserDataNamesSet?.Segment);
+                try {
+                    Log.Called();
+                    UserDataNamesSet ??= new();
+                    Assertion.Assert(ParentInfo.GetMetaData() == this, $"ParentInfo={ParentInfo}");
+                    foreach (var segment in ParentInfo.m_segments) {
+                        var segmentMetadata = segment.GetMetaData();
+                        Assertion.NotNull(segmentMetadata, "segmentMetadata");
+                        segmentMetadata.AllocateUserData(UserDataNamesSet?.Segment);
                     }
+                    for (ushort segmentId = 1; segmentId < NetManager.MAX_SEGMENT_COUNT; ++segmentId) {
+                        ref NetSegment segment = ref segmentId.ToSegment();
+                        if (segment.IsValid() && segment.Info == ParentInfo) {
+                            segmentId.ToSegmentExt().UserData.Allocate(UserDataNamesSet?.Segment);
+                        }
+                    }
+                }catch(Exception ex) {
+                    ex.Log();
                 }
             }
 
-
-            /// <summary>
-            /// call in game.
-            /// </summary>
+            /// <summary>call in game.</summary>
             public void OptimizeUserData() {
+                Log.Called();
                 foreach (var segment in ParentInfo.m_segments) {
-                    segment.GetOrCreateMetaData()?.OptimizeUserData();
+                    segment.GetMetaData()?.OptimizeUserData();
                 }
             }
 
@@ -450,7 +454,9 @@ namespace AdaptiveRoads.Manager {
 
             public void Recalculate(NetInfo netInfo) {
                 try {
+                    Log.Called(netInfo);
                     Assertion.NotNull(netInfo, "netInfo");
+                    Assertion.Assert(netInfo.GetMetaData() == this);
                     ParentInfo = netInfo;
                     FillCustomLaneFlagNames0();
                     RecalculateTracks(netInfo);

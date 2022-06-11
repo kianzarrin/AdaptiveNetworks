@@ -438,13 +438,21 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             Assert(fieldInfo.FieldType == typeof(UserDataInfo), "field type is UserDataInfo");
             Log.Called(roadEditorPanel, target, fieldInfo);
             var groupPanel = roadEditorPanel.GetGroupPanel(groupName);
+            Assertion.NotNull(groupName, "groupName");
             NetInfo netInfo = RoadEditorUtils.GetSelectedNetInfo(out _);
+            Assertion.NotNull(netInfo, "netInfo");
             var net = netInfo.GetMetaData();
+            Assertion.NotNull(net,"net");
             UserDataInfo userDataInfo = fieldInfo.GetValue(target) as UserDataInfo;
+            Assertion.NotNull(userDataInfo,"userDataInfo");
+
             var userDatanames = net.UserDataNamesSet ??= new();
             var userValues = userDataInfo?.UserValues;
+            Assertion.NotNull(userValues,"userValues");
             int i = index ?? userValues.Length - 1;
 
+            Assertion.NotNull(userDatanames?.Segment?.ValueNames,
+                $"userDatanames?.Segment?.ValueNames={userDatanames}?.{userDatanames?.Segment}?.{userDatanames?.Segment?.ValueNames}");
             var data = new UserValueDropDownPanel.DataT {
                 Index = i,
                 Names = userDatanames.Segment.ValueNames[i],
