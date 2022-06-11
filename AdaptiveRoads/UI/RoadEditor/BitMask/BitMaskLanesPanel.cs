@@ -33,7 +33,11 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
         public event REPropertySet.PropertyChangedHandler EventPropertyChanged;
 
         public ulong GetValue() => (ulong)Field.GetValue(Target);
-        public void SetValue(ulong value) => Field.SetValue(Target, value);
+        public void SetValue(ulong value) {
+            Field.SetValue(Target, value);
+            OnPropertyChanged();
+        }
+
         public NetInfo.Lane[] Lanes => ParentInfo.m_lanes;
 
         public override void OnDestroy() {
