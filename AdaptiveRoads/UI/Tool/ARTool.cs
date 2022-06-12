@@ -96,7 +96,9 @@ namespace AdaptiveRoads.UI.Tool {
             if (HoverValid) {
                 var hints = new List<string>();
                 var usedCustomFlags = GetUsedFlagsSegment(HoveredSegmentID);
-                if(usedCustomFlags.Segment != 0 || usedCustomFlags.Lane != 0) {
+                var segmentUserData = HoveredSegmentID.ToSegment().Info.GetMetaData()?.UserDataNamesSet?.Segment;
+                bool hasSegmentUserData = segmentUserData != null && !segmentUserData.IsEmpty();
+                if (usedCustomFlags.Segment != 0 || usedCustomFlags.Lane != 0 || hasSegmentUserData) {
                     hints.Add("Click => modify custom segment/lane flags");
                     hints.Add("Shift + Click => Select all segments between two junctions.");
                 }
@@ -104,7 +106,7 @@ namespace AdaptiveRoads.UI.Tool {
                     hints.Add("CTRL + Click => modify node flags");
                 if(GetUsedFlagsSegmentEnd(segmentID: HoveredSegmentID, nodeID: HoveredNodeID) != 0) {
                     hints.Add("ALT + Click => modify segmentEnd flags");
-                } else if(HoveredSegmentID.ToSegment().Info.TrackLaneCount() > 0)
+                } else if(HoveredSegmentID.ToSegment().Info.HasTitlableTracks())
                     hints.Add("ALT + Click => modify segmentEnd angle");
                 if(hints.Count == 0)
                     hints.Add("This road has no custom AN flags to modify.");
