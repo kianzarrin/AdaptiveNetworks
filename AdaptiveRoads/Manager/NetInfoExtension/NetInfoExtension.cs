@@ -138,7 +138,7 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
-        public static void EnsureExtended(this NetInfo netInfo) {
+        public static void EnsureExtended(this NetInfo netInfo, bool recalculate = false) {
             try {
                 Assertion.Assert(netInfo);
                 Log.Debug($"EnsureExtended({netInfo}): called "/* + Environment.StackTrace*/);
@@ -158,8 +158,9 @@ namespace AdaptiveRoads.Manager {
                             props[i] = props[i].Extend() as NetLaneProps.Prop;
                     }
                 }
-                netInfo.GetOrCreateMetaData();
-
+                var net = netInfo.GetOrCreateMetaData();
+                if (recalculate)
+                    net.Recalculate(netInfo);
                 Log.Debug($"EnsureExtended({netInfo}): successful");
             } catch(Exception e) {
                 Log.Exception(e);
@@ -192,23 +193,23 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
-        public static void Ensure_EditedNetInfos() {
+        public static void Ensure_EditedNetInfos(bool recalculate = false) {
             LogCalled();
             if(VanillaMode) {
                 UndoExtend_EditedNetInfos();
             } else {
-                EnsureExtended_EditedNetInfos();
+                EnsureExtended_EditedNetInfos(recalculate);
             }
         }
 
-        public static void EnsureExtended_EditedNetInfos() {
+        public static void EnsureExtended_EditedNetInfos(bool recalculate = false) {
             if(VanillaMode) {
                 Log.Debug($"EnsureExtended_EditedNetInfos() because we are in vanilla mode");
                 return;
             }
             Log.Debug($"EnsureExtended_EditedNetInfos() was called");
             foreach(var info in EditedNetInfos)
-                EnsureExtended(info);
+                EnsureExtended(info, recalculate);
             Log.Debug($"EnsureExtended_EditedNetInfos() was successful");
         }
 

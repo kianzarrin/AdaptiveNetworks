@@ -47,6 +47,7 @@ namespace AdaptiveRoads.Manager {
 
             object ICloneable.Clone() => Clone();
             public Net(NetInfo template) {
+                Log.Called(template);
                 PavementWidthRight = template.m_pavementWidth;
                 UsedCustomFlags = GatherUsedCustomFlags(template);
                 ParentInfo = template;

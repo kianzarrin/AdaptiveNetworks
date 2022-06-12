@@ -63,7 +63,7 @@ namespace AdaptiveRoads.Patches.AssetPatches {
                             userAssetData.Data);
                     }
                 }
-                NetInfoExtionsion.Ensure_EditedNetInfos();
+                NetInfoExtionsion.Ensure_EditedNetInfos(recalculate:true);
                 Log.Debug($"LoadAssetPanel.OnLoad().Postfix() succeeded!");
             } catch (Exception ex) {
                 Log.Exception(ex);

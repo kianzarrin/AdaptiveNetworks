@@ -185,7 +185,7 @@ namespace AdaptiveRoads.UI {
 
             if (Helpers.InStartupMenu)
                 return;
-            NetInfoExtionsion.Ensure_EditedNetInfos();
+            NetInfoExtionsion.Ensure_EditedNetInfos(recalculate:true);
             RoadEditorUtils.RefreshRoadEditor();
         }
 

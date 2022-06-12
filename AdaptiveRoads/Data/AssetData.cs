@@ -82,6 +82,7 @@ namespace AdaptiveRoads.Manager {
                     }
 
                     target.SetMetedata(source.GetMetaData()?.Clone());
+                    target.RecalculateMetaData();
                 } catch (Exception ex) { ex.Log(); }
             }
 
