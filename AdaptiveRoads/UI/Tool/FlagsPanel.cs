@@ -11,7 +11,7 @@ namespace AdaptiveRoads.UI.Tool {
     using System.Linq;
     using AdaptiveRoads.Data.NetworkExtensions;
 
-    public class FlagsPanel : UIPanel , IFittable {
+    public class FlagsPanel : UIPanel, IFittable {
         static string FileName => ModSettings.FILE_NAME;
 
         public string AtlasName => $"{GetType().FullName}_rev" + this.VersionOf();
@@ -23,8 +23,9 @@ namespace AdaptiveRoads.UI.Tool {
 
         private UILabel lblCaption_;
         private UIDragHandle dragHandle_;
+        private UIPanel Wrapper => parent as UIPanel;
 
-        ushort []segmentIDs_;
+        ushort[] segmentIDs_;
         ushort segmentID_;
         ushort nodeID_;
 
@@ -37,8 +38,10 @@ namespace AdaptiveRoads.UI.Tool {
         bool NodeMode => segmentID_ == 0 && nodeID_ != 0;
 
 
-        public static FlagsPanel Create() =>
-            UIView.GetAView().AddUIComponent(typeof(FlagsPanel)) as FlagsPanel;
+        public static FlagsPanel Create() {
+            UIPanel wrapper = UIView.GetAView().AddUIComponent<UIPanel>();
+            return wrapper.AddUIComponent(typeof(FlagsPanel)) as FlagsPanel;
+        }
 
         public static FlagsPanel Open(ushort nodeID, ushort segmentID, ushort []selectedSegmentIDs) {
             var panel = Create();
@@ -48,7 +51,7 @@ namespace AdaptiveRoads.UI.Tool {
             return panel;
         }
 
-        public void Close() => DestroyImmediate(gameObject);
+        public void Close() => DestroyImmediate(Wrapper.gameObject);
 
         public override void OnDestroy() {
             this.SetAllDeclaredFieldsToNull();
@@ -117,7 +120,7 @@ namespace AdaptiveRoads.UI.Tool {
         }
 
         public void AddSegmentFlags(UIPanel container) {
-            LogCalled();
+            Log.Called(segmentID_, segmentIDs_);
             AssertNotNull(container, "container");
             NetUtil.AssertSegmentValid(segmentID_);
             var mask = ARTool.GetUsedFlagsSegment(segmentID_).Segment;
@@ -125,7 +128,8 @@ namespace AdaptiveRoads.UI.Tool {
                 SegmentFlagToggle.Add(container, segmentID_, segmentIDs_, flag);
             }
 
-            var valueNames = segmentID_.ToSegmentExt().NetInfoExt.UserDataNamesSet.Segment.ValueNames;
+            var valueNames = segmentID_.ToSegmentExt().NetInfoExt.UserDataNamesSet?.Segment?.ValueNames;
+            Log.Debug(valueNames.ToSTR());
             if (valueNames != null) {
                 for (int i = 0; i < valueNames.Length; ++i) {
                     SegmentValueSelector.Add(container, segmentID_, segmentIDs_, i);

@@ -40,6 +40,7 @@ namespace AdaptiveRoads.UI.Tool {
             base.Start();
             items = ValueNames(segmentID_, index_).Items;
             Allocate(segmentID_);
+            
 
             selectedIndex = GetValue(segmentID_,index_);
             foreach(ushort segmentID in segmentIDs_) {
