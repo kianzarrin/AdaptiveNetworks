@@ -23,7 +23,7 @@ namespace AdaptiveRoads.Manager {
                 Assertion.Assert(template, "template");
                 var lanes = template.m_lanes;
                 for(int laneIndex = 0; laneIndex < lanes.Length; ++laneIndex) {
-                    if(lanes[laneIndex].m_vehicleType.IsFlagSet(TRACK_VehicleTypes))
+                    if(lanes[laneIndex].m_vehicleType.IsFlagSet(TrackUtils.TRACK_VEHICLE_TYPES))
                         LaneIndeces |= 1ul << laneIndex;
                 }
                 if(LaneIndeces == 0) {
@@ -182,13 +182,6 @@ namespace AdaptiveRoads.Manager {
                     m_combinedLod?.m_material?.SetTiling(Mathf.Abs(Tiling));
                 }
             }
-
-            public const VehicleInfo.VehicleType TRACK_VehicleTypes =
-                VehicleInfo.VehicleType.Tram |
-                VehicleInfo.VehicleType.Metro |
-                VehicleInfo.VehicleType.Train |
-                VehicleInfo.VehicleType.Monorail |
-                VehicleInfo.VehicleType.Trolleybus;
 
             #region materials
             public Mesh m_mesh;
