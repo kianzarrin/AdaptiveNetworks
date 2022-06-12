@@ -138,7 +138,8 @@ namespace AdaptiveRoads.Manager {
             }
 
             public void AllocateMetadata() {
-                Assertion.Assert(ParentInfo.GetMetaData() == this);
+                Log.Called();
+                Assertion.Assert(ParentInfo.GetMetaData() == this, $"ParentInfo={ParentInfo}");
                 foreach (var segment in ParentInfo.m_segments)
                     segment?.GetOrCreateMetaData();
                 foreach (var node in ParentInfo.m_nodes)
@@ -470,7 +471,7 @@ namespace AdaptiveRoads.Manager {
                 try {
                     Log.Called(netInfo);
                     Assertion.NotNull(netInfo, "netInfo");
-                    Assertion.Assert(netInfo.GetMetaData() == this);
+                    Assertion.Assert(netInfo.GetMetaData() == this, $"netInfo={netInfo}");
                     ParentInfo = netInfo;
                     FillCustomLaneFlagNames0();
                     RecalculateTracks(netInfo);
