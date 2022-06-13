@@ -91,7 +91,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         public bool Nodeless => OutLine.Empty;
 
         public void Calculate() {
-            DCFlags = NetNodeExt.CalculateDCAsym(NodeID, segmentID_A, segmentID_D);
+            DCFlags = NetNodeExt.CalculateDCAsymFlags(NodeID, segmentID_A, segmentID_D);
 
             Vector3 a, dirA;
             float angleA;
