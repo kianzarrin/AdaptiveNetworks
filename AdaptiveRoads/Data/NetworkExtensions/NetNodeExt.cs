@@ -382,23 +382,22 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
-        public static NetNode.Flags CalculateDCAsym(ushort nodeId, ushort segmentId1, ushort segmentId2) {
-            bool toward1 = IsToward(nodeId, segmentId1);
-            bool toward2 = IsToward(nodeId, segmentId2);
-            if (toward1 && toward2)
+        public static NetNode.Flags CalculateDCAsymFlags(ushort nodeId, ushort segmentId1, ushort segmentId2) {
+            CountLanes(nodeId, segmentId1, out int toward1, out int away1);
+            CountLanes(nodeId, segmentId2, out int toward2, out int away2);
+            if (toward1 > away1 && toward2 > away2)
                 return NetNode.Flags.AsymBackward;
-            else if (!toward1 && !toward2)
+            else if (toward1 < away1 && toward2 < away2)
                 return NetNode.Flags.AsymForward;
             else
                 return default;
 
-            static bool IsToward(ushort nodeId, ushort segmentId) {
+            static void CountLanes(ushort nodeId, ushort segmentId, out int toward, out int away) {
                 ref NetSegment segment = ref segmentId.ToSegment();
                 bool startNode = segment.IsStartNode(nodeId);
                 bool invert = segment.m_flags.IsFlagSet(NetSegment.Flags.Invert);
                 bool reverse = startNode ^ invert;
                 NetInfo netInfo = segment.Info;
-                int toward, away;
                 if (!reverse) {
                     away = netInfo.m_backwardVehicleLaneCount;
                     toward = netInfo.m_forwardVehicleLaneCount;
@@ -406,7 +405,6 @@ namespace AdaptiveRoads.Manager {
                     away = netInfo.m_forwardVehicleLaneCount;
                     toward = netInfo.m_backwardVehicleLaneCount;
                 }
-                return toward > away;
             }
         }
         #endregion
