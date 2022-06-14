@@ -224,7 +224,9 @@ namespace AdaptiveRoads.Manager {
         private LaneTransition[] transitions_;
         public void GetTrackConnections() {
             try {
+#if DEBUG
                 Log.Called();
+#endif
                 transitions_ = null;
                 ref var node = ref NodeID.ToNode();
                 if(!node.IsValid())
@@ -234,9 +236,10 @@ namespace AdaptiveRoads.Manager {
 
                 tempConnections_.Clear();
                 foreach(var segmentID in NodeID.ToNode().IterateSegments()) {
-                    //var infoExt = segmentID.ToSegment().Info?.GetMetaData();
+                    var infoExt = segmentID.ToSegment().Info?.GetMetaData();
                     var lanes = new LaneIDIterator(segmentID).ToArray();
                     for(int laneIndex = 0; laneIndex < lanes.Length; ++laneIndex) {
+                        bool hasTrackLane = infoExt.HasTrackLane(laneIndex);
                         uint laneID = lanes[laneIndex];
                         var laneInfo = segmentID.ToSegment().Info.m_lanes[laneIndex];
                         var routings = TMPEHelpers.GetForwardRoutings(laneID, NodeID);
@@ -246,10 +249,14 @@ namespace AdaptiveRoads.Manager {
                         foreach(LaneTransitionData routing in routings) {
                             if(routing.type is LaneEndTransitionType.Invalid or LaneEndTransitionType.Relaxed)
                                 continue;
+                            var infoExt2 = routing.segmentId.ToSegment().Info?.GetMetaData();
+                            bool hasTrackLane2 = infoExt2.HasTrackLane(laneIndex);
+                            if (!(hasTrackLane || hasTrackLane2)) {
+                                continue;
+                            }
 
                             var laneInfo2 = routing.laneId.ToLane().m_segment.ToSegment().Info.m_lanes[routing.laneIndex];
                             if (LanesConnect(laneInfo, laneInfo2, routing.group)) {
-                                //var infoExt2 = routing.segmentId.ToSegment().Info?.GetMetaData();
                                 if (IsNodeless(segmentID: routing.segmentId, nodeID: NodeID)) continue;
                                 var key = new Connection { LaneID1 = laneID, LaneID2 = routing.laneId };
                                 tempConnections_.Add(key);
@@ -260,7 +267,7 @@ namespace AdaptiveRoads.Manager {
 
                 {
                     foreach (ushort segmentId1 in SegmentIDs) {
-                        Log.Debug($"source: {segmentId1}");
+                        //Log.Debug($"source: {segmentId1}");
                         ref NetSegment segment1 = ref segmentId1.ToSegment();
                         bool headNode1 = segment1.GetHeadNode() == NodeID;
                         foreach (var lane1 in new LaneDataIterator(segmentId1, null, NetInfo.LaneType.Vehicle, VehicleInfo.VehicleType.Bicycle)) {
@@ -270,14 +277,14 @@ namespace AdaptiveRoads.Manager {
                             } else {
                                 outGoing = lane1.LaneInfo.m_finalDirection.IsFlagSet(NetInfo.Direction.Backward);
                             }
-                            Log.Debug($"{lane1.LaneID} outgoing={outGoing}");
+                            //Log.Debug($"{lane1.LaneID} outgoing={outGoing}");
                             if (!outGoing) {
                                 continue;
                             }
                             foreach (ushort segmentId2 in SegmentIDs) {
                                 if (segmentId2 == segmentId1) continue;
                                 bool headNode2 = segment1.GetHeadNode() == NodeID;
-                                Log.Debug($"target: {segmentId2}");
+                                //Log.Debug($"target: {segmentId2}");
                                 ref NetSegment segment2 = ref segmentId2.ToSegment();
                                 bool startNode2 = segment2.IsStartNode(NodeID);
                                 foreach (var lane2 in new LaneDataIterator(segmentId2, null, NetInfo.LaneType.Vehicle, VehicleInfo.VehicleType.Bicycle)) {
@@ -287,12 +294,12 @@ namespace AdaptiveRoads.Manager {
                                     } else {
                                         incoming = lane2.LaneInfo.m_finalDirection.IsFlagSet(NetInfo.Direction.Backward);
                                     }
-                                    Log.Debug($"{lane2.LaneID} incoming={incoming}");
+                                    //Log.Debug($"{lane2.LaneID} incoming={incoming}");
                                     if (!incoming) {
                                         continue;
                                     }
 
-                                    Log.Debug($"{lane1} -> {lane2}");
+                                    //Log.Debug($"{lane1} -> {lane2}");
                                     var key = new Connection { LaneID1 = lane1.LaneID, LaneID2 = lane2.LaneID };
                                     tempConnections_.Add(key);
                                 }
