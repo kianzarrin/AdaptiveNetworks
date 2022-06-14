@@ -1,8 +1,9 @@
-- fence (None lanes act as fence?)
-- lane/track connect groups (might take time)
-- fix the gap (skew lane if junction is not straight)
+- road rule.
 - transition expression flags?
-- solution for mixed lanes
+- lane/track connect groups (might take time)
+- fence (None lanes act as fence?)
+
+- fix the gap (skew lane if junction is not straight)
 - optimizations:
     - remove default metadata in game
     - flag for simpler props to avoid further checks.

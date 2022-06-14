@@ -117,6 +117,12 @@ namespace AdaptiveRoads.Manager {
 
             public Data.QuayRoads.ProfileSection[] QuayRoadsProfile = null;
 
+            [AfterField(nameof(RoadBaseAI.m_highwayRules))]
+            [CustomizableProperty("Road Rules", "Properties")]
+            [Hint("two segment junction with matching direct connect does not have \n" +
+                  "u-turn or pedestrian crossing and cars can go through.")]
+            public bool RoadRules;
+
             #region UserData
             public UserDataNamesSet UserDataNamesSet;
             public void RemoveSegmentUserValue(int i) {
