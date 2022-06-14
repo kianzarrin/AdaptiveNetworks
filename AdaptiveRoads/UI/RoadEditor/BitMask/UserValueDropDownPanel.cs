@@ -95,6 +95,11 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             }
         }
 
+        public override void Start() {
+            base.Start();
+            size = new Vector2(370, 54);
+        }
+
         public void Remove(UIComponent _, UIMouseEventParameter __) {
             try {
                 Log.Called(Data.Index);
