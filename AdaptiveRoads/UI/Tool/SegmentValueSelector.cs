@@ -15,6 +15,7 @@ namespace AdaptiveRoads.UI.Tool {
         ushort segmentID_;
         ushort []segmentIDs_;
         int index_;
+        UIPanel wrapper_ => parent as UIPanel;
 
         static Data.UserValueNames ValueNames(ushort segmentID, int i) {
             return Names(segmentID).ValueNames[i];
@@ -28,8 +29,11 @@ namespace AdaptiveRoads.UI.Tool {
         }
 
         public static SegmentValueSelector Add(UIPanel parent, ushort segmentID, ushort []segmentIDs, int index) {
-            parent.AddUIComponent<UILabel>().text = ValueNames(segmentID, index).Title + ":";
-            var selector = parent.AddUIComponent<SegmentValueSelector>();
+            var panel = parent.AddUIComponent<UIPanel>();
+            panel.autoLayout = panel.autoFitChildrenHorizontally = panel.autoFitChildrenVertically = true;
+            panel.autoLayoutDirection = LayoutDirection.Vertical;
+            panel.AddUIComponent<UILabel>().text = ValueNames(segmentID, index).Title + ":";
+            var selector = panel.AddUIComponent<SegmentValueSelector>();
             selector.index_ = index;
             selector.segmentID_ = segmentID;
             selector.segmentIDs_ = segmentIDs ?? new ushort[0];
