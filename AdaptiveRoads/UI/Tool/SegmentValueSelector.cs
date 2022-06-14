@@ -37,6 +37,7 @@ namespace AdaptiveRoads.UI.Tool {
         }
 
         public override void Start() {
+            started_ = false;
             base.Start();
             items = ValueNames(segmentID_, index_).Items;
             Allocate(segmentID_);
@@ -49,17 +50,21 @@ namespace AdaptiveRoads.UI.Tool {
                     SetColor(Color.yellow);
                 }
             }
+            started_ = true;
         }
+        bool started_ = false;
 
         protected override void OnSelectedIndexChanged() {
             base.OnSelectedIndexChanged();
-            SetColor(Color.white);
-            SimulationManager.instance.AddAction(delegate () {
-                SetValue(segmentID_, index_, selectedIndex);
-                foreach(var segmentID in segmentIDs_) {
-                    SetValue(segmentID, index_, selectedIndex);
-                }
-            }); 
+            if (started_) {
+                SetColor(Color.white);
+                SimulationManager.instance.AddAction(delegate () {
+                    SetValue(segmentID_, index_, selectedIndex);
+                    foreach (var segmentID in segmentIDs_) {
+                        SetValue(segmentID, index_, selectedIndex);
+                    }
+                });
+            }
         }
 
         static ref int GetValue(ushort segmentID, int index) {
@@ -77,7 +82,7 @@ namespace AdaptiveRoads.UI.Tool {
         }
 
         public void SetColor(Color color) {
-            this.triggerButton.color = color;
+            this.color = color;
         }
     }
 }
