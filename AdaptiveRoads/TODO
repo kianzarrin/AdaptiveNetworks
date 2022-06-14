@@ -2,8 +2,8 @@
     - storage Done
     - check Done
     - asset editor UI : done
-    - persistency :Done (not tested)
-    - tool UI : done( not tested)
+    - persistency :Done
+    - tool UI : done - needs improvement
 - fence (None lanes act as fence?)
 - lane/track connect groups (might take time)
 - fix the gap (skew lane if junction is not straight)

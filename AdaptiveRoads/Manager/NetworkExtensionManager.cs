@@ -90,6 +90,7 @@ namespace AdaptiveRoads.Manager {
             if (s.Version >= new Version(3, 8)) {
                 // add to the end for forward compatibility
                 // user data
+                Log.Debug("serialize custom user data");
                 try {
                     for (ushort i = 0; i < SegmentBuffer.Length; ++i)
                         SegmentBuffer[i].SerializeUserData(s);
@@ -139,6 +140,7 @@ namespace AdaptiveRoads.Manager {
 
             if (s.Version >= new Version(3, 8)) {
                 // user data
+                Log.Debug("deserialize custom user data");
                 try {
                     for (ushort i = 0; i < SegmentBuffer.Length; ++i)
                         SegmentBuffer[i].DeserializeUserData(s);
