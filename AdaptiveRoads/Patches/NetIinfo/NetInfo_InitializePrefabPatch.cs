@@ -10,6 +10,11 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     static class NetInfo_InitializePrefabPatch {
         static void Postfix(NetInfo __instance) {
             Log.Called(__instance);
+            if(ToolsModifierControl.toolController.m_editPrefabInfo && // in game optimisation.
+                UI.ModSettings.ARMode &&
+                __instance.IsEditing()) {
+                __instance.GetOrCreateMetaData();
+            }
             __instance.GetMetaData()?.Recalculate(__instance);
         }
     }

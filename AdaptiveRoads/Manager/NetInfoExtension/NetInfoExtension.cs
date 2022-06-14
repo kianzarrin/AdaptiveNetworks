@@ -141,26 +141,28 @@ namespace AdaptiveRoads.Manager {
         public static void EnsureExtended(this NetInfo netInfo, bool recalculate = false) {
             try {
                 Assertion.Assert(netInfo);
-                Log.Debug($"EnsureExtended({netInfo}): called "/* + Environment.StackTrace*/);
-                for(int i = 0; i < netInfo.m_nodes.Length; ++i) {
-                    if(!(netInfo.m_nodes[i] is IInfoExtended))
+                Log.Called(netInfo, recalculate);
+                for (int i = 0; i < netInfo.m_nodes.Length; ++i) {
+                    if (!(netInfo.m_nodes[i] is IInfoExtended))
                         netInfo.m_nodes[i] = netInfo.m_nodes[i].Extend() as NetInfo.Node;
                 }
-                for(int i = 0; i < netInfo.m_segments.Length; ++i) {
-                    if(!(netInfo.m_segments[i] is IInfoExtended))
+                for (int i = 0; i < netInfo.m_segments.Length; ++i) {
+                    if (!(netInfo.m_segments[i] is IInfoExtended))
                         netInfo.m_segments[i] = netInfo.m_segments[i].Extend() as NetInfo.Segment;
                 }
-                foreach(var lane in netInfo.m_lanes) {
+                foreach (var lane in netInfo.m_lanes) {
                     var props = lane.m_laneProps?.m_props;
                     int n = props?.Length ?? 0;
-                    for(int i = 0; i < n; ++i) {
-                        if(!(props[i] is IInfoExtended))
+                    for (int i = 0; i < n; ++i) {
+                        if (!(props[i] is IInfoExtended))
                             props[i] = props[i].Extend() as NetLaneProps.Prop;
                     }
                 }
-                var net = netInfo.GetOrCreateMetaData();
-                if (recalculate)
+                if (recalculate) {
+                    var net = netInfo.GetOrCreateMetaData();
                     net.Recalculate(netInfo);
+                }
+                
                 Log.Debug($"EnsureExtended({netInfo}): successful");
             } catch(Exception e) {
                 Log.Exception(e);

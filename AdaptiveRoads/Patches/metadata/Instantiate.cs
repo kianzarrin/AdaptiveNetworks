@@ -26,20 +26,19 @@ namespace AdaptiveRoads.Patches.AssetPatches {
 
         /// <summary>
         /// clone list and metadata that
-        /// AssetEditorRoadUtils has copied using UnityEngine.Instantiate<NetInfo>(emplate)
+        /// AssetEditorRoadUtils has copied using UnityEngine.Instantiate<NetInfo>(template)
         /// we clone the template instead of the return value.
+        /// at this point m_editPrefabInfo is NOT set yet.
         /// </summary>
         public static void Postfix(NetInfo __result, NetInfo template) {
             try {
                 Log.Debug($"Instantiate.PostFix({template})->{__result} was called");
-                // LogExtended(template);
-                // LogExtended(__result);
-                if(!template.IsAdaptive()) {
-                    Log.Debug("skip copying metadata because source is not adaptive");
-                    return;
+                if (UI.ModSettings.ARMode && template.IsAdaptive()) {
+                        Log.Debug("copy metadata");
+                        AssetData.NetInfoMetaData.CopyMetadata(template, __result);
+                } else {
+                    Log.Debug("skip copying metadata.");
                 }
-
-                AssetData.NetInfoMetaData.CopyMetadata(template, __result);
             } catch(Exception ex) {
                 ex.Log();
             }

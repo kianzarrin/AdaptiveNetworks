@@ -474,6 +474,9 @@ namespace AdaptiveRoads.Manager {
                     Assertion.NotNull(netInfo, "netInfo");
                     Assertion.Assert(netInfo.GetMetaData() == this, $"netInfo={netInfo}");
                     ParentInfo = netInfo;
+                    if (ParentInfo.IsEditing()) {
+                        AllocateMetadata();
+                    }
                     FillCustomLaneFlagNames0();
                     RecalculateTracks(netInfo);
                     UpdateTextureScales(netInfo);
@@ -482,7 +485,6 @@ namespace AdaptiveRoads.Manager {
                     RecalculateParkingAngle();
                     RecalculateConnectGroups(netInfo);
                     if (ParentInfo.IsEditing()) {
-                        AllocateMetadata();
                         AllocateUserData();
                     } else {
                         OptimizeUserData();

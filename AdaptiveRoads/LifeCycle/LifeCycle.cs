@@ -160,7 +160,7 @@ namespace AdaptiveRoads.LifeCycle {
                     HintBox.Create();
                 }
 
-                NetInfoExtionsion.Ensure_EditedNetInfos();
+                NetInfoExtionsion.Ensure_EditedNetInfos(recalculate:true);
 
 
                 ARTool.Create();
