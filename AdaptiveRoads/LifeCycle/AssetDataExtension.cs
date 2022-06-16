@@ -157,10 +157,9 @@ namespace AdaptiveRoads.LifeCycle {
                 // load edited prefab user data:
                 if (editPrefab) {
                     bool? lastLoaded = WasLastLoaded;
-                    if (!WasLastLoaded.HasValue)
-                        return;
-
-                    if (!lastLoaded.Value) {
+                    if (!WasLastLoaded.HasValue) {
+                        Log.Warning("Last loaded state not recorded");
+                    } else if (!lastLoaded.Value) {
                         // edit prefab was cloned.
                         NetInfo templatePrefab = ToolsModifierControl.toolController.m_templatePrefabInfo as NetInfo;
                         if (templatePrefab) {
@@ -174,10 +173,10 @@ namespace AdaptiveRoads.LifeCycle {
                             if (lastAssetMetaData?.userDataRef is Package.Asset asset) {
                                 var data = asset.Instantiate<AssetDataWrapper.UserAssetData>()?.Data;
                                 if (data != null) {
-                                    OnAssetLoadedImpl( lastAssetMetaData.name, editPrefab, data);
+                                    OnAssetLoadedImpl(lastAssetMetaData.name, editPrefab, data);
                                 }
                             }
-                        } catch(Exception ex) {
+                        } catch (Exception ex) {
 
                         } finally {
                             ListingMetaData = null;
@@ -199,9 +198,6 @@ namespace AdaptiveRoads.LifeCycle {
                 int n = PrefabCollection<NetInfo>.LoadedCount();
                 for (uint i = 0; i < n; ++i) {
                     var prefab = PrefabCollection<NetInfo>.GetLoaded(i);
-                    //if(!prefab) {
-                    //    Log.Warning($"'{prefab}' does not exist.");
-                    //}
                     if (prefab?.name == source.name) {
                         return prefab;
                     }
