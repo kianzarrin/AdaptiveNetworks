@@ -98,6 +98,7 @@ namespace AdaptiveRoads.LifeCycle {
             if (loaded_ && PluginUtil.GetTrafficManager().IsActive()) {
                 var notifier = TMPENotifier;
                 if (notifier != null) {
+                    notifier.EventLevelLoaded -= OnTMPELOaded;
                     notifier.EventLevelLoaded += OnTMPELOaded;
                     OnTMPELOaded();
                 }
