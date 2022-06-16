@@ -239,7 +239,7 @@ namespace AdaptiveRoads.Manager {
                     var infoExt = segmentID.ToSegment().Info?.GetMetaData();
                     var lanes = new LaneIDIterator(segmentID).ToArray();
                     for(int laneIndex = 0; laneIndex < lanes.Length; ++laneIndex) {
-                        bool hasTrackLane = infoExt.HasTrackLane(laneIndex);
+                        bool hasTrackLane = infoExt?.HasTrackLane(laneIndex) ?? false;
                         uint laneID = lanes[laneIndex];
                         var laneInfo = segmentID.ToSegment().Info.m_lanes[laneIndex];
                         var routings = TMPEHelpers.GetForwardRoutings(laneID, NodeID);
@@ -250,7 +250,7 @@ namespace AdaptiveRoads.Manager {
                             if(routing.type is LaneEndTransitionType.Invalid or LaneEndTransitionType.Relaxed)
                                 continue;
                             var infoExt2 = routing.segmentId.ToSegment().Info?.GetMetaData();
-                            bool hasTrackLane2 = infoExt2.HasTrackLane(laneIndex);
+                            bool hasTrackLane2 = infoExt2?.HasTrackLane(laneIndex) ?? false;
                             if (!(hasTrackLane || hasTrackLane2)) {
                                 continue;
                             }
