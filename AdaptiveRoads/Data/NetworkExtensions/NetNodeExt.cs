@@ -224,9 +224,7 @@ namespace AdaptiveRoads.Manager {
         private LaneTransition[] transitions_;
         public void GetTrackConnections() {
             try {
-#if DEBUG
-                Log.Called();
-#endif
+                if(Log.VERBOSE) Log.Called();
                 transitions_ = null;
                 ref var node = ref NodeID.ToNode();
                 if(!node.IsValid())

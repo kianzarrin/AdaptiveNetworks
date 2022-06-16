@@ -17,6 +17,7 @@ namespace AdaptiveRoads.LifeCycle {
     using UnityEngine;
     using AdaptiveRoads.Patches.RoadEditor.model;
     using static AdaptiveRoads.Util.Shortcuts;
+    using ColossalFramework.Plugins;
 
     public static class LifeCycle {
         public static string HARMONY_ID = "CS.Kian.AdaptiveRoads";
@@ -54,6 +55,8 @@ namespace AdaptiveRoads.LifeCycle {
                 if (LoadingManager.instance.m_loadingComplete)
                     HotReload();
 
+                PluginManager.instance.eventPluginsStateChanged += HotReload3rdparty;
+                PluginManager.instance.eventPluginsChanged += HotReload3rdparty;
 #if FAST_TEST_HARMONY
                 HarmonyHelper.DoOnHarmonyReady(() => {
                     HarmonyUtil.InstallHarmony(HARMONY_ID);
@@ -89,6 +92,17 @@ namespace AdaptiveRoads.LifeCycle {
             }
         }
 #endif
+
+        public static void HotReload3rdparty() {
+            Log.Called();
+            if (loaded_ && PluginUtil.GetTrafficManager().IsActive()) {
+                var notifier = TMPENotifier;
+                if (notifier != null) {
+                    notifier.EventLevelLoaded += OnTMPELOaded;
+                    OnTMPELOaded();
+                }
+            }
+        }
 
         public static void HotReload() {
             LogCalled();
@@ -202,6 +216,8 @@ namespace AdaptiveRoads.LifeCycle {
         public static void Exit() {
             Log.Buffered = false;
             Log.Info("LifeCycle.Exit() called");
+            PluginManager.instance.eventPluginsStateChanged -= HotReload3rdparty;
+            PluginManager.instance.eventPluginsChanged -= HotReload3rdparty;
             TMPENotifier.EventLevelLoaded -= NetworkExtensionManager.OnTMPELoaded;
             HarmonyUtil.UninstallHarmony(HARMONY_ID_MANUAL);
             preloadPatchesApplied_ = false;
