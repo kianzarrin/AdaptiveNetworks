@@ -10,9 +10,7 @@ namespace AdaptiveRoads.LifeCycle {
     using AdaptiveRoads.UI;
     using KianCommons.Plugins;
     using ColossalFramework.Packaging;
-    using UnityEngine;
     using ColossalFramework.UI;
-    using System.Linq;
 
     public class AssetDataExtension : IAssetDataExtension {
         public const string ID_NetInfo = "AdvancedRoadEditor_NetInfoExt";
@@ -176,12 +174,7 @@ namespace AdaptiveRoads.LifeCycle {
                             if (lastAssetMetaData?.userDataRef is Package.Asset asset) {
                                 var data = asset.Instantiate<AssetDataWrapper.UserAssetData>()?.Data;
                                 if (data != null) {
-                                    // why causes error?
-                                    Log.Debug("P2 editPrefab=" + editPrefab);
-                                    OnAssetLoadedImpl(
-                                        lastAssetMetaData.name,
-                                        editPrefab,
-                                        data);
+                                    OnAssetLoadedImpl( lastAssetMetaData.name, editPrefab, data);
                                 }
                             }
                         } catch(Exception ex) {
