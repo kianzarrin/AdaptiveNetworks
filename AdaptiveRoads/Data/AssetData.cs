@@ -60,6 +60,7 @@ namespace AdaptiveRoads.Manager {
 
             public static void CopyMetadata(NetInfo source, NetInfo target) {
                 try {
+                    Log.Called(source, target);
                     NetInfoExtionsion.EnsureExtended(target);
 
                     for(int i = 0; i < source.m_nodes.Length; ++i) {

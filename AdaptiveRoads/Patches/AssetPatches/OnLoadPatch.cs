@@ -22,7 +22,6 @@ namespace AdaptiveRoads.Patches.AssetPatches {
             typeof(LoadSavePanelBase<CustomAssetMetaData>)
             .GetMethod("GetListingMetaData", BindingFlags.Instance | BindingFlags.NonPublic);
 
-
         /// <summary>
         /// when loading asset from a file, IAssetData.OnAssetLoaded() is called for all assets but the one that is loaded from the file.
         /// this postfix calls IAssetData.OnAssetLoaded() for asset loaded from file.
@@ -31,12 +30,14 @@ namespace AdaptiveRoads.Patches.AssetPatches {
         ///       also we cannot be sure that it is always instantiated properly.
         /// </summary>
         public static void Postfix(LoadAssetPanel __instance, UIListBox ___m_SaveList) {
+            // modifications to this code should be replicated to AssetDataExtension.HotReload
             try {
                 // Taken from LoadAssetPanel.OnLoad
                 var selectedIndex = ___m_SaveList.selectedIndex;
-                var listingMetaData = (CustomAssetMetaData)mListingMetaData
-                    .Invoke(__instance, new object[] { selectedIndex });
+                var listingMetaData =
+                    (CustomAssetMetaData)mListingMetaData.Invoke(__instance, new object[] { selectedIndex });
                 AssetDataExtension.ListingMetaData = listingMetaData;
+                AssetDataExtension.WasLastLoaded = true;
 
                 // Taken from LoadingManager.LoadCustomContent
                 if (listingMetaData.userDataRef != null) {
@@ -65,6 +66,7 @@ namespace AdaptiveRoads.Patches.AssetPatches {
                 }
                 NetInfoExtionsion.Ensure_EditedNetInfos(recalculate:true);
                 Log.Debug($"LoadAssetPanel.OnLoad().Postfix() succeeded!");
+
             } catch (Exception ex) {
                 Log.Exception(ex);
             } finally {
@@ -84,7 +86,6 @@ namespace AdaptiveRoads.Patches.AssetPatches {
             var ret =  PrefabCollection<NetInfo>.FindLoaded(originalName);
             Log.Debug("GetOriginalNetInfo() returns " + ret.ToSTR());
             return ret;
-
         }
     }
 }
