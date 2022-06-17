@@ -14,8 +14,6 @@ namespace AdaptiveRoads.Util {
     public static class LSMUtil {
         public const string LSM_TEST = "LoadingScreenModTest";
         public const string LSM = "LoadingScreenMod";
-        internal static bool IsLSM(this PluginInfo p) =>
-            p != null && p.name == "667342976" || p.name == "833779378" || p.name == LSM || p.name == LSM_TEST;
 
         internal static Assembly GetLSMAssembly() =>
             AppDomain.CurrentDomain.GetAssemblies()
