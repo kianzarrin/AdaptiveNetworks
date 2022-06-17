@@ -72,8 +72,8 @@ namespace AdaptiveRoads.UI.RoadEditor {
             Label = AddUIComponent<UILabel>();
             Label.relativePosition = new Vector2(0, 4);
             Field = AddUIComponent<EditorTextField>();
-            Field.size = new Vector2(200, 20);
-            Field.relativePosition = new Vector2(150, 4);
+            Field.size = new Vector2(318, 20);
+            Field.relativePosition = new Vector2(50, 3);
         }
 
         public override void Start() {
