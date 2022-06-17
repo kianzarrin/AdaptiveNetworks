@@ -30,11 +30,6 @@ namespace AdaptiveRoads.Manager {
             [Optional(NODE_SEGMENT)]
             public SegmentInfoFlags SegmentFlags;
 
-            [CustomizableProperty("Title")]
-            [Hint("title to display(asset editor only)")]
-            public string Title;
-            string IModel.Title => Title;
-
             [Hint("Apply the same flag requirements to target segment end")]
             [CustomizableProperty("Check target flags", DC_GROUP_NAME)]
             [AfterField(nameof(NetInfo.Node.m_directConnect))]
@@ -64,6 +59,13 @@ namespace AdaptiveRoads.Manager {
             [Hint("network tiling value")]
             [AfterField(nameof(NetInfo.Node.m_directConnect))]
             public float Tiling;
+
+            [CustomizableProperty("Title")]
+            [Hint("title to display(asset editor only)")]
+            [AfterField(nameof(NetInfo.Node.m_directConnect))]
+            public string Title;
+            string IModel.Title => Title;
+
 
             public bool CheckFlags(
                 NetNodeExt.Flags nodeFlags, NetSegmentEnd.Flags segmentEndFlags,
