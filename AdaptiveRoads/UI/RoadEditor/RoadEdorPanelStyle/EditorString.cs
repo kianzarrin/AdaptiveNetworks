@@ -57,17 +57,14 @@ namespace AdaptiveRoads.UI.RoadEditor {
             container.AttachUIComponent(subPanel.gameObject);
             roadEditorPanel.FitToContainer(subPanel);
 
-            //subPanel.Field.eventTextSubmitted += (_, value) => fieldInfo.SetValue(target, value);
-            //subPanel.Field.eventTextSubmitted += (_, __) => roadEditorPanel.OnObjectModified();
+            subPanel.Field.eventTextSubmitted += (_, value) => fieldInfo.SetValue(target, value);
+            subPanel.Field.eventTextSubmitted += (_, __) => roadEditorPanel.OnObjectModified();
 
             return subPanel;
         }
 
         public override void Awake() {
             base.Awake();
-            //backgroundSprite = "GenericPanelWhite";
-            //color = Color.white;
-
             size = new Vector2(370, 27);
             atlas = TextureUtil.Ingame;
             padding = new RectOffset(3, 3, 3, 3);
@@ -84,7 +81,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
             Refresh();
         }
 
-        public virtual void Refresh() { /*fieldInfo_.GetValue(target_);*/ }
+        public virtual void Refresh() { fieldInfo_.GetValue(target_); }
         public string GetHint() => hint_;
         public bool IsHovered() => containsMouse;
     }

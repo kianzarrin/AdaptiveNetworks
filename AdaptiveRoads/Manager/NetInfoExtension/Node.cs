@@ -13,7 +13,7 @@ namespace AdaptiveRoads.Manager {
         [AfterField(nameof(NetInfo.Node.m_flagsForbidden))]
         [Serializable]
         [Optional(AR_MODE)]
-        public class Node : ICloneable, ISerializable {
+        public class Node : ICloneable, ISerializable, IModel {
             public const string DC_GROUP_NAME = "Direct Connect";
 
             [CustomizableProperty("Node Extension")]
@@ -29,6 +29,11 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Segment Extension")]
             [Optional(NODE_SEGMENT)]
             public SegmentInfoFlags SegmentFlags;
+
+            [CustomizableProperty("Title")]
+            [Hint("title to display(asset editor only)")]
+            public string Title;
+            string IModel.Title => Title;
 
             [Hint("Apply the same flag requirements to target segment end")]
             [CustomizableProperty("Check target flags", DC_GROUP_NAME)]

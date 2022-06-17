@@ -319,7 +319,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 var container = GetContainer(roadEditorPanel, groupName);
                 var att = fieldInfo.GetAttribute<CustomizablePropertyAttribute>();
 
-                if(fieldInfo.HasAttribute<BitMaskLanesAttribute>()) {
+                if (fieldInfo.HasAttribute<BitMaskLanesAttribute>()) {
                     NetInfo netInfo =
                         (metadata as NetInfoExtionsion.Track)?.ParentInfo ??
                         RoadEditorUtils.GetSelectedNetInfo(out _);
@@ -330,9 +330,9 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         container: container,
                         label: att.name,
                         hint: fieldInfo.GetHints().JoinLines());
-                } else if(fieldInfo.FieldType.HasAttribute<FlagPairAttribute>()) {
+                } else if (fieldInfo.FieldType.HasAttribute<FlagPairAttribute>()) {
                     var uidatas = GetARFlagUIData(fieldInfo, metadata);
-                    if(uidatas != null) {
+                    if (uidatas != null) {
                         BitMaskPanel.Add(
                             roadEditorPanel: roadEditorPanel,
                             container: container,
@@ -346,8 +346,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             hint: uidatas[1].Hint,
                             flagData: uidatas[1].FlagData);
                     }
-                } else if(fieldInfo.FieldType == typeof(NetInfoExtionsion.Range)) {
-                    if(fieldInfo.Name.ToLower().Contains("speed")) {
+                } else if (fieldInfo.FieldType == typeof(NetInfoExtionsion.Range)) {
+                    if (fieldInfo.Name.ToLower().Contains("speed")) {
                         var panel = SpeedRangePanel.Add(
                             roadEditorPanel: roadEditorPanel,
                             container: container,
@@ -365,6 +365,14 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 } else if (fieldInfo.FieldType == typeof(UserDataInfo)) {
                     CreateUserDataInfoSection(
                         roadEditorPanel: roadEditorPanel,
+                        target: metadata,
+                        fieldInfo: fieldInfo);
+                } else if (fieldInfo.FieldType == typeof(string)) {
+                    var panel = EditorStringPanel.Add(
+                        roadEditorPanel: roadEditorPanel,
+                        container: container,
+                        label: att.name,
+                        hint: fieldInfo.GetHints().JoinLines(),
                         target: metadata,
                         fieldInfo: fieldInfo);
                 } else {
