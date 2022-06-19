@@ -189,6 +189,11 @@ namespace AdaptiveRoads.UI.RoadEditor {
                                     // prop dpt
                                     Hint1 = prop.Summary();
                                     Hint2 += "\n" + menuHint;
+                                } else if(element is NetInfo.Node node) {
+                                    // node dpt
+                                    Hint1 = node.Summary();
+                                    Hint2 += "\n" + menuHint;
+
                                 } else if (
                                     element is NetInfo.Lane lane &&
                                     lane.HasProps() && target == NetInfoExtionsion.EditedNetInfo) {
