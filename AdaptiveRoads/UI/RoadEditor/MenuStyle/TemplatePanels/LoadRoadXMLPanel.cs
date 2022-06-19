@@ -7,7 +7,7 @@ using AdaptiveRoads.DTO;
 namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
     public class LoadRoadXMLPanel : PersitancyPanelBase {
         public SummaryLabel SummaryBox;
-        public SavesListBoxT<RoadAssetInfo> SavesListBox;
+        public SaveListBoxBase<RoadAssetInfo> SavesListBox;
         public UIButton LoadButton;
 
         public delegate void OnLoadedHandler(NetInfo info);
@@ -26,7 +26,7 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
             {
                 UIPanel panel = AddLeftPanel();
                 {
-                    SavesListBox = panel.AddUIComponent<SavesListBoxT<RoadAssetInfo>>();
+                    SavesListBox = panel.AddUIComponent<SaveListBoxBase<RoadAssetInfo>>();
                     SavesListBox.width = panel.width;
                     SavesListBox.height = 470;
                     SavesListBox.AddScrollBar();

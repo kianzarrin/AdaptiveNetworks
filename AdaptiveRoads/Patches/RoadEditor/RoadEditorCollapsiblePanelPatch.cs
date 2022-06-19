@@ -52,7 +52,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             panel.AddButton("Clear all props", null,
                                 () => ClearAll(groupPanel));
                             panel.AddButton("Save Template", null, () => {
-                                SaveTemplatePanel.Display(m_props);
+                                SavePropTemplatePanel.Display(m_props);
                             });
                         }
                         if (clipBoardHasData) {

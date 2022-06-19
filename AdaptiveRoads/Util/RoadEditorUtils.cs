@@ -304,7 +304,7 @@ namespace AdaptiveRoads.Util {
                         PropHelpers.CopyPropsToOtherElevations(item);
                 });
                 panel.AddButton("Add" + strAll + " to Template", null, delegate () {
-                    SaveTemplatePanel.Display(cloned_props);
+                    SavePropTemplatePanel.Display(cloned_props);
                 });
                 if(cloned_props.Count() >= 2) {
                     panel.AddButton("Displace all", null, delegate () {

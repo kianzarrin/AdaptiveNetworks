@@ -39,7 +39,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 Assertion.AssertNotNull(lane,"target is lane");
                 bool unidirectional = lane.IsGoingForward() || lane.IsGoingBackward();
                 bool suggestBackward = lane.m_laneType == NetInfo.LaneType.Pedestrian && lane.m_position < 0;
-                LoadTemplatePanel.Display(
+                LoadPropTemplatePanel.Display(
                     loadedProps => RoadEditorUtils.AddProps(groupPanel, loadedProps),
                     unidirectional:unidirectional,
                     suggestBackward: suggestBackward);

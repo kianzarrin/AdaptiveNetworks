@@ -6,10 +6,12 @@ using System.Linq;
 using static KianCommons.ReflectionHelpers;
 
 namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
-    public class SaveListBoxProp : SavesListBoxT<PropTemplate> { }
-    public class SaveListBoxRoad : SavesListBoxT<RoadAssetInfo> { }
-    public class SavesListBoxT<T> : ListBox
-    where T : class, ISerialziableDTO {
+    public class SaveListBoxNode : SaveListBoxBase<NodeTemplate> { }
+    public class SaveListBoxProp : SaveListBoxBase<PropTemplate> { }
+    public class SaveListBoxRoad : SaveListBoxBase<RoadAssetInfo> { }
+
+    public class SaveListBoxBase<T> : ListBox
+        where T : class, ISerialziableDTO {
         public List<T> Saves = new List<T>();
         public override void Awake() {
             base.Awake();
