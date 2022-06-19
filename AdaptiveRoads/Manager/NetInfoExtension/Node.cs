@@ -8,6 +8,7 @@ namespace AdaptiveRoads.Manager {
     using AdaptiveRoads.Util;
     using static AdaptiveRoads.UI.ModSettings;
     using static KianCommons.ReflectionHelpers;
+    using System.Xml.Serialization;
 
     public static partial class NetInfoExtionsion {
         [AfterField(nameof(NetInfo.Node.m_flagsForbidden))]
@@ -37,7 +38,7 @@ namespace AdaptiveRoads.Manager {
 
             public string[] ConnectGroups;
 
-            [NonSerialized]
+            [NonSerialized] [XmlIgnore]
             public int[] ConnectGroupsHash;
 
             [Hint("used by other mods to decide how hide tracks/medians")]
@@ -64,7 +65,7 @@ namespace AdaptiveRoads.Manager {
             [Hint("title to display(asset editor only)")]
             [AfterField(nameof(NetInfo.Node.m_directConnect))]
             public string Title;
-            string IModel.Title => Title;
+            [XmlIgnore] string IModel.Title => Title;
 
 
             public bool CheckFlags(
