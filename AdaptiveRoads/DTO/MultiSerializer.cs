@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using KianCommons;
+using System.Xml.Serialization;
 
 namespace AdaptiveRoads.DTO {
     public class MultiSerializer<T> where T : ISerialziableDTO
@@ -33,8 +34,14 @@ namespace AdaptiveRoads.DTO {
             EnsureDir();
             string data = XMLSerializerUtil.ReadFromFile(path);
             //Version version = XMLSerializerUtil.ExtractVersion(data);
-            var ret = XMLSerializerUtil.Deserialize<T>(data);
-            return ret;
+            try {
+                using (TextReader reader = new StringReader(data)) {
+                    return (T)new XmlSerializer(typeof(T)).Deserialize(reader);
+                }
+            } catch(Exception ex) {
+                Log.Debug($"{path} does not match {typeof(T).Name}. " + ex?.InnerException?.Message );
+                return default;
+            }
         }
 
         public IEnumerable<T> LoadAllFiles() {
