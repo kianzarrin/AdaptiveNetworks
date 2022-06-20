@@ -13,9 +13,8 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
         public List<NetLaneProps.Prop> Props;
 
         public static SavePropTemplatePanel Display(IEnumerable<NetLaneProps.Prop> props) {
-            Log.Called(); if (props.IsNullorEmpty()) {
-                return null;
-            }
+            Log.Called();
+            if (props.IsNullorEmpty()) return null;
             var ret = UIView.GetAView().AddUIComponent<SavePropTemplatePanel>();
             ret.Props = props.ToList();
             return ret;
