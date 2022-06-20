@@ -36,6 +36,8 @@ namespace AdaptiveRoads.DTO {
         public string Name { get; set; }
         public string Description { get; set; }
 
+        [XmlIgnore] public string Summary => throw new NotImplementedException();
+
         public void ReadFromGame(NetInfo game_basic) {
             NetInfo game_elevated = AssetEditorRoadUtils.TryGetElevated(game_basic);
             NetInfo game_bridge = AssetEditorRoadUtils.TryGetBridge(game_basic);
@@ -98,7 +100,7 @@ namespace AdaptiveRoads.DTO {
             DTOUtil.CopyAllMatchingFields<TunnelAIDTO>(game_tunnel.m_netAI, tunnelAI);
         }
 
-        private static MultiSerializer<RoadAssetInfo> Serializer = new MultiSerializer<RoadAssetInfo>("RoadAssetInfo");
+        private static MultiSerializer<RoadAssetInfo> Serializer = new MultiSerializer<RoadAssetInfo>();
         public void Save() => Serializer.Save(Name, this);
         public void OnLoaded(FileInfo file) { }
         public static IEnumerable<RoadAssetInfo> LoadAllFiles() => Serializer.LoadAllFiles();

@@ -144,6 +144,11 @@
     <Compile Include="KianCommons\KianCommons\Serialization\Vector3Serializable.cs" />
     <Compile Include="KianCommons\KianCommons\Patches\HarmonyUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Patches\TranspilerUtils.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\MessageBox\DontShowAgainMessageBox.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\MessageBox\ListMessageBox.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\MessageBox\MessageBoxBase.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\MessageBox\WhatsNewMessage.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\MessageBox\WhatsNewMessageBox.cs" />
     <Compile Include="KianCommons\KianCommons\Util\DelegateUtil.cs" />
     <Compile Include="KianCommons\KianCommons\UI\TextureExtensions.cs" />
     <Compile Include="KianCommons\KianCommons\Util\DirectionUtil.cs" />

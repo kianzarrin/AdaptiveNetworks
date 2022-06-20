@@ -8,14 +8,8 @@ using KianCommons;
 namespace AdaptiveRoads.DTO {
     public class MultiSerializer<T> where T : ISerialziableDTO
         {
-        public string SubDir;// = "ARTemplates";
-        public  string FileExt = ".xml";
+        public  const string FileExt = ".xml";
 
-        public MultiSerializer(string subDir) => SubDir = subDir;
-        public MultiSerializer(string subDir, string fileExt) {
-            SubDir = subDir;
-            FileExt = fileExt;
-        }
     
         public  string Dir => Path.Combine(DataLocation.localApplicationData, "ARTemplates");
         public  string FilePath(string name) => Path.Combine(Dir, name + FileExt);
