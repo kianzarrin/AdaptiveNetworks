@@ -57,7 +57,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         }
                         if (clipBoardHasData) {
                             panel.AddButton("Paste all props", null,
-                                () => PasteAll(groupPanel));
+                                () => PasteAllProps(groupPanel));
                         }
                         panel.AddButton(
                             "Displace all",
@@ -80,7 +80,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         }
                         if (clipBoardHasData) {
                             panel.AddButton("Paste all nodes", null,
-                                () => PasteAll(groupPanel));
+                                () => PasteAllNodes(groupPanel));
                         }
                     }
                 } else if (
@@ -129,10 +129,15 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             }
         }
 
-        static void PasteAll(RoadEditorCollapsiblePanel groupPanel) {
+        static void PasteAllProps(RoadEditorCollapsiblePanel groupPanel) {
             Log.Debug("PasteAll called");
             NetLaneProps.Prop[] props = ClipBoard.GetDataArray() as NetLaneProps.Prop[];
             AddProps(groupPanel, props);
+        }
+        static void PasteAllNodes(RoadEditorCollapsiblePanel groupPanel) {
+            Log.Debug("PasteAll called");
+            NetInfo.Node[] nodes = ClipBoard.GetDataArray() as NetInfo.Node[];
+            AddNodes(groupPanel, nodes);
         }
     }
 }
