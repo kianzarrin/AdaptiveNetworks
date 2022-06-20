@@ -155,12 +155,12 @@ namespace AdaptiveRoads.UI.RoadEditor {
                         Hint1 = dataUI.GetHint();
                         break;
                     } else if (panel.containsMouse) {
-                            const string toggleHint = "Click => toggle";
-                            const string selectHint = "Control + Click => multi-select";
-                            const string menuHint = "Right-Click => show more options";
-                            const string dptHint = toggleHint + "\n" + selectHint;
-                            const string labelButtonHint = toggleHint + "\n" + menuHint;
-                            var customControl = panel.GetComponent<UICustomControl>();
+                        const string toggleHint = "Click => toggle";
+                        const string selectHint = "Control + Click => multi-select";
+                        const string menuHint = "Right-Click => show more options";
+                        const string dptHint = toggleHint + "\n" + selectHint;
+                        const string labelButtonHint = toggleHint + "\n" + menuHint;
+                        var customControl = panel.GetComponent<UICustomControl>();
                         try {
                             if (customControl is RoadEditorCollapsiblePanel groupPanel
                                 && groupPanel.LabelButton.containsMouse) {
@@ -170,13 +170,16 @@ namespace AdaptiveRoads.UI.RoadEditor {
                                 if (label == "Props") {
                                     // props group button
                                     Hint2 = labelButtonHint;
+                                } else if (label == "Nodes") {
+                                    // nodes group button
+                                    Hint2 = labelButtonHint;
                                 } else if (
                                     groupPanel.GetArray() is NetInfo.Lane[] m_lanes
-                                    && m_lanes.Any(_lane => _lane.HasProps())
+                                    && m_lanes.Any(_lane => _lane.HasProps()) // don't show if there are not props.
                                     && target == NetInfoExtionsion.EditedNetInfo) {
                                     // lanes group button for basic elevation
                                     Hint2 = labelButtonHint;
-                                }
+                                } 
                             } else if (
                                 panel.GetComponent(DPTType) is UICustomControl toggle &&
                                 GetDPTSelectButton(toggle).containsMouse) {
