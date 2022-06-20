@@ -200,13 +200,15 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         }
                     }
                 } else if(target is NetAI netAI) {
-                    Log.Debug($"{__instance.name}.CreateField.Postfix({groupName}, {field}, {target})"/* + Environment.StackTrace*/);
-                    var net = netAI.m_info.GetOrCreateMetaData();
-                    AssertNotNull(net, $"{netAI}");
-                    foreach (var field2 in net.GetFieldsWithAttribute<CustomizablePropertyAttribute>()) {
-                        if (field2.ComesAfter(field)) {
-                            Log.Debug($"calling {__instance.name}.CreateField({field2},{net}) ...");
-                            __instance.CreateField(field2, net);
+                    if (ModSettings.ARMode) {
+                        Log.Debug($"{__instance.name}.CreateField.Postfix({groupName}, {field}, {target})"/* + Environment.StackTrace*/);
+                        var net = netAI.m_info.GetOrCreateMetaData();
+                        AssertNotNull(net, $"{netAI}");
+                        foreach (var field2 in net.GetFieldsWithAttribute<CustomizablePropertyAttribute>()) {
+                            if (field2.ComesAfter(field)) {
+                                Log.Debug($"calling {__instance.name}.CreateField({field2},{net}) ...");
+                                __instance.CreateField(field2, net);
+                            }
                         }
                     }
                 }
