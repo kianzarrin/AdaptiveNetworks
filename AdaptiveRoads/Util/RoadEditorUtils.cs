@@ -486,6 +486,40 @@ namespace AdaptiveRoads.Util {
                 }
             }
         }
+
+
+        public static T CustomCreateDummyInstance<T>() where T: class =>
+            CustomCreateDummyInstance(typeof(T)) as T;
+
+
+        public static object CustomCreateDummyInstance(Type type) {
+            if (type == typeof(NetInfo.Lane)) {
+                var lane = new NetInfo.Lane {
+                    m_laneProps = ScriptableObject.CreateInstance<NetLaneProps>(),
+                };
+                lane.m_laneProps.m_props = new NetLaneProps.Prop[0];
+                return lane;
+            }
+            Shader shader = Shader.Find("Custom/Net/Road");
+            if (type == typeof(NetInfo.Segment)) {
+                return new NetInfo.Segment {
+                    m_mesh = new Mesh(),
+                    m_material = new Material(shader),
+                    m_lodMesh = new Mesh(),
+                    m_lodMaterial = new Material(shader)
+                };
+            }
+            if (type == typeof(NetInfo.Node)) {
+                return new NetInfo.Node {
+                    m_mesh = new Mesh(),
+                    m_material = new Material(shader),
+                    m_lodMesh = new Mesh(),
+                    m_lodMaterial = new Material(shader)
+                };
+            }
+            return null;
+        }
+
     }
 }
 
