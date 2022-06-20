@@ -14,17 +14,17 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
         public bool UniDirectional;
         public bool SwitchBackward;
 
-        public delegate void OnPropsLoadedHandler(NetLaneProps.Prop[] props);
-        public event OnPropsLoadedHandler OnPropsLoaded;
+        public delegate void OnLoadedHandler(NetLaneProps.Prop[] props);
+        public event OnLoadedHandler OnLoaded;
         protected override string Title => "Load Prop Template";
 
         public static LoadPropTemplatePanel Display(
-            OnPropsLoadedHandler handler, bool unidirectional, bool suggestBackward) {
+            OnLoadedHandler handler, bool unidirectional, bool suggestBackward) {
             if(unidirectional && suggestBackward)
                 throw new ArgumentException("switch backward cannot be applied to unidirectional lanes.");
             Log.Called();
             var ret = UIView.GetAView().AddUIComponent<LoadPropTemplatePanel>();
-            ret.OnPropsLoaded = handler;
+            ret.OnLoaded = handler;
             ret.UniDirectional = unidirectional;
             ret.SwitchBackward = suggestBackward;
             return ret;
@@ -75,6 +75,7 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
                     prop.Displace(Displacement.Number);
                 }
             }
+            OnLoaded(props);
         }
     }
 }

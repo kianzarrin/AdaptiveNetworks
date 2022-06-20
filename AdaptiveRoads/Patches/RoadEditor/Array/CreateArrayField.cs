@@ -26,11 +26,20 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 button.zOrder = int.MaxValue;
                 button.text = "Add from template";
                 button.width = 200;
-                button.eventClicked += OnLoadFromTempalteClicked;
+                button.eventClicked += OnLoadFromPropTempalteClicked;
             }
+            if (name == "Nodes") {
+                Log.Debug("creating `Add from template` button");
+                var button = groupPanel.m_Panel.AddUIComponent<EditorButon>();
+                button.zOrder = int.MaxValue;
+                button.text = "Add from template";
+                button.width = 200;
+                button.eventClicked += OnLoadFromNodeTempalteClicked;
+            }
+
         }
 
-        public static void OnLoadFromTempalteClicked(
+        public static void OnLoadFromPropTempalteClicked(
             UIComponent component, UIMouseEventParameter eventParam) {
             try {
                 var groupPanel = component.GetComponentInParent<RoadEditorCollapsiblePanel>();
@@ -43,6 +52,20 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     loadedProps => RoadEditorUtils.AddProps(groupPanel, loadedProps),
                     unidirectional:unidirectional,
                     suggestBackward: suggestBackward);
+            } catch (Exception ex) {
+                Log.Exception(ex);
+            }
+        }
+
+        public static void OnLoadFromNodeTempalteClicked(
+            UIComponent component, UIMouseEventParameter eventParam) {
+            try {
+                var groupPanel = component.GetComponentInParent<RoadEditorCollapsiblePanel>();
+                var roadEditor = component.GetComponentInParent<RoadEditorPanel>();
+                var netInfo = roadEditor.GetTarget() as NetInfo;
+                Assertion.AssertNotNull(netInfo, "target is netInfo");
+                LoadNodeTemplatePanel.Display(
+                    loadedNodes => RoadEditorUtils.AddNodes(groupPanel, loadedNodes));
             } catch (Exception ex) {
                 Log.Exception(ex);
             }

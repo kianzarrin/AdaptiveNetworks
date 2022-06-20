@@ -26,12 +26,26 @@ namespace AdaptiveRoads.Util {
             Log.Debug("ClipBoard.SetData() -> Data=" + Data /*+ Environment.StackTrace*/);
         }
 
+        public static void SetData(IEnumerable<NetInfo.Node> nodes) {
+            Data = nodes.Select(node => node.Clone()).ToArray();
+        }
+
+        public static void SetData(NetInfo.Node node) {
+            Data = node.Clone();
+        }
+
         public static Array GetDataArray() {
             if(Data is NetLaneProps.Prop prop) {
-                return new NetLaneProps.Prop[] { prop.Clone() };
+                return new NetLaneProps.Prop[1] { prop.Clone() };
             }
-            if(Data is IEnumerable<NetLaneProps.Prop> e) {
-                return e.Select(_prop => _prop.Clone()).ToArray();
+            if(Data is IEnumerable<NetLaneProps.Prop> props) {
+                return props.Select(_prop => _prop.Clone()).ToArray();
+            }
+            if(Data is NetInfo.Node node) {
+                return new NetInfo.Node[1] { node };
+            }
+            if (Data is IEnumerable<NetInfo.Node> nodes) {
+                return nodes.Select(node => node.Clone()).ToArray();
             }
             return null;
         }
