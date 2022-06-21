@@ -10,8 +10,11 @@ namespace AdaptiveRoads.Util {
     using KianCommons;
     using static KianCommons.ReflectionHelpers;
     using ColossalFramework.Packaging;
+    using AdaptiveRoads.LifeCycle;
 
     public static class LSMUtil {
+        public const string LSM_REVISITED = "LoadingScreenModRevisited";
+        public const string LSM_KLYTE = "LoadingScreenModKlyte";
         public const string LSM_TEST = "LoadingScreenModTest";
         public const string LSM = "LoadingScreenMod";
 
@@ -26,19 +29,28 @@ namespace AdaptiveRoads.Util {
 
         /// <param name="type">full type name minus assembly name and root name space</param>
         /// <returns>corresponding types from LSM or LSMTest or both</returns>
-        public static IEnumerable<Type> GetTypeFromBothLSMs(string type) {
+        public static IEnumerable<Type> GetTypeFromLSMs(string type) {
             var type1 = Type.GetType($"{LSM}.{type}, {LSM}", false);
             var type2 = Type.GetType($"{LSM_TEST}.{type}, {LSM_TEST}", false);
-            if(type1 != null) yield return type1;
-            if(type2 != null) yield return type2;
+            var type3 = Type.GetType($"{LSM}.{type}, {LSM_KLYTE}", false);
+            var type4 = Type.GetType($"{LSM}.{type}, {LSM_REVISITED}", false);
+            if (type1 != null) yield return type1;
+            if (type2 != null) yield return type2;
+            if (type3 != null) yield return type3;
+            if (type4 != null) yield return type4;
         }
 
         public static object GetSharing() {
-            foreach(var type in GetTypeFromBothLSMs("Sharing")) {
+            foreach(var type in GetTypeFromLSMs("Sharing")) {
                 object sharing = AccessTools.Field(type, "inst").GetValue(null);
-                if(sharing != null)
+                if (sharing != null) {
+                    Log.DebugOnce($"sharing found in '{type.Assembly.Name()}::{type}'");
                     return sharing;
+                } else {
+                    Log.DebugOnce($"sharing is empty in '{type.Assembly.Name()}::{type}'");
+                }
             }
+            Log.DebugOnce("LSM sharing NOT found!");
             return null;
         }
 
