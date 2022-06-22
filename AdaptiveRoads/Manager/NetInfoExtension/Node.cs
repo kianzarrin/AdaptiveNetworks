@@ -14,7 +14,7 @@ namespace AdaptiveRoads.Manager {
         [AfterField(nameof(NetInfo.Node.m_flagsForbidden))]
         [Serializable]
         [Optional(AR_MODE)]
-        public class Node : ICloneable, ISerializable, IModel {
+        public class Node : IMetaData, IModel {
             public const string DC_GROUP_NAME = "Direct Connect";
 
             [CustomizableProperty("Node Extension")]

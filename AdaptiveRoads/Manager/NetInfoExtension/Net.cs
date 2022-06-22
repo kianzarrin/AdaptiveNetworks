@@ -21,7 +21,7 @@ namespace AdaptiveRoads.Manager {
     public static partial class NetInfoExtionsion {
         [Serializable]
         [Optional(AR_MODE)]
-        public class Net : ICloneable, ISerializable {
+        public class Net : IMetaData {
             [Obsolete("only useful for the purpose of shallow clone", error: true)]
             public Net() { }
             public Net Clone() {
