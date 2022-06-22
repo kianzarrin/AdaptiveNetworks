@@ -65,7 +65,15 @@ namespace AdaptiveRoads.Util {
                     ret = package.FindByChecksum(checksum)?.Instantiate<Mesh>();
                 } else {
                     bool isMain = !isLod;
-                    ret = InvokeMethod(sharing, "GetMesh", checksum, package, isMain) as Mesh;
+                    try {
+                        ret = InvokeMethod(sharing, "GetMesh", checksum, package, isMain) as Mesh;
+                    }catch(Exception ex) {
+                        ex.Log();
+                        ret = package.FindByChecksum(checksum)?.Instantiate<Mesh>();
+                        if (ret != null) {
+                            Log.Warning("Failed to use LSM to reduce MEMORY SIZE for mesh with checksum: " + checksum);
+                        }
+                    }
                 }
                 if (ret) {
                     Log.Debug($"loaded {ret} with checksum:({checksum}) from {package}");
@@ -88,7 +96,15 @@ namespace AdaptiveRoads.Util {
                     ret = package.FindByChecksum(checksum)?.Instantiate<Material>();
                 } else {
                     bool isMain = !isLod;
-                    ret = InvokeMethod(sharing, "GetMaterial", checksum, package, isMain) as Material;
+                    try {
+                        ret = InvokeMethod(sharing, "GetMaterial", checksum, package, isMain) as Material;
+                    } catch(Exception ex) {
+                        ex.Log(false);
+                        ret = package.FindByChecksum(checksum)?.Instantiate<Material>();
+                        if (ret != null) {
+                            Log.Warning("Failed to use LSM to reduce MEMORY SIZE for material with checksum: " + checksum);
+                        }
+                    }
                 }
                 if (ret) {
                     Log.Debug($"loaded {ret} with checksum:({checksum}) from {package}");
