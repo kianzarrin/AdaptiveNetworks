@@ -11,7 +11,6 @@ tracks:
     - why source segment for lane transition is different for forward/backward lane.
 
 -----------------
-- automatically add buttons in road editor panels.
 - do not modify model selection panels from other editors.
 ----------------------------
 version 4:

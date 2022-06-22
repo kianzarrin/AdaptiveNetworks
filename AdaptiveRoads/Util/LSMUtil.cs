@@ -57,6 +57,8 @@ namespace AdaptiveRoads.Util {
         public static Mesh GetMesh(object sharing, string checksum, IEnumerable<Package> packages, bool isLod) {
             if(checksum.IsNullorEmpty()) return null;
             foreach (var package in packages) {
+                Assertion.NotNull(package, "package");
+                Assertion.Assert(!checksum.IsNullorEmpty(), "checksum");
                 Mesh ret;
                 // search for mesh in the given packages
                 if (sharing == null) {
@@ -78,6 +80,9 @@ namespace AdaptiveRoads.Util {
         public static Material GetMaterial(object sharing, string checksum, IEnumerable<Package> packages, bool isLod) {
             if(checksum.IsNullorEmpty()) return null;
             foreach (var package in packages) {
+                if(package == null) { }
+                Assertion.NotNull(package, "package");
+                Assertion.Assert(!checksum.IsNullorEmpty(), "checksum");
                 Material ret;
                 if (sharing == null) {
                     ret = package.FindByChecksum(checksum)?.Instantiate<Material>();
