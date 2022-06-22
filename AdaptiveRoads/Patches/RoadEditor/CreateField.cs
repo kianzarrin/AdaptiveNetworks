@@ -95,16 +95,29 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 var cpt = field.GetAttribute<CustomizablePropertyAttribute>();
                 string groupName = cpt.group;
 
-                if (target is NetLaneProps.Prop prop) {
-                    Log.Debug($"{__instance.name}.CreateField.Postfix({groupName},{field},{target})"/* + Environment.StackTrace*/);
-                    if (ModSettings.ARMode) {
-                        var metadata = prop.GetOrCreateMetaData();
-                        foreach (var field2 in field.GetAfterFields(metadata)) {
+                if (ModSettings.ARMode) {
+                    var metaData = GenericUtil.GetMetaData(target);
+
+                    if (metaData != null) {
+#if DEBUG
+                        Log.Called(field, target, groupName);
+#endif
+                        foreach (var field2 in field.GetAfterFields(metaData)) {
                             CreateGenericComponentExt(
                                 roadEditorPanel: __instance, groupName: groupName,
-                                target: target, metadata: metadata, extensionField: field2);
+                                target: target, metadata: metaData, extensionField: field2);
                         }
                     }
+                }
+
+                //////////////////////////////////
+                // special cases: replace Labels, expose fields, buttons
+
+                if (target is NetLaneProps.Prop prop) {
+                    ReplaceLabel(__instance, "Start Flags Required:", "Tail Node Flags Required:");
+                    ReplaceLabel(__instance, "Start Flags Forbidden:", "Tail  Node Flags Forbidden:");
+                    ReplaceLabel(__instance, "End Flags Required:", "Head  Node Flags Required:");
+                    ReplaceLabel(__instance, "End Flags Forbidden:", "Head  Node Flags Forbidden:");
 
                     if (typeof(NetInfoExtionsion.LaneProp).ComesAfter(field)) {
                         Assert(prop.LocateEditProp(out _, out var lane), "could not locate prop");
@@ -136,34 +149,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                                 __instance.Reset();
                             });
                     }
-
-                    ReplaceLabel(__instance, "Start Flags Required:", "Tail Node Flags Required:");
-                    ReplaceLabel(__instance, "Start Flags Forbidden:", "Tail  Node Flags Forbidden:");
-                    ReplaceLabel(__instance, "End Flags Required:", "Head  Node Flags Required:");
-                    ReplaceLabel(__instance, "End Flags Forbidden:", "Head  Node Flags Forbidden:");
-                } else if (target is NetInfo.Node node) {
-                    Log.Debug($"{__instance.name}.CreateField.Postfix({groupName},{field},{target})"/* + Environment.StackTrace*/);
-                    if (ModSettings.ARMode) {
-                        var metadata = node.GetOrCreateMetaData();
-                        foreach (var field2 in field.GetAfterFields(metadata)) {
-                            CreateGenericComponentExt(
-                                roadEditorPanel: __instance, groupName: groupName,
-                                target: target, metadata: metadata, extensionField: field2);
-                        }
-                    }
-                } else if (target is NetInfo.Segment segment) {
-                    Log.Debug($"{__instance.name}.CreateField.Postfix({groupName}, {field}, {target})"/* + Environment.StackTrace*/);
-                    if (ModSettings.ARMode) {
-                        var metadata = segment.GetOrCreateMetaData();
-                        AssertNotNull(metadata, $"{segment}");
-                        foreach (var field2 in field.GetAfterFields(metadata)) {
-                            CreateGenericComponentExt(
-                                roadEditorPanel: __instance, groupName: groupName,
-                                target: target, metadata: metadata, extensionField: field2);
-                        }
-                    }
                 } else if (target is NetInfo netInfo) {
-                    Log.Debug($"{__instance.name}.CreateField.Postfix({groupName}, {field}, {target})"/* + Environment.StackTrace*/);
                     if (field.Name == nameof(NetInfo.m_surfaceLevel)) {
                         ExposeField(
                             roadEditorPanel: __instance,
@@ -180,14 +166,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     }
                     if (ModSettings.ARMode) {
                         ReplaceLabel(__instance, "Pavement Width", "Pavement Width Left");
-                        var net = netInfo.GetOrCreateMetaData();
-                        AssertNotNull(net, $"{netInfo}");
-                        foreach(var field2 in net.GetFieldsWithAttribute<CustomizablePropertyAttribute>()) {
-                            if(field2.ComesAfter(field)) {
-                                Log.Debug($"calling {__instance.name}.CreateField({field2},{net}) ...");
-                                __instance.CreateField(field2, net);
-                            }
-                        }
                         if (field.Name == nameof(NetInfo.m_surfaceLevel)) {
                             Log.Debug("adding QuayRoads button");
                             var qrButtonPanel = EditorButtonPanel.Add(
@@ -199,20 +177,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             qrButtonPanel.EventDestroy += (_, _) => { QuayRoadsPanel.CloseIfOpen(netInfo); };
                         }
                     }
-                } else if(target is NetAI netAI) {
-                    if (ModSettings.ARMode) {
-                        Log.Debug($"{__instance.name}.CreateField.Postfix({groupName}, {field}, {target})"/* + Environment.StackTrace*/);
-                        var net = netAI.m_info.GetOrCreateMetaData();
-                        AssertNotNull(net, $"{netAI}");
-                        foreach (var field2 in net.GetFieldsWithAttribute<CustomizablePropertyAttribute>()) {
-                            if (field2.ComesAfter(field)) {
-                                Log.Debug($"calling {__instance.name}.CreateField({field2},{net}) ...");
-                                __instance.CreateField(field2, net);
-                            }
-                        }
-                    }
-                }
-
+                } 
             } catch (Exception e) {
                 Log.Exception(e);
             }
@@ -264,16 +229,22 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 .Where(field2 => field2.ComesAfter(before));
         }
 
-        static bool ComesAfter(this MemberInfo after, FieldInfo before) {
-            Assert(after != before, $"{after} != {before}");
-            return after.AfterField() == before.Name;
+        static IEnumerable<MemberInfo> GetAfterMemebers(this FieldInfo before, object target) {
+            return target.GetMembersWithAttribute<CustomizablePropertyAttribute>()
+                .Where(member => member.ComesAfter(before));
         }
 
-        static string AfterField(this MemberInfo field) {
+
+        static bool ComesAfter(this MemberInfo after, FieldInfo before) {
+            Assert(after != before, $"{after} != {before}");
+            return after.AfterMember() == before.Name;
+        }
+
+        static string AfterMember(this MemberInfo member) {
             return
-                field.GetAttribute<AfterFieldAttribute>()?.FieldName ??
-                field.DeclaringType.GetAttribute<AfterFieldAttribute>()?.FieldName ??
-                throw new Exception("could not find after field for " + field);
+                member.GetAttribute<AfterFieldAttribute>()?.FieldName ??
+                member.DeclaringType.GetAttribute<AfterFieldAttribute>()?.FieldName ??
+                throw new Exception("could not find after field for " + member);
         }
 
         /// <returns>false if this field is not special case and needs to be handled normally.</returns>
@@ -302,9 +273,29 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         public static void CreateGenericComponentExt(
             RoadEditorPanel roadEditorPanel, string groupName,
             object target, object metadata, FieldInfo extensionField) {
-            if(!CreateGenericComponentExt0(roadEditorPanel, groupName, target, metadata, extensionField)) {
+            if (!CreateGenericComponentExt0(roadEditorPanel, groupName, target, metadata, extensionField)) {
                 roadEditorPanel.CreateField(extensionField, metadata);
             }
+        }
+
+        public static void CreateButton(
+            RoadEditorPanel roadEditorPanel, string groupName,
+            object target, object metadata, MethodInfo extensionMethod) {
+            Log.Called();
+            var att = extensionMethod.GetAttribute<CustomizableActionAttribute>();
+            Assertion.NotNull(att, "att");
+            if (!string.IsNullOrEmpty(att.group)) groupName = att.group; 
+            var container = GetContainer(roadEditorPanel, groupName);
+
+            var button = EditorButtonPanel.Add(
+                roadEditorPanel: roadEditorPanel,
+                container: container,
+                label: att.name,
+                hint: extensionMethod.GetHints()?.JoinLines(),
+                action: () => extensionMethod.Invoke(metadata, new object[] { target }));
+            button.eventClick += (_, __) => {
+                roadEditorPanel.OnObjectModified();
+            };
         }
 
         public static bool CreateExtendedComponent(
