@@ -20,6 +20,10 @@ namespace AdaptiveRoads.Patches.RoadEditor.AssetImporterAssetImportPatches {
 
             ) {
             try {
+                if(ToolsModifierControl.toolController.m_editPrefabInfo is not NetInfo) {
+                    return; // only in asset editor
+                }
+
                 // increase panel size:
                 __instance.component.width = 1115;
                 ___m_FileList.width = 550;
