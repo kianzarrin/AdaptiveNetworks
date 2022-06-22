@@ -26,18 +26,30 @@ namespace AdaptiveRoads.Util {
             AppDomain.CurrentDomain.GetAssemblies()
             .Where(_asm => _asm.GetName().Name == LSM || _asm.GetName().Name == LSM_TEST);
 
+        // find type without assembly resolve failure log spam.
+        static Type FindTypeSafe(string typeName, string assemblyName) {
+            var asm = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.Name() == assemblyName);
+            return asm?.GetType(typeName, throwOnError: false);
+        }
 
         /// <param name="type">full type name minus assembly name and root name space</param>
         /// <returns>corresponding types from LSM or LSMTest or both</returns>
         public static IEnumerable<Type> GetTypeFromLSMs(string type) {
-            var type1 = Type.GetType($"{LSM}.{type}, {LSM}", false);
-            var type2 = Type.GetType($"{LSM_TEST}.{type}, {LSM_TEST}", false);
-            var type3 = Type.GetType($"{LSM}.{type}, {LSM_KLYTE}", false);
-            var type4 = Type.GetType($"{LSM}.{type}, {LSM_REVISITED}", false);
-            if (type1 != null) yield return type1;
-            if (type2 != null) yield return type2;
-            if (type3 != null) yield return type3;
-            if (type4 != null) yield return type4;
+            Type ret;
+            ret = FindTypeSafe($"{LSM}.{type}", LSM_KLYTE);
+            if (ret != null) yield return ret;
+
+            ret = FindTypeSafe($"{LSM}.{type}", LSM_REVISITED);
+            if (ret != null) yield return ret;
+
+            ret = FindTypeSafe($"{LSM}.{type}", LSM_REVISITED);
+            if (ret != null) yield return ret;
+
+            ret = FindTypeSafe($"{LSM}.{type}", LSM);
+            if (ret != null) yield return ret;
+
+            ret = FindTypeSafe($"{LSM_TEST}.{type}", LSM_TEST);
+            if (ret != null) yield return ret;
         }
 
         public static object GetSharing() {
@@ -99,7 +111,7 @@ namespace AdaptiveRoads.Util {
                     try {
                         ret = InvokeMethod(sharing, "GetMaterial", checksum, package, isMain) as Material;
                     } catch(Exception ex) {
-                        ex.Log(false);
+                        ex.Log($"sharing={sharing.ToSTR()}checksum={checksum.ToSTR()}, package={package.ToSTR()}, isMain={isMain}",false);
                         ret = package.FindByChecksum(checksum)?.Instantiate<Material>();
                         if (ret != null) {
                             Log.Warning("Failed to use LSM to reduce MEMORY SIZE for material with checksum: " + checksum);
