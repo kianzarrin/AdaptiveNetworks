@@ -112,10 +112,10 @@ namespace AdaptiveRoads.Util {
                         ret = InvokeMethod(sharing, "GetMaterial", checksum, package, isMain) as Material;
                     } catch(Exception ex) {
                         ex.Log($"sharing={sharing.ToSTR()}checksum={checksum.ToSTR()}, package={package.ToSTR()}, isMain={isMain}",false);
-                        ret = package.FindByChecksum(checksum)?.Instantiate<Material>();
-                        if (ret != null) {
-                            Log.Warning("Failed to use LSM to reduce MEMORY SIZE for material with checksum: " + checksum);
-                        }
+                    }
+                    ret = package.FindByChecksum(checksum)?.Instantiate<Material>();
+                    if (ret != null) {
+                        Log.Warning("Failed to use LSM to reduce MEMORY SIZE for material with checksum: " + checksum);
                     }
                 }
                 if (ret) {
