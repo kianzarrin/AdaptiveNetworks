@@ -605,8 +605,11 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
         static bool TryGetMerge(FieldInfo extensionField, object vanillaTarget,
             out FieldInfo vanillaRequiredField, out FieldInfo vanillaForbiddenField) {
-            Assert(vanillaTarget is IInfoExtended, "vanillaTarget is IInfoExtended");
             vanillaRequiredField = vanillaForbiddenField = null;
+            if (vanillaTarget is NetInfo or NetAI) {
+                return false;
+            }
+            Assert(vanillaTarget is IInfoExtended, "vanillaTarget is IInfoExtended : " + vanillaTarget.ToSTR());
             if (!Merge) return false;
 
             foreach (var vanillaField in vanillaTarget.GetFieldsWithAttribute<CustomizablePropertyAttribute>()) {
