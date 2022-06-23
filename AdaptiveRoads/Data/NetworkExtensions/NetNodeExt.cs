@@ -103,7 +103,7 @@ namespace AdaptiveRoads.Manager {
             try {
                 transitions_ = null;
                 if(!NetUtil.IsNodeValid(NodeID)) {
-                    if (NodeID.ToNode().m_flags.IsFlagSet(NetSegment.Flags.Created))
+                    if (NodeID.ToNode().m_flags.IsFlagSet(NetNode.Flags.Created))
                         Log.Debug("Skip updating invalid node:" + NodeID);
                     else
                         HandleInvalidNode();
@@ -183,6 +183,13 @@ namespace AdaptiveRoads.Manager {
                     }
                     m_flags = m_flags.SetFlags(scriptedFlag, condition);
                 }
+
+                if (transitions_.IsNullorEmpty())
+                    return;
+                for (int i = 0; i < transitions_.Length; ++i) {
+                    transitions_[i].UpdateScriptedFlags(i);
+                }
+
             } catch (Exception ex) {
                 ex.Log();
             }
@@ -222,6 +229,9 @@ namespace AdaptiveRoads.Manager {
 
         private static HashSet<Connection> tempConnections_ = new (Connection.Comparer);
         private LaneTransition[] transitions_;
+        public ref LaneTransition GetLaneTransition(int index) => ref transitions_[index];
+        
+
         public void GetTrackConnections() {
             try {
                 if(Log.VERBOSE) Log.Called();

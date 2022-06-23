@@ -1,4 +1,5 @@
 namespace AdaptiveRoads.Data.NetworkExtensions {
+    using AdaptiveRoads.CustomScript;
     using AdaptiveRoads.Manager;
     using ColossalFramework;
     using KianCommons;
@@ -7,6 +8,22 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
     using Log = KianCommons.Log;
 
     public struct LaneTransition {
+        [Flags]
+        public enum Flags {
+            None =0,
+            [ExpressionFlag] Expression0 = 1 << 0,
+            [ExpressionFlag] Expression1 = 1 << 1,
+            [ExpressionFlag] Expression2 = 1 << 2,
+            [ExpressionFlag] Expression3 = 1 << 3,
+            [ExpressionFlag] Expression4 = 1 << 4,
+            [ExpressionFlag] Expression5 = 1 << 5,
+            [ExpressionFlag] Expression6 = 1 << 6,
+            [ExpressionFlag] Expression7 = 1 << 7,
+            ExpressionMask = Expression0 | Expression1 | Expression2 | Expression3 | Expression4 | Expression5 | Expression6 | Expression7,
+
+        }
+
+        public Flags m_flags; // TODO complete
         public ushort NodeID;
         public uint LaneIDSource; // dominant
         public uint LaneIDTarget;
@@ -65,7 +82,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         public OutlineData WireOutLine;
         public TrackRenderData WireRenderData;
 
-        public override string ToString() => $"LaneTransition[node:{NodeID} lane:{LaneIDSource}->lane:{LaneIDTarget}]";
+        public override string ToString() => $"LaneTransition[node:{NodeID} lane:{LaneIDSource}->lane:{LaneIDTarget} Flags:{m_flags}]";
         #region shortcuts
         ref NetLane LaneA => ref LaneIDSource.ToLane();
         ref NetLane LaneD => ref LaneIDTarget.ToLane();
@@ -89,6 +106,22 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         #endregion
 
         public bool Nodeless => OutLine.Empty;
+
+        public void UpdateScriptedFlags(int index) {
+            try {
+                var net = Info?.GetMetaData();
+                if (net == null) return;
+                foreach (var scriptedFlag in Flags.ExpressionMask.ExtractPow2Flags()) {
+                    bool condition = false;
+                    if (net.ScriptedFlags.TryGetValue(scriptedFlag, out var expression)) {
+                        condition = expression.Condition(segmentID: segmentID_A, nodeID: NodeID, laneIndex: laneIndexA, index);
+                    }
+                    m_flags = m_flags.SetFlags(scriptedFlag, condition);
+                }
+            } catch (Exception ex) {
+                ex.Log();
+            }
+        }
 
         public void Calculate() {
             DCFlags = NetNodeExt.CalculateDCAsymFlags(NodeID, segmentID_A, segmentID_D);
@@ -175,18 +208,21 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         private bool Check(NetInfoExtionsion.Track trackInfo) {
             if (!trackInfo.HasTrackLane(laneIndexA))
                 return false;
+            
             bool junction = Node.m_flags.IsFlagSet(NetNode.Flags.Junction);
+            bool ret;
             if (trackInfo.TreatBendAsNode || junction) {
                 // if (trackInfo.RequireMatching & !Matching) return false;
-                return trackInfo.CheckNodeFlags(
+                ret = trackInfo.CheckNodeFlags(
                     NodeExt.m_flags, Node.m_flags | DCFlags,
                     SegmentExtA.m_flags, SegmentA.m_flags,
                     LaneExtA.m_flags, LaneA.Flags());
             } else { // treat bend as segment:
-                return  trackInfo.CheckSegmentFlags(
+                ret = trackInfo.CheckSegmentFlags(
                     SegmentExtA.m_flags, SegmentA.m_flags,
                     LaneExtA.m_flags, LaneA.Flags());
             }
+            return ret && trackInfo.CheckLaneTransitionFlag(this.m_flags);
         }
 
         public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo) {

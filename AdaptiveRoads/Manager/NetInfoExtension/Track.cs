@@ -1,4 +1,5 @@
 namespace AdaptiveRoads.Manager {
+    using AdaptiveRoads.Data.NetworkExtensions;
     using AdaptiveRoads.UI.RoadEditor.Bitmask;
     using AdaptiveRoads.Util;
     using ColossalFramework;
@@ -311,6 +312,10 @@ namespace AdaptiveRoads.Manager {
             [Hint("Only checked on junctions ")] // (not bend nodes if bend nodes as treated as segments)
             public NodeInfoFlags NodeFlags;
 
+            [CustomizableProperty("Transition")]
+            [Hint("TMPE routing between 2 lanes.")] 
+            public LaneTransitionInfoFlags LaneTransitionFlags;
+
             [CustomizableProperty("Tiling")]
             [Hint("network tiling value (length wise texture scale)")]
             public float Tiling;
@@ -335,6 +340,9 @@ namespace AdaptiveRoads.Manager {
                 RenderSegment &&
                 SegmentFlags.CheckFlags(segmentFlags) && VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags)
                 && LaneFlags.CheckFlags(laneFalgs) && VanillaLaneFlags.CheckFlags(vanillaLaneFlags);
+
+            public bool CheckLaneTransitionFlag(LaneTransition.Flags flags) =>
+                LaneTransitionFlags.CheckFlags(flags);
 
             public CustomFlags UsedCustomFlags => new CustomFlags {
                 Segment = SegmentFlags.UsedCustomFlags,
