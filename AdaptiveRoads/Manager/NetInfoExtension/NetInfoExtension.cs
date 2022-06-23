@@ -206,10 +206,10 @@ namespace AdaptiveRoads.Manager {
 
         public static void EnsureExtended_EditedNetInfos(bool recalculate = false) {
             if(VanillaMode) {
-                Log.Debug($"EnsureExtended_EditedNetInfos() because we are in vanilla mode");
+                Log.Debug($"skip EnsureExtended_EditedNetInfos() because we are in vanilla mode");
                 return;
             }
-            Log.Debug($"EnsureExtended_EditedNetInfos() was called");
+            Log.Called();
             foreach(var info in EditedNetInfos)
                 EnsureExtended(info, recalculate);
             Log.Debug($"EnsureExtended_EditedNetInfos() was successful");
