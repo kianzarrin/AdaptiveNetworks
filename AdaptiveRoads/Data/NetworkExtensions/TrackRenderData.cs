@@ -16,7 +16,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         public TrackRenderData GetDataFor(NetInfoExtionsion.Track trackInfo, int antiFlickerIndex = 0) {
             var ret = this;
             if(trackInfo.m_requireWindSpeed) ret.ObjectIndex.w = WindSpeed;
-            if(trackInfo.ScaleToLaneWidth) ret.MeshScale.x = 1f;
+            if(trackInfo.ScaleToLaneWidth) ret.MeshScale.x = Mathf.Sign(MeshScale.x); //+-1
 
             float deltaY = trackInfo.VerticalOffset;
             float deltaY2 = 0;
