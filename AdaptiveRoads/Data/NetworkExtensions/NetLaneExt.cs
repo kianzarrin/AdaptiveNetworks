@@ -231,7 +231,7 @@ namespace AdaptiveRoads.Manager{
         public TrackRenderData GenerateRenderData(ref OutlineData outline, Vector3? pos = null) {
             TrackRenderData ret = default;
             ref var segment = ref LaneData.Segment;
-            var info = segment.Info;
+            NetInfo netInfo = segment.Info;
             ref NetNode startNode = ref segment.m_startNode.ToNode();
             ref NetNode endNode = ref segment.m_endNode.ToNode();
             ref var bezier = ref LaneData.Lane.m_bezier;
@@ -241,10 +241,10 @@ namespace AdaptiveRoads.Manager{
             Vector3 endPos = bezier.d;
 
             ret.Position = pos ?? (startPos + endPos) * 0.5f;
-            ret.Color = info.m_color;
+            ret.Color = netInfo.m_color;
             ret.Color.a = 0f;
             ret.WindSpeed = Singleton<WeatherManager>.instance.GetWindSpeed(ret.Position);
-            ret.MeshScale = new Vector4(1f / laneInfo.m_width, 1f / info.m_segmentLength, 1f, 1f);
+            ret.MeshScale = new Vector4(1f / laneInfo.m_width, 1f / netInfo.m_segmentLength, 1f, 1f);
             ret.TurnAround = LaneData.LaneInfo.IsGoingBackward(); // TODO is this logic sufficient?
             ret.TurnAround ^= LaneData.Segment.IsInvert();
             if(ret.TurnAround) {
@@ -260,7 +260,7 @@ namespace AdaptiveRoads.Manager{
                 colorLocationEnd = RenderManager.GetColorLocation(TrackManager.NODE_HOLDER + segment.m_endNode);
             }
             ret.ObjectIndex = new Vector4(colorLocationStart.x, colorLocationStart.y, colorLocationEnd.x, colorLocationEnd.y); // object index
-            float vScale = info.m_netAI.GetVScale();
+            float vScale = netInfo.m_netAI.GetVScale();
             ret.LeftMatrix = NetSegment.CalculateControlMatrix(
                 outline.Left.a, outline.Left.b, outline.Left.c, outline.Left.d,
                 outline.Right.a, outline.Right.b, outline.Right.c, outline.Right.d,
@@ -269,6 +269,8 @@ namespace AdaptiveRoads.Manager{
                 outline.Right.a, outline.Right.b, outline.Right.c, outline.Right.d,
                 outline.Left.a, outline.Left.b, outline.Left.c, outline.Left.d,
                 ret.Position, vScale);
+
+            ret.CalculateMapping(netInfo);
             return ret;
         }
 
@@ -380,6 +382,8 @@ namespace AdaptiveRoads.Manager{
                 laneOutline.Right.a, laneOutline.Right.b, laneOutline.Right.c, laneOutline.Right.d,
                 laneOutline.Left.a, laneOutline.Left.b, laneOutline.Left.c, laneOutline.Left.d,
                 renderData.Position, vScale);
+
+            renderData.CalculateMapping(info);
 
             foreach(var trackInfo in infoExt.Tracks) {
                 if(trackInfo.HasTrackLane(laneIndex) && trackInfo.CheckSegmentFlags(default, flags, default, default)) {

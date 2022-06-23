@@ -538,10 +538,6 @@ namespace AdaptiveRoads.Manager {
                     segmentInfo?.GetMetaData()?.SetupTiling(segmentInfo);
             }
 
-            public void RefreshUserData(NetInfo netInfo) {
-
-            }
-
             void RecalculateTracks(NetInfo netInfo) {
                 if (Tracks != null) {
                     // has color been already assigned in NetInfo.InitializePrefab() ?
@@ -551,6 +547,8 @@ namespace AdaptiveRoads.Manager {
                     for (int i = 0; i < Tracks.Length; i++) {
                         var track = Tracks[i];
                         track.Recalculate(netInfo);
+                        netInfo.m_requireSurfaceMaps |= track.m_requireSurfaceMaps;
+                        netInfo.m_requireHeightMap |= track.m_requireHeightMap;
                         track.CachedArrayIndex = i;
                         bool hasLod = track.m_mesh;
                         if (!hasColor && track.m_material != null) {
@@ -591,6 +589,9 @@ namespace AdaptiveRoads.Manager {
                 tempSegmentInfo_.m_combinedLod = trackInfo.m_combinedLod;
                 tempSegmentInfo_.m_preserveUVs = trackInfo.m_preserveUVs;
                 tempSegmentInfo_.m_generateTangents = trackInfo.m_generateTangents;
+                tempSegmentInfo_.m_requireWindSpeed = trackInfo.m_requireWindSpeed;
+                tempSegmentInfo_.m_requireSurfaceMaps = trackInfo.m_requireSurfaceMaps;
+                tempSegmentInfo_.m_requireHeightMap = trackInfo.m_requireHeightMap;
                 tempSegmentInfo_.m_layer = trackInfo.m_layer;
                 return tempSegmentInfo_;
             }

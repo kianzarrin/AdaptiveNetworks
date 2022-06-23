@@ -1,3 +1,16 @@
+- mappings:
+    - init:
+        - track : done
+        - netinfo : done
+    - calculate
+        - segment -> laneExt : done
+        - node -> laneTransition : done
+    - usage:
+        - node/segment renderIntance -> track.renderinstance : done
+        - node/segment populateGroupData -> TempSegmentInfo : done
+        - NetTool.RenderSegment -> track.Render : done
+        - NetTool.RenderNode -> N/A
+
 - transition expression flags?
 - lane/track connect groups (might take time)
 - fence (None lanes act as fence?)

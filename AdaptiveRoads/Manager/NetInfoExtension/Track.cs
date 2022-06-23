@@ -116,7 +116,17 @@ namespace AdaptiveRoads.Manager {
                         this.m_mesh.bounds = new Bounds(new Vector3(0f, (corner1 + corner2) * 0.5f, 0f), new Vector3(128f, corner2 - corner1, 128f));
                     }
                     string tag = this.m_material?.GetTag("NetType", searchFallbacks: false);
-                    if(tag == "PowerLine") {
+                    if (tag == "TerrainSurface") {
+                        this.m_requireSurfaceMaps = true;
+                    } else {
+                        m_requireSurfaceMaps = false;
+                    }
+                    if (tag == "Fence") {
+                        m_requireHeightMap = true;
+                    } else {
+                        m_requireHeightMap = false;
+                    }
+                    if (tag == "PowerLine") {
                         this.m_requireWindSpeed = true;
                         this.m_preserveUVs = true;
                         this.m_generateTangents = false;
@@ -219,6 +229,12 @@ namespace AdaptiveRoads.Manager {
 
             [NonSerialized]
             public bool m_requireWindSpeed;
+
+            [NonSerialized]
+            public bool m_requireSurfaceMaps;
+
+            [NonSerialized]
+            public bool m_requireHeightMap;
 
             [NonSerialized]
             public bool m_preserveUVs;

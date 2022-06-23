@@ -168,6 +168,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 colorLocationD = RenderManager.GetColorLocation(TrackManager.SEGMENT_HOLDER + segmentID_D);
             }
             ret.ObjectIndex = new Vector4(colorLocationA.x, colorLocationA.y, colorLocationD.x, colorLocationD.y);
+            ret.CalculateMapping(InfoA);
             return ret;
         }
 
