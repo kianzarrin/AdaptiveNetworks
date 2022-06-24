@@ -69,58 +69,67 @@ namespace AdaptiveRoads.Util {
         public static Mesh GetMesh(object sharing, string checksum, IEnumerable<Package> packages, bool isLod) {
             if(checksum.IsNullorEmpty()) return null;
             foreach (var package in packages) {
-                Assertion.NotNull(package, "package");
-                Assertion.Assert(!checksum.IsNullorEmpty(), "checksum");
-                Mesh ret;
-                // search for mesh in the given packages
-                if (sharing == null) {
-                    ret = package.FindByChecksum(checksum)?.Instantiate<Mesh>();
-                } else {
-                    bool isMain = !isLod;
-                    try {
-                        ret = InvokeMethod(sharing, "GetMesh", checksum, package, isMain) as Mesh;
-                    }catch(Exception ex) {
-                        ex.Log();
+                try {
+                    Assertion.NotNull(package, "package");
+                    Assertion.Assert(!checksum.IsNullorEmpty(), "checksum");
+                    Mesh ret = null;
+                    if (sharing == null) {
                         ret = package.FindByChecksum(checksum)?.Instantiate<Mesh>();
-                        if (ret != null) {
-                            Log.Warning("Failed to use LSM to reduce MEMORY SIZE for mesh with checksum: " + checksum);
+                    } else {
+                        bool isMain = !isLod;
+                        try {
+                            ret = InvokeMethod(sharing, "GetMesh", checksum, package, isMain) as Mesh;
+                        } catch (Exception ex) {
+                            ex.Log($"sharing={sharing.ToSTR()}checksum={checksum.ToSTR()}, package={package.ToSTR()}, isMain={isMain}", false);
+                        }
+                        if (ret == null) {
+                            ret = package.FindByChecksum(checksum)?.Instantiate<Mesh>();
+                            if (ret != null) {
+                                Log.Warning("Failed to use LSM to reduce MEMORY SIZE for mesh with checksum: " + checksum);
+                            }
                         }
                     }
-                }
-                if (ret) {
-                    Log.Debug($"loaded {ret} with checksum:({checksum}) from {package}");
-                    return ret;
+                    if (ret) {
+                        Log.Debug($"loaded {ret} with checksum:({checksum}) from {package}");
+                        return ret;
+                    }
+                } catch (Exception ex) {
+                    ex.Log($"sharing={sharing.ToSTR()}checksum={checksum.ToSTR()}, package={package.ToSTR()}", false);
                 }
             }
             Log.Error($"could not find mesh with checksum:({checksum}) from {packages.ToSTR()}");
             return null;
-
         }
 
         public static Material GetMaterial(object sharing, string checksum, IEnumerable<Package> packages, bool isLod) {
             if(checksum.IsNullorEmpty()) return null;
             foreach (var package in packages) {
-                if(package == null) { }
-                Assertion.NotNull(package, "package");
-                Assertion.Assert(!checksum.IsNullorEmpty(), "checksum");
-                Material ret;
-                if (sharing == null) {
-                    ret = package.FindByChecksum(checksum)?.Instantiate<Material>();
-                } else {
-                    bool isMain = !isLod;
-                    try {
-                        ret = InvokeMethod(sharing, "GetMaterial", checksum, package, isMain) as Material;
-                    } catch(Exception ex) {
-                        ex.Log($"sharing={sharing.ToSTR()}checksum={checksum.ToSTR()}, package={package.ToSTR()}, isMain={isMain}",false);
+                try {
+                    Assertion.NotNull(package, "package");
+                    Assertion.Assert(!checksum.IsNullorEmpty(), "checksum");
+                    Material ret = null;
+                    if (sharing == null) {
+                        ret = package.FindByChecksum(checksum)?.Instantiate<Material>();
+                    } else {
+                        bool isMain = !isLod;
+                        try {
+                            ret = InvokeMethod(sharing, "GetMaterial", checksum, package, isMain) as Material;
+                        } catch (Exception ex) {
+                            ex.Log($"sharing={sharing.ToSTR()}checksum={checksum.ToSTR()}, package={package.ToSTR()}, isMain={isMain}", false);
+                        }
+                        if (ret == null) {
+                            ret = package.FindByChecksum(checksum)?.Instantiate<Material>();
+                            if (ret != null) {
+                                Log.Warning("Failed to use LSM to reduce MEMORY SIZE for material with checksum: " + checksum);
+                            }
+                        }
                     }
-                    ret = package.FindByChecksum(checksum)?.Instantiate<Material>();
-                    if (ret != null) {
-                        Log.Warning("Failed to use LSM to reduce MEMORY SIZE for material with checksum: " + checksum);
+                    if (ret) {
+                        Log.Debug($"loaded {ret} with checksum:({checksum}) from {package}");
+                        return ret;
                     }
-                }
-                if (ret) {
-                    Log.Debug($"loaded {ret} with checksum:({checksum}) from {package}");
-                    return ret;
+                } catch (Exception ex) {
+                    ex.Log($"sharing={sharing.ToSTR()}checksum={checksum.ToSTR()}, package={package.ToSTR()}", false);
                 }
             }
             Log.Error($"could not find material with checksum:({checksum}) from {packages.ToSTR()}");
