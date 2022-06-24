@@ -115,7 +115,7 @@ namespace AdaptiveRoads.Util {
                         try {
                             ret = InvokeMethod(sharing, "GetMaterial", checksum, package, isMain) as Material;
                         } catch (Exception ex) {
-                            ex.Log($"sharing={sharing.ToSTR()}checksum={checksum.ToSTR()}, package={package.ToSTR()}, isMain={isMain}", false);
+                            ex.Log($"sharing={sharing.ToSTR()} checksum={checksum.ToSTR()}, package={package.ToSTR()}, isMain={isMain}", false);
                         }
                         if (ret == null) {
                             ret = package.FindByChecksum(checksum)?.Instantiate<Material>();
