@@ -90,7 +90,7 @@ namespace AdaptiveRoads.UI.Tool {
                     dragHandle_ = AddUIComponent<UIDragHandle>();
                     dragHandle_.height = 20;
                     dragHandle_.relativePosition = Vector3.zero;
-                    dragHandle_.target = parent;
+                    dragHandle_.target = this;
 
                     lblCaption_ = dragHandle_.AddUIComponent<UILabel>();
                     if (SegmentMode)
