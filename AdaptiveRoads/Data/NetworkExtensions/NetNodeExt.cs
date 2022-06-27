@@ -291,13 +291,13 @@ namespace AdaptiveRoads.Manager {
                             }
                             foreach (ushort segmentId2 in SegmentIDs) {
                                 if (segmentId2 == segmentId1) continue;
-                                bool headNode2 = segment1.GetHeadNode() == NodeID;
                                 //Log.Debug($"target: {segmentId2}");
                                 ref NetSegment segment2 = ref segmentId2.ToSegment();
-                                bool startNode2 = segment2.IsStartNode(NodeID);
+                                //bool startNode2 = segment2.IsStartNode(NodeID);
+                                bool headNode2 = segment2.GetHeadNode() == NodeID;
                                 foreach (var lane2 in new LaneDataIterator(segmentId2, null, NetInfo.LaneType.Vehicle, VehicleInfo.VehicleType.Bicycle)) {
                                     bool incoming;
-                                    if (headNode2) {
+                                    if (!headNode2) {
                                         incoming = lane2.LaneInfo.m_finalDirection.IsFlagSet(NetInfo.Direction.Forward);
                                     } else {
                                         incoming = lane2.LaneInfo.m_finalDirection.IsFlagSet(NetInfo.Direction.Backward);
