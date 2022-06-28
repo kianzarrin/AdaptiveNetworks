@@ -32,6 +32,38 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         public float WindSpeed;
         public bool TurnAround;
 
+        /// <summary>
+        /// Calculates control matrix and optionally flips/rotate mesh.
+        /// Precondition: TurnAround and Flip are already calculated
+        /// </summary>
+        public void CalculateControlMatrix(OutlineData outline, float vScale) {
+            bool rotate = TurnAround;
+            bool flip = false;
+            if (!rotate) {
+                LeftMatrix = NetSegment.CalculateControlMatrix(
+                    outline.Left.a, outline.Left.b, outline.Left.c, outline.Left.d,
+                    outline.Right.a, outline.Right.b, outline.Right.c, outline.Right.d,
+                    Position, vScale);
+                RightMatrix = NetSegment.CalculateControlMatrix(
+                    outline.Right.a, outline.Right.b, outline.Right.c, outline.Right.d,
+                    outline.Left.a, outline.Left.b, outline.Left.c, outline.Left.d,
+                    Position, vScale);
+            } else {
+                LeftMatrix = NetSegment.CalculateControlMatrix(
+                    outline.Right.d, outline.Right.c, outline.Right.b, outline.Right.a,
+                    outline.Left.d, outline.Left.c, outline.Left.b, outline.Left.a,
+                    Position, vScale);
+                RightMatrix = NetSegment.CalculateControlMatrix(
+                    outline.Left.d, outline.Left.c, outline.Left.b, outline.Left.a,
+                    outline.Right.d, outline.Right.c, outline.Right.b, outline.Right.a,
+                    Position, vScale);
+            }
+            if (flip) {
+                MeshScale.x *= -1;
+                MeshScale.y *= -1;
+            }
+        }
+
         public void CalculateMapping(NetInfo netInfo) {
             if (netInfo.m_requireSurfaceMaps) {
                 TerrainManager.instance.GetSurfaceMapping(this.Position, out var surfaceTextureA, out var surfaceTextureB, out this.SurfaceMapping);

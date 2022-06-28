@@ -49,18 +49,20 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 return; //empty
             }
 
-            if( (prio1 >= prio2 && hasTrackLane) || !hasTrackLane2) {
-                if (prio1 == prio2) {
+            NodeID = nodeID;
+
+            if ( (prio1 >= prio2 && hasTrackLane) || !hasTrackLane2) {
+                const bool consitentFlags = true; // make it consistent so that forward/backward lane use same segment for source flags.
+                if (consitentFlags && prio1 == prio2) {
                     var segmentIDs = NodeID.ToNodeExt().SegmentIDs;
                     int segmentIndex1 = Array.IndexOf(segmentIDs, segmentID1);
                     int segmentIndex2 = Array.IndexOf(segmentIDs, segmentID2);
-                    // make it consistent (TODO why does not work?)
                     if (segmentIndex1 < segmentIndex2) {
                         LaneIDSource = laneID1;
                         LaneIDTarget = laneID2;
                     } else {
-                        LaneIDSource = laneID1;
-                        LaneIDTarget = laneID2;
+                        LaneIDSource = laneID2;
+                        LaneIDTarget = laneID1;
                     }
                 } else {
                     LaneIDSource = laneID1;
@@ -71,7 +73,6 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 LaneIDTarget = laneID1;
             }
 
-            NodeID = nodeID;
 
             Calculate();
             if(Log.VERBOSE) Log.Debug($"LaneTransition.Init() succeeded for: {this}", false);
@@ -171,23 +172,11 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             ret.Position = pos ?? (outline.Center.a + outline.Center.d) * 0.5f;
 
             ret.MeshScale = new Vector4(1f / Width, 1f / InfoA.m_segmentLength, 1f, 1f);
-            ret.TurnAround = laneInfoA.m_finalDirection.IsGoingBackward(); // TODO is this logic sufficient? is this line even necessary?
-            ret.TurnAround ^= SegmentA.IsInvert();
-            if(ret.TurnAround) {
-                ret.MeshScale.x *= -1;
-                ret.MeshScale.y *= -1;
-            }
 
             float vScale = InfoA.m_netAI.GetVScale();
-            ret.LeftMatrix = NetSegment.CalculateControlMatrix(
-                outline.Left.a, outline.Left.b, outline.Left.c, outline.Left.d,
-                outline.Right.a, outline.Right.b, outline.Right.c, outline.Right.d,
-                ret.Position, vScale);
-            ret.RightMatrix = NetSegment.CalculateControlMatrix(
-                outline.Right.a, outline.Right.b, outline.Right.c, outline.Right.d,
-                outline.Left.a, outline.Left.b, outline.Left.c, outline.Left.d,
-                ret.Position, vScale);
-
+            ret.TurnAround = laneInfoA.IsGoingBackward();
+            ret.TurnAround ^= SegmentA.IsInvert();
+            ret.CalculateControlMatrix(outline, vScale);
 
             ret.WindSpeed = Singleton<WeatherManager>.instance.GetWindSpeed(ret.Position);
             ret.Color = Info.m_color;
@@ -239,7 +228,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                         renderData = RenderData.GetDataFor(trackInfo, AntiFlickerIndex);
                     }
                     renderData.RenderInstance(trackInfo, cameraInfo);
-                    TrackManager.instance.EnqueuOverlay(trackInfo, ref OutLine, turnAround: renderData.TurnAround, DC: true);
+                    TrackManager.instance.EnqueuOverlay(trackInfo, ref OutLine, turnAround: /*false */ renderData.TurnAround, DC: true);
                 }
             }
         }

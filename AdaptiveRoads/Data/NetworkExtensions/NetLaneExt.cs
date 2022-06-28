@@ -245,12 +245,7 @@ namespace AdaptiveRoads.Manager{
             ret.Color.a = 0f;
             ret.WindSpeed = Singleton<WeatherManager>.instance.GetWindSpeed(ret.Position);
             ret.MeshScale = new Vector4(1f / laneInfo.m_width, 1f / netInfo.m_segmentLength, 1f, 1f);
-            ret.TurnAround = LaneData.LaneInfo.IsGoingBackward(); // TODO is this logic sufficient?
-            ret.TurnAround ^= LaneData.Segment.IsInvert();
-            if(ret.TurnAround) {
-                ret.MeshScale.x *= -1;
-                ret.MeshScale.y *= -1;
-            }
+
             Vector4 colorLocationStart = RenderManager.GetColorLocation(TrackManager.SEGMENT_HOLDER + LaneData.SegmentID);
             Vector4 colorLocationEnd = colorLocationStart;
             if(NetNode.BlendJunction(segment.m_startNode)) {
@@ -261,14 +256,10 @@ namespace AdaptiveRoads.Manager{
             }
             ret.ObjectIndex = new Vector4(colorLocationStart.x, colorLocationStart.y, colorLocationEnd.x, colorLocationEnd.y); // object index
             float vScale = netInfo.m_netAI.GetVScale();
-            ret.LeftMatrix = NetSegment.CalculateControlMatrix(
-                outline.Left.a, outline.Left.b, outline.Left.c, outline.Left.d,
-                outline.Right.a, outline.Right.b, outline.Right.c, outline.Right.d,
-                ret.Position, vScale);
-            ret.RightMatrix = NetSegment.CalculateControlMatrix(
-                outline.Right.a, outline.Right.b, outline.Right.c, outline.Right.d,
-                outline.Left.a, outline.Left.b, outline.Left.c, outline.Left.d,
-                ret.Position, vScale);
+            ret.TurnAround = LaneData.LaneInfo.IsGoingBackward(); // TODO is this logic sufficient?
+            ret.TurnAround ^= LaneData.Segment.IsInvert();
+            ret.CalculateControlMatrix(outline, vScale);
+
 
             ret.CalculateMapping(netInfo);
             return ret;
@@ -366,22 +357,13 @@ namespace AdaptiveRoads.Manager{
             renderData.Color = info.m_color;
             renderData.Color.a = 0f;
             renderData.WindSpeed = Singleton<WeatherManager>.instance.GetWindSpeed(renderData.Position); 
-            renderData.MeshScale = new Vector4(1f / laneInfo.m_width, 1f / info.m_segmentLength, 1f, 1f); 
-            bool turnAround = laneInfo.IsGoingBackward();
-            if(turnAround) {
-                renderData.MeshScale.x *= -1;
-                renderData.MeshScale.y *= -1;
-            }
+            renderData.MeshScale = new Vector4(1f / laneInfo.m_width, 1f / info.m_segmentLength, 1f, 1f);
+
             renderData.ObjectIndex = RenderManager.DefaultColorLocation;
             float vScale = info.m_netAI.GetVScale();
-            renderData.LeftMatrix = NetSegment.CalculateControlMatrix(
-                laneOutline.Left.a, laneOutline.Left.b, laneOutline.Left.c, laneOutline.Left.d,
-                laneOutline.Right.a, laneOutline.Right.b, laneOutline.Right.c, laneOutline.Right.d,
-                renderData.Position, vScale);
-            renderData.RightMatrix = NetSegment.CalculateControlMatrix(
-                laneOutline.Right.a, laneOutline.Right.b, laneOutline.Right.c, laneOutline.Right.d,
-                laneOutline.Left.a, laneOutline.Left.b, laneOutline.Left.c, laneOutline.Left.d,
-                renderData.Position, vScale);
+            renderData.TurnAround = laneInfo.IsGoingBackward();
+            renderData.CalculateControlMatrix(laneOutline, vScale);
+
 
             renderData.CalculateMapping(info);
 

@@ -6,9 +6,6 @@
     - remove default metadata in game
     - flag for simpler props to avoid further checks.
 
-tracks:
-    - why source segment for lane transition is different for forward/backward lane.
-
 -----------------
 - do not modify model selection panels from other editors.
 ----------------------------
