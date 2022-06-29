@@ -18,6 +18,7 @@ namespace AdaptiveRoads.LifeCycle {
     using AdaptiveRoads.Patches.RoadEditor.model;
     using static AdaptiveRoads.Util.Shortcuts;
     using ColossalFramework.Plugins;
+    using AdaptiveRoads.UI.VBSTool;
 
     public static class LifeCycle {
         public static string HARMONY_ID = "CS.Kian.AdaptiveRoads";
@@ -173,6 +174,7 @@ namespace AdaptiveRoads.LifeCycle {
                     Log.Info("Applying all patches");
                     HarmonyUtil.InstallHarmony(HARMONY_ID, forbidden:typeof(PreloadPatchAttribute));
                     HintBox.Create();
+                    VBSTool.Create();
                 }
 
                 NetInfoExtionsion.Ensure_EditedNetInfos(recalculate:true);
@@ -204,6 +206,7 @@ namespace AdaptiveRoads.LifeCycle {
                 loaded_ = tmpeLoaded_ = false;
                 UI.Debug.PWSelector.Release();
                 UI.Debug.PWModifier.Release();
+                VBSTool.Release();
                 ARTool.Release();
                 HintBox.Release();
                 HarmonyUtil.UninstallHarmony(HARMONY_ID);

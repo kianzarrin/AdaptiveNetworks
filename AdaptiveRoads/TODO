@@ -6,8 +6,6 @@
     - remove default metadata in game
     - flag for simpler props to avoid further checks.
 
------------------
-- do not modify model selection panels from other editors.
 ----------------------------
 version 4:
     - export/import road xml.

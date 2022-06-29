@@ -102,6 +102,9 @@
     <Compile Remove="Patches\Segment\NetSegment_CalculateSegment.cs" />
     <Compile Remove="Patches\Segment\NetSegment_UpdateSegment.cs" />
     <Compile Remove="Patches\Segment\RoadBaseAI_UpdateSegmentFlags.cs" />
+    <Compile Remove="UI\VBSTool\UITitleBar.cs" />
+    <Compile Remove="UI\VBSTool\VBSPanel.cs" />
+    <Compile Remove="UI\VBSTool\VSBitMaskPanel.cs" />
     <Compile Remove="Util\MarkerArray.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -198,6 +201,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Resources\PreviewImage.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\uui_vbs.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Resources\uui_ar.png">
