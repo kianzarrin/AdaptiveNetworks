@@ -71,7 +71,6 @@ namespace AdaptiveRoads.UI.VBSTool {
         protected override void OnEnable() {
             base.OnEnable();
             Select(0);
-
         }
 
         protected override void OnDisable() {

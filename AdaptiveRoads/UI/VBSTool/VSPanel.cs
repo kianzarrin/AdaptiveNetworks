@@ -66,7 +66,6 @@ namespace AdaptiveRoads.UI.VBSTool {
                 base.Awake();
                 LogCalled();
                 name = "VSPanel";
-
                 backgroundSprite = "MenuPanel2";
                 atlas = TextureUtil.Ingame;
             } catch (Exception ex) { ex.Log(); }
@@ -85,13 +84,15 @@ namespace AdaptiveRoads.UI.VBSTool {
                     dragHandle_.height = 20;
                     dragHandle_.relativePosition = Vector3.zero;
                     dragHandle_.target = this;
+                    dragHandle_.width = width;
+                    dragHandle_.height = 32;
                     lblCaption_ = dragHandle_.AddUIComponent<UILabel>();
                     lblCaption_.text = "Virtual Stops";
                     lblCaption_.name = "VS_caption";
+                    lblCaption_.anchor = UIAnchorStyle.CenterHorizontal | UIAnchorStyle.CenterVertical;
                 }
 
                 var panel = AddUIComponent<AutoFitPanel>();
-                //panel.AddUIComponent<UILabel>().text = "segment id = " + segmentID_.ToString();
                 {
                     var flags = GetValue();
                     foreach (var flag in new[]{
@@ -111,9 +112,7 @@ namespace AdaptiveRoads.UI.VBSTool {
 
                 isVisible = true;
 
-                dragHandle_.width = width;
-                dragHandle_.height = 32;
-                lblCaption_.anchor = UIAnchorStyle.CenterHorizontal | UIAnchorStyle.CenterVertical;
+
 
             } catch (Exception ex) { ex.Log(); }
         }
