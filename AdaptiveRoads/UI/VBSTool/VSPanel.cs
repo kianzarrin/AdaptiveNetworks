@@ -9,25 +9,7 @@ namespace AdaptiveRoads.UI.VBSTool {
     using UnityEngine;
     using static KianCommons.ReflectionHelpers;
 
-    public class AutoFitPanel : UIPanel {
-        const int PADDING = 3;
-        public override void Awake() {
-            base.Awake();
-            autoLayout = true;
-            autoLayoutDirection = LayoutDirection.Vertical;
-            autoFitChildrenHorizontally = true;
-            autoFitChildrenVertically = true;
-            autoLayoutPadding = new RectOffset(PADDING, PADDING, PADDING, PADDING);
-            padding = new RectOffset(PADDING, PADDING, PADDING, PADDING);
-            eventFitChildren += OnAutoFit;
-        }
-            
-        private void OnAutoFit() {
-            size += new Vector2(PADDING, PADDING);
-        }
-    }
-
-    public class VSPanel : AutoFitPanel {
+    public class VSPanel : UIAutoPanel {
         static string FileName => ModSettings.FILE_NAME;
 
         public string AtlasName => $"{GetType().FullName}_rev" + this.VersionOf();
@@ -92,7 +74,7 @@ namespace AdaptiveRoads.UI.VBSTool {
                     lblCaption_.anchor = UIAnchorStyle.CenterHorizontal | UIAnchorStyle.CenterVertical;
                 }
 
-                var panel = AddUIComponent<AutoFitPanel>();
+                var panel = AddUIComponent<UIAutoPanel>();
                 {
                     var flags = GetValue();
                     foreach (var flag in new[]{
