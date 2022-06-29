@@ -4,6 +4,7 @@ namespace AdaptiveRoads.UI.VBSTool {
     using ColossalFramework.UI;
     using KianCommons;
     using KianCommons.UI;
+    using KianCommons.UI.Helpers;
     using System;
     using UnityEngine;
     using static KianCommons.ReflectionHelpers;
@@ -108,12 +109,7 @@ namespace AdaptiveRoads.UI.VBSTool {
                         cb.eventCheckChanged += Cb_eventCheckChanged;
                     }
                 }
-
-
-                isVisible = true;
-
-
-
+                lblCaption_.anchor = UIAnchorStyle.CenterHorizontal | UIAnchorStyle.CenterVertical;
             } catch (Exception ex) { ex.Log(); }
         }
 
