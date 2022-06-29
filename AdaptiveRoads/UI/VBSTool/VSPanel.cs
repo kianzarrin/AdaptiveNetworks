@@ -17,7 +17,7 @@ namespace AdaptiveRoads.UI.VBSTool {
             autoLayoutDirection = LayoutDirection.Vertical;
             autoFitChildrenHorizontally = true;
             autoFitChildrenVertically = true;
-            autoLayoutPadding = new RectOffset(3, PADDING, PADDING, PADDING);
+            autoLayoutPadding = new RectOffset(PADDING, PADDING, PADDING, PADDING);
             padding = new RectOffset(PADDING, PADDING, PADDING, PADDING);
             eventFitChildren += OnAutoFit;
         }
@@ -85,7 +85,6 @@ namespace AdaptiveRoads.UI.VBSTool {
                     dragHandle_.height = 20;
                     dragHandle_.relativePosition = Vector3.zero;
                     dragHandle_.target = this;
-                    dragHandle_.width = width;
                     dragHandle_.height = 32;
                     lblCaption_ = dragHandle_.AddUIComponent<UILabel>();
                     lblCaption_.text = "Virtual Stops";
@@ -102,13 +101,15 @@ namespace AdaptiveRoads.UI.VBSTool {
                         NetSegmentFlags.TramStopLeft,
                         NetSegmentFlags.TramStopRight,
                     }) {
-                        var cb = panel.AddUIComponent<UICheckBoxExt>();
+                        var cb = panel.AddUIComponent<AutoSizeCheckbox>();
                         cb.Label = flag.ToString();
                         cb.isChecked = flags.IsFlagSet(flag);
                         cb.objectUserData = (NetSegment.Flags)flag;
                         cb.eventCheckChanged += Cb_eventCheckChanged;
                     }
                 }
+
+                dragHandle_.width = width - padding.horizontal;
                 lblCaption_.anchor = UIAnchorStyle.CenterHorizontal | UIAnchorStyle.CenterVertical;
             } catch (Exception ex) { ex.Log(); }
         }
