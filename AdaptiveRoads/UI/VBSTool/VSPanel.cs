@@ -9,7 +9,7 @@ namespace AdaptiveRoads.UI.VBSTool {
     using UnityEngine;
     using static KianCommons.ReflectionHelpers;
 
-    public class VSPanel : UIAutoPanel {
+    public class VSPanel : UIWindow {
         static string FileName => ModSettings.FILE_NAME;
 
         public string AtlasName => $"{GetType().FullName}_rev" + this.VersionOf();
@@ -18,26 +18,23 @@ namespace AdaptiveRoads.UI.VBSTool {
         public static readonly SavedFloat SavedY = new SavedFloat(
             "VSPanelY", FileName, 150, true);
 
-
-        private UILabel lblCaption_;
-        private UIDragHandle dragHandle_;
-        private UIPanel Wrapper => parent as UIPanel;
+        public override Vector2 Position {
+            get => new Vector2(SavedX.value, SavedY.value);
+            set {
+                SavedX.value = value.x;
+                SavedY.value = value.y;
+            }
+        }
 
         ushort segmentID_;
 
-
-        public static VSPanel Create() {
-            UIPanel wrapper = UIView.GetAView().AddUIComponent<UIPanel>();
-            return wrapper.AddUIComponent<VSPanel>();
-        }
-
         public static VSPanel Open(ushort segmentID) {
-            var panel = Create();
-            panel.segmentID_ = segmentID;
+            var panel = Create<VSPanel>();
+            panel.Init(segmentID);
             return panel;
         }
 
-        public void Close() => DestroyImmediate(Wrapper.gameObject);
+        public void Close() => Destroy(Wrapper.gameObject);
 
         public override void OnDestroy() {
             this.SetAllDeclaredFieldsToNull();
@@ -47,53 +44,26 @@ namespace AdaptiveRoads.UI.VBSTool {
         public override void Awake() {
             try {
                 base.Awake();
-                LogCalled();
-                name = "VSPanel";
-                backgroundSprite = "MenuPanel2";
-                atlas = TextureUtil.Ingame;
+                Log.Called();
+                Title = "Virtual Stops";
             } catch (Exception ex) { ex.Log(); }
-
         }
 
-        public override void Start() {
-            try {
-                base.Start();
-                LogCalled();
-
-                absolutePosition = new Vector3(SavedX, SavedY);
-
-                {
-                    dragHandle_ = AddUIComponent<UIDragHandle>();
-                    dragHandle_.height = 20;
-                    dragHandle_.relativePosition = Vector3.zero;
-                    dragHandle_.target = this;
-                    dragHandle_.height = 32;
-                    lblCaption_ = dragHandle_.AddUIComponent<UILabel>();
-                    lblCaption_.text = "Virtual Stops";
-                    lblCaption_.name = "VS_caption";
-                    lblCaption_.anchor = UIAnchorStyle.CenterHorizontal | UIAnchorStyle.CenterVertical;
-                }
-
-                var panel = AddUIComponent<UIAutoPanel>();
-                {
-                    var flags = GetValue();
-                    foreach (var flag in new[]{
-                        NetSegmentFlags.BusStopLeft,
-                        NetSegmentFlags.BusStopRight,
-                        NetSegmentFlags.TramStopLeft,
-                        NetSegmentFlags.TramStopRight,
-                    }) {
-                        var cb = panel.AddUIComponent<AutoSizeCheckbox>();
-                        cb.Label = flag.ToString();
-                        cb.isChecked = flags.IsFlagSet(flag);
-                        cb.objectUserData = (NetSegment.Flags)flag;
-                        cb.eventCheckChanged += Cb_eventCheckChanged;
-                    }
-                }
-
-                dragHandle_.width = width - padding.horizontal;
-                lblCaption_.anchor = UIAnchorStyle.CenterHorizontal | UIAnchorStyle.CenterVertical;
-            } catch (Exception ex) { ex.Log(); }
+        public void Init(ushort segmentID) {
+            segmentID_ = segmentID;
+            var flags = (NetSegmentFlags)segmentID_.ToSegment().m_flags & NetSegmentFlags.StopAll; ;
+            foreach (var flag in new[]{
+                    NetSegmentFlags.BusStopLeft,
+                    NetSegmentFlags.BusStopRight,
+                    NetSegmentFlags.TramStopLeft,
+                    NetSegmentFlags.TramStopRight,
+                }) {
+                var cb = Container.AddUIComponent<AutoSizeCheckbox>();
+                cb.Label = flag.ToString();
+                cb.isChecked = flags.IsFlagSet(flag);
+                cb.objectUserData = (NetSegment.Flags)flag;
+                cb.eventCheckChanged += Cb_eventCheckChanged;
+            }
         }
 
         private void Cb_eventCheckChanged(UIComponent component, bool value) {
@@ -101,24 +71,5 @@ namespace AdaptiveRoads.UI.VBSTool {
             segmentID_.ToSegment().m_flags = segmentID_.ToSegment().m_flags.SetFlags(flag, value);
             NetworkExtensionManager.Instance.UpdateSegment(segmentID_);
         }
-
-        protected override void OnPositionChanged() {
-            Assertion.AssertStack();
-            base.OnPositionChanged();
-            Log.DebugWait("OnPositionChanged called", id: "OnPositionChanged called".GetHashCode(), seconds: 0.2f, copyToGameLog: false);
-
-            Vector2 resolution = GetUIView().GetScreenResolution();
-
-            absolutePosition = new Vector2(
-                Mathf.Clamp(absolutePosition.x, 0, resolution.x - width),
-                Mathf.Clamp(absolutePosition.y, 0, resolution.y - height));
-
-            SavedX.value = absolutePosition.x;
-            SavedY.value = absolutePosition.y;
-            Log.DebugWait("absolutePosition: " + absolutePosition, id: "absolutePosition: ".GetHashCode(), seconds: 0.2f, copyToGameLog: false);
-        }
-
-        protected NetSegmentFlags GetValue() =>
-            (NetSegmentFlags)segmentID_.ToSegment().m_flags & NetSegmentFlags.StopAll;
     }
 }
