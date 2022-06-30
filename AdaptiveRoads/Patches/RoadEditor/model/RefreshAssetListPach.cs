@@ -20,12 +20,13 @@ namespace AdaptiveRoads.Patches.RoadEditor.AssetImporterAssetImportPatches {
             try {
                 if (ToolsModifierControl.toolController.m_editPrefabInfo is NetInfo) {
                     // increase panel size:
-                    __instance.component.width = 1115;
-                    ___m_FileList.width = 550;
+                    float delta = 400;
+                    __instance.component.width = 1115 + delta;
+                    ___m_FileList.width = 550 + delta;
                     ___m_FileList.relativePosition =
                         ___m_FileList.relativePosition.SetI(0, 0);
                     ___m_SmallPreview.relativePosition =
-                        ___m_SmallPreview.relativePosition.SetI(600, 0);
+                        ___m_SmallPreview.relativePosition.SetI(600 + delta, 0);
                 }
                 AddSubfolders(___m_FileList, extensions);
             } catch(Exception ex) {
