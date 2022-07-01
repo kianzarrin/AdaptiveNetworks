@@ -1,14 +1,14 @@
 namespace AdaptiveRoads.UI {
-    using System;
     using ColossalFramework;
     using KianCommons.UI.MessageBox.WhatsNew;
+    using System;
 
     internal class ANWhatsNew : WhatsNew<ANWhatsNew> {
         public override string ModName { get; } = "Adaptive Networks";
-        public override SavedString SavedVersion => new SavedString("WhatsNewVersion", ModSettings.FILE_NAME, def: "0.0.0", autoUpdate:true);
+        public override SavedString SavedVersion => new SavedString("WhatsNewVersion", ModSettings.FILE_NAME, def: "0.0.0", autoUpdate: true);
         public override WhatsNewEntry[] Messages { get; } = new WhatsNewEntry[] {
             new WhatsNewEntry {
-                version = new Version(3,8,4),
+                version = new Version(3, 8, 5),
                 messages = new string[] {
                     "Feature: Export nodes to xml templates",
                     "Feature: custom selectors for segments (its like having more custom flags)",
@@ -17,7 +17,7 @@ namespace AdaptiveRoads.UI {
             },
 
             new WhatsNewEntry {
-                version = new Version(3,8),
+                version = new Version(3, 8),
                 messages = new string[] {
                     "Feature: Support for surface/asphalt models in tracks",
                     "Fixed: support new LSM mod (track textures can now be cached again)",
@@ -25,7 +25,7 @@ namespace AdaptiveRoads.UI {
             },
 
             new WhatsNewEntry {
-                version = new Version(3,7),
+                version = new Version(3, 7),
                 messages = new string[] {
                     "Feature: bike tracks",
                     "Fixed: tracks support IMT (markups rendered under the tracks)",
@@ -33,7 +33,7 @@ namespace AdaptiveRoads.UI {
             },
 
             new WhatsNewEntry {
-                version = new Version(3,6),
+                version = new Version(3, 6),
                 messages = new string[] {
                     "Feature: Sharp corners",
                     "Pillars now shift if road is shifted",
