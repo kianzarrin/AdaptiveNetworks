@@ -99,8 +99,9 @@ namespace AdaptiveRoads.UI {
                 helper.AddUpdatingCheckbox("Buffered log", val => Log.Buffered = val, () => Log.Buffered);
             }
 #endif
-
             var general = helper.AddGroup("General") as UIHelper;
+
+            ANWhatsNew.Instance.AddSettings(general);
 
             var keymappingsPanel = general.AddKeymappingsPanel();
             keymappingsPanel.AddKeymapping("Hotkey", Hotkey);

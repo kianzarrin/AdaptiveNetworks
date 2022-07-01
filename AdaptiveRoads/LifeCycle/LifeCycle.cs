@@ -19,6 +19,7 @@ namespace AdaptiveRoads.LifeCycle {
     using static AdaptiveRoads.Util.Shortcuts;
     using ColossalFramework.Plugins;
     using AdaptiveRoads.UI.VBSTool;
+    using AdaptiveRoads.UI;
 
     public static class LifeCycle {
         public static string HARMONY_ID = "CS.Kian.AdaptiveRoads";
@@ -175,6 +176,7 @@ namespace AdaptiveRoads.LifeCycle {
                     HarmonyUtil.InstallHarmony(HARMONY_ID, forbidden:typeof(PreloadPatchAttribute));
                     HintBox.Create();
                     VBSTool.Create();
+                    ANWhatsNew.Instance.Regsiter();
                 }
 
                 NetInfoExtionsion.Ensure_EditedNetInfos(recalculate:true);
