@@ -11,7 +11,6 @@ namespace AdaptiveRoads.UI {
                 version = new Version(3, 8, 5),
                 messages = new string[] {
                     "Feature: Export nodes to xml templates",
-                    "Feature: custom selectors for segments (its like having more custom flags)",
                     "Hint: display summary hintbox when you hover over nodes",
                 }
             },
@@ -26,6 +25,7 @@ namespace AdaptiveRoads.UI {
             new WhatsNewEntry {
                 version = new Version(3, 8),
                 messages = new string[] {
+                    "Feature: custom selectors for segments (its like having more custom flags)",
                     "Feature: DC nodes/tracks can now use asym forward/backward flags on intersections (it won't show on network detective because its between two lanes/segments and not the whole node).",
                     "Feature: Support for surface/asphalt models in tracks",
                     "Fixed: support new LSM mod (track textures can now be cached again)",
