@@ -178,6 +178,9 @@ namespace AdaptiveRoads.Manager {
                         Assertion.NotNull(nodeMetadata, "nodeMetadata");
                         nodeMetadata.AllocateUserData(UserDataNamesSet?.Segment);
                     }
+                    foreach(var track in Tracks) {
+                        track.AllocateUserData(UserDataNamesSet?.Segment);
+                    }
 
                     for (ushort segmentId = 1; segmentId < NetManager.MAX_SEGMENT_COUNT; ++segmentId) {
                         ref NetSegment segment = ref segmentId.ToSegment();
@@ -198,6 +201,9 @@ namespace AdaptiveRoads.Manager {
                 }
                 foreach (var node in ParentInfo.m_nodes) {
                     node.GetMetaData()?.OptimizeUserData();
+                }
+                foreach (var track in Tracks) {
+                    track.OptimizeUserData();
                 }
             }
 

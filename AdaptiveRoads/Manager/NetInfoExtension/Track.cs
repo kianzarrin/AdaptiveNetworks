@@ -1,4 +1,5 @@
 namespace AdaptiveRoads.Manager {
+    using AdaptiveRoads.Data;
     using AdaptiveRoads.Data.NetworkExtensions;
     using AdaptiveRoads.UI.RoadEditor.Bitmask;
     using AdaptiveRoads.Util;
@@ -18,7 +19,11 @@ namespace AdaptiveRoads.Manager {
         public class Track : ICloneable, ISerializable {
             [Obsolete("only useful for the purpose of shallow clone", error: true)]
             public Track() { }
-            public Track Clone() => this.ShalowClone();
+            public Track Clone() {
+                var ret = this.ShalowClone();
+                ret.SegmentUserData = ret.SegmentUserData?.ShalowClone();
+                return ret;
+            }
             object ICloneable.Clone() => this.Clone();
             public Track(NetInfo template) {
                 Assertion.Assert(template, "template");
@@ -316,6 +321,9 @@ namespace AdaptiveRoads.Manager {
             [Hint("TMPE routing between 2 lanes.")] 
             public LaneTransitionInfoFlags LaneTransitionFlags;
 
+            [CustomizableProperty("Segment Custom Data", "Custom Segment User Data")]
+            public UserDataInfo SegmentUserData;
+
             [CustomizableProperty("Tiling")]
             [Hint("network tiling value (length wise texture scale)")]
             public float Tiling;
@@ -327,19 +335,23 @@ namespace AdaptiveRoads.Manager {
             public bool CheckNodeFlags
                 (NetNodeExt.Flags nodeFlags, NetNode.Flags vanillaNodeFlags,
                 NetSegmentExt.Flags sourceSegmentFlags, NetSegment.Flags startVanillaSegmentFlags,
-                NetLaneExt.Flags laneFalgs, NetLane.Flags vanillaLaneFlags) =>
+                NetLaneExt.Flags laneFalgs, NetLane.Flags vanillaLaneFlags,
+                UserData segmentUserData) =>
                 RenderNode &&
                 NodeFlags.CheckFlags(nodeFlags) && VanillaNodeFlags.CheckFlags(vanillaNodeFlags) &&
                 SegmentFlags.CheckFlags(sourceSegmentFlags) && VanillaSegmentFlags.CheckFlags(startVanillaSegmentFlags) &&
-                LaneFlags.CheckFlags(laneFalgs) && VanillaLaneFlags.CheckFlags(vanillaLaneFlags);
+                LaneFlags.CheckFlags(laneFalgs) && VanillaLaneFlags.CheckFlags(vanillaLaneFlags) &&
+                SegmentUserData.CheckOrNull(segmentUserData);
 
 
             public bool CheckSegmentFlags(
                 NetSegmentExt.Flags segmentFlags, NetSegment.Flags vanillaSegmentFlags,
-                NetLaneExt.Flags laneFalgs, NetLane.Flags vanillaLaneFlags) =>
+                NetLaneExt.Flags laneFalgs, NetLane.Flags vanillaLaneFlags,
+                UserData segmentUserData) =>
                 RenderSegment &&
                 SegmentFlags.CheckFlags(segmentFlags) && VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags)
-                && LaneFlags.CheckFlags(laneFalgs) && VanillaLaneFlags.CheckFlags(vanillaLaneFlags);
+                && LaneFlags.CheckFlags(laneFalgs) && VanillaLaneFlags.CheckFlags(vanillaLaneFlags) &&
+                SegmentUserData.CheckOrNull(segmentUserData);
 
             public bool CheckLaneTransitionFlag(LaneTransition.Flags flags) =>
                 LaneTransitionFlags.CheckFlags(flags);
@@ -350,6 +362,26 @@ namespace AdaptiveRoads.Manager {
                 Lane = LaneFlags.UsedCustomFlags,
             };
             #endregion
+
+
+            /// <summary>
+            /// only call in AR mode to allocate arrays for asset editor.
+            /// </summary>
+            /// <param name="names"></param>
+            public void AllocateUserData(UserDataNames names) {
+#if DEBUG
+                Log.Called(names);
+#endif
+                SegmentUserData ??= new();
+                SegmentUserData.Allocate(names);
+            }
+            public void OptimizeUserData() {
+#if DEBUG
+                Log.Called();
+#endif
+                if (SegmentUserData != null && SegmentUserData.IsEmptyOrDefault())
+                    SegmentUserData = null;
+            }
 
         }
     }

@@ -272,7 +272,8 @@ namespace AdaptiveRoads.Manager{
             return
                 trackInfo.HasTrackLane(LaneData.LaneIndex) &&
                 trackInfo.CheckSegmentFlags(segmentExt.m_flags,
-                segment.m_flags, this.m_flags, lane.Flags());
+                segment.m_flags, this.m_flags, lane.Flags(),
+                segmentExt.UserData);
         }
         public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo) {
             var tracks = LaneData.SegmentID.ToSegmentExt().NetInfoExt.Tracks;
@@ -368,7 +369,7 @@ namespace AdaptiveRoads.Manager{
             renderData.CalculateMapping(info);
 
             foreach(var trackInfo in infoExt.Tracks) {
-                if(trackInfo.HasTrackLane(laneIndex) && trackInfo.CheckSegmentFlags(default, flags, default, default)) {
+                if(trackInfo.HasTrackLane(laneIndex) && trackInfo.CheckSegmentFlags(default, flags, default, default, default)) {
                     var renderData2 = renderData.GetDataFor(trackInfo);
                     renderData2.RenderInstance(trackInfo, null);
                 }

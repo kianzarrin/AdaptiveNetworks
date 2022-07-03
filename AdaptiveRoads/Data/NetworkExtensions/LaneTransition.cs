@@ -205,11 +205,13 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 ret = trackInfo.CheckNodeFlags(
                     NodeExt.m_flags, Node.m_flags | DCFlags,
                     SegmentExtA.m_flags, SegmentA.m_flags,
-                    LaneExtA.m_flags, LaneA.Flags());
+                    LaneExtA.m_flags, LaneA.Flags(),
+                    segmentUserData: SegmentExtA.UserData);
             } else { // treat bend as segment:
                 ret = trackInfo.CheckSegmentFlags(
                     SegmentExtA.m_flags, SegmentA.m_flags,
-                    LaneExtA.m_flags, LaneA.Flags());
+                    LaneExtA.m_flags, LaneA.Flags(),
+                    segmentUserData: SegmentExtA.UserData);
             }
             return ret && trackInfo.CheckLaneTransitionFlag(this.m_flags);
         }
