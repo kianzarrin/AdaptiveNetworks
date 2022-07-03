@@ -47,7 +47,7 @@ namespace AdaptiveRoads.Manager {
             [Optional(SEGMENT_SEGMENT_END)]
             public SegmentEndInfoFlags Head;
 
-            [CustomizableProperty("Custom Data")]
+            [CustomizableProperty("Custom Data", "Custom User Data")]
             public UserDataInfo UserData;
 
             [CustomizableProperty("Tiling")]
@@ -100,9 +100,7 @@ namespace AdaptiveRoads.Manager {
                         headNodeExtFlags: headNodeExtFlags);
                 }
 
-                if(this.UserData != null) {
-                    ret = ret && this.UserData.Check(userData);
-                }
+                ret = ret && UserData.CheckOrNull(userData);
 
                 return ret;
             }

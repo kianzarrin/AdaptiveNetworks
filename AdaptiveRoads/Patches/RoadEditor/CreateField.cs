@@ -359,7 +359,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     CreateUserDataInfoSection(
                         roadEditorPanel: roadEditorPanel,
                         target: metadata,
-                        fieldInfo: fieldInfo);
+                        fieldInfo: fieldInfo,
+                        groupName: groupName);
                 } else if (fieldInfo.FieldType == typeof(string)) {
                     var panel = EditorStringPanel.Add(
                         roadEditorPanel: roadEditorPanel,
@@ -404,10 +405,10 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 customFlagData: customdata);
         }
 
-        public static void CreateUserDataInfoSection(RoadEditorPanel roadEditorPanel, object target, FieldInfo fieldInfo) {
+        public static void CreateUserDataInfoSection(RoadEditorPanel roadEditorPanel, object target, FieldInfo fieldInfo, string groupName) {
             Assert(fieldInfo.FieldType == typeof(UserDataInfo), "field type is UserDataInfo");
             Log.Called(roadEditorPanel, target, fieldInfo);
-            string groupName = "Custom User Data";
+            groupName = fieldInfo.GetAttribute<CustomizablePropertyAttribute>()?.group ?? groupName;
             NetInfo netInfo = RoadEditorUtils.GetSelectedNetInfo(out _);
             var net = netInfo.GetMetaData();
             UserDataInfo userDataInfo = fieldInfo.GetValue(target) as UserDataInfo;

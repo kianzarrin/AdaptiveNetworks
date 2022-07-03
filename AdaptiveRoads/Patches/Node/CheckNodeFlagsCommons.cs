@@ -55,7 +55,8 @@ namespace AdaptiveRoads.Patches.Node {
             ref NetSegmentEnd netSegmentEnd = ref netSegmentExt.GetEnd(nodeID);
             return node.CheckFlags(
                 netNodeExt.m_flags, netSegmentEnd.m_flags,
-                netSegmentExt.m_flags, netSegment.m_flags);
+                netSegmentExt.m_flags, netSegment.m_flags,
+                netSegmentExt.UserData);
         }
 
         static void GetBendDCSegmentID(ushort nodeID, out ushort segmentID1, out ushort segmentID2) {

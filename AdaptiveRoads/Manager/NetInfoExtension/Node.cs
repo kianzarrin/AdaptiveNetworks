@@ -9,6 +9,7 @@ namespace AdaptiveRoads.Manager {
     using static AdaptiveRoads.UI.ModSettings;
     using static KianCommons.ReflectionHelpers;
     using System.Xml.Serialization;
+    using AdaptiveRoads.Data;
 
     public static partial class NetInfoExtionsion {
         [AfterField(nameof(NetInfo.Node.m_flagsForbidden))]
@@ -30,6 +31,9 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Segment Extension")]
             [Optional(NODE_SEGMENT)]
             public SegmentInfoFlags SegmentFlags;
+
+            [CustomizableProperty("Segment Custom Data", "Custom Segment User Data")]
+            public UserDataInfo SegmentUserData;
 
             [Hint("Apply the same flag requirements to target segment end")]
             [CustomizableProperty("Check target flags", DC_GROUP_NAME)]
@@ -68,11 +72,14 @@ namespace AdaptiveRoads.Manager {
             [XmlIgnore] string IModel.Title => Title;
 
 
+
             public bool CheckFlags(
                 NetNodeExt.Flags nodeFlags, NetSegmentEnd.Flags segmentEndFlags,
-                NetSegmentExt.Flags segmentFlags, NetSegment.Flags vanillaSegmentFlags) =>
+                NetSegmentExt.Flags segmentFlags, NetSegment.Flags vanillaSegmentFlags,
+                UserData segmentUserData) =>
                 NodeFlags.CheckFlags(nodeFlags) && SegmentEndFlags.CheckFlags(segmentEndFlags) &&
-                SegmentFlags.CheckFlags(segmentFlags) && VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags);
+                SegmentFlags.CheckFlags(segmentFlags) && VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags) &&
+                SegmentUserData.CheckOrNull(segmentUserData);
 
             public CustomFlags UsedCustomFlags => new CustomFlags {
                 Segment = SegmentFlags.UsedCustomFlags,
@@ -87,12 +94,18 @@ namespace AdaptiveRoads.Manager {
             [Obsolete("only useful for the purpose of shallow clone", error: true)]
             public Node() { }
             public Node(NetInfo.Node template) { }
-            public Node Clone() => this.ShalowClone();
+            public Node Clone() {
+                var ret = this.ShalowClone();
+                ret.SegmentUserData = ret.SegmentUserData?.ShalowClone();
+                return ret;
+            }
             object ICloneable.Clone() => Clone();
             #region serialization
             //serialization
-            public void GetObjectData(SerializationInfo info, StreamingContext context) =>
+            public void GetObjectData(SerializationInfo info, StreamingContext context) {
+                OptimizeUserData(); // avoid saving redundant stuff.
                 SerializationUtil.GetObjectFields(info, this);
+            }
 
             // deserialization
             public Node(SerializationInfo info, StreamingContext context) =>
@@ -106,6 +119,25 @@ namespace AdaptiveRoads.Manager {
                     nodeInfo.m_lodMaterial?.SetTiling(Tiling);
                     nodeInfo.m_combinedLod?.m_material?.SetTiling(Mathf.Abs(Tiling));
                 }
+            }
+
+            /// <summary>
+            /// only call in AR mode to allocate arrays for asset editor.
+            /// </summary>
+            /// <param name="names"></param>
+            public void AllocateUserData(UserDataNames names) {
+#if DEBUG
+                Log.Called(names);
+#endif
+                SegmentUserData ??= new();
+                SegmentUserData.Allocate(names);
+            }
+            public void OptimizeUserData() {
+#if DEBUG
+                Log.Called();
+#endif
+                if (SegmentUserData != null && SegmentUserData.IsEmptyOrDefault())
+                    SegmentUserData = null;
             }
         }
     }

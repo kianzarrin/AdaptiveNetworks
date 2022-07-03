@@ -132,6 +132,9 @@ namespace AdaptiveRoads.Manager {
                     foreach (var segment in ParentInfo.m_segments) {
                         segment?.GetMetaData()?.UserData?.RemoveValueAt(i);
                     }
+                    foreach (var node in ParentInfo.m_nodes) {
+                        node?.GetMetaData()?.SegmentUserData?.RemoveValueAt(i);
+                    }
                     for (ushort segmentId = 1; segmentId < NetManager.MAX_SEGMENT_COUNT; ++segmentId) {
                         ref NetSegment segment = ref segmentId.ToSegment();
                         if (segment.IsValid() && segment.Info == ParentInfo) {
@@ -170,13 +173,19 @@ namespace AdaptiveRoads.Manager {
                         Assertion.NotNull(segmentMetadata, "segmentMetadata");
                         segmentMetadata.AllocateUserData(UserDataNamesSet?.Segment);
                     }
+                    foreach (var node in ParentInfo.m_nodes) {
+                        var nodeMetadata = node.GetMetaData();
+                        Assertion.NotNull(nodeMetadata, "nodeMetadata");
+                        nodeMetadata.AllocateUserData(UserDataNamesSet?.Segment);
+                    }
+
                     for (ushort segmentId = 1; segmentId < NetManager.MAX_SEGMENT_COUNT; ++segmentId) {
                         ref NetSegment segment = ref segmentId.ToSegment();
                         if (segment.IsValid() && segment.Info == ParentInfo) {
                             segmentId.ToSegmentExt().UserData.Allocate(UserDataNamesSet?.Segment);
                         }
                     }
-                }catch(Exception ex) {
+                } catch (Exception ex) {
                     ex.Log();
                 }
             }
@@ -186,6 +195,9 @@ namespace AdaptiveRoads.Manager {
                 Log.Called();
                 foreach (var segment in ParentInfo.m_segments) {
                     segment.GetMetaData()?.OptimizeUserData();
+                }
+                foreach (var node in ParentInfo.m_nodes) {
+                    node.GetMetaData()?.OptimizeUserData();
                 }
             }
 

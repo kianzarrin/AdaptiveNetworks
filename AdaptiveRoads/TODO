@@ -1,3 +1,7 @@
+- segment user data in node/lanes/tracks
+- segment/lane/track templates
+- smartCustomFlags for templates
+
 - lane/track connect groups (might take time)
 - fence (None lanes with Connect group act as fence?)
 

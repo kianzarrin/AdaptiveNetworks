@@ -6,6 +6,7 @@ namespace AdaptiveRoads.DTO {
     using KianCommons.Serialization;
     using AdaptiveRoads.UI;
     using AdaptiveRoads.Util;
+    using AdaptiveRoads.Data;
 
     public class NetInfoDTO : IDTO<NetInfo> {
         public float m_halfWidth = 8f;
@@ -76,6 +77,7 @@ namespace AdaptiveRoads.DTO {
             public bool m_directConnect;
 
             public NetInfoExtionsion.Node MetaData;
+            public UserDataInfo SegmentUserData;
 
             public void ReadFromGame(NetInfo.Node gameNode) {
                 DTOUtil.CopyAllMatchingFields<Node>(this, gameNode);
@@ -109,11 +111,13 @@ namespace AdaptiveRoads.DTO {
             public bool m_disableBendNodes;
 
             public NetInfoExtionsion.Segment MetaData;
+            public UserDataInfo UserData;
 
             public void ReadFromGame(NetInfo.Segment gameSegment) {
                 DTOUtil.CopyAllMatchingFields<Segment>(this, gameSegment);
                 MetaData = gameSegment.GetMetaData()?.Clone();
             }
+
             public static explicit operator Segment(NetInfo.Segment gameSegment) {
                 var dto = new Segment();
                 dto.ReadFromGame(gameSegment);

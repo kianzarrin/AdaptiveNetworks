@@ -35,16 +35,16 @@ namespace AdaptiveRoads.Data {
         public static T[] SetArraySizeOrCreate<T>(this T[] array, int? n, T def) {
             int size2 = n ?? 0;
             int size0 = array?.Length ?? 0;
-            if(array != null && size0 == size2) {
+            if (array != null && size0 == size2) {
                 return array;
             }
 
             var ret = new T[size2];
             int size = Math.Min(size2, size0);
-            for(int i= 0;i <size; ++i) {
+            for (int i = 0; i < size; ++i) {
                 ret[i] = array[i];
             }
-            for(int i = size; i< size2; ++i) {
+            for (int i = size; i < size2; ++i) {
                 ret[i] = def;// initialization.
             }
             return ret;
@@ -81,13 +81,13 @@ namespace AdaptiveRoads.Data {
             };
         }
 
-        public void Allocate(UserDataNames ?names) {
-            UserValues = UserValues.SetArraySize(names?.ValueNames?.Length  , 0);
+        public void Allocate(UserDataNames? names) {
+            UserValues = UserValues.SetArraySize(names?.ValueNames?.Length, 0);
             UserFlags = UserFlags.SetArraySize(names?.FlagsNames?.Length, 0);
         }
 
         public void RemoveValueAt(int i) {
-            if(UserValues != null && UserValues.Length > i)
+            if (UserValues != null && UserValues.Length > i)
                 UserValues = UserValues?.RemoveAt(i);
         }
 
@@ -128,6 +128,11 @@ namespace AdaptiveRoads.Data {
         [BitMask]
         public int Required, Forbidden;
         public bool Check(int value) => value.CheckFlags(Required, Forbidden);
+    }
+
+    public static class UserDataInfoExtensions{
+        public static bool CheckOrNull(this UserDataInfo userDataInfo, UserData userData) =>
+            userDataInfo == null || userDataInfo.Check(userData);
     }
 
     [Serializable]
