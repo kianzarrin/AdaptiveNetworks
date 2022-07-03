@@ -24,7 +24,7 @@ namespace AdaptiveRoads.UI.VBSTool {
                     tooltip: "Adaptive Networks",
                     tool: this,
                     icon: UUIHelpers.LoadTexture(iconPath),
-                    hotkeys: new UUIHotKeys { ActivationKey = ModSettings.Hotkey });
+                    hotkeys: new UUIHotKeys { ActivationKey = ModSettings.VBSHotkey });
             } catch (Exception ex) {
                 ex.Log();
             }
