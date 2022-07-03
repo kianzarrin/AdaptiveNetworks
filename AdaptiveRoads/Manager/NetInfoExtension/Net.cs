@@ -181,6 +181,13 @@ namespace AdaptiveRoads.Manager {
                     foreach(var track in Tracks) {
                         track.AllocateUserData(UserDataNamesSet?.Segment);
                     }
+                    foreach (var lane in ParentInfo.m_lanes) {
+                        foreach (var prop in lane.IterateProps()) {
+                            var propMetadata = prop.GetMetaData();
+                            Assertion.NotNull(propMetadata, "nodeMetadata");
+                            propMetadata.AllocateUserData(UserDataNamesSet?.Segment);
+                        }
+                    }
 
                     for (ushort segmentId = 1; segmentId < NetManager.MAX_SEGMENT_COUNT; ++segmentId) {
                         ref NetSegment segment = ref segmentId.ToSegment();
@@ -188,6 +195,8 @@ namespace AdaptiveRoads.Manager {
                             segmentId.ToSegmentExt().UserData.Allocate(UserDataNamesSet?.Segment);
                         }
                     }
+
+
                 } catch (Exception ex) {
                     ex.Log();
                 }
@@ -204,6 +213,11 @@ namespace AdaptiveRoads.Manager {
                 }
                 foreach (var track in Tracks) {
                     track.OptimizeUserData();
+                }
+                foreach (var lane in ParentInfo.m_lanes) {
+                    foreach(var prop in lane.IterateProps()) {
+                        prop.GetMetaData()?.OptimizeUserData();
+                    }
                 }
             }
 

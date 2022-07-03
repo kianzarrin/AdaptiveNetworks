@@ -77,7 +77,6 @@ namespace AdaptiveRoads.DTO {
             public bool m_directConnect;
 
             public NetInfoExtionsion.Node MetaData;
-            public UserDataInfo SegmentUserData;
 
             public void ReadFromGame(NetInfo.Node gameNode) {
                 DTOUtil.CopyAllMatchingFields<Node>(this, gameNode);
@@ -111,7 +110,6 @@ namespace AdaptiveRoads.DTO {
             public bool m_disableBendNodes;
 
             public NetInfoExtionsion.Segment MetaData;
-            public UserDataInfo UserData;
 
             public void ReadFromGame(NetInfo.Segment gameSegment) {
                 DTOUtil.CopyAllMatchingFields<Segment>(this, gameSegment);

@@ -11,6 +11,9 @@ namespace AdaptiveRoads.Util {
     using static AdaptiveRoads.Util.Shortcuts;
 
     internal static class LaneHelpers {
+        internal static NetLaneProps.Prop[] IterateProps(this NetInfo.Lane lane) =>
+            lane?.m_laneProps?.m_props ?? new NetLaneProps.Prop[0];
+
         internal static bool HasProps(this NetInfo.Lane lane) =>
             (lane?.m_laneProps?.m_props?.Length ?? 0) > 0;
 
