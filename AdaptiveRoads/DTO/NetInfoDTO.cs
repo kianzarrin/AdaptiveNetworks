@@ -133,8 +133,6 @@ namespace AdaptiveRoads.DTO {
                 dto.WriteToGame(gameSegment);
                 return gameSegment;
             }
-
-
         }
 
         public class Lane : IDTO<NetInfo.Lane> {

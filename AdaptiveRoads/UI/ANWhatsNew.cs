@@ -8,10 +8,11 @@ namespace AdaptiveRoads.UI {
         public override SavedString SavedVersion => new SavedString("WhatsNewVersion", ModSettings.FILE_NAME, def: "0.0.0", autoUpdate: true);
         public override WhatsNewEntry[] Messages { get; } = new WhatsNewEntry[] {
             new WhatsNewEntry {
-                version = new Version(3, 8, 5),
+                version = new Version(3, 8, 6),
                 messages = new string[] {
                     "Feature: Export nodes to xml templates",
                     "Hint: display summary hintbox when you hover over nodes",
+                    "Feature: Node/prop/track can use segment user flags",
                 }
             },
 
