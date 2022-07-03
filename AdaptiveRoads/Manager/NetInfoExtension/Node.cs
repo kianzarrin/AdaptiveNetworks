@@ -71,8 +71,6 @@ namespace AdaptiveRoads.Manager {
             public string Title;
             [XmlIgnore] string IModel.Title => Title;
 
-
-
             public bool CheckFlags(
                 NetNodeExt.Flags nodeFlags, NetSegmentEnd.Flags segmentEndFlags,
                 NetSegmentExt.Flags segmentFlags, NetSegment.Flags vanillaSegmentFlags,
