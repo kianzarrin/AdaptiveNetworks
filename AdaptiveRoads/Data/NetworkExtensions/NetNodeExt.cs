@@ -143,15 +143,17 @@ namespace AdaptiveRoads.Manager {
 
 
                     GetTrackConnections();
-                    ShiftPilar();
-                    if (Log.VERBOSE) Log.Debug($"NetNodeExt.UpdateFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
                 }
-            } catch(Exception ex) {
+                if (VanillaNode.Info.IsAdaptive()) {
+                    ShiftAndRotatePillar();
+                }
+                if (Log.VERBOSE) Log.Debug($"NetNodeExt.UpdateFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
+            } catch (Exception ex) {
                 ex.Log("node=" + this);
             }
         }
 
-        public void ShiftPilar() {
+        public void ShiftAndRotatePillar() {
             NetInfo info = VanillaNode.Info;
             ushort buildingId = VanillaNode.m_building;
             ref var building = ref BuildingManager.instance.m_buildings.m_buffer[VanillaNode.m_building];
@@ -159,6 +161,9 @@ namespace AdaptiveRoads.Manager {
                 (building.m_flags & (Building.Flags.Created | Building.Flags.Deleted)) == Building.Flags.Created;
             if (!isValid || !info.IsAdaptive())
                 return;
+
+            /************************
+            /* shift */
             info.m_netAI.GetNodeBuilding(NodeID, ref VanillaNode, out BuildingInfo buildingInfo, out float heightOffset);
             Vector3 center = default;
             int counter = 0;
@@ -170,6 +175,55 @@ namespace AdaptiveRoads.Manager {
             center /= counter;
             center.y += heightOffset;
             building.m_position = center;
+
+            /************************
+            /* rotate */
+            Vector3 dir;
+            if (SegmentIDs.IsNullorEmpty()) {
+                return;
+            } else if (SegmentIDs.Length == 1) {
+                ref var segment = ref SegmentIDs[0].ToSegment();
+                dir = segment.GetDirection(NodeID);
+                if (segment.GetHeadNode() == NodeID)
+                    dir = -dir;
+            } else {
+                var sortedSegments = SegmentIDs.ToList();
+                sortedSegments.Sort(CompareSegments);
+
+                if (sortedSegments[0].ToSegment().GetHeadNode() != NodeID &&
+                   sortedSegments[1].ToSegment().GetHeadNode() == NodeID) {
+                    sortedSegments.Swap(0, 1);
+                }
+
+                var dir0 = -sortedSegments[0].ToSegment().GetDirection(NodeID);
+                var dir1 = sortedSegments[1].ToSegment().GetDirection(NodeID);
+                dir = (dir0 + dir1) * 0.5f;
+            }
+
+            float angle = Mathf.Atan2(dir.z, dir.x);
+            building.m_angle = angle + Mathf.PI * 0.5f;
+
+            static int CompareSegments(ushort seg1Id, ushort seg2Id) {
+                ref NetSegment seg1 = ref seg1Id.ToSegment();
+                ref NetSegment seg2 = ref seg2Id.ToSegment();
+                int diff = (int)Mathf.RoundToInt(seg2.Info.m_halfWidth - seg1.Info.m_halfWidth);
+                if (diff == 0) {
+                    diff = CountRoadVehicleLanes(seg2Id) - CountRoadVehicleLanes(seg1Id);
+                }
+                return diff;
+            }
+
+            static int CountRoadVehicleLanes(ushort segmentId) {
+                ref NetSegment segment = ref segmentId.ToSegment();
+                int forward = 0, backward = 0;
+                segment.CountLanes(
+                    segmentId,
+                    NetInfo.LaneType.Vehicle | NetInfo.LaneType.TransportVehicle,
+                    VehicleInfo.VehicleType.Car,
+                    ref forward,
+                    ref backward);
+                return forward + backward;
+            }
         }
 
         public void UpdateScriptedFlags() {
