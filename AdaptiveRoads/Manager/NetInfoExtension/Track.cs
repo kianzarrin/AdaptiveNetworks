@@ -1,6 +1,7 @@
 namespace AdaptiveRoads.Manager {
     using AdaptiveRoads.Data;
     using AdaptiveRoads.Data.NetworkExtensions;
+    using AdaptiveRoads.LifeCycle;
     using AdaptiveRoads.UI.RoadEditor.Bitmask;
     using AdaptiveRoads.Util;
     using ColossalFramework;
@@ -82,8 +83,6 @@ namespace AdaptiveRoads.Manager {
             public Track(SerializationInfo info, StreamingContext context) {
                 try {
                     if (Log.VERBOSE) Log.Called();
-                    var packages = PackageManagerUtil.GetLoadingPackages();
-                    var sharing = LSMUtil.GetSharing();
                     foreach(SerializationEntry item in info) {
                         FieldInfo field = this.GetType().GetField(item.Name, ReflectionHelpers.COPYABLE);
                         if(field != null) {
@@ -91,11 +90,11 @@ namespace AdaptiveRoads.Manager {
                             if(field.FieldType == typeof(Mesh)) {
                                 bool lod = field.Name.Contains("lod");
                                 string checksum = item.Value as string;
-                                val = LSMUtil.GetMesh(sharing, checksum, packages, lod);
+                                val = LSMRevisited.GetMesh(checksum, AssetDataExtension.CurrentBasicNetInfo, lod);
                             } else if(field.FieldType == typeof(Material)) {
                                 bool lod = field.Name.Contains("lod");
                                 string checksum = item.Value as string;
-                                val = LSMUtil.GetMaterial(sharing, checksum, packages, lod);
+                                val = LSMRevisited.GetMaterial(checksum, AssetDataExtension.CurrentBasicNetInfo, lod);
                             } else {
                                 val = Convert.ChangeType(item.Value, field.FieldType);
                             }
