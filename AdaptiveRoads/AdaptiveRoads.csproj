@@ -43,7 +43,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Mono.Unofficial.pdb2mdb" Version="4.2.3.4" />
-    <PackageReference Include="UnifiedUILib" Version="2.2.9" Aliases="UnifedUILib"/>
+    <PackageReference Include="UnifiedUILib" Version="2.2.9" Aliases="UnifedUILib" />
   </ItemGroup>
   <ItemDefinitionGroup>
     <Reference>
@@ -83,7 +83,7 @@
     <Compile Remove="Data\ARBinder.cs" />
     <Compile Remove="Manager\Track.cs" />
     <Compile Remove="Patches\AssetPatches\InitializePrefabImpl.cs" />
-    <Compile Remove="Patches\AsymPavements\GetPathTargetPosition.cs" />
+    <Compile Remove="Patches\Node\AsymPavements\GetPathTargetPosition.cs" />
     <Compile Remove="Patches\HarmonyExtension.cs" />
     <Compile Remove="Patches\Lane\CalculateLane.cs" />
     <Compile Remove="Patches\Lane\NetAI_UpdateLanes.cs" />
