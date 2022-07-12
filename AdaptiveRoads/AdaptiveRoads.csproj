@@ -43,6 +43,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Mono.Unofficial.pdb2mdb" Version="4.2.3.4" />
+    <PackageReference Include="UnifiedUILib" Version="2.2.9" Aliases="UnifedUILib"/>
   </ItemGroup>
   <ItemDefinitionGroup>
     <Reference>
@@ -57,10 +58,6 @@
     <Reference Include="UnityEngine.UI" />
     <Reference Include="TMPE.API" />
     <Reference Include="CSUtil.Commons" />
-    <Reference Include="UnifiedUILib">
-      <Private>true</Private>
-      <Aliases>UnifedUILib</Aliases>
-    </Reference>
     <Reference Include="NetworkSkins" />
     <Reference Include="NS.Helpers">
       <Private>true</Private>
