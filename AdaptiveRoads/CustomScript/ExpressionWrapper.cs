@@ -64,17 +64,18 @@ namespace AdaptiveRoads.CustomScript {
         [NonSerialized]
         public string filePath; // to aid with hot-reload
 
-        public PredicateBase GetPredicateInstance(ushort segmentID, ushort nodeID, int laneIndex = -1) {
+        public PredicateBase GetPredicateInstance(ushort segmentID, ushort nodeID, int laneIndex = -1, int laneTransitionIndex = -1) {
             Assertion.NotNull(Instance, "Instance");
             Instance.NodeID = nodeID;
             Instance.SegmentID = segmentID;
             Instance.LaneIndex = laneIndex;
+            Instance.LaneTransitionIndex = laneTransitionIndex;
             return Instance;
         }
 
-        public bool Condition(ushort segmentID, ushort nodeID, int laneIndex = -1) {
+        public bool Condition(ushort segmentID, ushort nodeID, int laneIndex = -1, int laneTransitionIndex = -1) {
             try {
-                var instance = GetPredicateInstance(segmentID, nodeID, laneIndex);
+                var instance = GetPredicateInstance(segmentID, nodeID, laneIndex, laneTransitionIndex);
                 if (Log.VERBOSE) Log.Debug("Getting condition for " + this, false);
                 return instance.Condition();
             }catch(Exception ex) {

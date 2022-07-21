@@ -12,7 +12,7 @@ namespace AdaptiveRoads.LifeCycle
         : SerializableDataExtensionBase
     {
         private const string DATA_ID = "AdaptiveRoads";
-        static Version DataVersion => typeof(SerializableDataExtensionBase).VersionOf();
+        static Version DataVersion => typeof(SerializableDataExtension).VersionOf();
 
         public override void OnLoadData()
         {

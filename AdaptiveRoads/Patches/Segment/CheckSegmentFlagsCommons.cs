@@ -48,7 +48,7 @@ namespace AdaptiveRoads.Patches.Segment {
                     headNodeFlags: nodeHeadFlags,
                     tailNodeExtFlags: nodeExtTailFlags,
                     headNodeExtFlags: nodeExtHeadFlags,
-
+                    userData: netSegmentExt.UserData,
                     turnAround);
                 if (ret) return true;
             }
@@ -63,6 +63,7 @@ namespace AdaptiveRoads.Patches.Segment {
                     headNodeFlags: nodeHeadFlags,
                     tailNodeExtFlags: nodeExtTailFlags,
                     headNodeExtFlags: nodeExtHeadFlags,
+                    userData: netSegmentExt.UserData,
                     turnAround);
                 if (ret) return true;
             }

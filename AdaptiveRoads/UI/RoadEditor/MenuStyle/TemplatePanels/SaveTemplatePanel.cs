@@ -9,30 +9,27 @@ using System.IO;
 using System.Linq;
 
 namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
-    public class SaveTemplatePanel : PersitancyPanelBase {
+    public abstract class SaveTemplatePanel<SavelistBoxT, T> : PersitancyPanelBase
+        where T : class, ISerialziableDTO
+        where SavelistBoxT : SaveListBoxBase<T> {
+        public SavelistBoxT SavesListBox;
         public UITextField NameField;
         public UITextField DescriptionField;
         public SummaryLabel SummaryBox;
-        public SaveListBoxProp SavesListBox;
         public UIButton SaveButton;
 
-        public List<NetLaneProps.Prop> Props;
-
-        public static SaveTemplatePanel Display(IEnumerable<NetLaneProps.Prop> props) {
-            Log.Debug($"SaveTemplatePanel.Display() called");
-            var ret = UIView.GetAView().AddUIComponent<SaveTemplatePanel>();
-            ret.Props = props.ToList();
-            return ret;
-        }
+        public abstract string Title { get; }
+        public abstract ISerialziableDTO CreateTemplate();
+        public abstract string GetItemsSummary();
 
         public override void Awake() {
             try {
                 base.Awake();
-                AddDrag("Save Prop Template");
+                AddDrag(Title);
                 {
                     UIPanel panel = AddLeftPanel();
                     {
-                        SavesListBox = panel.AddUIComponent<SaveListBoxProp>();
+                        SavesListBox = panel.AddUIComponent<SavelistBoxT>();
                         SavesListBox.width = panel.width;
                         SavesListBox.height = 628;
                         SavesListBox.AddScrollBar();
@@ -85,12 +82,8 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
 
         bool started_ = false;
         public override void Start() {
-            Log.Debug("SaveTemplatePanel.Start() called");
+            Log.Called();
             base.Start();
-            if (Props == null) {
-                Destroy(gameObject);
-                return;
-            }
             started_ = true;
             OnNameChanged();
         }
@@ -103,15 +96,13 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
         public void OnSave() {
             if (string.IsNullOrEmpty(NameField.text)) return;
             eventsOff_ = true;
-            var template = PropTemplate.Create(
-                NameField.text,
-                Props.ToArray(),
-                DescriptionField.text);
+            var template = CreateTemplate();
             template.Save();
             SavesListBox.Populate();
             eventsOff_ = false;
             OnNameChanged();
         }
+
 
         public string RemoveInvalidChars(string s) =>
             s.Trim(Path.GetInvalidFileNameChars());
@@ -130,7 +121,7 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
 
                     SavesListBox.Select(NameField.text);
                     if (SavesListBox.selectedIndex < 0) {
-                        SummaryBox.text = Props.Summary();
+                        SummaryBox.text = GetItemsSummary();
                         SaveButton.text = "Save";
                     } else {
                         SummaryBox.text = SavesListBox.SelectedTemplate.Summary;

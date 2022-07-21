@@ -103,7 +103,7 @@ namespace AdaptiveRoads.Manager {
             try {
                 transitions_ = null;
                 if(!NetUtil.IsNodeValid(NodeID)) {
-                    if (NodeID.ToNode().m_flags.IsFlagSet(NetSegment.Flags.Created))
+                    if (NodeID.ToNode().m_flags.IsFlagSet(NetNode.Flags.Created))
                         Log.Debug("Skip updating invalid node:" + NodeID);
                     else
                         HandleInvalidNode();
@@ -143,15 +143,17 @@ namespace AdaptiveRoads.Manager {
 
 
                     GetTrackConnections();
-                    ShiftPilar();
-                    if (Log.VERBOSE) Log.Debug($"NetNodeExt.UpdateFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
                 }
-            } catch(Exception ex) {
+                if (VanillaNode.Info.IsAdaptive()) {
+                    ShiftAndRotatePillar();
+                }
+                if (Log.VERBOSE) Log.Debug($"NetNodeExt.UpdateFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
+            } catch (Exception ex) {
                 ex.Log("node=" + this);
             }
         }
 
-        public void ShiftPilar() {
+        public void ShiftAndRotatePillar() {
             NetInfo info = VanillaNode.Info;
             ushort buildingId = VanillaNode.m_building;
             ref var building = ref BuildingManager.instance.m_buildings.m_buffer[VanillaNode.m_building];
@@ -159,6 +161,9 @@ namespace AdaptiveRoads.Manager {
                 (building.m_flags & (Building.Flags.Created | Building.Flags.Deleted)) == Building.Flags.Created;
             if (!isValid || !info.IsAdaptive())
                 return;
+
+            /************************
+            /* shift */
             info.m_netAI.GetNodeBuilding(NodeID, ref VanillaNode, out BuildingInfo buildingInfo, out float heightOffset);
             Vector3 center = default;
             int counter = 0;
@@ -170,6 +175,55 @@ namespace AdaptiveRoads.Manager {
             center /= counter;
             center.y += heightOffset;
             building.m_position = center;
+
+            /************************
+            /* rotate */
+            Vector3 dir;
+            if (SegmentIDs.IsNullorEmpty()) {
+                return;
+            } else if (SegmentIDs.Length == 1) {
+                ref var segment = ref SegmentIDs[0].ToSegment();
+                dir = segment.GetDirection(NodeID);
+                if (segment.GetHeadNode() == NodeID)
+                    dir = -dir;
+            } else {
+                var sortedSegments = SegmentIDs.ToList();
+                sortedSegments.Sort(CompareSegments);
+
+                if (sortedSegments[0].ToSegment().GetHeadNode() != NodeID &&
+                   sortedSegments[1].ToSegment().GetHeadNode() == NodeID) {
+                    sortedSegments.Swap(0, 1);
+                }
+
+                var dir0 = -sortedSegments[0].ToSegment().GetDirection(NodeID);
+                var dir1 = sortedSegments[1].ToSegment().GetDirection(NodeID);
+                dir = (dir0 + dir1) * 0.5f;
+            }
+
+            float angle = Mathf.Atan2(dir.z, dir.x);
+            building.m_angle = angle + Mathf.PI * 0.5f;
+
+            static int CompareSegments(ushort seg1Id, ushort seg2Id) {
+                ref NetSegment seg1 = ref seg1Id.ToSegment();
+                ref NetSegment seg2 = ref seg2Id.ToSegment();
+                int diff = (int)Mathf.RoundToInt(seg2.Info.m_halfWidth - seg1.Info.m_halfWidth);
+                if (diff == 0) {
+                    diff = CountRoadVehicleLanes(seg2Id) - CountRoadVehicleLanes(seg1Id);
+                }
+                return diff;
+            }
+
+            static int CountRoadVehicleLanes(ushort segmentId) {
+                ref NetSegment segment = ref segmentId.ToSegment();
+                int forward = 0, backward = 0;
+                segment.CountLanes(
+                    segmentId,
+                    NetInfo.LaneType.Vehicle | NetInfo.LaneType.TransportVehicle,
+                    VehicleInfo.VehicleType.Car,
+                    ref forward,
+                    ref backward);
+                return forward + backward;
+            }
         }
 
         public void UpdateScriptedFlags() {
@@ -183,6 +237,13 @@ namespace AdaptiveRoads.Manager {
                     }
                     m_flags = m_flags.SetFlags(scriptedFlag, condition);
                 }
+
+                if (transitions_.IsNullorEmpty())
+                    return;
+                for (int i = 0; i < transitions_.Length; ++i) {
+                    transitions_[i].UpdateScriptedFlags(i);
+                }
+
             } catch (Exception ex) {
                 ex.Log();
             }
@@ -222,9 +283,12 @@ namespace AdaptiveRoads.Manager {
 
         private static HashSet<Connection> tempConnections_ = new (Connection.Comparer);
         private LaneTransition[] transitions_;
+        public ref LaneTransition GetLaneTransition(int index) => ref transitions_[index];
+        
+
         public void GetTrackConnections() {
             try {
-                Log.Called();
+                if(Log.VERBOSE) Log.Called();
                 transitions_ = null;
                 ref var node = ref NodeID.ToNode();
                 if(!node.IsValid())
@@ -234,9 +298,10 @@ namespace AdaptiveRoads.Manager {
 
                 tempConnections_.Clear();
                 foreach(var segmentID in NodeID.ToNode().IterateSegments()) {
-                    //var infoExt = segmentID.ToSegment().Info?.GetMetaData();
+                    var infoExt = segmentID.ToSegment().Info?.GetMetaData();
                     var lanes = new LaneIDIterator(segmentID).ToArray();
                     for(int laneIndex = 0; laneIndex < lanes.Length; ++laneIndex) {
+                        bool hasTrackLane = infoExt?.HasTrackLane(laneIndex) ?? false;
                         uint laneID = lanes[laneIndex];
                         var laneInfo = segmentID.ToSegment().Info.m_lanes[laneIndex];
                         var routings = TMPEHelpers.GetForwardRoutings(laneID, NodeID);
@@ -246,10 +311,14 @@ namespace AdaptiveRoads.Manager {
                         foreach(LaneTransitionData routing in routings) {
                             if(routing.type is LaneEndTransitionType.Invalid or LaneEndTransitionType.Relaxed)
                                 continue;
+                            var infoExt2 = routing.segmentId.ToSegment().Info?.GetMetaData();
+                            bool hasTrackLane2 = infoExt2?.HasTrackLane(laneIndex) ?? false;
+                            if (!(hasTrackLane || hasTrackLane2)) {
+                                continue;
+                            }
 
                             var laneInfo2 = routing.laneId.ToLane().m_segment.ToSegment().Info.m_lanes[routing.laneIndex];
                             if (LanesConnect(laneInfo, laneInfo2, routing.group)) {
-                                //var infoExt2 = routing.segmentId.ToSegment().Info?.GetMetaData();
                                 if (IsNodeless(segmentID: routing.segmentId, nodeID: NodeID)) continue;
                                 var key = new Connection { LaneID1 = laneID, LaneID2 = routing.laneId };
                                 tempConnections_.Add(key);
@@ -260,7 +329,7 @@ namespace AdaptiveRoads.Manager {
 
                 {
                     foreach (ushort segmentId1 in SegmentIDs) {
-                        Log.Debug($"source: {segmentId1}");
+                        //Log.Debug($"source: {segmentId1}");
                         ref NetSegment segment1 = ref segmentId1.ToSegment();
                         bool headNode1 = segment1.GetHeadNode() == NodeID;
                         foreach (var lane1 in new LaneDataIterator(segmentId1, null, NetInfo.LaneType.Vehicle, VehicleInfo.VehicleType.Bicycle)) {
@@ -270,29 +339,29 @@ namespace AdaptiveRoads.Manager {
                             } else {
                                 outGoing = lane1.LaneInfo.m_finalDirection.IsFlagSet(NetInfo.Direction.Backward);
                             }
-                            Log.Debug($"{lane1.LaneID} outgoing={outGoing}");
+                            //Log.Debug($"{lane1.LaneID} outgoing={outGoing}");
                             if (!outGoing) {
                                 continue;
                             }
                             foreach (ushort segmentId2 in SegmentIDs) {
                                 if (segmentId2 == segmentId1) continue;
-                                bool headNode2 = segment1.GetHeadNode() == NodeID;
-                                Log.Debug($"target: {segmentId2}");
+                                //Log.Debug($"target: {segmentId2}");
                                 ref NetSegment segment2 = ref segmentId2.ToSegment();
-                                bool startNode2 = segment2.IsStartNode(NodeID);
+                                //bool startNode2 = segment2.IsStartNode(NodeID);
+                                bool headNode2 = segment2.GetHeadNode() == NodeID;
                                 foreach (var lane2 in new LaneDataIterator(segmentId2, null, NetInfo.LaneType.Vehicle, VehicleInfo.VehicleType.Bicycle)) {
                                     bool incoming;
-                                    if (headNode2) {
+                                    if (!headNode2) {
                                         incoming = lane2.LaneInfo.m_finalDirection.IsFlagSet(NetInfo.Direction.Forward);
                                     } else {
                                         incoming = lane2.LaneInfo.m_finalDirection.IsFlagSet(NetInfo.Direction.Backward);
                                     }
-                                    Log.Debug($"{lane2.LaneID} incoming={incoming}");
+                                    //Log.Debug($"{lane2.LaneID} incoming={incoming}");
                                     if (!incoming) {
                                         continue;
                                     }
 
-                                    Log.Debug($"{lane1} -> {lane2}");
+                                    //Log.Debug($"{lane1} -> {lane2}");
                                     var key = new Connection { LaneID1 = lane1.LaneID, LaneID2 = lane2.LaneID };
                                     tempConnections_.Add(key);
                                 }
@@ -382,23 +451,22 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
-        public static NetNode.Flags CalculateDCAsym(ushort nodeId, ushort segmentId1, ushort segmentId2) {
-            bool toward1 = IsToward(nodeId, segmentId1);
-            bool toward2 = IsToward(nodeId, segmentId2);
-            if (toward1 && toward2)
+        public static NetNode.Flags CalculateDCAsymFlags(ushort nodeId, ushort segmentId1, ushort segmentId2) {
+            CountLanes(nodeId, segmentId1, out int toward1, out int away1);
+            CountLanes(nodeId, segmentId2, out int toward2, out int away2);
+            if (toward1 > away1 && toward2 > away2)
                 return NetNode.Flags.AsymBackward;
-            else if (!toward1 && !toward2)
+            else if (toward1 < away1 && toward2 < away2)
                 return NetNode.Flags.AsymForward;
             else
                 return default;
 
-            static bool IsToward(ushort nodeId, ushort segmentId) {
+            static void CountLanes(ushort nodeId, ushort segmentId, out int toward, out int away) {
                 ref NetSegment segment = ref segmentId.ToSegment();
                 bool startNode = segment.IsStartNode(nodeId);
                 bool invert = segment.m_flags.IsFlagSet(NetSegment.Flags.Invert);
                 bool reverse = startNode ^ invert;
                 NetInfo netInfo = segment.Info;
-                int toward, away;
                 if (!reverse) {
                     away = netInfo.m_backwardVehicleLaneCount;
                     toward = netInfo.m_forwardVehicleLaneCount;
@@ -406,7 +474,6 @@ namespace AdaptiveRoads.Manager {
                     away = netInfo.m_forwardVehicleLaneCount;
                     toward = netInfo.m_backwardVehicleLaneCount;
                 }
-                return toward > away;
             }
         }
         #endregion

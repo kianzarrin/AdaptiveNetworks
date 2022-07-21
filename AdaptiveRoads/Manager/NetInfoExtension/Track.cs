@@ -1,4 +1,7 @@
 namespace AdaptiveRoads.Manager {
+    using AdaptiveRoads.Data;
+    using AdaptiveRoads.Data.NetworkExtensions;
+    using AdaptiveRoads.LifeCycle;
     using AdaptiveRoads.UI.RoadEditor.Bitmask;
     using AdaptiveRoads.Util;
     using ColossalFramework;
@@ -17,7 +20,11 @@ namespace AdaptiveRoads.Manager {
         public class Track : ICloneable, ISerializable {
             [Obsolete("only useful for the purpose of shallow clone", error: true)]
             public Track() { }
-            public Track Clone() => this.ShalowClone();
+            public Track Clone() {
+                var ret = this.ShalowClone();
+                ret.SegmentUserData = ret.SegmentUserData?.ShalowClone();
+                return ret;
+            }
             object ICloneable.Clone() => this.Clone();
             public Track(NetInfo template) {
                 Assertion.Assert(template, "template");
@@ -76,8 +83,6 @@ namespace AdaptiveRoads.Manager {
             public Track(SerializationInfo info, StreamingContext context) {
                 try {
                     if (Log.VERBOSE) Log.Called();
-                    var packages = PackageManagerUtil.GetLoadingPackages();
-                    var sharing = LSMUtil.GetSharing();
                     foreach(SerializationEntry item in info) {
                         FieldInfo field = this.GetType().GetField(item.Name, ReflectionHelpers.COPYABLE);
                         if(field != null) {
@@ -85,11 +90,11 @@ namespace AdaptiveRoads.Manager {
                             if(field.FieldType == typeof(Mesh)) {
                                 bool lod = field.Name.Contains("lod");
                                 string checksum = item.Value as string;
-                                val = LSMUtil.GetMesh(sharing, checksum, packages, lod);
+                                val = LSMRevisited.GetMesh(checksum, AssetDataExtension.CurrentBasicNetInfo, lod);
                             } else if(field.FieldType == typeof(Material)) {
                                 bool lod = field.Name.Contains("lod");
                                 string checksum = item.Value as string;
-                                val = LSMUtil.GetMaterial(sharing, checksum, packages, lod);
+                                val = LSMRevisited.GetMaterial(checksum, AssetDataExtension.CurrentBasicNetInfo, lod);
                             } else {
                                 val = Convert.ChangeType(item.Value, field.FieldType);
                             }
@@ -116,7 +121,17 @@ namespace AdaptiveRoads.Manager {
                         this.m_mesh.bounds = new Bounds(new Vector3(0f, (corner1 + corner2) * 0.5f, 0f), new Vector3(128f, corner2 - corner1, 128f));
                     }
                     string tag = this.m_material?.GetTag("NetType", searchFallbacks: false);
-                    if(tag == "PowerLine") {
+                    if (tag == "TerrainSurface") {
+                        this.m_requireSurfaceMaps = true;
+                    } else {
+                        m_requireSurfaceMaps = false;
+                    }
+                    if (tag == "Fence") {
+                        m_requireHeightMap = true;
+                    } else {
+                        m_requireHeightMap = false;
+                    }
+                    if (tag == "PowerLine") {
                         this.m_requireWindSpeed = true;
                         this.m_preserveUVs = true;
                         this.m_generateTangents = false;
@@ -221,6 +236,12 @@ namespace AdaptiveRoads.Manager {
             public bool m_requireWindSpeed;
 
             [NonSerialized]
+            public bool m_requireSurfaceMaps;
+
+            [NonSerialized]
+            public bool m_requireHeightMap;
+
+            [NonSerialized]
             public bool m_preserveUVs;
 
             [NonSerialized]
@@ -295,6 +316,13 @@ namespace AdaptiveRoads.Manager {
             [Hint("Only checked on junctions ")] // (not bend nodes if bend nodes as treated as segments)
             public NodeInfoFlags NodeFlags;
 
+            [CustomizableProperty("Transition")]
+            [Hint("TMPE routing between 2 lanes.")] 
+            public LaneTransitionInfoFlags LaneTransitionFlags;
+
+            [CustomizableProperty("Segment Custom Data", "Custom Segment User Data")]
+            public UserDataInfo SegmentUserData;
+
             [CustomizableProperty("Tiling")]
             [Hint("network tiling value (length wise texture scale)")]
             public float Tiling;
@@ -306,19 +334,26 @@ namespace AdaptiveRoads.Manager {
             public bool CheckNodeFlags
                 (NetNodeExt.Flags nodeFlags, NetNode.Flags vanillaNodeFlags,
                 NetSegmentExt.Flags sourceSegmentFlags, NetSegment.Flags startVanillaSegmentFlags,
-                NetLaneExt.Flags laneFalgs, NetLane.Flags vanillaLaneFlags) =>
+                NetLaneExt.Flags laneFalgs, NetLane.Flags vanillaLaneFlags,
+                UserData segmentUserData) =>
                 RenderNode &&
                 NodeFlags.CheckFlags(nodeFlags) && VanillaNodeFlags.CheckFlags(vanillaNodeFlags) &&
                 SegmentFlags.CheckFlags(sourceSegmentFlags) && VanillaSegmentFlags.CheckFlags(startVanillaSegmentFlags) &&
-                LaneFlags.CheckFlags(laneFalgs) && VanillaLaneFlags.CheckFlags(vanillaLaneFlags);
+                LaneFlags.CheckFlags(laneFalgs) && VanillaLaneFlags.CheckFlags(vanillaLaneFlags) &&
+                SegmentUserData.CheckOrNull(segmentUserData);
 
 
             public bool CheckSegmentFlags(
                 NetSegmentExt.Flags segmentFlags, NetSegment.Flags vanillaSegmentFlags,
-                NetLaneExt.Flags laneFalgs, NetLane.Flags vanillaLaneFlags) =>
+                NetLaneExt.Flags laneFalgs, NetLane.Flags vanillaLaneFlags,
+                UserData segmentUserData) =>
                 RenderSegment &&
                 SegmentFlags.CheckFlags(segmentFlags) && VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags)
-                && LaneFlags.CheckFlags(laneFalgs) && VanillaLaneFlags.CheckFlags(vanillaLaneFlags);
+                && LaneFlags.CheckFlags(laneFalgs) && VanillaLaneFlags.CheckFlags(vanillaLaneFlags) &&
+                SegmentUserData.CheckOrNull(segmentUserData);
+
+            public bool CheckLaneTransitionFlag(LaneTransition.Flags flags) =>
+                LaneTransitionFlags.CheckFlags(flags);
 
             public CustomFlags UsedCustomFlags => new CustomFlags {
                 Segment = SegmentFlags.UsedCustomFlags,
@@ -326,6 +361,26 @@ namespace AdaptiveRoads.Manager {
                 Lane = LaneFlags.UsedCustomFlags,
             };
             #endregion
+
+
+            /// <summary>
+            /// only call in AR mode to allocate arrays for asset editor.
+            /// </summary>
+            /// <param name="names"></param>
+            public void AllocateUserData(UserDataNames names) {
+#if DEBUG
+                Log.Called(names);
+#endif
+                SegmentUserData ??= new();
+                SegmentUserData.Allocate(names);
+            }
+            public void OptimizeUserData() {
+#if DEBUG
+                Log.Called();
+#endif
+                if (SegmentUserData != null && SegmentUserData.IsEmptyOrDefault())
+                    SegmentUserData = null;
+            }
 
         }
     }

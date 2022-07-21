@@ -15,20 +15,23 @@ namespace AdaptiveRoads.UI.Tool {
 
         private static HashSet<ushort> hashset = new ();
         static IEnumerable<ushort> TraverseSegments(ushort startSegmentID, ushort nodeID) {
+            hashset.Clear();
             NetInfo startInfo = startSegmentID.ToSegment().Info;
             ushort nextSegmentID = startSegmentID;
             int watchdog = 0;
             while(nodeID != 0 && nodeID.ToNode().m_flags.IsFlagSet(NetNode.Flags.Middle | NetNode.Flags.Bend)) {
                 nextSegmentID = nodeID.ToNode().GetAnotherSegment(nextSegmentID);
 
-                if (watchdog++ > 10000)
-                    break;
                 if (nextSegmentID.ToSegment().Info != startInfo)
                     break;
                 if(nextSegmentID == startSegmentID)
                     break; // circled around
                 if (hashset.Contains(nextSegmentID)) {
                     Log.Error("unexpected Loop detected. send screenshot of networks to kian.");
+                    break;
+                }
+                if (watchdog++ > 10000) {
+                    Log.Error("watchdog limit exceeded. send screenshot of networks to kian.");
                     break;
                 }
 

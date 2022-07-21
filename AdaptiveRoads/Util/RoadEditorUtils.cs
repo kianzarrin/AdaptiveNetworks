@@ -304,7 +304,7 @@ namespace AdaptiveRoads.Util {
                         PropHelpers.CopyPropsToOtherElevations(item);
                 });
                 panel.AddButton("Add" + strAll + " to Template", null, delegate () {
-                    SaveTemplatePanel.Display(cloned_props);
+                    SavePropTemplatePanel.Display(cloned_props);
                 });
                 if(cloned_props.Count() >= 2) {
                     panel.AddButton("Displace all", null, delegate () {
@@ -335,6 +335,24 @@ namespace AdaptiveRoads.Util {
                                 laneIndex: laneIndex, clear: true);
                         }
                     });
+            } else if(element is NetInfo.Node node){
+                var netInfo = sidePanel.GetTarget() as NetInfo;
+                Assertion.NotNull(netInfo, "MainPanel.target is netInfo");
+                var panel = MiniPanel.Display();
+                var f_items = typeof(NetInfo).GetField(nameof(NetInfo.m_nodes));
+                var original_items = elements.Select(_p => _p as NetInfo.Node);
+                var cloned_items = original_items.Select(_p => _p.Clone());
+                string strAll = cloned_items.Count() > 1 ? " all" : "";
+
+                panel.AddButton("Duplicate" + strAll, null, delegate () {
+                    AddNodes(groupPanel, cloned_items.ToArray());
+                });
+                panel.AddButton("Copy" + strAll, null, delegate () {
+                    ClipBoard.SetData(cloned_items);
+                });
+                panel.AddButton("Add" + strAll + " to Template", null, delegate () {
+                    SaveNodeTemplatePanel.Display(cloned_items);
+                });
             }
         }
 
@@ -347,7 +365,43 @@ namespace AdaptiveRoads.Util {
             roadEditorPanel.AddToArrayField(groupPanel, newElement, arrayField, target);
             return newElement;
         }
+        public static void AddNodes(
+            RoadEditorCollapsiblePanel groupPanel,
+            NetInfo.Node[] items) {
+            try {
+                Log.Called(items);
+                if (items == null || items.Length == 0) return;
+                NetInfo.Node[] m_items = groupPanel.GetArray() as NetInfo.Node[];
+                if (ModSettings.ARMode) {
+                    // extend in AN mode
+                    items = items.Select(item => item.Extend().Base).ToArray();
+                } else {
+                    // undo extend in Vanilla mode.
+                    items = items.Select(item => {
+                        if (item is IInfoExtended<NetInfo.Node> itemExt) {
+                            return itemExt.UndoExtend();
+                        } else {
+                            return item;
+                        }
+                    }).ToArray();
+                }
+                var m_items2 = m_items.AddRangeToArray(items);
 
+                var sidePanel = groupPanel.component.GetComponentInParent<RoadEditorPanel>();
+                var arrayField = groupPanel.GetField();
+                var target = groupPanel.GetTarget();
+
+                Log.Debug($"Adding nodes {items.Length}+{m_items.Length}={m_items2.Length}");
+                groupPanel.SetArray(m_items2);
+                foreach (var item in items) {
+                    sidePanel.AddToArrayField(groupPanel, item, arrayField, target);
+                }
+                sidePanel.OnObjectModified();
+            } catch (Exception ex) {
+                Log.Exception(ex);
+            }
+        }
+        #region prop
         public static void AddProps(
             RoadEditorCollapsiblePanel groupPanel,
             NetLaneProps.Prop[] props) {
@@ -405,6 +459,7 @@ namespace AdaptiveRoads.Util {
                 prop.Displace(z);
             LogSucceeded();
         }
+        #endregion prop
 
         public static void RefreshRoadEditor() {
             try {
@@ -431,6 +486,40 @@ namespace AdaptiveRoads.Util {
                 }
             }
         }
+
+
+        public static T CustomCreateDummyInstance<T>() where T: class =>
+            CustomCreateDummyInstance(typeof(T)) as T;
+
+
+        public static object CustomCreateDummyInstance(Type type) {
+            if (type == typeof(NetInfo.Lane)) {
+                var lane = new NetInfo.Lane {
+                    m_laneProps = ScriptableObject.CreateInstance<NetLaneProps>(),
+                };
+                lane.m_laneProps.m_props = new NetLaneProps.Prop[0];
+                return lane;
+            }
+            Shader shader = Shader.Find("Custom/Net/Road");
+            if (type == typeof(NetInfo.Segment)) {
+                return new NetInfo.Segment {
+                    m_mesh = new Mesh(),
+                    m_material = new Material(shader),
+                    m_lodMesh = new Mesh(),
+                    m_lodMaterial = new Material(shader)
+                };
+            }
+            if (type == typeof(NetInfo.Node)) {
+                return new NetInfo.Node {
+                    m_mesh = new Mesh(),
+                    m_material = new Material(shader),
+                    m_lodMesh = new Mesh(),
+                    m_lodMaterial = new Material(shader)
+                };
+            }
+            return null;
+        }
+
     }
 }
 

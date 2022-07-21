@@ -18,6 +18,11 @@ namespace AdaptiveRoads.Util {
             VehicleInfo.VehicleType.Tram |
             VehicleInfo.VehicleType.Monorail;
 
+        internal const VehicleInfo.VehicleType TILTABLE_VEHICLE_TYPES =
+            VehicleInfo.VehicleType.Train |
+            VehicleInfo.VehicleType.Metro |
+            VehicleInfo.VehicleType.Monorail;
+
         internal static NetInfo.LaneType RoadLaneTypes => LaneArrowMan.LaneTypes;
 
         internal static VehicleInfo.VehicleType RoadVehicleTypes = LaneArrowMan.VehicleTypes | VehicleInfo.VehicleType.Trolleybus;

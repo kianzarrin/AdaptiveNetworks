@@ -1,4 +1,5 @@
 namespace AdaptiveRoads.Data.NetworkExtensions {
+    using AdaptiveRoads.CustomScript;
     using AdaptiveRoads.Manager;
     using ColossalFramework;
     using KianCommons;
@@ -7,6 +8,22 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
     using Log = KianCommons.Log;
 
     public struct LaneTransition {
+        [Flags]
+        public enum Flags {
+            None =0,
+            [ExpressionFlag] Expression0 = 1 << 0,
+            [ExpressionFlag] Expression1 = 1 << 1,
+            [ExpressionFlag] Expression2 = 1 << 2,
+            [ExpressionFlag] Expression3 = 1 << 3,
+            [ExpressionFlag] Expression4 = 1 << 4,
+            [ExpressionFlag] Expression5 = 1 << 5,
+            [ExpressionFlag] Expression6 = 1 << 6,
+            [ExpressionFlag] Expression7 = 1 << 7,
+            ExpressionMask = Expression0 | Expression1 | Expression2 | Expression3 | Expression4 | Expression5 | Expression6 | Expression7,
+
+        }
+
+        public Flags m_flags; // TODO complete
         public ushort NodeID;
         public uint LaneIDSource; // dominant
         public uint LaneIDTarget;
@@ -32,18 +49,20 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 return; //empty
             }
 
-            if( (prio1 >= prio2 && hasTrackLane) || !hasTrackLane2) {
-                if (prio1 == prio2) {
+            NodeID = nodeID;
+
+            if ( (prio1 >= prio2 && hasTrackLane) || !hasTrackLane2) {
+                const bool consitentFlags = true; // make it consistent so that forward/backward lane use same segment for source flags.
+                if (consitentFlags && prio1 == prio2) {
                     var segmentIDs = NodeID.ToNodeExt().SegmentIDs;
                     int segmentIndex1 = Array.IndexOf(segmentIDs, segmentID1);
                     int segmentIndex2 = Array.IndexOf(segmentIDs, segmentID2);
-                    // make it consistent (TODO why does not work?)
                     if (segmentIndex1 < segmentIndex2) {
                         LaneIDSource = laneID1;
                         LaneIDTarget = laneID2;
                     } else {
-                        LaneIDSource = laneID1;
-                        LaneIDTarget = laneID2;
+                        LaneIDSource = laneID2;
+                        LaneIDTarget = laneID1;
                     }
                 } else {
                     LaneIDSource = laneID1;
@@ -54,7 +73,6 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 LaneIDTarget = laneID1;
             }
 
-            NodeID = nodeID;
 
             Calculate();
             if(Log.VERBOSE) Log.Debug($"LaneTransition.Init() succeeded for: {this}", false);
@@ -65,7 +83,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         public OutlineData WireOutLine;
         public TrackRenderData WireRenderData;
 
-        public override string ToString() => $"LaneTransition[node:{NodeID} lane:{LaneIDSource}->lane:{LaneIDTarget}]";
+        public override string ToString() => $"LaneTransition[node:{NodeID} lane:{LaneIDSource}->lane:{LaneIDTarget} Flags:{m_flags}]";
         #region shortcuts
         ref NetLane LaneA => ref LaneIDSource.ToLane();
         ref NetLane LaneD => ref LaneIDTarget.ToLane();
@@ -90,8 +108,24 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
 
         public bool Nodeless => OutLine.Empty;
 
+        public void UpdateScriptedFlags(int index) {
+            try {
+                var net = Info?.GetMetaData();
+                if (net == null) return;
+                foreach (var scriptedFlag in Flags.ExpressionMask.ExtractPow2Flags()) {
+                    bool condition = false;
+                    if (net.ScriptedFlags.TryGetValue(scriptedFlag, out var expression)) {
+                        condition = expression.Condition(segmentID: segmentID_A, nodeID: NodeID, laneIndex: laneIndexA, index);
+                    }
+                    m_flags = m_flags.SetFlags(scriptedFlag, condition);
+                }
+            } catch (Exception ex) {
+                ex.Log();
+            }
+        }
+
         public void Calculate() {
-            DCFlags = NetNodeExt.CalculateDCAsym(NodeID, segmentID_A, segmentID_D);
+            DCFlags = NetNodeExt.CalculateDCAsymFlags(NodeID, segmentID_A, segmentID_D);
 
             Vector3 a, dirA;
             float angleA;
@@ -138,23 +172,11 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             ret.Position = pos ?? (outline.Center.a + outline.Center.d) * 0.5f;
 
             ret.MeshScale = new Vector4(1f / Width, 1f / InfoA.m_segmentLength, 1f, 1f);
-            ret.TurnAround = laneInfoA.m_finalDirection.IsGoingBackward(); // TODO is this logic sufficient? is this line even necessary?
-            ret.TurnAround ^= SegmentA.IsInvert();
-            if(ret.TurnAround) {
-                ret.MeshScale.x *= -1;
-                ret.MeshScale.y *= -1;
-            }
 
             float vScale = InfoA.m_netAI.GetVScale();
-            ret.LeftMatrix = NetSegment.CalculateControlMatrix(
-                outline.Left.a, outline.Left.b, outline.Left.c, outline.Left.d,
-                outline.Right.a, outline.Right.b, outline.Right.c, outline.Right.d,
-                ret.Position, vScale);
-            ret.RightMatrix = NetSegment.CalculateControlMatrix(
-                outline.Right.a, outline.Right.b, outline.Right.c, outline.Right.d,
-                outline.Left.a, outline.Left.b, outline.Left.c, outline.Left.d,
-                ret.Position, vScale);
-
+            ret.TurnAround = laneInfoA.IsGoingBackward();
+            ret.TurnAround ^= SegmentA.IsInvert();
+            ret.CalculateControlMatrix(outline, vScale);
 
             ret.WindSpeed = Singleton<WeatherManager>.instance.GetWindSpeed(ret.Position);
             ret.Color = Info.m_color;
@@ -168,24 +190,30 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 colorLocationD = RenderManager.GetColorLocation(TrackManager.SEGMENT_HOLDER + segmentID_D);
             }
             ret.ObjectIndex = new Vector4(colorLocationA.x, colorLocationA.y, colorLocationD.x, colorLocationD.y);
+            ret.CalculateMapping(InfoA);
             return ret;
         }
 
         private bool Check(NetInfoExtionsion.Track trackInfo) {
             if (!trackInfo.HasTrackLane(laneIndexA))
                 return false;
+            
             bool junction = Node.m_flags.IsFlagSet(NetNode.Flags.Junction);
+            bool ret;
             if (trackInfo.TreatBendAsNode || junction) {
                 // if (trackInfo.RequireMatching & !Matching) return false;
-                return trackInfo.CheckNodeFlags(
+                ret = trackInfo.CheckNodeFlags(
                     NodeExt.m_flags, Node.m_flags | DCFlags,
                     SegmentExtA.m_flags, SegmentA.m_flags,
-                    LaneExtA.m_flags, LaneA.Flags());
+                    LaneExtA.m_flags, LaneA.Flags(),
+                    segmentUserData: SegmentExtA.UserData);
             } else { // treat bend as segment:
-                return  trackInfo.CheckSegmentFlags(
+                ret = trackInfo.CheckSegmentFlags(
                     SegmentExtA.m_flags, SegmentA.m_flags,
-                    LaneExtA.m_flags, LaneA.Flags());
+                    LaneExtA.m_flags, LaneA.Flags(),
+                    segmentUserData: SegmentExtA.UserData);
             }
+            return ret && trackInfo.CheckLaneTransitionFlag(this.m_flags);
         }
 
         public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo) {
@@ -202,7 +230,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                         renderData = RenderData.GetDataFor(trackInfo, AntiFlickerIndex);
                     }
                     renderData.RenderInstance(trackInfo, cameraInfo);
-                    TrackManager.instance.EnqueuOverlay(trackInfo, ref OutLine, turnAround: renderData.TurnAround, DC: true);
+                    TrackManager.instance.EnqueuOverlay(trackInfo, ref OutLine, turnAround: /*false */ renderData.TurnAround, DC: true);
                 }
             }
         }

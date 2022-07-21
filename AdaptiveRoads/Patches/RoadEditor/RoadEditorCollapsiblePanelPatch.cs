@@ -52,17 +52,36 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             panel.AddButton("Clear all props", null,
                                 () => ClearAll(groupPanel));
                             panel.AddButton("Save Template", null, () => {
-                                SaveTemplatePanel.Display(m_props);
+                                SavePropTemplatePanel.Display(m_props);
                             });
                         }
                         if (clipBoardHasData) {
                             panel.AddButton("Paste all props", null,
-                                () => PasteAll(groupPanel));
+                                () => PasteAllProps(groupPanel));
                         }
                         panel.AddButton(
                             "Displace all",
                             null,
                             () => DisplaceAll(m_props));
+                    }
+                } else if (groupPanel.GetArray() is NetInfo.Node[] m_nodes) {
+                    bool hasItems = !m_nodes.IsNullorEmpty();
+                    bool clipBoardHasData = ClipBoard.HasData<NetInfo.Node>();
+                    if (hasItems || clipBoardHasData) {
+                        var panel = MiniPanel.Display();
+                        if (hasItems) {
+                            panel.AddButton("Copy all nodes", null,
+                            () => ClipBoard.SetData(m_nodes));
+                            panel.AddButton("Clear all nodes", null,
+                                () => ClearAll(groupPanel));
+                            panel.AddButton("Save Template", null, () => {
+                                SaveNodeTemplatePanel.Display(m_nodes);
+                            });
+                        }
+                        if (clipBoardHasData) {
+                            panel.AddButton("Paste all nodes", null,
+                                () => PasteAllNodes(groupPanel));
+                        }
                     }
                 } else if (
                     array is NetInfo.Lane[] m_lanes
@@ -110,10 +129,15 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             }
         }
 
-        static void PasteAll(RoadEditorCollapsiblePanel groupPanel) {
+        static void PasteAllProps(RoadEditorCollapsiblePanel groupPanel) {
             Log.Debug("PasteAll called");
             NetLaneProps.Prop[] props = ClipBoard.GetDataArray() as NetLaneProps.Prop[];
             AddProps(groupPanel, props);
+        }
+        static void PasteAllNodes(RoadEditorCollapsiblePanel groupPanel) {
+            Log.Debug("PasteAll called");
+            NetInfo.Node[] nodes = ClipBoard.GetDataArray() as NetInfo.Node[];
+            AddNodes(groupPanel, nodes);
         }
     }
 }

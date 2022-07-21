@@ -17,6 +17,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using PrefabMetadata.API;
     using AdaptiveRoads.UI.QuayRoads;
     using ColossalFramework;
+    using AdaptiveRoads.Data;
 
     /// <summary>
     /// most of UI in road editor panels are managed here:
@@ -94,16 +95,29 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 var cpt = field.GetAttribute<CustomizablePropertyAttribute>();
                 string groupName = cpt.group;
 
-                if (target is NetLaneProps.Prop prop) {
-                    Log.Debug($"{__instance.name}.CreateField.Postfix({groupName},{field},{target})"/* + Environment.StackTrace*/);
-                    if (ModSettings.ARMode) {
-                        var metadata = prop.GetOrCreateMetaData();
-                        foreach (var field2 in field.GetAfterFields(metadata)) {
+                if (ModSettings.ARMode) {
+                    var metaData = GenericUtil.GetMetaData(target);
+
+                    if (metaData != null) {
+#if DEBUG
+                        Log.Called(field, target, groupName);
+#endif
+                        foreach (var field2 in field.GetAfterFields(metaData)) {
                             CreateGenericComponentExt(
                                 roadEditorPanel: __instance, groupName: groupName,
-                                target: target, metadata: metadata, extensionField: field2);
+                                target: target, metadata: metaData, extensionField: field2);
                         }
                     }
+                }
+
+                //////////////////////////////////
+                // special cases: replace Labels, expose fields, buttons
+
+                if (target is NetLaneProps.Prop prop) {
+                    ReplaceLabel(__instance, "Start Flags Required:", "Tail Node Flags Required:");
+                    ReplaceLabel(__instance, "Start Flags Forbidden:", "Tail  Node Flags Forbidden:");
+                    ReplaceLabel(__instance, "End Flags Required:", "Head  Node Flags Required:");
+                    ReplaceLabel(__instance, "End Flags Forbidden:", "Head  Node Flags Forbidden:");
 
                     if (typeof(NetInfoExtionsion.LaneProp).ComesAfter(field)) {
                         Assert(prop.LocateEditProp(out _, out var lane), "could not locate prop");
@@ -111,7 +125,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         bool backward = lane.IsGoingBackward();
                         bool unidirectional = forward || backward;
                         if (!unidirectional) {
-                            ButtonPanel.Add(
+                            EditorButtonPanel.Add(
                                 roadEditorPanel: __instance,
                                 container: __instance.m_Container,
                                 label: "Switch Forward/Backward",
@@ -124,7 +138,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                                 });
                         }
 
-                        ButtonPanel.Add(
+                        EditorButtonPanel.Add(
                             roadEditorPanel: __instance,
                             container: __instance.m_Container,
                             label: "Switch RHT/LHT",
@@ -135,34 +149,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                                 __instance.Reset();
                             });
                     }
-
-                    ReplaceLabel(__instance, "Start Flags Required:", "Tail Node Flags Required:");
-                    ReplaceLabel(__instance, "Start Flags Forbidden:", "Tail  Node Flags Forbidden:");
-                    ReplaceLabel(__instance, "End Flags Required:", "Head  Node Flags Required:");
-                    ReplaceLabel(__instance, "End Flags Forbidden:", "Head  Node Flags Forbidden:");
-                } else if (target is NetInfo.Node node) {
-                    Log.Debug($"{__instance.name}.CreateField.Postfix({groupName},{field},{target})"/* + Environment.StackTrace*/);
-                    if (ModSettings.ARMode) {
-                        var metadata = node.GetOrCreateMetaData();
-                        foreach (var field2 in field.GetAfterFields(metadata)) {
-                            CreateGenericComponentExt(
-                                roadEditorPanel: __instance, groupName: groupName,
-                                target: target, metadata: metadata, extensionField: field2);
-                        }
-                    }
-                } else if (target is NetInfo.Segment segment) {
-                    Log.Debug($"{__instance.name}.CreateField.Postfix({groupName}, {field}, {target})"/* + Environment.StackTrace*/);
-                    if (ModSettings.ARMode) {
-                        var metadata = segment.GetOrCreateMetaData();
-                        AssertNotNull(metadata, $"{segment}");
-                        foreach (var field2 in field.GetAfterFields(metadata)) {
-                            CreateGenericComponentExt(
-                                roadEditorPanel: __instance, groupName: groupName,
-                                target: target, metadata: metadata, extensionField: field2);
-                        }
-                    }
                 } else if (target is NetInfo netInfo) {
-                    Log.Debug($"{__instance.name}.CreateField.Postfix({groupName}, {field}, {target})"/* + Environment.StackTrace*/);
                     if (field.Name == nameof(NetInfo.m_surfaceLevel)) {
                         ExposeField(
                             roadEditorPanel: __instance,
@@ -179,17 +166,9 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     }
                     if (ModSettings.ARMode) {
                         ReplaceLabel(__instance, "Pavement Width", "Pavement Width Left");
-                        var net = netInfo.GetOrCreateMetaData();
-                        AssertNotNull(net, $"{netInfo}");
-                        foreach(var field2 in net.GetFieldsWithAttribute<CustomizablePropertyAttribute>()) {
-                            if(field2.ComesAfter(field)) {
-                                Log.Debug($"calling {__instance.name}.CreateField({field2},{net}) ...");
-                                __instance.CreateField(field2, net);
-                            }
-                        }
                         if (field.Name == nameof(NetInfo.m_surfaceLevel)) {
                             Log.Debug("adding QuayRoads button");
-                            var qrButtonPanel = ButtonPanel.Add(
+                            var qrButtonPanel = EditorButtonPanel.Add(
                             roadEditorPanel: __instance,
                             container: __instance.GetGroupPanel("Properties").m_Panel,
                             label: "Edit QuayRoads profile",
@@ -198,8 +177,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             qrButtonPanel.EventDestroy += (_, _) => { QuayRoadsPanel.CloseIfOpen(netInfo); };
                         }
                     }
-                }
-
+                } 
             } catch (Exception e) {
                 Log.Exception(e);
             }
@@ -251,16 +229,22 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 .Where(field2 => field2.ComesAfter(before));
         }
 
-        static bool ComesAfter(this MemberInfo after, FieldInfo before) {
-            Assert(after != before, $"{after} != {before}");
-            return after.AfterField() == before.Name;
+        static IEnumerable<MemberInfo> GetAfterMemebers(this FieldInfo before, object target) {
+            return target.GetMembersWithAttribute<CustomizablePropertyAttribute>()
+                .Where(member => member.ComesAfter(before));
         }
 
-        static string AfterField(this MemberInfo field) {
+
+        static bool ComesAfter(this MemberInfo after, FieldInfo before) {
+            Assert(after != before, $"{after} != {before}");
+            return after.AfterMember() == before.Name;
+        }
+
+        static string AfterMember(this MemberInfo member) {
             return
-                field.GetAttribute<AfterFieldAttribute>()?.FieldName ??
-                field.DeclaringType.GetAttribute<AfterFieldAttribute>()?.FieldName ??
-                throw new Exception("could not find after field for " + field);
+                member.GetAttribute<AfterFieldAttribute>()?.FieldName ??
+                member.DeclaringType.GetAttribute<AfterFieldAttribute>()?.FieldName ??
+                throw new Exception("could not find after field for " + member);
         }
 
         /// <returns>false if this field is not special case and needs to be handled normally.</returns>
@@ -289,9 +273,29 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         public static void CreateGenericComponentExt(
             RoadEditorPanel roadEditorPanel, string groupName,
             object target, object metadata, FieldInfo extensionField) {
-            if(!CreateGenericComponentExt0(roadEditorPanel, groupName, target, metadata, extensionField)) {
+            if (!CreateGenericComponentExt0(roadEditorPanel, groupName, target, metadata, extensionField)) {
                 roadEditorPanel.CreateField(extensionField, metadata);
             }
+        }
+
+        public static void CreateButton(
+            RoadEditorPanel roadEditorPanel, string groupName,
+            object target, object metadata, MethodInfo extensionMethod) {
+            Log.Called();
+            var att = extensionMethod.GetAttribute<CustomizableActionAttribute>();
+            Assertion.NotNull(att, "att");
+            if (!string.IsNullOrEmpty(att.group)) groupName = att.group; 
+            var container = GetContainer(roadEditorPanel, groupName);
+
+            var button = EditorButtonPanel.Add(
+                roadEditorPanel: roadEditorPanel,
+                container: container,
+                label: att.name,
+                hint: extensionMethod.GetHints()?.JoinLines(),
+                action: () => extensionMethod.Invoke(metadata, new object[] { target }));
+            button.eventClick += (_, __) => {
+                roadEditorPanel.OnObjectModified();
+            };
         }
 
         public static bool CreateExtendedComponent(
@@ -308,7 +312,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 var container = GetContainer(roadEditorPanel, groupName);
                 var att = fieldInfo.GetAttribute<CustomizablePropertyAttribute>();
 
-                if(fieldInfo.HasAttribute<BitMaskLanesAttribute>()) {
+                if (fieldInfo.HasAttribute<BitMaskLanesAttribute>()) {
                     NetInfo netInfo =
                         (metadata as NetInfoExtionsion.Track)?.ParentInfo ??
                         RoadEditorUtils.GetSelectedNetInfo(out _);
@@ -319,9 +323,9 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         container: container,
                         label: att.name,
                         hint: fieldInfo.GetHints().JoinLines());
-                } else if(fieldInfo.FieldType.HasAttribute<FlagPairAttribute>()) {
+                } else if (fieldInfo.FieldType.HasAttribute<FlagPairAttribute>()) {
                     var uidatas = GetARFlagUIData(fieldInfo, metadata);
-                    if(uidatas != null) {
+                    if (uidatas != null) {
                         BitMaskPanel.Add(
                             roadEditorPanel: roadEditorPanel,
                             container: container,
@@ -335,8 +339,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             hint: uidatas[1].Hint,
                             flagData: uidatas[1].FlagData);
                     }
-                } else if(fieldInfo.FieldType == typeof(NetInfoExtionsion.Range)) {
-                    if(fieldInfo.Name.ToLower().Contains("speed")) {
+                } else if (fieldInfo.FieldType == typeof(NetInfoExtionsion.Range)) {
+                    if (fieldInfo.Name.ToLower().Contains("speed")) {
                         var panel = SpeedRangePanel.Add(
                             roadEditorPanel: roadEditorPanel,
                             container: container,
@@ -351,6 +355,20 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             target: metadata,
                             fieldInfo: fieldInfo);
                     }
+                } else if (fieldInfo.FieldType == typeof(UserDataInfo)) {
+                    CreateUserDataInfoSection(
+                        roadEditorPanel: roadEditorPanel,
+                        target: metadata,
+                        fieldInfo: fieldInfo,
+                        groupName: groupName);
+                } else if (fieldInfo.FieldType == typeof(string)) {
+                    var panel = EditorStringPanel.Add(
+                        roadEditorPanel: roadEditorPanel,
+                        container: container,
+                        label: att.name,
+                        hint: fieldInfo.GetHints().JoinLines(),
+                        target: metadata,
+                        fieldInfo: fieldInfo);
                 } else {
                     return false;
                 }
@@ -385,6 +403,96 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 hint: uidata.Hint,
                 flagData: uidata.FlagData,
                 customFlagData: customdata);
+        }
+
+        public static void CreateUserDataInfoSection(RoadEditorPanel roadEditorPanel, object target, FieldInfo fieldInfo, string groupName) {
+            Assert(fieldInfo.FieldType == typeof(UserDataInfo), "field type is UserDataInfo");
+            Log.Called(roadEditorPanel, target, fieldInfo);
+            groupName = fieldInfo.GetAttribute<CustomizablePropertyAttribute>()?.group ?? groupName;
+            NetInfo netInfo = RoadEditorUtils.GetSelectedNetInfo(out _);
+            var net = netInfo.GetMetaData();
+            UserDataInfo userDataInfo = fieldInfo.GetValue(target) as UserDataInfo;
+            var userValues = userDataInfo?.UserValues;
+            if (!userValues.IsNullorEmpty()) {
+                var userDatanames = net.UserDataNamesSet ??= new();
+                for (int i = 0; i < userValues.Length; ++i) {
+                    CreateUserDataValueEntry(
+                        roadEditorPanel: roadEditorPanel,
+                        groupName,
+                        target:target,
+                        fieldInfo:fieldInfo,
+                        index: i);
+                }
+            }
+
+            var groupPanel = roadEditorPanel.GetGroupPanel(groupName);
+            var addButton = groupPanel.Container.AddUIComponent<EditorButon>();
+            addButton.text = "Add New Selector";
+            addButton.width = 200;
+            addButton.eventClick += (c, __) => {
+                UserValueDropDownPanel.AddNewEntryMiniPanel(entry => {
+                    net.UserDataNamesSet ??= new();
+                    net.UserDataNamesSet.Segment.Add(entry);
+                    net.AllocateUserData();
+                    CreateUserDataValueEntry(
+                        roadEditorPanel: roadEditorPanel,
+                        groupName,
+                        target: target,
+                        fieldInfo: fieldInfo,
+                        index: null);
+                });
+            };
+        }
+
+        /// <param name="index">null => last</param>
+        public static void CreateUserDataValueEntry(
+            RoadEditorPanel roadEditorPanel, string groupName, object target, FieldInfo fieldInfo, int ?index) {
+            Assert(fieldInfo.FieldType == typeof(UserDataInfo), "field type is UserDataInfo");
+            Log.Called(roadEditorPanel, target, fieldInfo);
+            var groupPanel = roadEditorPanel.GetGroupPanel(groupName);
+            Assertion.NotNull(groupName, "groupName");
+            NetInfo netInfo = RoadEditorUtils.GetSelectedNetInfo(out _);
+            Assertion.NotNull(netInfo, "netInfo");
+            var net = netInfo.GetMetaData();
+            Assertion.NotNull(net,"net");
+            UserDataInfo userDataInfo = fieldInfo.GetValue(target) as UserDataInfo;
+            Assertion.NotNull(userDataInfo,"userDataInfo");
+
+            var userDatanames = net.UserDataNamesSet ??= new();
+            var userValues = userDataInfo?.UserValues;
+            Assertion.NotNull(userValues,"userValues");
+            int i = index ?? userValues.Length - 1;
+
+            Assertion.NotNull(userDatanames?.Segment?.ValueNames,
+                $"userDatanames?.Segment?.ValueNames={userDatanames}?.{userDatanames?.Segment}?.{userDatanames?.Segment?.ValueNames}");
+            var data = new UserValueDropDownPanel.DataT {
+                Index = i,
+                Names = userDatanames.Segment.ValueNames[i],
+                Target = userDataInfo,
+            };
+            data.eventNamesUpdated += (names) => userDatanames.Segment.ValueNames[i] = names;
+            data.eventEntryRemoved += (index) => {
+                try {
+                    Log.Called(index);
+                    net.RemoveSegmentUserValue(index);
+
+                    // fix indeces:
+                    var groupPanel = roadEditorPanel.GetGroupPanel(groupName);
+                    foreach(var panel in groupPanel.GetComponentsInChildren<UserValueDropDownPanel>()) {
+                        if (panel.Data.Index > index)
+                            panel.Data.Index--;
+                    }
+
+                } catch (Exception ex) {
+                    ex.Log();
+                }
+            };
+
+            var panel = UserValueDropDownPanel.Add(
+                roadEditorPanel: roadEditorPanel,
+                groupPanel: groupPanel,
+                hint: "user can select one value from the drop down. None => not used in this model",
+                data: data);
         }
 
         public static void CreateMergedComponent(
@@ -498,8 +606,11 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
         static bool TryGetMerge(FieldInfo extensionField, object vanillaTarget,
             out FieldInfo vanillaRequiredField, out FieldInfo vanillaForbiddenField) {
-            Assert(vanillaTarget is IInfoExtended, "vanillaTarget is IInfoExtended");
             vanillaRequiredField = vanillaForbiddenField = null;
+            if (vanillaTarget is NetInfo or NetAI) {
+                return false;
+            }
+            Assert(vanillaTarget is IInfoExtended, "vanillaTarget is IInfoExtended : " + vanillaTarget.ToSTR());
             if (!Merge) return false;
 
             foreach (var vanillaField in vanillaTarget.GetFieldsWithAttribute<CustomizablePropertyAttribute>()) {

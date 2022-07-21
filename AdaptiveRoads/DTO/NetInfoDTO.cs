@@ -5,6 +5,8 @@ namespace AdaptiveRoads.DTO {
     using KianCommons;
     using KianCommons.Serialization;
     using AdaptiveRoads.UI;
+    using AdaptiveRoads.Util;
+    using AdaptiveRoads.Data;
 
     public class NetInfoDTO : IDTO<NetInfo> {
         public float m_halfWidth = 8f;
@@ -91,8 +93,8 @@ namespace AdaptiveRoads.DTO {
                 (gameNode as IInfoExtended)?.SetMetaData(MetaData?.Clone());
             }
             public static explicit operator NetInfo.Node(Node dto) {
-                var gameNode = new NetInfo.Node();
-                if(ModSettings.ARMode)
+                var gameNode = RoadEditorUtils.CustomCreateDummyInstance<NetInfo.Node>();
+                if (ModSettings.ARMode)
                     gameNode = gameNode.Extend().Base;
                 dto.WriteToGame(gameNode);
                 return gameNode;
@@ -113,6 +115,7 @@ namespace AdaptiveRoads.DTO {
                 DTOUtil.CopyAllMatchingFields<Segment>(this, gameSegment);
                 MetaData = gameSegment.GetMetaData()?.Clone();
             }
+
             public static explicit operator Segment(NetInfo.Segment gameSegment) {
                 var dto = new Segment();
                 dto.ReadFromGame(gameSegment);
@@ -124,14 +127,12 @@ namespace AdaptiveRoads.DTO {
                 (gameSegment as IInfoExtended)?.SetMetaData(MetaData?.Clone());
             }
             public static explicit operator NetInfo.Segment(Segment dto) {
-                var gameSegment = new NetInfo.Segment();
+                var gameSegment = RoadEditorUtils.CustomCreateDummyInstance<NetInfo.Segment>();
                 if(ModSettings.ARMode)
                     gameSegment = gameSegment.Extend().Base;
                 dto.WriteToGame(gameSegment);
                 return gameSegment;
             }
-
-
         }
 
         public class Lane : IDTO<NetInfo.Lane> {
@@ -169,7 +170,7 @@ namespace AdaptiveRoads.DTO {
             }
 
             public static explicit operator NetInfo.Lane(Lane lane) {
-                var gameLane = new NetInfo.Lane();
+                var gameLane = RoadEditorUtils.CustomCreateDummyInstance<NetInfo.Lane>();
                 lane.WriteToGame(gameLane);
                 return gameLane;
             }

@@ -1,4 +1,5 @@
 namespace AdaptiveRoads.Manager {
+    using AdaptiveRoads.Data;
     using KianCommons;
     using KianCommons.Serialization;
     using System;
@@ -11,7 +12,7 @@ namespace AdaptiveRoads.Manager {
         [AfterField(nameof(NetLaneProps.Prop.m_endFlagsForbidden))]
         [Serializable]
         [Optional(AR_MODE)]
-        public class LaneProp : ICloneable, ISerializable {
+        public class LaneProp : IMetaData {
             #region serialization
             [Obsolete("only useful for the purpose of shallow clone and serialization", error: true)]
             public LaneProp() { }
@@ -22,6 +23,7 @@ namespace AdaptiveRoads.Manager {
                 ret.LaneSpeedLimit = ret.LaneSpeedLimit?.ShalowClone();
                 ret.SegmentCurve = ret.SegmentCurve?.ShalowClone();
                 ret.LaneCurve = ret.LaneCurve?.ShalowClone();
+                ret.SegmentUserData = ret.SegmentUserData?.ShalowClone();
                 return ret;
             }
 
@@ -81,6 +83,9 @@ namespace AdaptiveRoads.Manager {
             [Optional(LANE_SEGMENT)]
             public SegmentInfoFlags SegmentFlags = new SegmentInfoFlags();
 
+            [CustomizableProperty("Segment Custom Data", "Custom Segment User Data")]
+            public UserDataInfo SegmentUserData;
+
             [CustomizableProperty("Lane Speed Limit Range")]
             public Range LaneSpeedLimit; // null => N/A
 
@@ -133,6 +138,20 @@ namespace AdaptiveRoads.Manager {
                 Lane = LaneFlags.UsedCustomFlags,
                 Node = StartNodeFlags.UsedCustomFlags | EndNodeFlags.UsedCustomFlags
             };
+            public void AllocateUserData(UserDataNames names) {
+#if DEBUG
+                Log.Called(names);
+#endif
+                SegmentUserData ??= new();
+                SegmentUserData.Allocate(names);
+            }
+            public void OptimizeUserData() {
+#if DEBUG
+                Log.Called();
+#endif
+                if (SegmentUserData != null && SegmentUserData.IsEmptyOrDefault())
+                    SegmentUserData = null;
+            }
         }
     }
 }

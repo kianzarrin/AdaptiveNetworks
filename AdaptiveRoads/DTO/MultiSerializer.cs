@@ -4,18 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using KianCommons;
+using System.Xml.Serialization;
 
 namespace AdaptiveRoads.DTO {
     public class MultiSerializer<T> where T : ISerialziableDTO
         {
-        public string SubDir;// = "ARTemplates";
-        public  string FileExt = ".xml";
+        public  const string FileExt = ".xml";
 
-        public MultiSerializer(string subDir) => SubDir = subDir;
-        public MultiSerializer(string subDir, string fileExt) {
-            SubDir = subDir;
-            FileExt = fileExt;
-        }
     
         public  string Dir => Path.Combine(DataLocation.localApplicationData, "ARTemplates");
         public  string FilePath(string name) => Path.Combine(Dir, name + FileExt);
@@ -39,8 +34,14 @@ namespace AdaptiveRoads.DTO {
             EnsureDir();
             string data = XMLSerializerUtil.ReadFromFile(path);
             //Version version = XMLSerializerUtil.ExtractVersion(data);
-            var ret = XMLSerializerUtil.Deserialize<T>(data);
-            return ret;
+            try {
+                using (TextReader reader = new StringReader(data)) {
+                    return (T)new XmlSerializer(typeof(T)).Deserialize(reader);
+                }
+            } catch(Exception ex) {
+                Log.Debug($"{path} does not match {typeof(T).Name}. " + ex?.InnerException?.Message );
+                return default;
+            }
         }
 
         public IEnumerable<T> LoadAllFiles() {

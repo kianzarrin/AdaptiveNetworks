@@ -12,6 +12,7 @@ namespace AdaptiveRoads.DTO {
         void OnLoaded(FileInfo file);
         string Name { get; set; }
         string Description { get; set; }
+        string Summary { get; }
         [XmlAttribute]string Version { get; set; }
     }
 }

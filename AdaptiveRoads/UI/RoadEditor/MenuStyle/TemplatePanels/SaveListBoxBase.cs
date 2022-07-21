@@ -4,23 +4,36 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
 using static KianCommons.ReflectionHelpers;
+using System;
 
 namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
-    public class SaveListBoxProp : SavesListBoxT<PropTemplate> { }
-    public class SaveListBoxRoad : SavesListBoxT<RoadAssetInfo> { }
-    public class SavesListBoxT<T> : ListBox
-    where T : class, ISerialziableDTO {
+    public class SaveListBoxNode : SaveListBoxBase<NodeTemplate> {
+        public override IEnumerable<NodeTemplate> LoadAll() => NodeTemplate.LoadAllFiles();
+    }
+    public class SaveListBoxProp : SaveListBoxBase<PropTemplate> {
+        public override IEnumerable<PropTemplate> LoadAll() => PropTemplate.LoadAllFiles();
+    }
+    public class SaveListBoxRoad : SaveListBoxBase<RoadAssetInfo> {
+        public override IEnumerable<RoadAssetInfo> LoadAll() => RoadAssetInfo.LoadAllFiles();
+
+    }
+
+    public abstract class SaveListBoxBase<T> : ListBox
+        where T : class, ISerialziableDTO {
         public List<T> Saves = new List<T>();
         public override void Awake() {
             base.Awake();
             Populate();
         }
 
+        public abstract IEnumerable<T> LoadAll();
         public void LoadItems() {
-            var saves = InvokeMethod(typeof(T), "LoadAllFiles") as IEnumerable;
-            Saves.Clear();
-            foreach (T save in saves)
-                Saves.Add(save);
+            try {
+                var saves = LoadAll();
+                Saves.Clear();
+                foreach (T save in saves)
+                    Saves.Add(save);
+            } catch(Exception ex) { ex.Log(); }
         }
 
         public void Populate() {

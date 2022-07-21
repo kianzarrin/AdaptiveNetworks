@@ -19,4 +19,19 @@ namespace AdaptiveRoads.Manager {
         public string Option;
         public OptionalAttribute(string option) => Option = option;
     }
+
+    /// <summary>
+    /// like <see cref="CustomizablePropertyAttribute"/> but for methods
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method)]
+    public class CustomizableActionAttribute: Attribute {
+        public CustomizableActionAttribute(string name) : this(name, null) { }
+        public CustomizableActionAttribute(string name, string group) {
+            this.name = name;
+            this.group = group;
+        }
+        public string name { get; set; }
+        public string group { get; set; }
+
+    }
 }

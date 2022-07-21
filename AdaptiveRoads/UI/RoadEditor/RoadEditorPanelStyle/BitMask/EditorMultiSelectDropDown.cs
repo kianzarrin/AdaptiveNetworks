@@ -39,7 +39,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
                 dd.listWidth = 188;
                 dd.listHeight = 900;
                 dd.clampListToScreen = true;
-                dd.listPosition = UICheckboxDropDown.PopupListPosition.Automatic;
+                dd.listPosition = PopupListPosition.Automatic;
 
                 dd.itemHeight = 25;
                 dd.itemHover = "ListItemHover";

@@ -1,17 +1,14 @@
-- why can I see expressions in the custom flags panel in game?
-- transition flags?
-- drop downs
-- fix the gap (skew lane if junction is not straight)
+- segment/lane/track templates
+- smartCustomFlags for templates
+
 - lane/track connect groups (might take time)
-- manual update of roads needed in asset editor.
+- fence (None lanes with Connect group act as fence?)
 
-tracks:
-    - why do I need to refresh roads 2 times on load?
-    - why source segment for lane transition is different for forward/backward lane.
+- fix the gap (skew lane if junction is not straight)
+- optimizations:
+    - remove default metadata in game
+    - flag for simpler props to avoid further checks.
 
------------------
-- automatically add buttons in road editor panels.
-- do not modify model selection panels from other editors.
 ----------------------------
 version 4:
     - export/import road xml.

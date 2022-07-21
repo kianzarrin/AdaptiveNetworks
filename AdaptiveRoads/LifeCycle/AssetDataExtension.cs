@@ -10,6 +10,7 @@ namespace AdaptiveRoads.LifeCycle {
     using AdaptiveRoads.UI;
     using KianCommons.Plugins;
     using ColossalFramework.Packaging;
+    using ColossalFramework.UI;
 
     public class AssetDataExtension : IAssetDataExtension {
         public const string ID_NetInfo = "AdvancedRoadEditor_NetInfoExt";
@@ -35,16 +36,16 @@ namespace AdaptiveRoads.LifeCycle {
                 Log.Debug($"AssetDataExtension.OnAssetLoadedImpl({name}, {asset}, userData) called", false);
                 if(asset is NetInfo prefab) {
                     CurrentBasicNetInfo = prefab;
-                    Log.Debug("AssetDataExtension.OnAssetLoaded():  prefab is " + prefab, false);
+                    Log.Debug("AssetDataExtension.OnAssetLoadedImpl():  prefab is " + prefab, false);
                     if(userData.TryGetValue(ID_NetInfo, out byte[] data)) {
-                        Log.Debug("AssetDataExtension.OnAssetLoaded(): extracted data for " + ID_NetInfo);
+                        Log.Debug("AssetDataExtension.OnAssetLoadedImpl(): extracted data for " + ID_NetInfo);
                         AssertNotNull(data, "data");
                         var assetData0 = SerializationUtil.Deserialize(data, default);
                         AssertNotNull(assetData0, "assetData0 | data version is too old for " + prefab);
                         var assetData = assetData0 as AssetData;
                         AssertNotNull(assetData, $"assetData: {assetData0.GetType()} is not ${typeof(AssetData)}");
                         AssetData.Load(assetData, prefab);
-                        Log.Debug($"AssetDataExtension.OnAssetLoaded(): Asset Data={assetData} version={assetData.VersionString}");
+                        Log.Debug($"AssetDataExtension.OnAssetLoadedImpl(): Asset Data={assetData} version={assetData.VersionString}");
                     }
                 } else if(asset is BuildingInfo buildingInfo) {
                     // TODO: load stored custom road flags for intersections or buildings.
@@ -125,35 +126,102 @@ namespace AdaptiveRoads.LifeCycle {
 
         public static void HotReload() {
             try {
-                if(ToolsModifierControl.toolController.m_editPrefabInfo != null) {
-                    Log.Info("Skipping hot reload of asset data in asset editor");
-                    return;
-                    /* I don't know why it does not work and some elevations are returning null.
-                     * maybe it only fails if it loads the original copy of the loaded asset.
-                     */
-                }
                 LogCalled();
-                var assets2UserData = PluginUtil.GetLoadOrderMod()
+                var prefabs2UserData = PluginUtil.GetLoadOrderMod()
                     ?.GetMainAssembly()
                     ?.GetType("LoadOrderMod.LOMAssetDataExtension", throwOnError: false)
                     ?.GetField("Assets2UserData")
-                    ?.GetValue(null) 
+                    ?.GetValue(null)
                     as Dictionary<PrefabInfo, Dictionary<string, byte[]>>;
 
-                if (null == assets2UserData) {
+                if (null == prefabs2UserData) {
                     Log.Warning("Could not hot reload assets because LoadOrderMod was not found");
                     return;
                 }
+                NetInfo editPrefab = ToolsModifierControl.toolController.m_editPrefabInfo as NetInfo;
+                Log.Debug("editPrefab=" + editPrefab);
 
-                foreach (var asset2UserData in assets2UserData) {
-                    var asset = asset2UserData.Key;
-                    var userData = asset2UserData.Value;
-                    if(asset)
-                        OnAssetLoadedImpl(asset.name, asset, userData);
+                // load all assets loaded during level load
+                foreach (var prefab2UserData in prefabs2UserData) {
+                    var prefab = prefab2UserData.Key;
+                    var userData = prefab2UserData.Value;
+                    if (prefab is NetInfo netInfo) {
+                        if (editPrefab) {
+                            // work around for duplications in asset editor.
+                            netInfo = FindLoadedCounterPart(netInfo);
+                        }
+                        OnAssetLoadedImpl(netInfo.name, netInfo, userData);
+                    }
                 }
 
+                // load edited prefab user data:
+                if (editPrefab) {
+                    bool? lastLoaded = WasLastLoaded;
+                    if (!WasLastLoaded.HasValue) {
+                        Log.Warning("Last loaded state not recorded");
+                    } else if (!lastLoaded.Value) {
+                        // edit prefab was cloned.
+                        NetInfo templatePrefab = ToolsModifierControl.toolController.m_templatePrefabInfo as NetInfo;
+                        if (templatePrefab) {
+                            NetInfo loadedNetInfo = FindLoadedCounterPart(templatePrefab);
+                            AssetData.NetInfoMetaData.CopyMetadata(loadedNetInfo, editPrefab);
+                        }
+                    } else {
+                        // edit prefab was loaded
+                        try {
+                            var lastAssetMetaData = ListingMetaData = GetLastLoadedMetaData(); // last loaded asset
+                            if (lastAssetMetaData?.userDataRef is Package.Asset asset) {
+                                var data = asset.Instantiate<AssetDataWrapper.UserAssetData>()?.Data;
+                                if (data != null) {
+                                    OnAssetLoadedImpl(lastAssetMetaData.name, editPrefab, data);
+                                }
+                            }
+                        } catch (Exception ex) {
+
+                        } finally {
+                            ListingMetaData = null;
+                        }
+                    }
+                }
             } catch (Exception ex) {
                 Log.Exception(ex);
+            }
+        }
+
+        /// <summary>
+        // OnLoad() calls IntializePrefab() which can create duplicates.
+        // so we have to match by name.
+        /// </summary>
+        static NetInfo FindLoadedCounterPart(NetInfo source) {
+            if(Log.VERBOSE) Log.Called(source);
+            if (source?.name != null) {
+                int n = PrefabCollection<NetInfo>.LoadedCount();
+                for (uint i = 0; i < n; ++i) {
+                    var prefab = PrefabCollection<NetInfo>.GetLoaded(i);
+                    if (prefab?.name == source.name) {
+                        return prefab;
+                    }
+                }
+            }
+            return source;
+        }
+
+        static LoadAssetPanel GetLoadAssetPanel() => UIView.library.Get<LoadAssetPanel>(nameof(LoadAssetPanel));
+        static CustomAssetMetaData GetLastLoadedMetaData() {
+            var loadAssetPanel = GetLoadAssetPanel();
+            UIListBox m_SaveList = GetFieldValue(loadAssetPanel, "m_SaveList") as UIListBox;
+            return (CustomAssetMetaData)InvokeMethod(loadAssetPanel, "GetListingMetaData", m_SaveList.selectedIndex);
+        }
+
+        public static bool? WasLastLoaded {
+            get {
+                if (GetLoadAssetPanel().component.objectUserData is bool lastLoaded)
+                    return lastLoaded;
+                else
+                    return null;
+            }
+            set {
+                GetLoadAssetPanel().component.objectUserData = value;
             }
         }
     }

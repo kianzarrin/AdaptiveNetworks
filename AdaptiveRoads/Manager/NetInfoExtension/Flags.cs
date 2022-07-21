@@ -74,6 +74,16 @@ namespace AdaptiveRoads.Manager {
             public NetLaneExt.Flags UsedCustomFlags => (Required | Forbidden) & NetLaneExt.Flags.CustomsMask;
             public bool CheckFlags(NetLaneExt.Flags flags) => flags.CheckFlags(Required, Forbidden);
         }
+
+
+        [FlagPair(MergeWithEnum = typeof(NetLane.Flags))]
+        [FlagPair(MergeWithEnum = typeof(NetLaneFlags))]
+        [Serializable]
+        public struct LaneTransitionInfoFlags {
+            [BitMask]
+            public LaneTransition.Flags Required, Forbidden;
+            public bool CheckFlags(LaneTransition.Flags flags) => flags.CheckFlags(Required, Forbidden);
+        }
     }
 }
 

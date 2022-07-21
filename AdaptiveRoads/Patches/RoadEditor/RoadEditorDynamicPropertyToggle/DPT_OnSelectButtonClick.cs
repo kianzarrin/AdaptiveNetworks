@@ -7,7 +7,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using static KianCommons.ReflectionHelpers;
 
     /// <summary>
-    /// if control is pressed, show more options instead of toggling the side panel.
+    /// if control is pressed, go to multi select mode instead of toggling the side panel.
     /// </summary>
     [HarmonyPatch]
     public static class DPT_OnSelectButtonClick {

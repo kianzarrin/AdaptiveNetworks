@@ -11,7 +11,7 @@ namespace AdaptiveRoads.Patches.AssetPatches {
         static void Prefix() {
             Log.Debug("AssetImporterWizard.Complete().Prefix(): Creating new road based on existing road " +
                 $"(ARMode={UI.ModSettings.ARMode}) ...");
-            NetInfoExtionsion.Ensure_EditedNetInfos();
+            NetInfoExtionsion.Ensure_EditedNetInfos(recalculate: true);
         }
     }
 }

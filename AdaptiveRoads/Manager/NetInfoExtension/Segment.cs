@@ -1,4 +1,5 @@
 namespace AdaptiveRoads.Manager {
+    using AdaptiveRoads.Data;
     using AdaptiveRoads.Util;
     using KianCommons;
     using KianCommons.Serialization;
@@ -12,7 +13,7 @@ namespace AdaptiveRoads.Manager {
         [AfterField(nameof(NetInfo.Segment.m_backwardForbidden))]
         [Serializable]
         [Optional(AR_MODE)]
-        public class Segment : ICloneable, ISerializable {
+        public class Segment : IMetaData {
             object ICloneable.Clone() => Clone();
 
             [AfterField(nameof(NetInfo.Segment.m_forwardForbidden))]
@@ -46,6 +47,9 @@ namespace AdaptiveRoads.Manager {
             [Optional(SEGMENT_SEGMENT_END)]
             public SegmentEndInfoFlags Head;
 
+            [CustomizableProperty("Custom Data", "Custom User Data")]
+            public UserDataInfo UserData;
+
             [CustomizableProperty("Tiling")]
             [Hint("network tiling value")]
             public float Tiling;
@@ -64,7 +68,6 @@ namespace AdaptiveRoads.Manager {
                     VanillaHeadNode.CheckFlags(headNodeFlags) &
                     TailtNode.CheckFlags(tailNodeExtFlags) &
                     HeadNode.CheckFlags(headNodeExtFlags);
-                ;
             }
 
             public bool CheckFlags(NetSegmentExt.Flags flags,
@@ -74,9 +77,11 @@ namespace AdaptiveRoads.Manager {
                     NetNode.Flags headNodeFlags,
                     NetNodeExt.Flags tailNodeExtFlags,
                     NetNodeExt.Flags headNodeExtFlags,
+                    UserData userData,
                     bool turnAround) {
+                bool ret;
                 if(!turnAround) {
-                    return Forward.CheckFlags(flags) && CheckEndFlags(
+                    ret =Forward.CheckFlags(flags) && CheckEndFlags(
                         tailFlags: tailFlags,
                         headFlags: headFlags,
                         tailNodeFlags: tailNodeFlags,
@@ -86,15 +91,18 @@ namespace AdaptiveRoads.Manager {
                 } else {
                     Helpers.Swap(ref tailFlags, ref headFlags);
                     Helpers.Swap(ref tailNodeFlags, ref headNodeFlags);
-                    var ret = Backward.CheckFlags(flags) && CheckEndFlags(
+                    ret = Backward.CheckFlags(flags) && CheckEndFlags(
                         tailFlags: tailFlags,
                         headFlags: headFlags,
                         tailNodeFlags: tailNodeFlags,
                         headNodeFlags: headNodeFlags,
                         tailNodeExtFlags: tailNodeExtFlags,
                         headNodeExtFlags: headNodeExtFlags);
-                    return ret;
                 }
+
+                ret = ret && UserData.CheckOrNull(userData);
+
+                return ret;
             }
 
             public CustomFlags UsedCustomFlags => new CustomFlags {
@@ -104,13 +112,19 @@ namespace AdaptiveRoads.Manager {
 
             [Obsolete("only useful for the purpose of shallow clone", error: true)]
             public Segment() { }
-            public Segment Clone() => this.ShalowClone();
+            public Segment Clone() {
+                var ret = this.ShalowClone();
+                ret.UserData = ret.UserData?.ShalowClone();
+                return ret;
+            }
             public Segment(NetInfo.Segment template) { }
 
             #region serialization
             //serialization
-            public void GetObjectData(SerializationInfo info, StreamingContext context) =>
+            public void GetObjectData(SerializationInfo info, StreamingContext context) {
+                OptimizeUserData(); // avoid saving redundant stuff.
                 SerializationUtil.GetObjectFields(info, this);
+            }
 
             // deserialization
             public Segment(SerializationInfo info, StreamingContext context) =>
@@ -124,6 +138,25 @@ namespace AdaptiveRoads.Manager {
                     segmentInfo.m_lodMaterial?.SetTiling(Tiling);
                     segmentInfo.m_combinedLod?.m_material?.SetTiling(Mathf.Abs(Tiling));
                 }
+            }
+
+            /// <summary>
+            /// only call in AR mode to allocate arrays for asset editor.
+            /// </summary>
+            /// <param name="names"></param>
+            public void AllocateUserData(UserDataNames names) {
+#if DEBUG
+                Log.Called(names);
+#endif
+                UserData ??= new();
+                UserData.Allocate(names);
+            }
+            public void OptimizeUserData() {
+#if DEBUG
+                Log.Called();
+#endif
+                if (UserData != null && UserData.IsEmptyOrDefault())
+                    UserData = null;
             }
         }
     }

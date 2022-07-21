@@ -49,6 +49,8 @@ namespace AdaptiveRoads.Manager {
         public static IEnumerable<NetInfo> EditedNetInfos =>
             AllElevations(EditedNetInfo);
 
+        public static bool IsEditing(this NetInfo info) => EditedNetInfos.Contains(info);
+
         public static IEnumerable<NetInfo> AllElevations(this NetInfo ground) {
             if(ground == null) yield break;
 
@@ -136,28 +138,31 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
-        public static void EnsureExtended(this NetInfo netInfo) {
+        public static void EnsureExtended(this NetInfo netInfo, bool recalculate = false) {
             try {
                 Assertion.Assert(netInfo);
-                Log.Debug($"EnsureExtended({netInfo}): called "/* + Environment.StackTrace*/);
-                for(int i = 0; i < netInfo.m_nodes.Length; ++i) {
-                    if(!(netInfo.m_nodes[i] is IInfoExtended))
+                Log.Called(netInfo, recalculate);
+                for (int i = 0; i < netInfo.m_nodes.Length; ++i) {
+                    if (!(netInfo.m_nodes[i] is IInfoExtended))
                         netInfo.m_nodes[i] = netInfo.m_nodes[i].Extend() as NetInfo.Node;
                 }
-                for(int i = 0; i < netInfo.m_segments.Length; ++i) {
-                    if(!(netInfo.m_segments[i] is IInfoExtended))
+                for (int i = 0; i < netInfo.m_segments.Length; ++i) {
+                    if (!(netInfo.m_segments[i] is IInfoExtended))
                         netInfo.m_segments[i] = netInfo.m_segments[i].Extend() as NetInfo.Segment;
                 }
-                foreach(var lane in netInfo.m_lanes) {
+                foreach (var lane in netInfo.m_lanes) {
                     var props = lane.m_laneProps?.m_props;
                     int n = props?.Length ?? 0;
-                    for(int i = 0; i < n; ++i) {
-                        if(!(props[i] is IInfoExtended))
+                    for (int i = 0; i < n; ++i) {
+                        if (!(props[i] is IInfoExtended))
                             props[i] = props[i].Extend() as NetLaneProps.Prop;
                     }
                 }
-                netInfo.GetOrCreateMetaData();
-
+                if (recalculate) {
+                    var net = netInfo.GetOrCreateMetaData();
+                    net.Recalculate(netInfo);
+                }
+                
                 Log.Debug($"EnsureExtended({netInfo}): successful");
             } catch(Exception e) {
                 Log.Exception(e);
@@ -190,23 +195,23 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
-        public static void Ensure_EditedNetInfos() {
+        public static void Ensure_EditedNetInfos(bool recalculate = false) {
             LogCalled();
             if(VanillaMode) {
                 UndoExtend_EditedNetInfos();
             } else {
-                EnsureExtended_EditedNetInfos();
+                EnsureExtended_EditedNetInfos(recalculate);
             }
         }
 
-        public static void EnsureExtended_EditedNetInfos() {
+        public static void EnsureExtended_EditedNetInfos(bool recalculate = false) {
             if(VanillaMode) {
-                Log.Debug($"EnsureExtended_EditedNetInfos() because we are in vanilla mode");
+                Log.Debug($"skip EnsureExtended_EditedNetInfos() because we are in vanilla mode");
                 return;
             }
-            Log.Debug($"EnsureExtended_EditedNetInfos() was called");
+            Log.Called();
             foreach(var info in EditedNetInfos)
-                EnsureExtended(info);
+                EnsureExtended(info, recalculate);
             Log.Debug($"EnsureExtended_EditedNetInfos() was successful");
         }
 

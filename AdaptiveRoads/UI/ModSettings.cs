@@ -56,6 +56,11 @@ namespace AdaptiveRoads.UI {
             "AR_HotKey", FILE_NAME,
             key: KeyCode.A, control: true, shift: false, alt: true, true);
 
+        public static SavedInputKey VBSHotkey = new SavedInputKey(
+            "VBS_HotKey", FILE_NAME,
+            key: KeyCode.V, control: true, shift: false, alt: true, true);
+
+
         public static UICheckBox VanillaModeToggle;
 
         public static SavedBool GetOption(string key) {
@@ -94,13 +99,16 @@ namespace AdaptiveRoads.UI {
                 helper.AddUpdatingCheckbox("Buffered log", val => Log.Buffered = val, () => Log.Buffered);
             }
 #endif
-
             var general = helper.AddGroup("General") as UIHelper;
+
+            ANWhatsNew.Instance.AddSettings(general);
 
             var keymappingsPanel = general.AddKeymappingsPanel();
             keymappingsPanel.AddKeymapping("Hotkey", Hotkey);
 
-            if(inAssetEditor || Helpers.InStartupMenu) {
+            if (inAssetEditor || Helpers.InStartupMenu) {
+                keymappingsPanel.AddKeymapping("VBS Hotkey", VBSHotkey);
+
                 VanillaModeToggle = general.AddCheckbox("Vanilla mode", !ARMode, delegate (bool vanillaMode) {
                     if(ARMode == !vanillaMode) // happens after rejecting confirmation message
                         return; // no change is necessary
@@ -185,7 +193,7 @@ namespace AdaptiveRoads.UI {
 
             if (Helpers.InStartupMenu)
                 return;
-            NetInfoExtionsion.Ensure_EditedNetInfos();
+            NetInfoExtionsion.Ensure_EditedNetInfos(recalculate:true);
             RoadEditorUtils.RefreshRoadEditor();
         }
 
