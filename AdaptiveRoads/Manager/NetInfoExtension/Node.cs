@@ -60,6 +60,12 @@ namespace AdaptiveRoads.Manager {
             [AfterField(nameof(NetInfo.Node.m_directConnect))]
             public bool HideBrokenMedians = true;
 
+            [Hint("Change height arbitrarily by a few milliliters to avoid z-fighting.")]
+            [CustomizableProperty("Anti-Flickering", DC_GROUP_NAME)]
+            [AfterField(nameof(NetInfo.Node.m_directConnect))]
+            public bool AntiFlickering = true;
+
+
             [CustomizableProperty("Tiling")]
             [Hint("network tiling value")]
             [AfterField(nameof(NetInfo.Node.m_directConnect))]
