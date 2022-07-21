@@ -8,10 +8,8 @@ namespace AdaptiveRoads.Util {
     using System.Reflection;
     using UnityEngine;
     using static KianCommons.ReflectionHelpers;
-    using static LSMUtil;
 
     public static class LSMUtil {
-        public const string LSM_REVISITED = "LoadingScreenModRevisited";
         public const string LSM_KLYTE = "LoadingScreenModKlyte";
         public const string LSM_TEST = "LoadingScreenModTest";
         public const string LSM = "LoadingScreenMod";
@@ -31,12 +29,6 @@ namespace AdaptiveRoads.Util {
         public static IEnumerable<Type> GetTypeFromLSMs(string type) {
             Type ret;
             ret = FindTypeSafe($"{LSM}.{type}", LSM_KLYTE);
-            if (ret != null) yield return ret;
-
-            ret = FindTypeSafe($"{LSM}.{type}", LSM_REVISITED);
-            if (ret != null) yield return ret;
-
-            ret = FindTypeSafe($"{LSM_REVISITED}.{type}", LSM_REVISITED);
             if (ret != null) yield return ret;
 
             ret = FindTypeSafe($"{LSM}.{type}", LSM);
@@ -139,6 +131,9 @@ namespace AdaptiveRoads.Util {
     }
 
     public static class LSMRevisited {
+        const string LSM_REVISITED = "LoadingScreenModRevisited";
+        const string LSM = "LSM";
+
         public static class Delegates {
             static TDelegate CreateDelegate<TDelegate>() where TDelegate : Delegate => DelegateUtil.CreateDelegate<TDelegate>(API);
 
@@ -156,7 +151,7 @@ namespace AdaptiveRoads.Util {
             public static GetPackageOf GetPackageOf_ { get; } = CreateDelegate<GetPackageOf>();
         }
 
-        public static Type API { get; } = Type.GetType($"{LSM_REVISITED}.API, {LSM_REVISITED}");
+        public static Type API { get; } = Type.GetType($"{LSM}.API, {LSM_REVISITED}");
 
         public static bool IsActive => Delegates.getIsActive?.Invoke() ?? false;
 
