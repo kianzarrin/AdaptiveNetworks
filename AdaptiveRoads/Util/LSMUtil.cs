@@ -140,11 +140,11 @@ namespace AdaptiveRoads.Util {
             public delegate bool get_IsActive();
             public static get_IsActive getIsActive { get; } = CreateDelegate<get_IsActive>();
 
-            public delegate Material GetMaterial(Package package, string checksum, bool isMain);
+            public delegate Material GetMaterial(Package package, string checksum);
 
             public static GetMaterial GetMaterial_ { get; } = CreateDelegate<GetMaterial>();
 
-            public delegate Mesh GetMesh(Package package, string checksum, bool isMain);
+            public delegate Mesh GetMesh(Package package, string checksum);
             public static GetMesh GetMesh_ { get; } = CreateDelegate<GetMesh>();
 
             public delegate Package GetPackageOf(NetInfo netInfo);
@@ -161,19 +161,32 @@ namespace AdaptiveRoads.Util {
         public static Package GetPackageOf(NetInfo netInfo) => Delegates.GetPackageOf_?.Invoke(netInfo);
 
         public static Mesh GetMesh(string checksum, NetInfo netInfo, bool isLod) {
-            if (IsActive) {
+            Assertion.Assert(!checksum.IsNullorEmpty(), "checksum");
+            if (checksum.IsNullorEmpty()) {
+                return null;
+            }else if (IsActive) {
                 Log.DebugOnce("getting mesh from LSMRevisited API");
-                return Delegates.GetMesh_?.Invoke(GetPackageOf(netInfo), checksum, !isLod);
+                var ret = Delegates.GetMesh_.Invoke(GetPackageOf(netInfo), checksum);
+                if (ret == null) {
+                    Log.Error($"failed to get mesh for {netInfo} with checksum={checksum}");
+                }
+                return ret;
             } else {
                 return LSMUtil.GetMesh(checksum, isLod);
             }
         }
 
         public static Material GetMaterial(string checksum, NetInfo netInfo, bool isLod) {
+            Assertion.Assert(!checksum.IsNullorEmpty(), "checksum");
             if (IsActive) {
                 // public static Material GetMaterial(Package package, string checksum, bool isMain)
                 Log.DebugOnce("getting Material from LSMRevisited API");
-                return Delegates.GetMaterial_?.Invoke(GetPackageOf(netInfo), checksum, !isLod);
+                var ret = Delegates.GetMaterial_.Invoke(GetPackageOf(netInfo), checksum);
+                if(ret == null) {
+                    Log.Error($"failed to get material for {netInfo} with checksum={checksum}");
+                }
+                return ret;
+                
             } else {
                 return LSMUtil.GetMaterial(checksum, isLod);
             }

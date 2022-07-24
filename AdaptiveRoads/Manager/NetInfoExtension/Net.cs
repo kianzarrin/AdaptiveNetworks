@@ -630,12 +630,17 @@ namespace AdaptiveRoads.Manager {
 
             public void InitMeshData(Track trackInfo, Rect atlasRect, Texture2D rgbAtlas, Texture2D xysAtlas, Texture2D aprAtlas) {
                 try {
-                    if (Log.VERBOSE) Log.Debug("InitMeshData() for trackInfo called");
+                    if (Log.VERBOSE)
+                    { 
+                        Log.Debug("InitMeshData() for trackInfo called");
+                        Log.Debug($"trackInfo.m_lodMesh={trackInfo.m_lodMesh} trackInfo.m_lodMaterial={trackInfo.m_lodMaterial}"); 
+                    }
                     // work around private fields/methods.
                     var tempSegment = TempSegmentInfo(trackInfo);
                     ParentInfo.InitMeshData(tempSegment, atlasRect, rgbAtlas, xysAtlas, aprAtlas);
-                    if (!trackInfo.UseKeywordNETSEGMENT)
-                        tempSegment.m_combinedLod.m_material.DisableKeyword("NET_SEGMENT");
+                    if (!trackInfo.UseKeywordNETSEGMENT) {
+                        tempSegment?.m_combinedLod?.m_material?.DisableKeyword("NET_SEGMENT");
+                    }
                     trackInfo.m_combinedLod = tempSegment.m_combinedLod;
                 } catch(Exception ex) {
                     ex.Log();
