@@ -637,7 +637,7 @@ namespace AdaptiveRoads.Manager {
                     if (!trackInfo.UseKeywordNETSEGMENT)
                         tempSegment.m_combinedLod.m_material.DisableKeyword("NET_SEGMENT");
                     trackInfo.m_combinedLod = tempSegment.m_combinedLod;
-                }catch(Exception ex) {
+                } catch(Exception ex) {
                     ex.Log();
                 }
             }
