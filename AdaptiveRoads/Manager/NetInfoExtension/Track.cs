@@ -90,11 +90,11 @@ namespace AdaptiveRoads.Manager {
                             if(field.FieldType == typeof(Mesh)) {
                                 bool lod = field.Name.Contains("lod");
                                 string checksum = item.Value as string;
-                                val = LSMRevisited.GetMesh(checksum, AssetDataExtension.CurrentBasicNetInfo, lod);
+                                val = LSMRevisited.GetMesh(checksum, AssetDataExtension.CurrentBasicNetInfo);
                             } else if(field.FieldType == typeof(Material)) {
                                 bool lod = field.Name.Contains("lod");
                                 string checksum = item.Value as string;
-                                val = LSMRevisited.GetMaterial(checksum, AssetDataExtension.CurrentBasicNetInfo, lod);
+                                val = LSMRevisited.GetMaterial(checksum, AssetDataExtension.CurrentBasicNetInfo);
                             } else {
                                 val = Convert.ChangeType(item.Value, field.FieldType);
                             }

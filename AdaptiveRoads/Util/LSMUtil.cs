@@ -52,7 +52,7 @@ namespace AdaptiveRoads.Util {
             return null;
         }
 
-        public static Mesh GetMesh(object sharing, string checksum, IEnumerable<Package> packages, bool isLod) {
+        public static Mesh GetMesh(object sharing, string checksum, IEnumerable<Package> packages) {
             if (checksum.IsNullorEmpty()) return null;
             foreach (var package in packages) {
                 try {
@@ -62,12 +62,12 @@ namespace AdaptiveRoads.Util {
                     if (sharing == null) {
                         ret = package.FindByChecksum(checksum)?.Instantiate<Mesh>();
                     } else {
-                        bool isMain = !isLod;
                         try {
-                            ret = InvokeMethod(sharing, "GetMesh", checksum, package, isMain) as Mesh;
-                        } catch (Exception ex) {
-                            ex.Log($"sharing={sharing.ToSTR()}checksum={checksum.ToSTR()}, package={package.ToSTR()}, isMain={isMain}", false);
-                        }
+                            ret = InvokeMethod(sharing, "GetMesh", checksum, package, true) as Mesh;
+                        } catch { }
+                        try {
+                            ret ??= InvokeMethod(sharing, "GetMesh", checksum, package, false) as Mesh;
+                        } catch { }
                         if (ret == null) {
                             ret = package.FindByChecksum(checksum)?.Instantiate<Mesh>();
                             if (ret != null) {
@@ -76,7 +76,7 @@ namespace AdaptiveRoads.Util {
                         }
                     }
                     if (ret) {
-                        Log.Debug($"loaded {ret} with checksum:({checksum}) from {package}");
+                        Log.Debug($"loaded '{ret}' with checksum:({checksum}) from {package}");
                         return ret;
                     }
                 } catch (Exception ex) {
@@ -87,7 +87,7 @@ namespace AdaptiveRoads.Util {
             return null;
         }
 
-        public static Material GetMaterial(object sharing, string checksum, IEnumerable<Package> packages, bool isLod) {
+        public static Material GetMaterial(object sharing, string checksum, IEnumerable<Package> packages) {
             if (checksum.IsNullorEmpty()) return null;
             foreach (var package in packages) {
                 try {
@@ -97,12 +97,13 @@ namespace AdaptiveRoads.Util {
                     if (sharing == null) {
                         ret = package.FindByChecksum(checksum)?.Instantiate<Material>();
                     } else {
-                        bool isMain = !isLod;
                         try {
-                            ret = InvokeMethod(sharing, "GetMaterial", checksum, package, isMain) as Material;
-                        } catch (Exception ex) {
-                            ex.Log($"sharing={sharing.ToSTR()} checksum={checksum.ToSTR()}, package={package.ToSTR()}, isMain={isMain}", false);
-                        }
+                            ret = InvokeMethod(sharing, "GetMaterial", checksum, package, true) as Material;
+                        } catch { }
+                        try {
+                            ret ??= InvokeMethod(sharing, "GetMaterial", checksum, package, false) as Material;
+                        } catch { }
+
                         if (ret == null) {
                             ret = package.FindByChecksum(checksum)?.Instantiate<Material>();
                             if (ret != null) {
@@ -111,7 +112,7 @@ namespace AdaptiveRoads.Util {
                         }
                     }
                     if (ret) {
-                        Log.Debug($"loaded {ret} with checksum:({checksum}) from {package}");
+                        Log.Debug($"loaded '{ret}' with checksum:({checksum}) from {package}");
                         return ret;
                     }
                 } catch (Exception ex) {
@@ -122,11 +123,11 @@ namespace AdaptiveRoads.Util {
             return null;
         }
 
-        public static Material GetMaterial(string checksum, bool isLod) =>
-            GetMaterial(GetSharing(), checksum, PackageManagerUtil.GetLoadingPackages(), isLod);
+        public static Material GetMaterial(string checksum) =>
+            GetMaterial(GetSharing(), checksum, PackageManagerUtil.GetLoadingPackages());
 
-        public static Mesh GetMesh(string checksum, bool isLod) =>
-            GetMesh(GetSharing(), checksum, PackageManagerUtil.GetLoadingPackages(), isLod);
+        public static Mesh GetMesh(string checksum) =>
+            GetMesh(GetSharing(), checksum, PackageManagerUtil.GetLoadingPackages());
 
     }
 
@@ -160,7 +161,7 @@ namespace AdaptiveRoads.Util {
 
         public static Package GetPackageOf(NetInfo netInfo) => Delegates.GetPackageOf_?.Invoke(netInfo);
 
-        public static Mesh GetMesh(string checksum, NetInfo netInfo, bool isLod) {
+        public static Mesh GetMesh(string checksum, NetInfo netInfo) {
             Assertion.Assert(!checksum.IsNullorEmpty(), "checksum");
             if (checksum.IsNullorEmpty()) {
                 return null;
@@ -172,14 +173,14 @@ namespace AdaptiveRoads.Util {
                 }
                 return ret;
             } else {
-                return LSMUtil.GetMesh(checksum, isLod);
+                return LSMUtil.GetMesh(checksum);
             }
         }
 
-        public static Material GetMaterial(string checksum, NetInfo netInfo, bool isLod) {
+        public static Material GetMaterial(string checksum, NetInfo netInfo) {
             Assertion.Assert(!checksum.IsNullorEmpty(), "checksum");
             if (IsActive) {
-                // public static Material GetMaterial(Package package, string checksum, bool isMain)
+                // public static Material GetMaterial(Package package, string checksum)
                 Log.DebugOnce("getting Material from LSMRevisited API");
                 var ret = Delegates.GetMaterial_.Invoke(GetPackageOf(netInfo), checksum);
                 if(ret == null) {
@@ -188,7 +189,7 @@ namespace AdaptiveRoads.Util {
                 return ret;
                 
             } else {
-                return LSMUtil.GetMaterial(checksum, isLod);
+                return LSMUtil.GetMaterial(checksum);
             }
         }
     }
