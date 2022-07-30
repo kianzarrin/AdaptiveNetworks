@@ -10,6 +10,13 @@ namespace AdaptiveRoads.UI {
             new WhatsNewEntry {
                 version = new Version(3, 9, 0),
                 messages = new string[] {
+                    "fixed: saving track embankment in game.",
+                    "fixed: props can use Segment user data.",
+                }
+            },
+            new WhatsNewEntry {
+                version = new Version(3, 9, 0),
+                messages = new string[] {
                     "Feature: Anti-flickering for DC nodes.",
                     "Feature: Improve Column direction for AN networks (improvement over vanilla).",
                     "Compatibility: LSMR support (old LSM still supported).",

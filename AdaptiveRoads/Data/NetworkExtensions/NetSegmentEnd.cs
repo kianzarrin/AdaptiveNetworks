@@ -136,10 +136,17 @@ namespace AdaptiveRoads.Manager {
 
         const int CUSTOM_FLAG_SHIFT = 24;
         public bool IsEmpty => (m_flags & Flags.CustomsMask) == Flags.None;
-        public void Serialize(SimpleDataSerializer s) => s.WriteInt32(
-            ((int)(Flags.CustomsMask & m_flags)) >> CUSTOM_FLAG_SHIFT);
-        public void Deserialize(SimpleDataSerializer s) => m_flags =
-            m_flags.SetMaskedFlags((Flags)(s.ReadInt32() << CUSTOM_FLAG_SHIFT), Flags.CustomsMask);
+        public void Serialize(SimpleDataSerializer s) {
+            s.WriteInt32(((int)(Flags.CustomsMask & m_flags)) >> CUSTOM_FLAG_SHIFT);
+            s.WriteFloat(DeltaAngle);
+        }
+        static readonly Version DeltaAngleVersion = new Version(3, 10, 0);
+        public void Deserialize(SimpleDataSerializer s) {
+            m_flags = m_flags.SetMaskedFlags((Flags)(s.ReadInt32() << CUSTOM_FLAG_SHIFT), Flags.CustomsMask);
+            if(s.Version >= DeltaAngleVersion) {
+                DeltaAngle = s.ReadFloat();
+            }
+        }
 
         public void Init(ushort segmentID, bool startNode) {
             this = default;
