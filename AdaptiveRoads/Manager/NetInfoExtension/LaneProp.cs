@@ -118,7 +118,7 @@ namespace AdaptiveRoads.Manager {
                 NetNodeExt.Flags startNodeFlags, NetNodeExt.Flags endNodeFlags,
                 NetSegmentEnd.Flags segmentStartFlags, NetSegmentEnd.Flags segmentEndFlags,
                 float laneSpeed, float forwardSpeedLimit, float backwardSpeedLimit,
-                float segmentCurve, float laneCurve) =>
+                float segmentCurve, float laneCurve, UserData segmentUserData) =>
                 LaneFlags.CheckFlags(laneFlags) &&
                 SegmentFlags.CheckFlags(segmentFlags) &&
                 VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags) &&
@@ -130,7 +130,8 @@ namespace AdaptiveRoads.Manager {
                 ForwardSpeedLimit.CheckRange(forwardSpeedLimit) &&
                 BackwardSpeedLimit.CheckRange(backwardSpeedLimit) &&
                 SegmentCurve.CheckRange(segmentCurve) &&
-                LaneCurve.CheckRange(laneCurve);
+                LaneCurve.CheckRange(laneCurve) &&
+                SegmentUserData.CheckOrNull(segmentUserData);
             
             public CustomFlags UsedCustomFlags => new CustomFlags {
                 Segment = SegmentFlags.UsedCustomFlags,

@@ -8,6 +8,7 @@ namespace AdaptiveRoads.Patches.Lane {
     using KianCommons;
     using static KianCommons.Patches.TranspilerUtils;
     using AdaptiveRoads.Manager;
+    using AdaptiveRoads.Data;
 
     public static class CheckPropFlagsCommons {
         public struct StateT {
@@ -21,6 +22,8 @@ namespace AdaptiveRoads.Patches.Lane {
 
             public float laneSpeed, forwardSpeed, backwardSpeed;
             public float SegmentCurve, laneCurve;
+
+            public UserData SegmentUserData;
 
             public void Init(NetInfo.Lane laneInfo, uint laneID) {
                 ushort segmentID = laneID.ToLane().m_segment;
@@ -46,6 +49,7 @@ namespace AdaptiveRoads.Patches.Lane {
                 forwardSpeed = netSegmentExt.ForwardSpeedLimit;
                 backwardSpeed = netSegmentExt.BackwardSpeedLimit;
                 SegmentCurve = netSegmentExt.Curve; laneCurve = netLane.m_curve;
+                SegmentUserData = netSegmentExt.UserData;
 
                 Initialized = true;
             }
@@ -88,7 +92,7 @@ namespace AdaptiveRoads.Patches.Lane {
                     laneSpeed: state.laneSpeed,
                     forwardSpeedLimit: state.forwardSpeed,
                     backwardSpeedLimit: state.backwardSpeed,
-                    segmentCurve: state.SegmentCurve, laneCurve: state.laneCurve);
+                    segmentCurve: state.SegmentCurve, laneCurve: state.laneCurve, state.SegmentUserData);
             } finally {
 #if DEBUG
                 timer.Stop();
