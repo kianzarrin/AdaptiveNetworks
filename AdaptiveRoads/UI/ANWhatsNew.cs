@@ -8,7 +8,7 @@ namespace AdaptiveRoads.UI {
         public override SavedString SavedVersion => new SavedString("WhatsNewVersion", ModSettings.FILE_NAME, def: "0.0.0", autoUpdate: true);
         public override WhatsNewEntry[] Messages { get; } = new WhatsNewEntry[] {
             new WhatsNewEntry {
-                version = new Version(3, 9, 0),
+                version = new Version(3, 10, 0),
                 messages = new string[] {
                     "fixed: saving track embankment in game.",
                     "fixed: props can use Segment user data.",
