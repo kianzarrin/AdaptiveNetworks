@@ -167,11 +167,8 @@ namespace AdaptiveRoads.UI.RoadEditor {
                                 // label button of a group panel.
                                 var target = groupPanel.GetTarget();
                                 string label = groupPanel.LabelButton.text;
-                                if (label == "Props") {
-                                    // props group button
-                                    Hint2 = labelButtonHint;
-                                } else if (label == "Nodes") {
-                                    // nodes group button
+                                if (label == "Nodes" || label == "Segments" || label == "Props") {
+                                    // group button
                                     Hint2 = labelButtonHint;
                                 } else if (
                                     groupPanel.GetArray() is NetInfo.Lane[] m_lanes
@@ -192,9 +189,14 @@ namespace AdaptiveRoads.UI.RoadEditor {
                                     // prop dpt
                                     Hint1 = prop.Summary();
                                     Hint2 += "\n" + menuHint;
-                                } else if(element is NetInfo.Node node) {
+                                } else if (element is NetInfo.Node node) {
                                     // node dpt
                                     Hint1 = node.Summary();
+                                    Hint2 += "\n" + menuHint;
+
+                                } else if (element is NetInfo.Segment segment) {
+                                    // segment dpt
+                                    Hint1 = segment.Summary();
                                     Hint2 += "\n" + menuHint;
 
                                 } else if (

@@ -83,6 +83,25 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                                 () => PasteAllNodes(groupPanel));
                         }
                     }
+                } else if (groupPanel.GetArray() is NetInfo.Segment[] m_segments) {
+                    bool hasItems = !m_segments.IsNullorEmpty();
+                    bool clipBoardHasData = ClipBoard.HasData<NetInfo.Segment>();
+                    if (hasItems || clipBoardHasData) {
+                        var panel = MiniPanel.Display();
+                        if (hasItems) {
+                            panel.AddButton("Copy all segments", null,
+                            () => ClipBoard.SetData(m_segments));
+                            panel.AddButton("Clear all segments", null,
+                                () => ClearAll(groupPanel));
+                            panel.AddButton("Save Template", null, () => {
+                                SaveSegmentTemplatePanel.Display(m_segments);
+                            });
+                        }
+                        if (clipBoardHasData) {
+                            panel.AddButton("Paste all segments", null,
+                                () => PasteAllSegments(groupPanel));
+                        }
+                    }
                 } else if (
                     array is NetInfo.Lane[] m_lanes
                     && m_lanes.Any(_lane => _lane.HasProps())
@@ -138,6 +157,11 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             Log.Debug("PasteAll called");
             NetInfo.Node[] nodes = ClipBoard.GetDataArray() as NetInfo.Node[];
             AddNodes(groupPanel, nodes);
+        }
+        static void PasteAllSegments(RoadEditorCollapsiblePanel groupPanel) {
+            Log.Debug("PasteAll called");
+            NetInfo.Segment[] segments = ClipBoard.GetDataArray() as NetInfo.Segment[];
+            AddSegments(groupPanel, segments);
         }
     }
 }

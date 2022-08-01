@@ -52,8 +52,8 @@ namespace AdaptiveRoads.Util {
             if(Data is NetInfo.Node node) {
                 return new NetInfo.Node[1] { node };
             }
-            if (Data is IEnumerable<NetInfo.Node> nodes) {
-                return nodes.Select(node => node.Clone()).ToArray();
+            if (Data is IEnumerable<NetInfo.Segment> segments) {
+                return segments.Select(segment => segment.Clone()).ToArray();
             }
             return null;
         }
