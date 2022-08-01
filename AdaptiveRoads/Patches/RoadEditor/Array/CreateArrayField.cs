@@ -1,14 +1,12 @@
 namespace AdaptiveRoads.Patches.RoadEditor {
     using AdaptiveRoads.UI.RoadEditor;
     using AdaptiveRoads.UI.RoadEditor.MenuStyle;
+    using AdaptiveRoads.Util;
     using ColossalFramework.UI;
     using HarmonyLib;
     using KianCommons;
-    using PrefabMetadata.Helpers;
     using System;
-    using System.Linq;
     using System.Reflection;
-    using AdaptiveRoads.Util;
 
     /// <summary>
     /// add from template
@@ -36,6 +34,14 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 button.width = 200;
                 button.eventClicked += OnLoadFromNodeTempalteClicked;
             }
+            if (name == "Segments") {
+                Log.Debug("creating `Add from template` button");
+                var button = groupPanel.m_Panel.AddUIComponent<EditorButon>();
+                button.zOrder = int.MaxValue;
+                button.text = "Add from template";
+                button.width = 200;
+                button.eventClicked += OnLoadFromSegmentTempalteClicked;
+            }
 
         }
 
@@ -45,12 +51,12 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 var groupPanel = component.GetComponentInParent<RoadEditorCollapsiblePanel>();
                 var roadEditor = component.GetComponentInParent<RoadEditorPanel>();
                 var lane = roadEditor.GetTarget() as NetInfo.Lane;
-                Assertion.AssertNotNull(lane,"target is lane");
+                Assertion.AssertNotNull(lane, "target is lane");
                 bool unidirectional = lane.IsGoingForward() || lane.IsGoingBackward();
                 bool suggestBackward = lane.m_laneType == NetInfo.LaneType.Pedestrian && lane.m_position < 0;
                 LoadPropTemplatePanel.Display(
                     loadedProps => RoadEditorUtils.AddProps(groupPanel, loadedProps),
-                    unidirectional:unidirectional,
+                    unidirectional: unidirectional,
                     suggestBackward: suggestBackward);
             } catch (Exception ex) {
                 Log.Exception(ex);
@@ -71,6 +77,19 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             }
         }
 
+        public static void OnLoadFromSegmentTempalteClicked(
+            UIComponent component, UIMouseEventParameter eventParam) {
+            try {
+                var groupPanel = component.GetComponentInParent<RoadEditorCollapsiblePanel>();
+                var roadEditor = component.GetComponentInParent<RoadEditorPanel>();
+                var netInfo = roadEditor.GetTarget() as NetInfo;
+                Assertion.AssertNotNull(netInfo, "target is netInfo");
+                LoadSegmentTemplatePanel.Display(
+                    loadedSegments => RoadEditorUtils.AddSegments(groupPanel, loadedSegments));
+            } catch (Exception ex) {
+                Log.Exception(ex);
+            }
+        }
 
     }
 }

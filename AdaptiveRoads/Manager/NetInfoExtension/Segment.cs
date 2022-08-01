@@ -5,6 +5,7 @@ namespace AdaptiveRoads.Manager {
     using KianCommons.Serialization;
     using System;
     using System.Runtime.Serialization;
+    using System.Xml.Serialization;
     using UnityEngine;
     using static AdaptiveRoads.UI.ModSettings;
     using static KianCommons.ReflectionHelpers;
@@ -13,7 +14,7 @@ namespace AdaptiveRoads.Manager {
         [AfterField(nameof(NetInfo.Segment.m_backwardForbidden))]
         [Serializable]
         [Optional(AR_MODE)]
-        public class Segment : IMetaData {
+        public class Segment : IMetaData, IModel {
             object ICloneable.Clone() => Clone();
 
             [AfterField(nameof(NetInfo.Segment.m_forwardForbidden))]
@@ -53,6 +54,12 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Tiling")]
             [Hint("network tiling value")]
             public float Tiling;
+
+            [CustomizableProperty("Title")]
+            [Hint("title to display(asset editor only)")]
+            [AfterField(nameof(NetInfo.Node.m_directConnect))]
+            public string Title;
+            [XmlIgnore] string IModel.Title => Title;
 
             public bool CheckEndFlags(
                     NetSegmentEnd.Flags tailFlags,

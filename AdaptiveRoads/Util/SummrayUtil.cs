@@ -167,5 +167,78 @@ namespace AdaptiveRoads.Util {
             return ret;
         }
         #endregion
+
+        #region segment
+        public static string DisplayName(this NetInfo.Segment segment) {
+            string ret = segment?.GetMetaData()?.Title;
+            if (ret.IsNullorEmpty())
+                ret = segment?.m_mesh?.name;
+            return ret;
+        }
+
+        public static string Summary(this IEnumerable<NetInfo.Segment> segments) {
+            return segments.Select(_item => _item.Summary()).JoinLines();
+        }
+
+        public static string Summary(this NetInfo.Segment segment) {
+            return Summary(segment, segment.GetMetaData(), segment.DisplayName());
+        }
+
+        public static string Summary(
+            NetInfo.Segment segment,
+            NetInfoExtionsion.Segment propExt) {
+            return Summary(segment, propExt, segment.DisplayName());
+        }
+
+        public static string Summary(
+            NetInfo.Segment segment,
+            NetInfoExtionsion.Segment segmentExt,
+            string name) {
+            string ret = name ?? "New Segment";
+
+            string forwardRequired = MergeFlagText(
+                segment.m_forwardRequired, segmentExt?.Forward.Required);
+
+            string forwardForbidden = MergeFlagText(
+                segment.m_forwardForbidden, segmentExt?.Forward.Forbidden);
+
+            string backwardRequired = MergeFlagText(
+                segment.m_backwardRequired, segmentExt?.Backward.Required);
+
+            string backwardForbidden = MergeFlagText(
+                segment.m_backwardForbidden, segmentExt?.Backward.Forbidden);
+
+            string headRequired = MergeFlagText(
+                segmentExt?.Head.Required, segmentExt?.VanillaHeadNode.Required, segmentExt?.HeadNode.Required);
+
+            string headForbidden = MergeFlagText(
+                segmentExt?.Head.Forbidden, segmentExt?.VanillaHeadNode.Forbidden, segmentExt?.HeadNode.Forbidden);
+
+            string tailRequired = MergeFlagText(
+                segmentExt?.Tail.Required, segmentExt?.VanillaTailtNode.Required, segmentExt?.TailtNode.Required);
+
+            string tailForbidden = MergeFlagText(
+                segmentExt?.Tail.Forbidden, segmentExt?.VanillaTailtNode.Forbidden, segmentExt?.TailtNode.Forbidden);
+
+            if (!string.IsNullOrEmpty(forwardRequired))
+                ret += "\n  Forward Required:" + forwardRequired;
+            if (!string.IsNullOrEmpty(forwardForbidden))
+                ret += "\n  Forward Forbidden:" + forwardForbidden;
+            if (!string.IsNullOrEmpty(backwardRequired))
+                ret += "\n  Backward Required:" + backwardRequired;
+            if (!string.IsNullOrEmpty(backwardForbidden))
+                ret += "\n  Backward Forbidden:" + backwardForbidden;
+            if (!string.IsNullOrEmpty(headRequired))
+                ret += "\n  Head Required:" + headRequired;
+            if (!string.IsNullOrEmpty(headForbidden))
+                ret += "\n  Head Forbidden:" + headForbidden;
+            if (!string.IsNullOrEmpty(tailRequired))
+                ret += "\n  Tail Required:" + tailRequired;
+            if (!string.IsNullOrEmpty(tailForbidden))
+                ret += "\n  Tail Forbidden:" + tailForbidden;
+
+            return ret;
+        }
+        #endregion
     }
 }

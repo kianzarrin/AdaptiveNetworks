@@ -36,7 +36,6 @@ namespace AdaptiveRoads.Util {
                 groupPanel.m_Panel.eventDragOver += OnOver;
                 groupPanel.m_Panel.eventDragDrop += OnDrop;
 
-                Log.Debug("creating `Add from template` button");
                 Bar = groupPanel.Container.AddUIComponent<UIPanel>();
                 Bar.width = groupPanel.m_Panel.width;
                 Bar.height = 1;
@@ -353,6 +352,24 @@ namespace AdaptiveRoads.Util {
                 panel.AddButton("Add" + strAll + " to Template", null, delegate () {
                     SaveNodeTemplatePanel.Display(cloned_items);
                 });
+            } else if (element is NetInfo.Segment segment) {
+                var netInfo = sidePanel.GetTarget() as NetInfo;
+                Assertion.NotNull(netInfo, "MainPanel.target is netInfo");
+                var panel = MiniPanel.Display();
+                var f_items = typeof(NetInfo).GetField(nameof(NetInfo.m_segments));
+                var original_items = elements.Select(_p => _p as NetInfo.Segment);
+                var cloned_items = original_items.Select(_p => _p.Clone());
+                string strAll = cloned_items.Count() > 1 ? " all" : "";
+
+                panel.AddButton("Duplicate" + strAll, null, delegate () {
+                    AddSegments(groupPanel, cloned_items.ToArray());
+                });
+                panel.AddButton("Copy" + strAll, null, delegate () {
+                    ClipBoard.SetData(cloned_items);
+                });
+                panel.AddButton("Add" + strAll + " to Template", null, delegate () {
+                    SaveSegmentTemplatePanel.Display(cloned_items);
+                });
             }
         }
 
@@ -392,6 +409,42 @@ namespace AdaptiveRoads.Util {
                 var target = groupPanel.GetTarget();
 
                 Log.Debug($"Adding nodes {items.Length}+{m_items.Length}={m_items2.Length}");
+                groupPanel.SetArray(m_items2);
+                foreach (var item in items) {
+                    sidePanel.AddToArrayField(groupPanel, item, arrayField, target);
+                }
+                sidePanel.OnObjectModified();
+            } catch (Exception ex) {
+                Log.Exception(ex);
+            }
+        }
+        public static void AddSegments(
+            RoadEditorCollapsiblePanel groupPanel,
+            NetInfo.Segment[] items) {
+            try {
+                Log.Called(items);
+                if (items == null || items.Length == 0) return;
+                NetInfo.Segment[] m_items = groupPanel.GetArray() as NetInfo.Segment[];
+                if (ModSettings.ARMode) {
+                    // extend in AN mode
+                    items = items.Select(item => item.Extend().Base).ToArray();
+                } else {
+                    // undo extend in Vanilla mode.
+                    items = items.Select(item => {
+                        if (item is IInfoExtended<NetInfo.Segment> itemExt) {
+                            return itemExt.UndoExtend();
+                        } else {
+                            return item;
+                        }
+                    }).ToArray();
+                }
+                var m_items2 = m_items.AddRangeToArray(items);
+
+                var sidePanel = groupPanel.component.GetComponentInParent<RoadEditorPanel>();
+                var arrayField = groupPanel.GetField();
+                var target = groupPanel.GetTarget();
+
+                Log.Debug($"Adding Segments {items.Length}+{m_items.Length}={m_items2.Length}");
                 groupPanel.SetArray(m_items2);
                 foreach (var item in items) {
                     sidePanel.AddToArrayField(groupPanel, item, arrayField, target);

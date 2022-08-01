@@ -34,6 +34,14 @@ namespace AdaptiveRoads.Util {
             Data = node.Clone();
         }
 
+        public static void SetData(IEnumerable<NetInfo.Segment> segments) {
+            Data = segments.Select(node => node.Clone()).ToArray();
+        }
+
+        public static void SetData(NetInfo.Segment segment) {
+            Data = segment.Clone();
+        }
+
         public static Array GetDataArray() {
             if(Data is NetLaneProps.Prop prop) {
                 return new NetLaneProps.Prop[1] { prop.Clone() };

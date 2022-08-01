@@ -22,7 +22,7 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
             return ret;
         }
 
-        public override string Title => "Save Prop Template";
+        public override string Title => "Save Node Template";
         public override string GetItemsSummary() => Nodes?.Summary();
         public override ISerialziableDTO CreateTemplate() {
             return NodeTemplate.Create(

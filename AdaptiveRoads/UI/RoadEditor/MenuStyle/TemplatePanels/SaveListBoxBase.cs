@@ -1,12 +1,14 @@
 using AdaptiveRoads.DTO;
 using KianCommons;
 using System.Collections.Generic;
-using System.Collections;
 using System.Linq;
 using static KianCommons.ReflectionHelpers;
 using System;
 
 namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
+    public class SaveListBoxSegment : SaveListBoxBase<SegmentTemplate> {
+        public override IEnumerable<SegmentTemplate> LoadAll() => SegmentTemplate.LoadAllFiles();
+    }
     public class SaveListBoxNode : SaveListBoxBase<NodeTemplate> {
         public override IEnumerable<NodeTemplate> LoadAll() => NodeTemplate.LoadAllFiles();
     }
