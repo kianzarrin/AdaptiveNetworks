@@ -10,7 +10,11 @@ namespace AdaptiveRoads.Patches {
 
     [HarmonyPatch]
     [PreloadPatch]
-    ///<summary>makes sure only types from the latest assembly are used.</summary>
+    ///<summary>
+    /// Problem: object graph and type converter use type from different assembly versions
+    /// (one gets type from first assembly while the other uses last assembly) which creates a conflict.
+    /// Solution: Here we make sure both get type from last assembly by removing assembly version from type string.
+    ///</summary>
     public static class ReadTypeMetadataPatch {
         delegate Type GetType(string typeName, bool throwOnError);
         static string assemblyName = typeof(ReadTypeMetadataPatch).Assembly.GetName().Name;
@@ -23,7 +27,7 @@ namespace AdaptiveRoads.Patches {
         }
 
         /// <summary>
-        /// searches for call to GetType(typeString, true) and replaces the typeString with most recent assembly.
+        /// searches for call to GetType(typeString, true) and removes version data from type string.
         /// </summary>
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
             MethodInfo mType_GetType = TranspilerUtils.DeclaredMethod<GetType>(typeof(Type));
@@ -41,8 +45,9 @@ namespace AdaptiveRoads.Patches {
         static string ReplaceAssemblyVersion(string s, bool throwOnError) => ReplaceAssemblyVersionImpl(s);
 
         static string ReplaceAssemblyVersionImpl(string s) {
-            string nd = "\\d+\\."; // matches ###.
-            string pattern = $"{assemblyName}, Version={nd}{nd}{nd}\\d*, Culture=neutral, PublicKeyToken=null";
+            string num = "\\d+"; // matches ###
+            string d = "\\."; // matches .
+            string pattern = $"{assemblyName}, Version={num}{d}{num}{d}{num}{d}{num}, Culture=neutral, PublicKeyToken=null";
             var s2 = Regex.Replace(s, pattern, assemblyName);
             if(Log.VERBOSE) s2.LogRet(ReflectionHelpers.CurrentMethod(1, s));
             return s2;
