@@ -7,9 +7,6 @@ namespace AdaptiveRoads.Patches {
     using KianCommons;
     using KianCommons.Patches;
     using System.Text.RegularExpressions;
-    using System.Diagnostics;
-
-    internal class HotReloadPatchAttribute : Attribute { }
 
     [HarmonyPatch]
     [PreloadPatch]
@@ -25,21 +22,23 @@ namespace AdaptiveRoads.Patches {
             return AccessTools.DeclaredMethod(t, "ReadTypeMetadata");
         }
 
+        /// <summary>
+        /// searches for call to GetType(typeString, true) and replaces the typeString with most recent assembly.
+        /// </summary>
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
-            MethodInfo m = TranspilerUtils.DeclaredMethod<GetType>(typeof(Type));
-            MethodInfo mReplaceGeneric = AccessTools.DeclaredMethod(typeof(ReadTypeMetadataPatch), nameof(ReplaceAssemblyVersion));
+            MethodInfo mType_GetType = TranspilerUtils.DeclaredMethod<GetType>(typeof(Type));
+            MethodInfo mReplaceAssemblyVersion = AccessTools.DeclaredMethod(typeof(ReadTypeMetadataPatch), nameof(ReplaceAssemblyVersion));
 
             foreach (var code in instructions) {
-                if (code.Calls(m)) {
-                    yield return new CodeInstruction(OpCodes.Call, mReplaceGeneric);
+                if (code.Calls(mType_GetType)) {
+                    yield return new CodeInstruction(OpCodes.Call, mReplaceAssemblyVersion);
                     yield return new CodeInstruction(OpCodes.Ldc_I4_1); // load true again
                 }
                 yield return code;
             }
         }
 
-        static string ReplaceAssemblyVersion(string s, bool _) =>
-            ReplaceAssemblyVersionImpl(s);
+        static string ReplaceAssemblyVersion(string s, bool throwOnError) => ReplaceAssemblyVersionImpl(s);
 
         static string ReplaceAssemblyVersionImpl(string s) {
             string nd = "\\d+\\."; // matches ###.
