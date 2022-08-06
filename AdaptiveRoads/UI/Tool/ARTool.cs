@@ -15,8 +15,6 @@ namespace AdaptiveRoads.UI.Tool {
     using ColossalFramework;
 
     internal class ARTool : KianToolBase<ARTool> {
-        NetworkExtensionManager man_ => NetworkExtensionManager.Instance;
-
         private ushort[] selectedSegmentIDs_;
         public ushort[] SelectedSegmentIDs {
             get => selectedSegmentIDs_ ?? new ushort[0];
@@ -104,15 +102,15 @@ namespace AdaptiveRoads.UI.Tool {
                 }
                 if(GetUsedFlagsNode(HoveredNodeID) != 0)
                     hints.Add("CTRL + Click => modify node flags");
-                if(GetUsedFlagsSegmentEnd(segmentID: HoveredSegmentID, nodeID: HoveredNodeID) != 0)
+                if(GetUsedFlagsSegmentEnd(segmentID: HoveredSegmentID, nodeID: HoveredNodeID) != 0) {
                     hints.Add("ALT + Click => modify segmentEnd flags");
-                else if(HoveredSegmentID.ToSegment().Info.HasTitlableTracks())
+                } else if(HoveredSegmentID.ToSegment().Info.HasTitlableTracks())
                     hints.Add("ALT + Click => modify segmentEnd angle");
                 if(hints.Count == 0)
                     hints.Add("This road has no custom AN flags to modify.");
                 ShowToolInfo(true, hints.JoinLines(), HitPos);
             } else {
-                ShowToolInfo(true, "Page Down => underground\n" + "Page Up => overground", HitPos);
+                ShowToolInfo(false, "", default);
             }
         }
 
