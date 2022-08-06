@@ -8,6 +8,13 @@ namespace AdaptiveRoads.UI {
         public override SavedString SavedVersion => new SavedString("WhatsNewVersion", ModSettings.FILE_NAME, def: "0.0.0", autoUpdate: true);
         public override WhatsNewEntry[] Messages { get; } = new WhatsNewEntry[] {
             new WhatsNewEntry {
+                version = new Version(3, 10, 3),
+                messages = new string[] {
+                    "Hint: AN tool supports using Page down/up keys to select underground/overground networks.",
+                }
+            },
+
+            new WhatsNewEntry {
                 version = new Version(3, 10, 2),
                 messages = new string[] {
                     "Feature: Segment template.",
