@@ -21,31 +21,45 @@ namespace AdaptiveRoads.Manager {
             [Obsolete("only useful for the purpose of shallow clone", error: true)]
             public Track() { }
             public Track Clone() {
-                var ret = this.ShalowClone();
-                ret.SegmentUserData = ret.SegmentUserData?.ShalowClone();
-                return ret;
+                try {
+                    var ret = this.ShalowClone();
+                    ret.SegmentUserData = ret.SegmentUserData?.ShalowClone();
+                    return ret;
+                } catch (Exception ex) {
+                    ex.Log();
+                    throw;
+                }
             }
             object ICloneable.Clone() => this.Clone();
             public Track(NetInfo template) {
-                Assertion.Assert(template, "template");
-                var lanes = template.m_lanes;
-                for(int laneIndex = 0; laneIndex < lanes.Length; ++laneIndex) {
-                    if(lanes[laneIndex].m_vehicleType.IsFlagSet(TrackUtils.TRACK_VEHICLE_TYPES))
-                        LaneIndeces |= 1ul << laneIndex;
-                }
-                if(LaneIndeces == 0) {
+                try {
+                    Assertion.Assert(template, "template");
+                    var lanes = template.m_lanes;
                     for (int laneIndex = 0; laneIndex < lanes.Length; ++laneIndex) {
-                        if (lanes[laneIndex].m_vehicleType.IsFlagSet(VehicleInfo.VehicleType.Bicycle))
+                        if (lanes[laneIndex].m_vehicleType.IsFlagSet(TrackUtils.TRACK_VEHICLE_TYPES))
                             LaneIndeces |= 1ul << laneIndex;
                     }
+                    if (LaneIndeces == 0) {
+                        for (int laneIndex = 0; laneIndex < lanes.Length; ++laneIndex) {
+                            if (lanes[laneIndex].m_vehicleType.IsFlagSet(VehicleInfo.VehicleType.Bicycle))
+                                LaneIndeces |= 1ul << laneIndex;
+                        }
+                    }
+                } catch (Exception ex) {
+                    ex.Log();
+                    throw;
                 }
             }
 
             public void ReleaseModel() {
-                UnityEngine.Object.Destroy(m_mesh);
-                UnityEngine.Object.Destroy(m_lodMesh);
-                AssetEditorRoadUtils.ReleaseMaterial(m_material);
-                AssetEditorRoadUtils.ReleaseMaterial(m_lodMaterial);
+                try {
+                    UnityEngine.Object.Destroy(m_mesh);
+                    UnityEngine.Object.Destroy(m_lodMesh);
+                    AssetEditorRoadUtils.ReleaseMaterial(m_material);
+                    AssetEditorRoadUtils.ReleaseMaterial(m_lodMaterial);
+                } catch (Exception ex) {
+                    ex.Log();
+                }
             }
 
             #region serialization
@@ -91,10 +105,12 @@ namespace AdaptiveRoads.Manager {
                                 bool lod = field.Name.Contains("lod");
                                 string checksum = item.Value as string;
                                 val = LSMRevisited.GetMesh(checksum, AssetDataExtension.CurrentBasicNetInfo);
+                                //val = null;
                             } else if(field.FieldType == typeof(Material)) {
                                 bool lod = field.Name.Contains("lod");
                                 string checksum = item.Value as string;
                                 val = LSMRevisited.GetMaterial(checksum, AssetDataExtension.CurrentBasicNetInfo);
+                                //val = null;
                             } else {
                                 val = Convert.ChangeType(item.Value, field.FieldType);
                             }
@@ -168,33 +184,49 @@ namespace AdaptiveRoads.Manager {
             }
 
             private void FixRenderOrder() {
-                m_trackMaterial.FixRenderQueue();
-                m_lodMaterial.FixRenderQueue();
+                try {
+                    m_trackMaterial.FixRenderQueue();
+                    m_lodMaterial.FixRenderQueue();
+                } catch (Exception ex) {
+                    ex.Log();
+                }
             }
 
             private void UpdateScale(NetInfo info) {
-                SetupThinWires(info);
-                SetupTiling(info);
+                try {
+                    SetupThinWires(info);
+                    SetupTiling(info);
+                } catch (Exception ex) {
+                    ex.Log();
+                }
             }
 
             private void SetupThinWires(NetInfo info) {
-                if(info?.m_netAI is not TrainTrackBaseAI) return;
-                if(!m_requireWindSpeed) return;
-                if(ThinWires) {
-                    Vector2 scale = new Vector2(3.5f, 1.0f);
-                    if(m_material)m_material.mainTextureScale = scale;
-                    if(m_trackMaterial) m_trackMaterial.mainTextureScale = scale;
-                    if(m_lodMaterial)m_lodMaterial.mainTextureScale = scale;
-                    if(m_combinedLod?.m_material) m_combinedLod.m_material.mainTextureScale = scale;
+                try {
+                    if (info?.m_netAI is not TrainTrackBaseAI) return;
+                    if (!m_requireWindSpeed) return;
+                    if (ThinWires) {
+                        Vector2 scale = new Vector2(3.5f, 1.0f);
+                        if (m_material) m_material.mainTextureScale = scale;
+                        if (m_trackMaterial) m_trackMaterial.mainTextureScale = scale;
+                        if (m_lodMaterial) m_lodMaterial.mainTextureScale = scale;
+                        if (m_combinedLod?.m_material) m_combinedLod.m_material.mainTextureScale = scale;
+                    }
+                } catch (Exception ex) {
+                    ex.Log();
                 }
             }
 
             private void SetupTiling(NetInfo info) {
-                if(Tiling != 0) {
-                    m_material?.SetTiling(Tiling);
-                    m_trackMaterial?.SetTiling(Tiling);
-                    m_lodMaterial?.SetTiling(Tiling);
-                    m_combinedLod?.m_material?.SetTiling(Mathf.Abs(Tiling));
+                try {
+                    if (Tiling != 0) {
+                        m_material?.SetTiling(Tiling);
+                        m_trackMaterial?.SetTiling(Tiling);
+                        m_lodMaterial?.SetTiling(Tiling);
+                        m_combinedLod?.m_material?.SetTiling(Mathf.Abs(Tiling));
+                    }
+                } catch (Exception ex) {
+                    ex.Log();
                 }
             }
 
@@ -368,18 +400,26 @@ namespace AdaptiveRoads.Manager {
             /// </summary>
             /// <param name="names"></param>
             public void AllocateUserData(UserDataNames names) {
+                try {
 #if DEBUG
-                Log.Called(names);
+                    Log.Called(names);
 #endif
-                SegmentUserData ??= new();
-                SegmentUserData.Allocate(names);
+                    SegmentUserData ??= new();
+                    SegmentUserData.Allocate(names);
+                } catch (Exception ex) {
+                    ex.Log();
+                }
             }
             public void OptimizeUserData() {
+                try {
 #if DEBUG
-                Log.Called();
+                    Log.Called();
 #endif
-                if (SegmentUserData != null && SegmentUserData.IsEmptyOrDefault())
-                    SegmentUserData = null;
+                    if (SegmentUserData != null && SegmentUserData.IsEmptyOrDefault())
+                        SegmentUserData = null;
+                } catch (Exception ex) {
+                    ex.Log();
+                }
             }
 
         }
