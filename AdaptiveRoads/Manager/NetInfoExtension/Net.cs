@@ -633,7 +633,6 @@ namespace AdaptiveRoads.Manager {
                             netInfo.m_requireSurfaceMaps |= track.m_requireSurfaceMaps;
                             netInfo.m_requireHeightMap |= track.m_requireHeightMap;
                             track.CachedArrayIndex = i;
-                            bool hasLod = track.m_mesh;
                             if (!hasColor && track.m_material != null) {
                                 netInfo.m_color = track.m_material.color;
                                 hasColor = true;
