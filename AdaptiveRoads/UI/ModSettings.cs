@@ -143,7 +143,7 @@ namespace AdaptiveRoads.UI {
 
             if(!Helpers.InStartupMenu) {
 #if DEBUG
-                helper.AddButton("Rebuild lods", () => NetManager.instance.RebuildLods());
+                general.AddButton("Rebuild lods", () => NetManager.instance.RebuildLods());
 #endif
                 general.AddButton("Refresh AN networks", RefreshARNetworks);
             }
