@@ -20,6 +20,7 @@ namespace AdaptiveRoads.LifeCycle {
     using ColossalFramework.Plugins;
     using AdaptiveRoads.UI.VBSTool;
     using AdaptiveRoads.UI;
+    using System.Linq;
 
     public static class LifeCycle {
         public static string HARMONY_ID = "CS.Kian.AdaptiveRoads";
@@ -35,18 +36,11 @@ namespace AdaptiveRoads.LifeCycle {
             try {
 #if DEBUG
                 Log.Debug("Testing StackTrace:\n" + new StackTrace(true).ToString(), copyToGameLog: false);
-                //Log.VERBOSE = true;
                 var ANPlugin = PluginUtil.GetAdaptiveRoads();
-                //Log.VERBOSE = false;
 #endif
 
                 KianCommons.UI.TextureUtil.EmbededResources = false;
-                Log.VERBOSE = false;
-                Log.Buffered = true;
-#if DEBUG
-                //Log.VERBOSE = true;
-                //Log.Buffered = false;
-#endif
+                Log.ReadCommandLineArgs();
 
                 HarmonyHelper.EnsureHarmonyInstalled();
                 ANImplementation.Install();
