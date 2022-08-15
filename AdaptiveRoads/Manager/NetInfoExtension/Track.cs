@@ -97,6 +97,7 @@ namespace AdaptiveRoads.Manager {
             public Track(SerializationInfo info, StreamingContext context) {
                 try {
                     if (Log.VERBOSE) Log.Called();
+                    //Log.Debug("Track(SerializationInfo info, StreamingContext context) Called");
                     foreach(SerializationEntry item in info) {
                         FieldInfo field = this.GetType().GetField(item.Name, ReflectionHelpers.COPYABLE);
                         if(field != null) {
@@ -105,12 +106,10 @@ namespace AdaptiveRoads.Manager {
                                 bool lod = field.Name.Contains("lod");
                                 string checksum = item.Value as string;
                                 val = LSMRevisited.GetMesh(checksum, AssetDataExtension.CurrentBasicNetInfo);
-                                //val = null;
                             } else if(field.FieldType == typeof(Material)) {
                                 bool lod = field.Name.Contains("lod");
                                 string checksum = item.Value as string;
                                 val = LSMRevisited.GetMaterial(checksum, AssetDataExtension.CurrentBasicNetInfo);
-                                //val = null;
                             } else {
                                 val = Convert.ChangeType(item.Value, field.FieldType);
                             }
@@ -120,7 +119,11 @@ namespace AdaptiveRoads.Manager {
                 } catch(Exception ex) {
                     ex.Log();
                 }
-                Log.Succeeded();
+                if(m_lodMesh == null || m_lodMaterial == null) {
+                    Log.Warning($"lod mesh = {m_lodMesh.ToSTR()} , lod material = {m_lodMaterial.ToSTR()}"); 
+                }
+                // Log.Debug("Track(SerializationInfo info, StreamingContext context) Succeeded");
+                if (Log.VERBOSE) Log.Succeeded();
             }
             #endregion
 

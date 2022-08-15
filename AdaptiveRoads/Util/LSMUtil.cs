@@ -1,3 +1,4 @@
+//#define NO_LSM
 namespace AdaptiveRoads.Util {
     using ColossalFramework.Packaging;
     using HarmonyLib;
@@ -39,6 +40,9 @@ namespace AdaptiveRoads.Util {
         }
 
         public static object GetSharing() {
+#if NO_LSM
+            return null;
+#endif
             foreach (var type in GetTypeFromLSMs("Sharing")) {
                 object sharing = AccessTools.Field(type, "inst").GetValue(null);
                 if (sharing != null) {
@@ -154,7 +158,11 @@ namespace AdaptiveRoads.Util {
 
         public static Type API { get; } = Type.GetType($"{LSM}.API, {LSM_REVISITED}");
 
+#if NO_LSM
+        public static bool IsActive => false;
+#else
         public static bool IsActive => Delegates.getIsActive?.Invoke() ?? false;
+#endif
 
         public static object InvokeAPIMethod(string methodName, params object[] args) =>
             API?.GetMethod(methodName).Invoke(null, args);
