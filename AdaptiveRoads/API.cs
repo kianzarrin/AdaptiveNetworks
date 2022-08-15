@@ -27,7 +27,7 @@ namespace AdaptiveRoads {
             if (segmentId == ShiftData.TargetSegmentID)
                 return ShiftData.Shift;
             else
-                return segmentId.ToSegment().Info.GetMetaData()?.Shift ?? 0;
+                return segmentId.ToSegment().Info.GetFinalShift();
         }
 
         public static VehicleInfo.VehicleType NodeVehicleTypes(NetInfo.Node node) => node.GetMetaData()?.VehicleType ?? 0;

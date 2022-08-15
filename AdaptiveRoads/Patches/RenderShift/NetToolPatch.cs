@@ -42,7 +42,7 @@ namespace AdaptiveRoads.Patches.RenderShift {
         [HarmonyPrefix]
         public static void RenderNodePrefix(NetInfo info, ref Vector3 position, Vector3 direction) {
             nCalledRenderNode_++;
-            float shift = info?.GetMetaData()?.Shift ?? 0;
+            float shift = info.GetFinalShift();
             if (shift != 0) {
                 if (nCalledRenderNode_ == 2) {
                     // second call => the direction is backward.
@@ -59,7 +59,7 @@ namespace AdaptiveRoads.Patches.RenderShift {
         NetInfo info,
         ref Vector3 startPosition, ref Vector3 endPosition,
         Vector3 startDirection, Vector3 endDirection) {
-            float shift = info?.GetMetaData()?.Shift ?? 0;
+            float shift = info.GetFinalShift();
             if (shift != 0) {
                 Shift(ref startPosition, startDirection, shift);
                 Shift(ref endPosition, endDirection, shift);
@@ -69,7 +69,7 @@ namespace AdaptiveRoads.Patches.RenderShift {
         [HarmonyPatch(typeof(NetTool), "RenderNodeBuilding")]
         [HarmonyPrefix]
         static void RenderNodeBuildingPrefix(ref Vector3 position, Vector3 direction) {
-            float shift = Info?.GetMetaData()?.Shift ?? 0;
+            float shift = Info.GetFinalShift();
             if (shift != 0) {
                 Shift(ref position, direction, shift);
             }
@@ -89,7 +89,7 @@ namespace AdaptiveRoads.Patches.RenderShift {
         public static void RenderOverlayPrefix(NetTool __instance, NetInfo info,
             ref NetTool.ControlPoint startPoint, ref NetTool.ControlPoint middlePoint, ref NetTool.ControlPoint endPoint) {
             try {
-                float shift = info?.GetMetaData()?.Shift ?? 0;
+                float shift = info.GetFinalShift();
                 if (shift != 0) {
                     Shift(ref startPoint.m_position, middlePoint.m_direction, shift);
                     Shift(ref middlePoint.m_position, middlePoint.m_direction, shift);
