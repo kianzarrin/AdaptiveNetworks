@@ -3,11 +3,13 @@ namespace AdaptiveRoads.Util {
     using ColossalFramework.Packaging;
     using HarmonyLib;
     using KianCommons;
+    using KianCommons.Plugins;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using UnityEngine;
+    using static ColossalFramework.Plugins.PluginManager;
     using static KianCommons.ReflectionHelpers;
 
     public static class LSMUtil {
@@ -39,21 +41,21 @@ namespace AdaptiveRoads.Util {
             if (ret != null) yield return ret;
         }
 
+        public static object LastSharing { get; private set; }
         public static object GetSharing() {
-#if NO_LSM
-            return null;
-#endif
+#if !NO_LSM
             foreach (var type in GetTypeFromLSMs("Sharing")) {
                 object sharing = AccessTools.Field(type, "inst").GetValue(null);
                 if (sharing != null) {
                     Log.DebugOnce($"sharing found in '{type.Assembly.Name()}::{type}'");
-                    return sharing;
+                    return LastSharing = sharing;
                 } else {
                     Log.DebugOnce($"sharing is empty in '{type.Assembly.Name()}::{type}'");
                 }
             }
             Log.DebugOnce("LSM sharing NOT found!");
-            return null;
+#endif
+            return LastSharing = null;
         }
 
         public static Mesh GetMesh(object sharing, string checksum, IEnumerable<Package> packages) {
@@ -158,10 +160,15 @@ namespace AdaptiveRoads.Util {
 
         public static Type API { get; } = Type.GetType($"{LSM}.API, {LSM_REVISITED}");
 
+        public static PluginInfo LSMRMod { get;  } = PluginUtil.GetPlugin(assembly: API.Assembly);
+
+        public static bool IsEnabled = LSMRMod?.isEnabled ?? false;
+
+        public static bool LastActive { get; private set; }
 #if NO_LSM
-        public static bool IsActive => false;
+        public static bool IsActive => LastActive = false;
 #else
-        public static bool IsActive => Delegates.getIsActive?.Invoke() ?? false;
+        public static bool IsActive => LastActive = Delegates.getIsActive?.Invoke() ?? false;
 #endif
 
         public static object InvokeAPIMethod(string methodName, params object[] args) =>

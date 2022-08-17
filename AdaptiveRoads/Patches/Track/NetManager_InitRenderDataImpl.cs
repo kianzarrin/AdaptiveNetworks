@@ -6,6 +6,8 @@ namespace AdaptiveRoads.Patches.Track {
     using System.Collections.Generic;
     using UnityEngine;
     using KianCommons;
+    using System;
+    using AdaptiveRoads.Util;
 
     [HarmonyPatch(typeof(NetManager), "InitRenderDataImpl")]
     [PreloadPatch]
@@ -16,15 +18,19 @@ namespace AdaptiveRoads.Patches.Track {
             return false;
         }
 
+        static bool LSM => LSMRevisited.LastActive || LSMUtil.LastSharing != null;
+
         public static IEnumerator InitRenderDataImpl() {
             yield return 0;
             Log.Debug("NetManager_InitRenderDataImpl.InitRenderDataImpl() started ...");
+            Log.Debug("LSM=" + LSM);
             Singleton<LoadingManager>.instance.m_loadingProfilerMain.BeginLoading("NetManager.InitRenderData");
             int netCount = PrefabCollection<NetInfo>.LoadedCount();
             var subInfos = new List<KeyValuePair<NetInfo, object>>(netCount * 10);
             FastList<Texture2D> rgbTextures = new FastList<Texture2D>();
             FastList<Texture2D> xysTextures = new FastList<Texture2D>();
             FastList<Texture2D> aprTextures = new FastList<Texture2D>();
+            FastList<Vector2> sizes = new FastList<Vector2>();
             rgbTextures.EnsureCapacity(netCount * 4);
             xysTextures.EnsureCapacity(netCount * 4);
             aprTextures.EnsureCapacity(netCount * 4);
@@ -67,7 +73,7 @@ namespace AdaptiveRoads.Patches.Track {
                                             throw new PrefabException(netInfo, "LOD xys size doesn't match diffuse size");
                                         }
                                         if(apr.width != rgb.width || apr.height != rgb.height) {
-                                            throw new PrefabException(netInfo, "LOD aci size doesn't match diffuse size");
+                                            throw new PrefabException(netInfo, "LOD apr size doesn't match diffuse size");
                                         }
                                         try {
                                             rgb.GetPixel(0, 0);
@@ -82,12 +88,13 @@ namespace AdaptiveRoads.Patches.Track {
                                         try {
                                             apr.GetPixel(0, 0);
                                         } catch(UnityException) {
-                                            throw new PrefabException(netInfo, "LOD aci not readable");
+                                            throw new PrefabException(netInfo, "LOD apr not readable");
                                         }
                                         subInfos.Add(new KeyValuePair<NetInfo, object>(netInfo, segment));
                                         rgbTextures.Add(rgb);
                                         xysTextures.Add(xys);
                                         aprTextures.Add(apr);
+                                        sizes.Add(new Vector2(rgb.width, rgb.height));
                                     }
                                 }
                             } catch(PrefabException ex) { ex.Handle(); }
@@ -128,7 +135,7 @@ namespace AdaptiveRoads.Patches.Track {
                                             throw new PrefabException(netInfo, "LOD xys size doesn't match diffuse size");
                                         }
                                         if(apr.width != rgb.width || apr.height != rgb.height) {
-                                            throw new PrefabException(netInfo, "LOD aci size doesn't match diffuse size");
+                                            throw new PrefabException(netInfo, "LOD apr size doesn't match diffuse size");
                                         }
                                         try {
                                             rgb.GetPixel(0, 0);
@@ -143,20 +150,21 @@ namespace AdaptiveRoads.Patches.Track {
                                         try {
                                             apr.GetPixel(0, 0);
                                         } catch(UnityException) {
-                                            throw new PrefabException(netInfo, "LOD aci not readable");
+                                            throw new PrefabException(netInfo, "LOD apr not readable");
                                         }
                                         subInfos.Add(new KeyValuePair<NetInfo, object>(netInfo, node));
                                         rgbTextures.Add(rgb);
                                         xysTextures.Add(xys);
                                         aprTextures.Add(apr);
+                                        sizes.Add(new Vector2(rgb.width, rgb.height));
                                     }
                                 }
                             } catch(PrefabException ex) { ex.Handle(); }
                         }
                     }
                     var netInfoExt = netInfo?.GetMetaData();
-                    if(netInfoExt?.Tracks != null) { 
-                        for(int i = 0; i < netInfoExt.Tracks.Length; i++) {
+                    if(netInfoExt?.Tracks != null) {
+                        for (int i = 0; i < netInfoExt.Tracks.Length; i++) {
                             try {
                                 var track = netInfoExt.Tracks[i];
                                 if(track.m_lodMesh == null || track.m_lodMaterial == null) {
@@ -190,7 +198,7 @@ namespace AdaptiveRoads.Patches.Track {
                                             throw new PrefabException(netInfo, "LOD xys size doesn't match diffuse size");
                                         }
                                         if(apr.width != rgb.width || apr.height != rgb.height) {
-                                            throw new PrefabException(netInfo, "LOD aci size doesn't match diffuse size");
+                                            throw new PrefabException(netInfo, "LOD apr size doesn't match diffuse size");
                                         }
                                         try {
                                             rgb.GetPixel(0, 0);
@@ -205,16 +213,27 @@ namespace AdaptiveRoads.Patches.Track {
                                         try {
                                             apr.GetPixel(0, 0);
                                         } catch(UnityException) {
-                                            throw new PrefabException(netInfo, "LOD aci not readable");
+                                            throw new PrefabException(netInfo, "LOD apr not readable");
                                         }
 
                                         subInfos.Add(new KeyValuePair<NetInfo, object>(netInfo, track));
+                                        if (LSM) {
+                                            // work around shared lod textures.
+                                            rgb = Texture2D.Instantiate(rgb);
+                                            xys = Texture2D.Instantiate(xys);
+                                            apr = Texture2D.Instantiate(apr);
+                                        }
                                         rgbTextures.Add(rgb);
                                         xysTextures.Add(xys);
                                         aprTextures.Add(apr);
+                                        sizes.Add(new Vector2(rgb.width, rgb.height));
                                     }
                                 }
-                            } catch(PrefabException ex) { ex.Handle(); }
+                            } catch(PrefabException ex) {
+                                ex.Handle();
+                            } catch (Exception ex){
+                                ex.Log();
+                            }
                         }
                     }
                 }
@@ -237,30 +256,58 @@ namespace AdaptiveRoads.Patches.Track {
             Singleton<LoadingManager>.instance.m_loadingProfilerMain.PauseLoading();
             yield return 0;
             Singleton<LoadingManager>.instance.m_loadingProfilerMain.ContinueLoading();
-            Rect[] rect = netMan.m_lodRgbAtlas.PackTextures(rgbTextures.ToArray(), 0, 4096, false);
+            Rect[] rects = netMan.m_lodRgbAtlas.PackTextures(rgbTextures.ToArray(), 0, 4096, false);
             Singleton<LoadingManager>.instance.m_loadingProfilerMain.PauseLoading();
             yield return 0;
             Singleton<LoadingManager>.instance.m_loadingProfilerMain.ContinueLoading();
-            netMan.m_lodXysAtlas.PackTextures(xysTextures.ToArray(), 0, 4096, false);
+            Rect[] xysRects = netMan.m_lodXysAtlas.PackTextures(xysTextures.ToArray(), 0, 4096, false);
             Singleton<LoadingManager>.instance.m_loadingProfilerMain.PauseLoading();
             yield return 0;
             Singleton<LoadingManager>.instance.m_loadingProfilerMain.ContinueLoading();
-            netMan.m_lodAprAtlas.PackTextures(aprTextures.ToArray(), 0, 4096, false);
+            Rect[] aprRects = netMan.m_lodAprAtlas.PackTextures(aprTextures.ToArray(), 0, 4096, false);
             Singleton<LoadingManager>.instance.m_loadingProfilerMain.PauseLoading();
             yield return 0;
             Singleton<LoadingManager>.instance.m_loadingProfilerMain.ContinueLoading();
 
-            for(int i = 0; i < subInfos.Count; ++i) {
+            for (int i = 0; i < subInfos.Count; ++i) {
                 var netInfo = subInfos[i].Key;
-                if(subInfos[i].Value is NetInfo.Segment segmentInfo) {
-                    netInfo.InitMeshData(segmentInfo, rect[i], netMan.m_lodRgbAtlas, netMan.m_lodXysAtlas, netMan.m_lodAprAtlas);
-
-                } else if(subInfos[i].Value is NetInfo.Node nodeInfo) {
-                    netInfo.InitMeshData(nodeInfo, rect[i], netMan.m_lodRgbAtlas, netMan.m_lodXysAtlas, netMan.m_lodAprAtlas);
-
-                } else if(subInfos[i].Value is NetInfoExtionsion.Track trackInfo) {
-                    netInfo.GetMetaData()?.InitMeshData(trackInfo, rect[i], netMan.m_lodRgbAtlas, netMan.m_lodXysAtlas, netMan.m_lodAprAtlas);
+                try {
+                    bool failed = false;
+                    if (xysRects[i] != rects[i] ) {
+                        failed = true;
+                        Handle(new PrefabException(netInfo, $"xys rect mismatch: {xysRects[i]} != {rects[i]}"));
+                    }
+                    if (aprRects[i] != rects[i]) {
+                        failed = true;
+                        Handle(new PrefabException(netInfo, $"apr rect mismatch: {xysRects[i]} != {rects[i]}"));
+                    }
+                    if (failed) continue;
+                } catch (PrefabException ex) {
+                    ex.Handle();
+                } catch (Exception ex) {
+                    ex.Log();
                 }
+
+                try {
+                    if (subInfos[i].Value is NetInfo.Segment segmentInfo) {
+                        netInfo.InitMeshData(segmentInfo, rects[i], netMan.m_lodRgbAtlas, netMan.m_lodXysAtlas, netMan.m_lodAprAtlas);
+
+                    } else if (subInfos[i].Value is NetInfo.Node nodeInfo) {
+                        netInfo.InitMeshData(nodeInfo, rects[i], netMan.m_lodRgbAtlas, netMan.m_lodXysAtlas, netMan.m_lodAprAtlas);
+
+                    } else if (subInfos[i].Value is NetInfoExtionsion.Track trackInfo) {
+                        netInfo.GetMetaData()?.InitMeshData(trackInfo, rects[i], netMan.m_lodRgbAtlas, netMan.m_lodXysAtlas, netMan.m_lodAprAtlas);
+                        if (LSM) {
+                            // destroy cloned textures.
+                            Texture2D.Destroy(rgbTextures[i]);
+                            rgbTextures[i] = null;
+                            Texture2D.Destroy(xysTextures[i]);
+                            xysTextures[i] = null;
+                            Texture2D.Destroy(aprTextures[i]);
+                            aprTextures[i] = null;
+                        }
+                    }
+                } catch(Exception ex) { ex.Log(); }
             }
 
             Singleton<LoadingManager>.instance.m_loadingProfilerMain.EndLoading();
@@ -270,6 +317,7 @@ namespace AdaptiveRoads.Patches.Track {
         }
 
         public static void Handle(this PrefabException ex) {
+            ex.Log($"{ex.m_prefabInfo.gameObject.name} : failed to rebuild LOD ", false);
             CODebugBase<LogChannel>.Error(
                 LogChannel.Core,
                 $"{ex.m_prefabInfo.gameObject.name}: {ex.Message}\nex.StackTrace",
