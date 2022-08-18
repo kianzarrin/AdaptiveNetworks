@@ -160,7 +160,7 @@ namespace AdaptiveRoads.Util {
 
         public static Type API { get; } = Type.GetType($"{LSM}.API, {LSM_REVISITED}");
 
-        public static PluginInfo LSMRMod { get;  } = PluginUtil.GetPlugin(assembly: API.Assembly);
+        public static PluginInfo LSMRMod { get;  } = PluginUtil.GetPlugin(assembly: API?.Assembly);
 
         public static bool IsEnabled = LSMRMod?.isEnabled ?? false;
 
