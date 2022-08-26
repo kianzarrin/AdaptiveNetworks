@@ -176,6 +176,7 @@ namespace AdaptiveRoads.UI.Tool {
                     HitPos,
                     NetInfo.LaneType.All,
                     VehicleInfo.VehicleType.All,
+                    VehicleInfo.VehicleCategory.All,
                     out Vector3 pos,
                     out uint laneId,
                     out int laneIndex,

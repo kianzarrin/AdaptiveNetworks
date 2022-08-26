@@ -220,6 +220,7 @@ namespace AdaptiveRoads.Manager {
                     segmentId,
                     NetInfo.LaneType.Vehicle | NetInfo.LaneType.TransportVehicle,
                     VehicleInfo.VehicleType.Car,
+                    VehicleInfo.VehicleCategory.All,
                     ref forward,
                     ref backward);
                 return forward + backward;
@@ -392,7 +393,7 @@ namespace AdaptiveRoads.Manager {
         }
 
         private bool LanesConnect(NetInfo.Lane laneInfo1, NetInfo.Lane laneInfo2, LaneEndTransitionGroup group) {
-            if (!laneInfo1.CheckType(laneInfo2.m_laneType, laneInfo2.m_vehicleType)) {
+            if (!laneInfo1.CheckType(laneInfo2.m_laneType, laneInfo2.m_vehicleType, laneInfo2.vehicleCategory)) {
                 // can't connect
                 return false;
             }
