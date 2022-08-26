@@ -73,14 +73,14 @@ namespace AdaptiveRoads.Manager {
                     foreach(FieldInfo field in fields) {
                         var type = field.GetType();
                         object value = field.GetValue(this);
-                        if(type == typeof(Vector3)) {
+                        if (type == typeof(Vector3)) {
                             //Vector3Serializable v = (Vector3Serializable)field.GetValue(instance);
                             info.AddValue(field.Name, value, typeof(Vector3Serializable));
-                        } else if(value is Mesh mesh) {
+                        } else if (value is Mesh mesh) {
                             Log.Debug($"package.AddAsset mesh : {mesh} InMainThread={Helpers.InMainThread()}");
                             var asset = package.AddAsset(mesh.name, mesh, true);
                             info.AddValue(field.Name, asset.checksum);
-                        } else if(value is Material material) {
+                        } else if (value is Material material) {
                             Log.Debug($"package.AddAsset material : {material} InMainThread={Helpers.InMainThread()}");
                             var asset = package.AddAsset(material.name, material, true);
                             info.AddValue(field.Name, asset.checksum);
@@ -98,15 +98,15 @@ namespace AdaptiveRoads.Manager {
                 try {
                     if (Log.VERBOSE) Log.Called();
                     //Log.Debug("Track(SerializationInfo info, StreamingContext context) Called");
-                    foreach(SerializationEntry item in info) {
+                    foreach (SerializationEntry item in info) {
                         FieldInfo field = this.GetType().GetField(item.Name, ReflectionHelpers.COPYABLE);
-                        if(field != null) {
+                        if (field != null) {
                             object val;
-                            if(field.FieldType == typeof(Mesh)) {
+                            if (field.FieldType == typeof(Mesh)) {
                                 bool lod = field.Name.Contains("lod");
                                 string checksum = item.Value as string;
                                 val = LSMRevisited.GetMesh(checksum, AssetDataExtension.CurrentBasicNetInfo);
-                            } else if(field.FieldType == typeof(Material)) {
+                            } else if (field.FieldType == typeof(Material)) {
                                 bool lod = field.Name.Contains("lod");
                                 string checksum = item.Value as string;
                                 val = LSMRevisited.GetMaterial(checksum, AssetDataExtension.CurrentBasicNetInfo);
@@ -114,11 +114,12 @@ namespace AdaptiveRoads.Manager {
                                 val = Convert.ChangeType(item.Value, field.FieldType);
                             }
                             field.SetValue(this, val);
+                        } else if (item.Name == "VanillaNodeFlags") {
+                            // legacy
+                            VanillaNodeFlagsLong = (VanillaNodeInfoFlagsLong)item.Value;
                         }
                     }
-                } catch(Exception ex) {
-                    ex.Log();
-                }
+                } catch (Exception ex) { ex.Log(); }
                 if(m_lodMesh == null || m_lodMaterial == null) {
                     Log.Warning($"lod mesh = {m_lodMesh.ToSTR()} , lod material = {m_lodMaterial.ToSTR()}"); 
                 }
@@ -345,7 +346,7 @@ namespace AdaptiveRoads.Manager {
             public LaneInfoFlags LaneFlags;
 
             [CustomizableProperty("Node")]
-            public VanillaNodeInfoFlags VanillaNodeFlags;
+            public VanillaNodeInfoFlagsLong VanillaNodeFlagsLong;
 
             [CustomizableProperty("Node Extension")]
             [Hint("Only checked on junctions ")] // (not bend nodes if bend nodes as treated as segments)
@@ -367,12 +368,12 @@ namespace AdaptiveRoads.Manager {
             public bool UseKeywordNETSEGMENT = true;
 
             public bool CheckNodeFlags
-                (NetNodeExt.Flags nodeFlags, NetNode.Flags vanillaNodeFlags,
+                (NetNodeExt.Flags nodeFlags, NetNode.FlagsLong vanillaNodeFlags,
                 NetSegmentExt.Flags sourceSegmentFlags, NetSegment.Flags startVanillaSegmentFlags,
                 NetLaneExt.Flags laneFalgs, NetLane.Flags vanillaLaneFlags,
                 UserData segmentUserData) =>
                 RenderNode &&
-                NodeFlags.CheckFlags(nodeFlags) && VanillaNodeFlags.CheckFlags(vanillaNodeFlags) &&
+                NodeFlags.CheckFlags(nodeFlags) && VanillaNodeFlagsLong.CheckFlags(vanillaNodeFlags) &&
                 SegmentFlags.CheckFlags(sourceSegmentFlags) && VanillaSegmentFlags.CheckFlags(startVanillaSegmentFlags) &&
                 LaneFlags.CheckFlags(laneFalgs) && VanillaLaneFlags.CheckFlags(vanillaLaneFlags) &&
                 SegmentUserData.CheckOrNull(segmentUserData);

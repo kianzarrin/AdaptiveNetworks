@@ -19,13 +19,30 @@ namespace AdaptiveRoads.Manager {
             public bool CheckFlags(NetSegment.Flags flags) => flags.CheckFlags(Required, Forbidden);
         }
 
-        [FlagPair]
+        [Obsolete]
+        //[FlagPair]
         [Serializable]
         public struct VanillaNodeInfoFlags {
             [BitMask]
             public NetNode.Flags Required, Forbidden;
             public bool CheckFlags(NetNode.Flags flags) => flags.CheckFlags(Required, Forbidden);
+
+            public static explicit operator VanillaNodeInfoFlagsLong(VanillaNodeInfoFlags a) {
+                return new VanillaNodeInfoFlagsLong {
+                    Required = (NetNode.FlagsLong)a.Required,
+                    Forbidden = (NetNode.FlagsLong)a.Forbidden,
+                };
+            }
         }
+
+        [FlagPair]
+        [Serializable]
+        public struct VanillaNodeInfoFlagsLong {
+            [BitMask]
+            public NetNode.FlagsLong Required, Forbidden;
+            public bool CheckFlags(NetNode.FlagsLong flags) => flags.CheckFlags(Required, Forbidden);
+        }
+
 
         [Serializable]
         [FlagPair]

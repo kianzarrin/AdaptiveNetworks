@@ -209,16 +209,16 @@ namespace AdaptiveRoads.Util {
                 segment.m_backwardForbidden, segmentExt?.Backward.Forbidden);
 
             string headRequired = MergeFlagText(
-                segmentExt?.Head.Required, segmentExt?.VanillaHeadNode.Required, segmentExt?.HeadNode.Required);
+                segmentExt?.Head.Required, segmentExt?.VanillaHeadNodeLong.Required, segmentExt?.HeadNode.Required);
 
             string headForbidden = MergeFlagText(
-                segmentExt?.Head.Forbidden, segmentExt?.VanillaHeadNode.Forbidden, segmentExt?.HeadNode.Forbidden);
+                segmentExt?.Head.Forbidden, segmentExt?.VanillaHeadNodeLong.Forbidden, segmentExt?.HeadNode.Forbidden);
 
             string tailRequired = MergeFlagText(
-                segmentExt?.Tail.Required, segmentExt?.VanillaTailtNode.Required, segmentExt?.TailtNode.Required);
+                segmentExt?.Tail.Required, segmentExt?.VanillaTailNodeLong.Required, segmentExt?.TailtNode.Required);
 
             string tailForbidden = MergeFlagText(
-                segmentExt?.Tail.Forbidden, segmentExt?.VanillaTailtNode.Forbidden, segmentExt?.TailtNode.Forbidden);
+                segmentExt?.Tail.Forbidden, segmentExt?.VanillaTailNodeLong.Forbidden, segmentExt?.TailtNode.Forbidden);
 
             if (!string.IsNullOrEmpty(forwardRequired))
                 ret += "\n  Forward Required:" + forwardRequired;

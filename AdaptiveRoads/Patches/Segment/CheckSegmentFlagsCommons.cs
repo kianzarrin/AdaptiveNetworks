@@ -25,8 +25,8 @@ namespace AdaptiveRoads.Patches.Segment {
 
             var segmentTailFlags = netSegmentExt.Start.m_flags; 
             var segmentHeadFlags = netSegmentExt.End.m_flags;
-            var nodeTailFlags = netNodeStart.m_flags;
-            var nodeHeadFlags = netNodeEnd.m_flags;
+            var nodeTailFlags = netNodeStart.flags;
+            var nodeHeadFlags = netNodeEnd.flags;
             var nodeExtTailFlags = netNodeExtStart.m_flags;
             var nodeExtHeadFlags = netNodeExtEnd.m_flags;
 

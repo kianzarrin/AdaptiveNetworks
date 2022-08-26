@@ -203,7 +203,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             if (trackInfo.TreatBendAsNode || junction) {
                 // if (trackInfo.RequireMatching & !Matching) return false;
                 ret = trackInfo.CheckNodeFlags(
-                    NodeExt.m_flags, Node.m_flags | DCFlags,
+                    NodeExt.m_flags, Node.flags | (NetNode.FlagsLong)DCFlags,
                     SegmentExtA.m_flags, SegmentA.m_flags,
                     LaneExtA.m_flags, LaneA.Flags(),
                     segmentUserData: SegmentExtA.UserData);

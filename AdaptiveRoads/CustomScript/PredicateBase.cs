@@ -8,10 +8,11 @@ namespace AdaptiveRoads.CustomScript {
         public static bool Has(ref this NetLaneExt lane, NetLane.Flags flag) => lane.LaneData.Lane.Flags().IsFlagSet(flag);
         public static bool Has(ref this LaneTransition laneTransition, NetNode.Flags flag) => laneTransition.m_flags.IsFlagSet(flag);
         public static bool Has(ref this NetSegmentExt segment, NetSegmentExt.Flags flag) => segment.m_flags.IsFlagSet(flag);
-        public static bool Has(ref this NetSegmentExt segment, NetSegment.Flags flag) => segment.Segment.m_flags.IsFlagSet(flag);
+        public static bool Has(ref this NetSegmentExt segment, NetSegment.Flags flag) => segment.VanillaSegment.m_flags.IsFlagSet(flag);
 
         public static bool Has(ref this NetNodeExt node, NetNodeExt.Flags flag) => node.m_flags.IsFlagSet(flag);
-        public static bool Has(ref this NetNodeExt node, NetNode.Flags flag) => node.NodeID.ToNode().m_flags.IsFlagSet(flag);
+        public static bool Has(ref this NetNodeExt node, NetNode.Flags flag) => node.VanillaNode.m_flags.IsFlagSet(flag);
+        public static bool Has(ref this NetNodeExt node, NetNode.FlagsLong flag) => node.VanillaNode.flags.IsFlagSet(flag);
 
         public static bool Has(ref this NetSegmentEnd segmentEnd, NetSegmentEnd.Flags flag) => segmentEnd.m_flags.IsFlagSet(flag);
 

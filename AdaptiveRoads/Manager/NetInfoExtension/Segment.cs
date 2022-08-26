@@ -1,20 +1,24 @@
 namespace AdaptiveRoads.Manager {
     using AdaptiveRoads.Data;
+    using AdaptiveRoads.LifeCycle;
     using AdaptiveRoads.Util;
     using KianCommons;
     using KianCommons.Serialization;
     using System;
+    using System.Linq;
+    using System.Reflection;
     using System.Runtime.Serialization;
     using System.Xml.Serialization;
     using UnityEngine;
     using static AdaptiveRoads.UI.ModSettings;
     using static KianCommons.ReflectionHelpers;
+    using static RenderManager;
 
     public static partial class NetInfoExtionsion {
         [AfterField(nameof(NetInfo.Segment.m_backwardForbidden))]
         [Serializable]
         [Optional(AR_MODE)]
-        public class Segment : IMetaData, IModel {
+        public class Segment : IMetaData, IModel, ISerializable {
             object ICloneable.Clone() => Clone();
 
             [AfterField(nameof(NetInfo.Segment.m_forwardForbidden))]
@@ -26,7 +30,7 @@ namespace AdaptiveRoads.Manager {
 
             [CustomizableProperty("Tail Node")]
             [Optional(SEGMENT_NODE)]
-            public VanillaNodeInfoFlags VanillaTailtNode;
+            public VanillaNodeInfoFlagsLong VanillaTailNodeLong;
 
             [CustomizableProperty("Tail Node Extension")]
             [Optional(SEGMENT_NODE)]
@@ -34,7 +38,7 @@ namespace AdaptiveRoads.Manager {
 
             [CustomizableProperty("Head Node")]
             [Optional(SEGMENT_NODE)]
-            public VanillaNodeInfoFlags VanillaHeadNode;
+            public VanillaNodeInfoFlagsLong VanillaHeadNodeLong;
 
             [CustomizableProperty("Head Node Extension")]
             [Optional(SEGMENT_NODE)]
@@ -64,15 +68,15 @@ namespace AdaptiveRoads.Manager {
             public bool CheckEndFlags(
                     NetSegmentEnd.Flags tailFlags,
                     NetSegmentEnd.Flags headFlags,
-                    NetNode.Flags tailNodeFlags,
-                    NetNode.Flags headNodeFlags,
+                    NetNode.FlagsLong tailNodeFlags,
+                    NetNode.FlagsLong headNodeFlags,
                     NetNodeExt.Flags tailNodeExtFlags,
                     NetNodeExt.Flags headNodeExtFlags) {
                 return
                     Tail.CheckFlags(tailFlags) &
                     Head.CheckFlags(headFlags) &
-                    VanillaTailtNode.CheckFlags(tailNodeFlags) &
-                    VanillaHeadNode.CheckFlags(headNodeFlags) &
+                    VanillaTailNodeLong.CheckFlags(tailNodeFlags) &
+                    VanillaHeadNodeLong.CheckFlags(headNodeFlags) &
                     TailtNode.CheckFlags(tailNodeExtFlags) &
                     HeadNode.CheckFlags(headNodeExtFlags);
             }
@@ -80,8 +84,8 @@ namespace AdaptiveRoads.Manager {
             public bool CheckFlags(NetSegmentExt.Flags flags,
                     NetSegmentEnd.Flags tailFlags,
                     NetSegmentEnd.Flags headFlags,
-                    NetNode.Flags tailNodeFlags,
-                    NetNode.Flags headNodeFlags,
+                    NetNode.FlagsLong tailNodeFlags,
+                    NetNode.FlagsLong headNodeFlags,
                     NetNodeExt.Flags tailNodeExtFlags,
                     NetNodeExt.Flags headNodeExtFlags,
                     UserData userData,
@@ -134,8 +138,15 @@ namespace AdaptiveRoads.Manager {
             }
 
             // deserialization
-            public Segment(SerializationInfo info, StreamingContext context) =>
+            public Segment(SerializationInfo info, StreamingContext context) {
                 SerializationUtil.SetObjectFields(info, this);
+                // legacy
+#pragma warning disable CS0612 // Type or member is obsolete
+                VanillaHeadNodeLong = (VanillaNodeInfoFlagsLong)info.GetValue<VanillaNodeInfoFlags>("VanillaHeadNode");
+                VanillaTailNodeLong = (VanillaNodeInfoFlagsLong)info.GetValue<VanillaNodeInfoFlags>("VanillaTailtNode" /* typo intended */);
+#pragma warning restore CS0612 // Type or member is obsolete
+            }
+
             #endregion
 
             public void SetupTiling(NetInfo.Segment segmentInfo) {
