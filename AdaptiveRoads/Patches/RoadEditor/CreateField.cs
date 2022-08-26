@@ -37,7 +37,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         [HarmonyPatch(typeof(RoadEditorPanel), "CreateGenericField")]
         public static bool Prefix(RoadEditorPanel __instance,
             ref string groupName, FieldInfo field, object target) {
-            //Log.Called(__instance, groupName, field, target);
             try {
                 if (field.Is(typeof(NetInfo.Node), nameof(NetInfo.Node.m_directConnect)))
                     groupName = NetInfoExtionsion.Node.DC_GROUP_NAME;
@@ -64,17 +63,26 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
                 if (IsUIReplaced(field)) {
                     if (VanillaCanMerge(field))
-                        return false; // will be merged with AN drop-down later
+                        return false; // will be merged with AN drop-down later or has been merge with Node.Flags earlier
                     var container = GetContainer(__instance, groupName);
                     var uidata = GetVanillaFlagUIData(field, target);
-
-                    //Log.Info($"[P1] CreateGenericField.Prefix() : field:{field}, target:{target}, group:{groupName}");
-                    var bitMaskPanel = BitMaskPanel.Add(
-                        roadEditorPanel: __instance,
-                        container: container,
-                        label: uidata.Label,
-                        hint: uidata.Hint,
-                        flagData: uidata.FlagData);
+                    if (TryGetField2(field, target, out FieldInfo field2)) {
+                        // merge NetNode.m_flags with NetNode.m_flags2
+                        var uidata2 = GetVanillaFlagUIData(field2, target);
+                        var bitMaskPanel = MultiBitMaskPanel.Add(
+                            roadEditorPanel: __instance,
+                            container: container,
+                            label: uidata.Label,
+                            hint: uidata.Hint,
+                            flagDatas: new[] { uidata.FlagData, uidata2.FlagData });
+                    } else {
+                        var bitMaskPanel = BitMaskPanel.Add(
+                            roadEditorPanel: __instance,
+                            container: container,
+                            label: uidata.Label,
+                            hint: uidata.Hint,
+                            flagData: uidata.FlagData);
+                    }
                     return false;
                 }
 
@@ -511,31 +519,33 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 AssertNotNull(roadEditorPanel, "RoadEditorPanel instance");
                 var container = GetContainer(roadEditorPanel, groupName);
 
-                var vanillas = new[]{
-                    GetVanillaFlagUIData(mergedFieldRequired, mergedTarget),
-                    GetVanillaFlagUIData(mergedFieldForbidden, mergedTarget),
-                };
-                var arDatas = GetARFlagUIData(fieldInfo, metadata);
-                if (arDatas.IsNullorEmpty()) {
-                    for (int i = 0; i < 2; ++i) {
-                        // hide optional flags.
-                        BitMaskPanel.Add(
-                            roadEditorPanel: roadEditorPanel,
-                            container: container,
-                            label: vanillas[i].Label,
-                            hint: vanillas[i].Hint,
-                            flagData: vanillas[i].FlagData);
+                var vanillaFields = new[] { mergedFieldRequired, mergedFieldForbidden };
+                FlagUIData[] arDatas = GetARFlagUIData(fieldInfo, metadata);
+                Assertion.Equal(arDatas.Length, 2, "arDatas.Length");
+                for (int i = 0; i < 2; ++i) {
+                    FieldInfo vanillaField = vanillaFields[i];
+                    FlagUIData vanillaData = GetVanillaFlagUIData(vanillaField, mergedTarget);
+                    FlagUIData? vanillaData2 = null;
+                    if(TryGetField2(vanillaField, mergedTarget, out var vanillaField2)) {
+                        vanillaData2 = GetVanillaFlagUIData(vanillaField2, mergedTarget); ;
                     }
-                } else {
-                    for (int i = 0; i < 2; ++i) {
-                        Assertion.Equal(arDatas.Length, 2, "arDatas.Length");
-                        MultiBitMaskPanel.Add(
-                            roadEditorPanel: roadEditorPanel,
-                            container: container,
-                            label: vanillas[i].Label,
-                            hint: arDatas[i].Hint,
-                            flagDatas: new[] { vanillas[i].FlagData, arDatas[i].FlagData });
-                    }
+
+                    string hint = arDatas.IsNullorEmpty() ? vanillaData.Hint : arDatas[i].Hint;
+
+                    List<FlagDataT> flagDatas = new();
+                    flagDatas.Add(vanillaData.FlagData);
+                    if (vanillaData2.HasValue)
+                        flagDatas.Add(vanillaData2.Value.FlagData);
+                    if(!arDatas.IsNullorEmpty())
+                        flagDatas.Add(arDatas[i].FlagData);
+
+                    MultiBitMaskPanel.Add(
+                        roadEditorPanel: roadEditorPanel,
+                        container: container,
+                        label: vanillaData.Label,
+                        hint: hint,
+                        flagDatas: flagDatas.ToArray());
+                    
                 }
             } catch (Exception ex) {
                 ex.Log();
@@ -640,6 +650,23 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             }
         }
 
+        static bool TryGetField2(FieldInfo field, object target, out FieldInfo field2) {
+            field2 = null;
+            if (!Merge) return false;
+            if (target is NetInfo or NetAI) {
+                return false;
+            }
+
+            foreach (var otherField in target.GetFieldsWithAttribute<CustomizablePropertyAttribute>()) {
+                if (field.Name + "2" == otherField.Name) {
+                    field2 = otherField;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         static bool TryGetMerge(FieldInfo extensionField, object metadata, out FieldInfo vanillaFlags) {
             vanillaFlags = null;
             if (!Merge) return false;
@@ -678,16 +705,17 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 return false;
             var enumType = field.FieldType.GetField("Required").FieldType;
             return
-                enumType == typeof(NetNode.Flags) ||
+                enumType == typeof(NetNode.FlagsLong) ||
                 enumType == typeof(NetSegment.Flags) ||
                 enumType == typeof(NetLane.Flags);
         }
 
         static bool VanillaCanMerge(FieldInfo field) {
             if (!Merge || !ModSettings.ARMode || field.DeclaringType == typeof(NetInfo.Lane))
-                return false;
+                return field.FieldType == typeof(NetNode.Flags2);
             return
                 field.FieldType == typeof(NetNode.Flags) ||
+                field.FieldType == typeof(NetNode.Flags2) ||
                 field.FieldType == typeof(NetSegment.Flags) ||
                 field.FieldType == typeof(NetLane.Flags);
         }
