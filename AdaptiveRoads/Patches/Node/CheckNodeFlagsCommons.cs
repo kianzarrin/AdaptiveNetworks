@@ -12,15 +12,14 @@ namespace AdaptiveRoads.Patches.Node {
     using AdaptiveRoads.Data.NetworkExtensions;
 
     public static class CheckNodeFlagsCommons {
-        public static NetNode.Flags AddDCFlags(NetNode.Flags flags, ushort nodeID, ushort segmentID, ushort segmentID2) {
+        public static NetNode.FlagsLong AddDCFlags(NetNode.FlagsLong flags, ushort nodeID, ushort segmentID, ushort segmentID2) {
             bool bend = segmentID == 0;
             if (!bend) {
                 // optimisation: bend node already has these flags.
-                flags |= NetNodeExt.CalculateDCAsymFlags(nodeID, segmentID, segmentID2);
+                flags |= (NetNode.FlagsLong)NetNodeExt.CalculateDCAsymFlags(nodeID, segmentID, segmentID2);
             }
             return flags;
         }
-        //public static NetNode.Flags AddDCFlags(NetNode.Flags flags) => flags;
 
         public static bool CheckFlagsDC(NetInfo.Node node, ushort nodeID, ushort segmentID, ushort segmentID2) {
             var nodeInfoExt = node?.GetMetaData();
@@ -83,8 +82,8 @@ namespace AdaptiveRoads.Patches.Node {
         static MethodInfo mAddDCFlags => typeof(CheckNodeFlagsCommons).GetMethod(nameof(AddDCFlags), throwOnError: true);
         static MethodInfo mCheckFlagsExt => typeof(CheckNodeFlagsCommons).GetMethod(nameof(CheckFlags), throwOnError: true);
         static MethodInfo mCheckFlagsExtDC => typeof(CheckNodeFlagsCommons).GetMethod(nameof(CheckFlagsDC), throwOnError: true);
-        static MethodInfo mCheckFlags => typeof(NetInfo.Node).GetMethod("CheckFlags", throwOnError: true);
-        static MethodInfo mGetSegment => typeof(NetNode).GetMethod("GetSegment", throwOnError: true);
+        static MethodInfo mCheckFlags => typeof(NetInfo.Node).GetMethod(nameof(NetInfo.Node.CheckFlags), throwOnError: true);
+        static MethodInfo mGetSegment => typeof(NetNode).GetMethod(nameof(NetNode.GetSegment), throwOnError: true);
 
         /// <param name="counterGetSegment">
         /// if set to 0, segmentID is auto-calculated (only for end ndoes and DC bend nodes)
