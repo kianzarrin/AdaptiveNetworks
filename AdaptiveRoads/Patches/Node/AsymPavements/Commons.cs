@@ -18,6 +18,8 @@ namespace AdaptiveRoads.Patches.AsymPavements {
             CodeInstruction ldSegmentID,
             CodeInstruction ldSegmentIDA,
             CodeInstruction ldSegmentIDB) {
+            Log.Called(ldSegmentID, ldSegmentIDA, ldSegmentIDB);
+
             int index;
 
             /****************************************************
