@@ -94,6 +94,7 @@
     <Compile Remove="Patches\RoadEditor\InstantiateTemplatePatch.cs" />
     <Compile Remove="Patches\RoadEditor\Refresh.cs" />
     <Compile Remove="Patches\RoadEditor\RoadEditorDynamicPropertyToggle_Refresh.cs" />
+    <Compile Remove="Patches\RoadEditor\UpdateDropdownButton.cs" />
     <Compile Remove="Patches\Segment\CalculateSegment.cs" />
     <Compile Remove="Patches\Segment\NetAI_UpdateSegmentFlags.cs" />
     <Compile Remove="Patches\Segment\NetSegment_CalculateSegment.cs" />

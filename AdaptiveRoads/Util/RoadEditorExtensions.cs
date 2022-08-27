@@ -16,26 +16,6 @@ namespace AdaptiveRoads.Util {
             ReflectionHelpers.InvokeMethod(instance, "OnPropertyChanged");
     }
 
-    internal static class REEnumBitmaskSetExtensions {
-        public static MethodInfo GetMethod(string methodName) =>
-            ReflectionHelpers.GetMethod(typeof(REEnumBitmaskSet), methodName);
-
-        public static int GetFlags(this REEnumBitmaskSet instance) =>
-        (int)GetMethod("GetFlags").Invoke(instance, null);
-
-        public static void Initialize(this REEnumBitmaskSet instance, object target, FieldInfo targetField, string labelText) =>
-            GetMethod("Initialize")
-            .Invoke(instance, new object[] { target, targetField, labelText });
-
-
-        public static bool RequiresUserFlag(this REEnumBitmaskSet instance, Type type) =>
-            (bool)GetMethod("RequiresUserFlag").Invoke(instance, new object[] { type });
-
-        //private string REEnumBitmaskSet.GetUserFlagName(int flag)
-        public static string GetUserFlagName(this REEnumBitmaskSet instance, int flag) =>
-            (string)GetMethod("GetUserFlagName").Invoke(instance, new object[] { flag });
-    }
-
     public static class RoadEditorPanelExtensions {
         public static MethodInfo GetMethod(string methodName) =>
             ReflectionHelpers.GetMethod(typeof(RoadEditorPanel), methodName);
