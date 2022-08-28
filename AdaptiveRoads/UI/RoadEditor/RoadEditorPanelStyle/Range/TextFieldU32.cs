@@ -6,8 +6,6 @@ namespace AdaptiveRoads.UI.RoadEditor {
     using UnityEngine;
 
     public class TextFieldU32 : UITextField {
-        //UIResetButton resetButton_;
-
         public override string ToString() => GetType().Name + $"({name})";
 
         public override void OnDestroy() {
@@ -60,7 +58,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
             }
         }
 
-        public uint Value {
+        public virtual uint Value {
             set => text = value.ToString() + PostFix;
             get {
                 if(TryGetValue(out uint ret)){

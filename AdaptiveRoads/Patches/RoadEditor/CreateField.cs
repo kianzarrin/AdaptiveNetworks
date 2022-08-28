@@ -16,9 +16,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using static KianCommons.ReflectionHelpers;
     using PrefabMetadata.API;
     using AdaptiveRoads.UI.QuayRoads;
-    using ColossalFramework;
     using AdaptiveRoads.Data;
-    using System.Reflection.Emit;
 
     /// <summary>
     /// most of UI in road editor panels are managed here:
