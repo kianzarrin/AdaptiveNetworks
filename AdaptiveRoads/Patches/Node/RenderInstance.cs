@@ -21,7 +21,7 @@ namespace AdaptiveRoads.Patches.Node {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
                 CheckNodeFlagsCommons.PatchCheckFlags(codes, original, occuranceCheckFlags: 1, counterGetSegment: 2, true); //DC
-                CheckNodeFlagsCommons.PatchCheckFlags(codes, original, occuranceCheckFlags: 2, counterGetSegment: 1); //Junction
+                CheckNodeFlagsCommons.PatchCheckFlags(codes, original, occuranceCheckFlags: 2, counterGetSegment: 2); //Junction
                 CheckNodeFlagsCommons.PatchCheckFlags(codes, original, occuranceCheckFlags: 3, counterGetSegment: 0); //End
 
                 // Bend node -> segment.Checkflags (does not use info flags.)
