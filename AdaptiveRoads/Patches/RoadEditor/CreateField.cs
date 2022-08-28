@@ -18,6 +18,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using AdaptiveRoads.UI.QuayRoads;
     using ColossalFramework;
     using AdaptiveRoads.Data;
+    using System.Reflection.Emit;
 
     /// <summary>
     /// most of UI in road editor panels are managed here:
@@ -172,6 +173,15 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             fieldName: nameof(NetInfo.m_terrainEndOffset),
                             label: "Terrain End Offset");
                     }
+                    if (field.Name == nameof(NetInfo.m_connectGroup)) {
+                        CustomTagsDataT data = new (target, nameof(netInfo.m_tags));
+                        StringListMSDD.Add(
+                            roadEditorPanel: __instance,
+                            container: GetContainer(__instance, groupName),
+                            label: "Tags",
+                            hint: null,
+                            customStringData: data);
+                    }
                     if (ModSettings.ARMode) {
                         ReplaceLabel(__instance, "Pavement Width", "Pavement Width Left");
                         if (field.Name == nameof(NetInfo.m_surfaceLevel)) {
@@ -185,7 +195,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             qrButtonPanel.EventDestroy += (_, _) => { QuayRoadsPanel.CloseIfOpen(netInfo); };
                         }
                     }
-                } 
+                }
             } catch (Exception e) {
                 Log.Exception(e);
             }
@@ -733,7 +743,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             internal string Label;
             internal string Hint;
             internal FlagDataT FlagData;
-            internal bool RequiredFlag; //true if required, otherwise forbidden
         }
 
         static FlagUIData GetVanillaFlagUIData(FieldInfo field, object target) {
@@ -762,7 +771,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 Label = field.GetAttribute<CustomizablePropertyAttribute>().name,
                 Hint = hint,
                 FlagData = flagData,
-                RequiredFlag = field.Name.EndsWith("Required"),
             };
         }
 
@@ -823,14 +831,12 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 Label = att.name + " Required",
                 Hint = hint,
                 FlagData = flagDataRequired,
-                RequiredFlag = true,
             };
 
             var ret1 = new FlagUIData {
                 Label = att.name + "  Forbidden",
                 Hint = hint,
                 FlagData = flagDataForbidden,
-                RequiredFlag = false,
             };
 
             return new[] { ret0, ret1 };
