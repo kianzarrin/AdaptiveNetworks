@@ -116,7 +116,13 @@ namespace AdaptiveRoads.Manager {
                             field.SetValue(this, val);
                         } else if (item.Name == "VanillaNodeFlags") {
                             // legacy
-                            VanillaNodeFlagsLong = (VanillaNodeInfoFlagsLong)item.Value;
+                            try {
+#pragma warning disable CS0612 // Type or member is obsolete
+                                VanillaNodeFlagsLong = (VanillaNodeInfoFlagsLong)(VanillaNodeInfoFlags)item.Value;
+#pragma warning restore CS0612 // Type or member is obsolete
+                            } catch(Exception ex) {
+                                ex.Log(item.Value?.GetType().ToSTR());
+                            }
                         }
                     }
                 } catch (Exception ex) { ex.Log(); }
