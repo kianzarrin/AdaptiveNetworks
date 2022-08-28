@@ -1,6 +1,5 @@
 namespace AdaptiveRoads.Patches.AsymPavements {
     using AdaptiveRoads.Manager;
-    using Epic.OnlineServices.Presence;
     using HarmonyLib;
     using KianCommons;
     using KianCommons.Patches;
@@ -9,20 +8,17 @@ namespace AdaptiveRoads.Patches.AsymPavements {
     using System.Reflection.Emit;
     using UnityEngine;
     using static KianCommons.Patches.TranspilerUtils;
-    using KianCommons;
 
     public static class Commons {
         static FieldInfo f_pavementWidth = typeof(NetInfo).GetField("m_pavementWidth");
-        static MethodInfo mModifyPavement = typeof(Commons).GetMethod(nameof(ModifyPavement), throwOnError: true);
-        static MethodInfo mCalcualtePavementRatio = typeof(Commons).GetMethod(nameof(CalcualtePavementRatio), throwOnError: true);
+        static MethodInfo mModifyPavement = GetMethod(typeof(Commons), nameof(ModifyPavement));
 
         public static List<CodeInstruction> ApplyPatch(
             List<CodeInstruction> codes,
-            MethodBase method,
             CodeInstruction ldSegmentID,
             CodeInstruction ldSegmentIDA,
             CodeInstruction ldSegmentIDB) {
-            Log.Called(method, ldSegmentID, ldSegmentIDA, ldSegmentIDB);
+            Log.Called(ldSegmentID, ldSegmentIDA, ldSegmentIDB);
 
             int index;
 
@@ -38,56 +34,24 @@ namespace AdaptiveRoads.Patches.AsymPavements {
                 });
 
             index = codes.Search(_c => _c.LoadsField(f_pavementWidth), count: 3); //main right
-            {
-                // finding pavementRatio_avgB:
-                int iStore = codes.Search(_c => _c.IsStLoc(typeof(float), method), startIndex: index);
-                int loc = codes[iStore].GetLoc();
-                int iStore2 = codes.Search(_c => _c.IsStLoc(loc), startIndex: index, count: 2);
-                int iLoad = codes.Search(_c => _c.IsLdLoc(loc), startIndex: iStore2, count: -1);
-                //float pavementRatio_avgB = info.m_pavementWidth / info.m_halfWidth * 0.5f; // don't modify variable here because it is used to calculate start/end ratio
-                //...
-                //    float pavementRatioB = infoB.m_pavementWidth / infoB.m_halfWidth * 0.5f;
-                //    if (dot_B > -0.5f) {
-                //        startRatioB = Mathf.Clamp(startRatioB * (2f * pavementRatioB / (pavementRatio_avgB + pavementRatioB)), 0.05f, 0.7f);
-                //        endRatioB = Mathf.Clamp(endRatioB * (2f * pavementRatio_avgB / (pavementRatio_avgB + pavementRatioB)), 0.05f, 0.7f);
-                //    }
-                //    pavementRatio_avgB = (pavementRatio_avgB /* modify varible here */+ pavementRatioB) * 0.5f;
-
-                codes.InsertInstructions(iLoad + 1, //after
-                    new[] {
+            codes.InsertInstructions(index + 1, //after
+                new[] {
                     ldSegmentID.Clone(),
                     ldSegmentIDB.Clone(),
                     new CodeInstruction(OpCodes.Ldc_I4_3), // occurance
-                    new CodeInstruction(OpCodes.Call, mCalcualtePavementRatio),
+                    new CodeInstruction(OpCodes.Call, mModifyPavement),
                 });
-            }
 
             /****************************************************
              * invert */
             index = codes.Search(_c => _c.LoadsField(f_pavementWidth), count: 1); //A left
-            {
-                // finding pavementRatio_avgA:
-                int iStore = codes.Search(_c => _c.IsStLoc(typeof(float), method), startIndex: index);
-                int loc = codes[iStore].GetLoc();
-                int iStore2 = codes.Search(_c => _c.IsStLoc(loc), startIndex: index, count: 2);
-                int iLoad = codes.Search(_c => _c.IsLdLoc(loc), startIndex: iStore2, count: -1);
-                //float pavementRatio_avgA = info.m_pavementWidth / info.m_halfWidth * 0.5f; // don't modify variable here because it is used to calculate start/end ratio
-                //...
-                //    float pavementRatioA = infoA.m_pavementWidth / infoA.m_halfWidth * 0.5f;
-                //    if (dot_A > -0.5f) {
-                //        startRatioA = Mathf.Clamp(startRatioA * (2f * pavementRatioA / (pavementRatio_avgA + pavementRatioA)), 0.05f, 0.7f);
-                //        endRatioA = Mathf.Clamp(endRatioA * (2f * pavementRatio_avgA / (pavementRatio_avgA + pavementRatioA)), 0.05f, 0.7f);
-                //    }
-                //    pavementRatio_avgA = (pavementRatio_avgA /* modify varible here */+ pavementRatioA) * 0.5f;
-
-                codes.InsertInstructions(iLoad + 1, //after
-                    new[] {
+            codes.InsertInstructions(index + 1, //after
+                new[] {
                     ldSegmentID.Clone(),
                     ldSegmentIDA.Clone(),
                     new CodeInstruction(OpCodes.Ldc_I4_1), // occurance
-                    new CodeInstruction(OpCodes.Call, mCalcualtePavementRatio),
+                    new CodeInstruction(OpCodes.Call, mModifyPavement),
                 });
-            }
 
             index = codes.Search(_c => _c.LoadsField(f_pavementWidth), count: 4); //main right
             codes.InsertInstructions(index + 1, //after
@@ -117,19 +81,7 @@ namespace AdaptiveRoads.Patches.AsymPavements {
                     new CodeInstruction(OpCodes.Ldc_I4_6), // occurance
                     new CodeInstruction(OpCodes.Call, mModifyPavement),
                 });
-
-            string m = "\n";
-            foreach(var code in codes) m += code + "\n";
-            Log.Debug(m);
-            Log.Succeeded();
-
             return codes;
-        }
-
-        public static float CalcualtePavementRatio(float pavementRatio /*discard*/, ushort segmentId, ushort segmentID2, int occurance) {
-            NetInfo info = segmentId.ToSegment().Info;
-            float pavementWidth = ModifyPavement(info.m_pavementWidth, segmentId /*does not matter*/, segmentID2, occurance);
-            return pavementWidth / info.m_halfWidth * 0.5f;
         }
 
         public static float ModifyPavement(float width, ushort segmentID, ushort segmentID2, int occurance) {

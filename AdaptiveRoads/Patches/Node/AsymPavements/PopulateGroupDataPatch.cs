@@ -94,7 +94,7 @@ namespace AdaptiveRoads.Patches.AsymPavements {
             int iStoreSegmentID_B = codes.Search(code => code.IsStLoc(typeof(ushort), original), startIndex: iLoadSegmentID2_second);
             var ldSegmentIDB = codes[iStoreSegmentID_B].BuildLdLocFromStLoc();
 
-            return Commons.ApplyPatch(codes, original, ldSegmentID, ldSegmentIDA, ldSegmentIDB);
+            return Commons.ApplyPatch(codes, ldSegmentID, ldSegmentIDA, ldSegmentIDB);
 
         }
     }
