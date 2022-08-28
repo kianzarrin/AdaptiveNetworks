@@ -193,7 +193,7 @@ namespace AdaptiveRoads.Patches.AsymPavements {
             return false; //repalce
         }
 
-        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, MethodBase original) {
+        static IEnumerable<CodeInstruction> Transpiler_NotRun(IEnumerable<CodeInstruction> instructions, MethodBase original) {
             return instructions;
             try {
 /*
@@ -264,7 +264,7 @@ for (int i = 0; i < 8; i++) {
                 int iStoreSegmentID_B = codes.Search(code => code.IsStLoc(typeof(ushort), original), startIndex: iLoadSegmentID2_second);
                 var ldSegmentIDB = codes[iStoreSegmentID_B].BuildLdLocFromStLoc();
 
-                return Commons.ApplyPatch(codes, original, ldSegmentID, ldSegmentIDA, ldSegmentIDB);
+                return Commons.ApplyPatch(codes, ldSegmentID, ldSegmentIDA, ldSegmentIDB);
             } catch (Exception ex) {
                 ex.Log();
                 return instructions;
