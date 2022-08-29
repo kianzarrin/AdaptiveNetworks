@@ -31,7 +31,7 @@ namespace AdaptiveRoads.DTO {
                                 targetFieldInfo.SetValue(target, value2);
                            }
                         } catch (Exception ex) {
-                            Log.Exception(ex, $"failed copying from {originFieldInfo} to {targetFieldInfo}");
+                            //Log.Exception(ex, $"failed copying from {originFieldInfo} to {targetFieldInfo}");
                         }
                     }
                 }

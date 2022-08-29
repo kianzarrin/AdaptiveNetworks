@@ -71,15 +71,24 @@ namespace AdaptiveRoads.DTO {
         public Node[] m_nodes;
 
         public class Node :IDTO<NetInfo.Node> {
-            public NetNode.Flags m_flagsRequired;
-            public NetNode.Flags m_flagsForbidden;
+            public NetNode.FlagsLong m_flagsRequired;
+            public NetNode.FlagsLong m_flagsForbidden;
             public NetInfo.ConnectGroup m_connectGroup;
             public bool m_directConnect;
+
+            public string[] m_tagsRequired;
+            public string[] m_tagsForbidden;
+            public byte m_minSameTags;
+            public byte m_maxSameTags = 7;
+            public byte m_minOtherTags;
+            public byte m_maxOtherTags = 7;
 
             public NetInfoExtionsion.Node MetaData;
 
             public void ReadFromGame(NetInfo.Node gameNode) {
                 DTOUtil.CopyAllMatchingFields<Node>(this, gameNode);
+                m_flagsRequired = gameNode.flagsRequired;
+                m_flagsForbidden = gameNode.flagsForbidden;
                 MetaData = gameNode.GetMetaData()?.Clone();
             }
             public static explicit operator Node(NetInfo.Node gameNode) {
@@ -90,6 +99,8 @@ namespace AdaptiveRoads.DTO {
 
             public void WriteToGame(NetInfo.Node gameNode) {
                 DTOUtil.CopyAllMatchingFields<Node>(gameNode, this);
+                gameNode.flagsRequired = m_flagsRequired;
+                gameNode.flagsForbidden = m_flagsForbidden;
                 (gameNode as IInfoExtended)?.SetMetaData(MetaData?.Clone());
             }
             public static explicit operator NetInfo.Node(Node dto) {
@@ -179,10 +190,10 @@ namespace AdaptiveRoads.DTO {
         public class Prop : IDTO<NetLaneProps.Prop> {
             public NetLane.Flags m_flagsRequired;
             public NetLane.Flags m_flagsForbidden;
-            public NetNode.Flags m_startFlagsForbidden;
-            public NetNode.Flags m_startFlagsRequired;
-            public NetNode.Flags m_endFlagsForbidden;
-            public NetNode.Flags m_endFlagsRequired;
+            public NetNode.FlagsLong m_startFlagsForbidden;
+            public NetNode.FlagsLong m_startFlagsRequired;
+            public NetNode.FlagsLong m_endFlagsForbidden;
+            public NetNode.FlagsLong m_endFlagsRequired;
 
             public int m_probability;
             public float m_cornerAngle;
@@ -200,6 +211,11 @@ namespace AdaptiveRoads.DTO {
 
             public void ReadFromGame(NetLaneProps.Prop gameProp) {
                 DTOUtil.CopyAllMatchingFields<Prop>(this, gameProp);
+                m_startFlagsForbidden = gameProp.startFlagsForbidden;
+                m_startFlagsRequired = gameProp.startFlagsRequired;
+                m_endFlagsForbidden = gameProp.endFlagsForbidden;
+                m_endFlagsRequired = gameProp.endFlagsRequired;
+
                 MetaData = gameProp.GetMetaData()?.Clone();
                 //Log.Debug($"ReadFromGame: m_prop={this.m_prop?.name_} " +
                 //    $"gameProp.m_prop={gameProp?.m_prop}");
@@ -212,6 +228,10 @@ namespace AdaptiveRoads.DTO {
 
             public void WriteToGame(NetLaneProps.Prop gameProp) {
                 DTOUtil.CopyAllMatchingFields<Prop>(gameProp, this);
+                gameProp.startFlagsForbidden = m_startFlagsForbidden;
+                gameProp.startFlagsRequired = m_startFlagsRequired;
+                gameProp.endFlagsForbidden = m_endFlagsForbidden;
+                gameProp.endFlagsRequired = m_endFlagsRequired;
                 gameProp.m_finalProp = gameProp.m_prop;
                 gameProp.m_finalTree = gameProp.m_tree;
                 (gameProp as IInfoExtended)?.SetMetaData(MetaData?.Clone());
