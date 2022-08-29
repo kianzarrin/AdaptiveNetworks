@@ -17,6 +17,7 @@ namespace AdaptiveRoads.Manager {
         [Optional(AR_MODE)]
         public class Node : IMetaData, IModel {
             public const string DC_GROUP_NAME = "Direct Connect";
+            public const string TAG_GROUP_NAME = "Tags";
 
             [CustomizableProperty("Node Extension")]
             public NodeInfoFlags NodeFlags;
