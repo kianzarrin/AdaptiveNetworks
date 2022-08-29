@@ -86,7 +86,7 @@ namespace AdaptiveRoads.Manager {
                 SegmentFlags.CheckFlags(segmentFlags) && VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags) &&
                 SegmentUserData.CheckOrNull(segmentUserData);
 
-            public CustomFlags UsedCustomFlags => new CustomFlags {
+            internal CustomFlags UsedCustomFlags => new CustomFlags {
                 Segment = SegmentFlags.UsedCustomFlags,
                 SegmentEnd = SegmentEndFlags.UsedCustomFlags,
                 Node = NodeFlags.UsedCustomFlags,

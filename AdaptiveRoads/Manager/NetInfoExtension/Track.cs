@@ -5,6 +5,7 @@ namespace AdaptiveRoads.Manager {
     using AdaptiveRoads.UI.RoadEditor.Bitmask;
     using AdaptiveRoads.Util;
     using ColossalFramework;
+    using JetBrains.Annotations;
     using KianCommons;
     using System;
     using System.Linq;
@@ -117,9 +118,9 @@ namespace AdaptiveRoads.Manager {
                         } else if (item.Name == "VanillaNodeFlags") {
                             // legacy
                             try {
-#pragma warning disable CS0612 // Type or member is obsolete
-                                VanillaNodeFlagsLong = (VanillaNodeInfoFlagsLong)(VanillaNodeInfoFlags)item.Value;
-#pragma warning restore CS0612 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+                                VanillaNodeFlags = (VanillaNodeInfoFlags)item.Value;
+#pragma warning restore CS0618 // Type or member is obsolete
                             } catch(Exception ex) {
                                 ex.Log(item.Value?.GetType().ToSTR());
                             }
@@ -351,6 +352,10 @@ namespace AdaptiveRoads.Manager {
                 "flags for source lane is also checked on all nodes (both junction and bend) transitions.")]
             public LaneInfoFlags LaneFlags;
 
+            [Obsolete("legacy XML deserialization")]
+            [UsedImplicitly]
+            public VanillaNodeInfoFlags VanillaNodeFlags { set => VanillaNodeFlagsLong = (VanillaNodeInfoFlagsLong)value; }
+
             [CustomizableProperty("Node")]
             public VanillaNodeInfoFlagsLong VanillaNodeFlagsLong;
 
@@ -397,7 +402,7 @@ namespace AdaptiveRoads.Manager {
             public bool CheckLaneTransitionFlag(LaneTransition.Flags flags) =>
                 LaneTransitionFlags.CheckFlags(flags);
 
-            public CustomFlags UsedCustomFlags => new CustomFlags {
+            internal CustomFlags UsedCustomFlags => new CustomFlags {
                 Segment = SegmentFlags.UsedCustomFlags,
                 Node = NodeFlags.UsedCustomFlags,
                 Lane = LaneFlags.UsedCustomFlags,

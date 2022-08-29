@@ -2,6 +2,7 @@ namespace AdaptiveRoads.Manager {
     using AdaptiveRoads.Data;
     using AdaptiveRoads.LifeCycle;
     using AdaptiveRoads.Util;
+    using JetBrains.Annotations;
     using KianCommons;
     using KianCommons.Serialization;
     using System;
@@ -28,6 +29,10 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Backward Extension")]
             public SegmentInfoFlags Backward;
 
+            [Obsolete("legacy XML deserialization")]
+            [UsedImplicitly]
+            public VanillaNodeInfoFlags VanillaTailNode { set => VanillaTailNodeLong = (VanillaNodeInfoFlagsLong)value; }
+
             [CustomizableProperty("Tail Node")]
             [Optional(SEGMENT_NODE)]
             public VanillaNodeInfoFlagsLong VanillaTailNodeLong;
@@ -35,6 +40,10 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Tail Node Extension")]
             [Optional(SEGMENT_NODE)]
             public NodeInfoFlags TailtNode;
+
+            [Obsolete("legacy XML deserialization")]
+            [UsedImplicitly]
+            public VanillaNodeInfoFlags VanillaHeadNode { set => VanillaHeadNodeLong = (VanillaNodeInfoFlagsLong)value; }
 
             [CustomizableProperty("Head Node")]
             [Optional(SEGMENT_NODE)]
@@ -63,7 +72,7 @@ namespace AdaptiveRoads.Manager {
             [Hint("title to display(asset editor only)")]
             [AfterField(nameof(NetInfo.Node.m_directConnect))]
             public string Title;
-            [XmlIgnore] string IModel.Title => Title;
+            string IModel.Title => Title;
 
             public bool CheckEndFlags(
                     NetSegmentEnd.Flags tailFlags,
@@ -116,7 +125,7 @@ namespace AdaptiveRoads.Manager {
                 return ret;
             }
 
-            public CustomFlags UsedCustomFlags => new CustomFlags {
+            internal CustomFlags UsedCustomFlags => new CustomFlags {
                 Segment = Forward.UsedCustomFlags | Backward.UsedCustomFlags,
                 SegmentEnd = Head.UsedCustomFlags | Tail.UsedCustomFlags,
             };
@@ -140,11 +149,7 @@ namespace AdaptiveRoads.Manager {
             // deserialization
             public Segment(SerializationInfo info, StreamingContext context) {
                 SerializationUtil.SetObjectFields(info, this);
-                // legacy
-#pragma warning disable CS0612 // Type or member is obsolete
-                VanillaHeadNodeLong = (VanillaNodeInfoFlagsLong)info.GetValue<VanillaNodeInfoFlags>("VanillaHeadNode");
-                VanillaTailNodeLong = (VanillaNodeInfoFlagsLong)info.GetValue<VanillaNodeInfoFlags>("VanillaTailtNode" /* typo intended */);
-#pragma warning restore CS0612 // Type or member is obsolete
+                SerializationUtil.SetObjectProperties(info, this);
             }
 
             #endregion

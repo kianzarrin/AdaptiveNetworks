@@ -19,18 +19,18 @@ namespace AdaptiveRoads.Manager {
             public bool CheckFlags(NetSegment.Flags flags) => flags.CheckFlags(Required, Forbidden);
         }
 
-        [Obsolete]
+        [Obsolete("use VanillaNodeInfoFlagsLong instead")]
         //[FlagPair]
         [Serializable]
         public struct VanillaNodeInfoFlags {
             [BitMask]
             public NetNode.Flags Required, Forbidden;
-            public bool CheckFlags(NetNode.Flags flags) => flags.CheckFlags(Required, Forbidden);
+            //public bool CheckFlags(NetNode.Flags flags) => flags.CheckFlags(Required, Forbidden);
 
-            public static explicit operator VanillaNodeInfoFlagsLong(VanillaNodeInfoFlags a) {
+            public static explicit operator VanillaNodeInfoFlagsLong(VanillaNodeInfoFlags flags) {
                 return new VanillaNodeInfoFlagsLong {
-                    Required = (NetNode.FlagsLong)a.Required,
-                    Forbidden = (NetNode.FlagsLong)a.Forbidden,
+                    Required = (NetNode.FlagsLong)flags.Required,
+                    Forbidden = (NetNode.FlagsLong)flags.Forbidden,
                 };
             }
         }
@@ -58,7 +58,7 @@ namespace AdaptiveRoads.Manager {
         public struct SegmentInfoFlags {
             [BitMask]
             public NetSegmentExt.Flags Required, Forbidden;
-            public NetSegmentExt.Flags UsedCustomFlags => (Required | Forbidden) & NetSegmentExt.Flags.CustomsMask;
+            internal NetSegmentExt.Flags UsedCustomFlags => (Required | Forbidden) & NetSegmentExt.Flags.CustomsMask;
             public bool CheckFlags(NetSegmentExt.Flags flags) => flags.CheckFlags(Required, Forbidden);
         }
 
@@ -68,7 +68,7 @@ namespace AdaptiveRoads.Manager {
         public struct SegmentEndInfoFlags {
             [BitMask]
             public NetSegmentEnd.Flags Required, Forbidden;
-            public NetSegmentEnd.Flags UsedCustomFlags => (Required | Forbidden) & NetSegmentEnd.Flags.CustomsMask;
+            internal NetSegmentEnd.Flags UsedCustomFlags => (Required | Forbidden) & NetSegmentEnd.Flags.CustomsMask;
             public bool CheckFlags(NetSegmentEnd.Flags flags) => flags.CheckFlags(Required, Forbidden);
         }
 
@@ -77,7 +77,7 @@ namespace AdaptiveRoads.Manager {
         [Serializable]
         public struct NodeInfoFlags {
             public NetNodeExt.Flags Required, Forbidden;
-            public NetNodeExt.Flags UsedCustomFlags => (Required | Forbidden) & NetNodeExt.Flags.CustomsMask;
+            internal NetNodeExt.Flags UsedCustomFlags => (Required | Forbidden) & NetNodeExt.Flags.CustomsMask;
             public bool CheckFlags(NetNodeExt.Flags flags) => flags.CheckFlags(Required, Forbidden);
         }
 
@@ -88,7 +88,7 @@ namespace AdaptiveRoads.Manager {
         public struct LaneInfoFlags {
             [BitMask]
             public NetLaneExt.Flags Required, Forbidden;
-            public NetLaneExt.Flags UsedCustomFlags => (Required | Forbidden) & NetLaneExt.Flags.CustomsMask;
+            internal NetLaneExt.Flags UsedCustomFlags => (Required | Forbidden) & NetLaneExt.Flags.CustomsMask;
             public bool CheckFlags(NetLaneExt.Flags flags) => flags.CheckFlags(Required, Forbidden);
         }
 

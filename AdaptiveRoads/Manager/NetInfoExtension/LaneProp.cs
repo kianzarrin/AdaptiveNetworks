@@ -132,8 +132,8 @@ namespace AdaptiveRoads.Manager {
                 SegmentCurve.CheckRange(segmentCurve) &&
                 LaneCurve.CheckRange(laneCurve) &&
                 SegmentUserData.CheckOrNull(segmentUserData);
-            
-            public CustomFlags UsedCustomFlags => new CustomFlags {
+
+            internal CustomFlags UsedCustomFlags => new CustomFlags {
                 Segment = SegmentFlags.UsedCustomFlags,
                 SegmentEnd = SegmentStartFlags.UsedCustomFlags | SegmentEndFlags.UsedCustomFlags,
                 Lane = LaneFlags.UsedCustomFlags,
