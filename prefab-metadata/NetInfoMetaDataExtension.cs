@@ -66,6 +66,11 @@ namespace PrefabMetadata {
                 var ret = new Node();
                 Utils.Util.CopyProperties<NetInfo.Node>(ret, this);
                 ret.m_metaData = m_metaData.Clone();
+                ret.m_tagsForbidden = m_tagsForbidden.Clone() as string[];
+                ret.m_tagsRequired = m_tagsRequired.Clone() as string[];
+                Util.CopyProperties(ret.m_nodeTagsRequired, m_nodeTagsRequired);
+                Util.CopyProperties(ret.m_nodeTagsForbidden, m_nodeTagsForbidden);
+
                 return ret;
             }
 
