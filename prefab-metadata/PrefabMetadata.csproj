@@ -3,7 +3,7 @@
     <TargetFramework>net35</TargetFramework>
     <Deterministic>false</Deterministic>
     <Deterministic>false</Deterministic>
-    <AssemblyVersion>1.0.0.1</AssemblyVersion>
+    <AssemblyVersion>1.0.0.2</AssemblyVersion>
     <LangVersion>latest</LangVersion>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
