@@ -6,14 +6,10 @@ namespace AdaptiveRoads.Manager {
     using KianCommons;
     using KianCommons.Serialization;
     using System;
-    using System.Linq;
     using System.Reflection;
     using System.Runtime.Serialization;
-    using System.Xml.Serialization;
     using UnityEngine;
     using static AdaptiveRoads.UI.ModSettings;
-    using static KianCommons.ReflectionHelpers;
-    using static RenderManager;
 
     public static partial class NetInfoExtionsion {
         [AfterField(nameof(NetInfo.Segment.m_backwardForbidden))]
@@ -29,25 +25,17 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Backward Extension")]
             public SegmentInfoFlags Backward;
 
-            [Obsolete("legacy XML deserialization")]
-            [UsedImplicitly]
-            public VanillaNodeInfoFlags VanillaTailNode { set => VanillaTailNodeLong = (VanillaNodeInfoFlagsLong)value; }
-
             [CustomizableProperty("Tail Node")]
             [Optional(SEGMENT_NODE)]
-            public VanillaNodeInfoFlagsLong VanillaTailNodeLong;
+            public VanillaNodeInfoFlagsLong VanillaTailNode;
 
             [CustomizableProperty("Tail Node Extension")]
             [Optional(SEGMENT_NODE)]
             public NodeInfoFlags TailtNode;
 
-            [Obsolete("legacy XML deserialization")]
-            [UsedImplicitly]
-            public VanillaNodeInfoFlags VanillaHeadNode { set => VanillaHeadNodeLong = (VanillaNodeInfoFlagsLong)value; }
-
             [CustomizableProperty("Head Node")]
             [Optional(SEGMENT_NODE)]
-            public VanillaNodeInfoFlagsLong VanillaHeadNodeLong;
+            public VanillaNodeInfoFlagsLong VanillaHeadNode;
 
             [CustomizableProperty("Head Node Extension")]
             [Optional(SEGMENT_NODE)]
@@ -84,8 +72,8 @@ namespace AdaptiveRoads.Manager {
                 return
                     Tail.CheckFlags(tailFlags) &
                     Head.CheckFlags(headFlags) &
-                    VanillaTailNodeLong.CheckFlags(tailNodeFlags) &
-                    VanillaHeadNodeLong.CheckFlags(headNodeFlags) &
+                    VanillaTailNode.CheckFlags(tailNodeFlags) &
+                    VanillaHeadNode.CheckFlags(headNodeFlags) &
                     TailtNode.CheckFlags(tailNodeExtFlags) &
                     HeadNode.CheckFlags(headNodeExtFlags);
             }
@@ -148,8 +136,10 @@ namespace AdaptiveRoads.Manager {
 
             // deserialization
             public Segment(SerializationInfo info, StreamingContext context) {
-                SerializationUtil.SetObjectFields(info, this);
-                SerializationUtil.SetObjectProperties(info, this);
+                SerializationUtil.SetObjectFields(info, this, silentInvalidCast:true);;
+#pragma warning disable CS0618 // Type or member is obsolete
+                VanillaNodeInfoFlags.SetObjectFields(info, this);
+#pragma warning restore CS0618 // Type or member is obsolete
             }
 
             #endregion

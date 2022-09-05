@@ -2,6 +2,8 @@ namespace AdaptiveRoads.Manager {
     using KianCommons;
     using System;
     using AdaptiveRoads.Data.NetworkExtensions;
+    using System.Reflection;
+    using System.Runtime.Serialization;
 
     public static partial class NetInfoExtionsion {
         [Serializable]
@@ -32,6 +34,21 @@ namespace AdaptiveRoads.Manager {
                     Required = (NetNode.FlagsLong)flags.Required,
                     Forbidden = (NetNode.FlagsLong)flags.Forbidden,
                 };
+            }
+
+            // legacy deserialization.
+            public static void SetObjectFields(SerializationInfo info, object target) {
+                try {
+                    foreach (SerializationEntry item in info) {
+                        if (item.Value is VanillaNodeInfoFlags flags) {
+                            VanillaNodeInfoFlagsLong val = (VanillaNodeInfoFlagsLong)flags;
+                            FieldInfo field = target.GetType().GetField(item.Name, ReflectionHelpers.COPYABLE);
+                            if (field != null) {
+                                field.SetValue(target, val);
+                            }
+                        }
+                    }
+                } catch (Exception ex) { ex.Log(); }
             }
         }
 

@@ -111,20 +111,15 @@ namespace AdaptiveRoads.Manager {
                                 bool lod = field.Name.Contains("lod");
                                 string checksum = item.Value as string;
                                 val = LSMRevisited.GetMaterial(checksum, AssetDataExtension.CurrentBasicNetInfo);
+#pragma warning disable CS0618 // Type or member is obsolete
+                            } else if(item.Value is VanillaNodeInfoFlags flags) {
+#pragma warning restore CS0618 // Type or member is obsolete
+                                val = (VanillaNodeInfoFlagsLong)flags;
                             } else {
                                 val = Convert.ChangeType(item.Value, field.FieldType);
                             }
                             field.SetValue(this, val);
-                        } else if (item.Name == "VanillaNodeFlags") {
-                            // legacy
-                            try {
-#pragma warning disable CS0618 // Type or member is obsolete
-                                VanillaNodeFlags = (VanillaNodeInfoFlags)item.Value;
-#pragma warning restore CS0618 // Type or member is obsolete
-                            } catch(Exception ex) {
-                                ex.Log(item.Value?.GetType().ToSTR());
-                            }
-                        }
+                        } 
                     }
                 } catch (Exception ex) { ex.Log(); }
                 if(m_lodMesh == null || m_lodMaterial == null) {
@@ -352,12 +347,8 @@ namespace AdaptiveRoads.Manager {
                 "flags for source lane is also checked on all nodes (both junction and bend) transitions.")]
             public LaneInfoFlags LaneFlags;
 
-            [Obsolete("legacy XML deserialization")]
-            [UsedImplicitly]
-            public VanillaNodeInfoFlags VanillaNodeFlags { set => VanillaNodeFlagsLong = (VanillaNodeInfoFlagsLong)value; }
-
             [CustomizableProperty("Node")]
-            public VanillaNodeInfoFlagsLong VanillaNodeFlagsLong;
+            public VanillaNodeInfoFlagsLong VanillaNodeFlags;
 
             [CustomizableProperty("Node Extension")]
             [Hint("Only checked on junctions ")] // (not bend nodes if bend nodes as treated as segments)
@@ -384,7 +375,7 @@ namespace AdaptiveRoads.Manager {
                 NetLaneExt.Flags laneFalgs, NetLane.Flags vanillaLaneFlags,
                 UserData segmentUserData) =>
                 RenderNode &&
-                NodeFlags.CheckFlags(nodeFlags) && VanillaNodeFlagsLong.CheckFlags(vanillaNodeFlags) &&
+                NodeFlags.CheckFlags(nodeFlags) && VanillaNodeFlags.CheckFlags(vanillaNodeFlags) &&
                 SegmentFlags.CheckFlags(sourceSegmentFlags) && VanillaSegmentFlags.CheckFlags(startVanillaSegmentFlags) &&
                 LaneFlags.CheckFlags(laneFalgs) && VanillaLaneFlags.CheckFlags(vanillaLaneFlags) &&
                 SegmentUserData.CheckOrNull(segmentUserData);
