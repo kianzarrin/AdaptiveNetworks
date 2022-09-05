@@ -14,7 +14,7 @@ namespace PrefabMetadata.Utils {
             new Version(version.ToString(fieldCount));
 
         internal static void CopyProperties(object target, object origin) {
-            Assert(target.GetType().IsSubclassOf(origin.GetType()));
+            Assert(target.GetType().IsSubclassOf(origin.GetType()), $"'{target?.GetType()}' IsSubclassOf '{origin?.GetType()}'");
             FieldInfo[] fields = origin.GetType().GetFields();
             foreach (FieldInfo fieldInfo in fields) {
                 //Extensions.Log($"Copying field:<{fieldInfo.Name}> ...>");
@@ -45,6 +45,15 @@ namespace PrefabMetadata.Utils {
         }
 
         internal static ushort Clamp2U16(int value) => (ushort)Mathf.Clamp(value, 0, ushort.MaxValue);
+
+        internal static DynamicFlags Clone(ref this DynamicFlags flags) {
+            FieldInfo f_flags = flags.GetType().GetField("m_flags", BindingFlags.NonPublic | BindingFlags.Instance);
+            ulong[] m_flags = f_flags.GetValue(flags) as ulong[];
+            m_flags = m_flags?.Clone() as ulong[];
+            var ret = new DynamicFlags();
+            f_flags.SetValue(ret, m_flags);
+            return ret;
+        }
     }
 }
 
