@@ -66,6 +66,10 @@ namespace AdaptiveRoads.Manager {
                 return typeof(NetLaneFlags);
             else if (enumType == typeof(NetNode.Flags))
                 return typeof(NetNodeFlags);
+            else if (enumType == typeof(NetNode.Flags2))
+                return typeof(NetNodeFlags2);
+            else if (enumType == typeof(NetNode.FlagsLong))
+                return typeof(NetNodeFlagsLong);
             else if (enumType == typeof(NetInfo.Direction))
                 return typeof(Direction);
             else if (enumType == typeof(VehicleInfo.VehicleType))
@@ -315,6 +319,149 @@ namespace AdaptiveRoads.Manager {
 
         All = -1
     }
+
+    [Flags]
+    public enum NetNodeFlags2 {
+        None = 0x0,
+
+        [Hint("at least one segment of the node has pedestrian bollards")]
+        PedestrianBollards = 0x1,
+
+        [Hint("node contains both pedestrian zone and none pedestrian zone roads")]
+        PedestrianStreetTransition = 0x2,
+
+        [Hint("road ends in pedestrian zone streets and acts like an end node")]
+        RegularRoadEnd = 0x4,
+    }
+
+    [Flags]
+    public enum NetNodeFlagsLong : long {
+        None = 0,
+        [Hide]
+        Created = 1,
+        [Hide]
+        Deleted = 2,
+        [Hide]
+        [Hint("This node is part of a disabled building.")]
+        Disabled = 8,
+
+        [Hint("node has traffic lights (default or custom)")]
+        TrafficLights = 8388608,
+
+        [Hint("node has custom traffic lights")]
+        CustomTrafficLights = 0x80000000L,
+
+        [Hint("node with only one segment")]
+        End = 16,
+
+        [Hint("node between 2 compatible* segments that meet at 180 degree angle." +
+              "Middle node is not rendered.\n" + COMPATIBLE_SEGMENT)]
+        Middle = 32,
+
+        [Hint("this node is used where two compatible* roads are connected at a bent angle\n" +
+              "also when asymmetrical road changes direction(see also AsymForward and AsymBackward)\n" +
+              "bend nodes use bend segment texture\n" + COMPATIBLE_SEGMENT)]
+        Bend = 64,
+
+        [Hint("intersections or transitions between 2 incompatible* networks.\n" + COMPATIBLE_SEGMENT)]
+        Junction = 128,
+
+        [Hint("nodes which are at the edge of the map and connected to the 'outside world'")]
+        Outside = 1024,
+
+        [Hint("`middle` node of a double length network.\n" +
+               "e.g.: node where the big pillar for highway suspension bridges.")]
+        Double = 4096,
+
+        [Hint("nodes between networks which have different `levels`.\n" +
+              "useful for highway entrance sigh")]
+        Transition = 1048576,
+
+        [Hint(" train/road intersections")]
+        LevelCrossing = 2097152,
+
+        [Hint("all segments but one are one-way toward the node")]
+        OneWayOut = 4194304,
+
+        [Hint("all segments but one are one-way going away from the node")]
+        OneWayIn = 16777216,
+
+        [Hint("Destroyed due to disaster")]
+        Collapsed = 134217728,
+
+        [Hint("main-side of the first segment is going toward the node.\n" +
+              "This is relative to the direction in which the player draws the road")]
+        AsymForward = 536870912,
+
+        [Hint("main-side of the first segment is going away from the node.\n" +
+              "This is relative to the direction in which the player draws the road")]
+        AsymBackward = 1073741824,
+
+        [Hide]
+        [Hint("nodes which will be automatically moved when \n" +
+              "creating an intersection which splits a segment into two.")]
+        Moveable = 256,
+
+        [Hint("nodes of networks which are placed within buildings,\n" +
+              "and therefore can't be deleted or upgraded under normal circumstances")]
+        [Hide]
+        Untouchable = 512,
+
+        [Hide]
+        [Hint("these nodes are ignored when rendering/path-finding.")]
+        Temporary = 2048,
+
+        [Hide]
+        [Hint("This node has not been touched yet since the map was loaded.\n" +
+              "Therefore there is no maintenance cost.")]
+        Original = 4,
+
+        [Hint("node that is placed on the ground and is not elevated or underground.\n" +
+              "such nodes can create dirt on ground.\n" +
+              "also paths can connect to roads pavement at such nodes")]
+        OnGround = 16384,
+
+        [Hint("node is underground.")]
+        Underground = 524288,
+
+        [Hide]
+        Ambiguous = 32768,
+
+        [Hide]
+        Water = 65536,
+
+        [Hide]
+        Sewage = 131072,
+
+        [Hide]
+        Heating = 33554432,
+
+        [Hide]
+        Electricity = 67108864,
+
+        [Hide]
+        Fixed = 8192,
+
+        [Hide]
+        ForbidLaneConnection = 262144,
+
+        [Hide]
+        DisableOnlyMiddle = 268435456,
+
+        [Hint("road ends in pedestrian-streets and acts like an end node")]
+        RegularRoadEnd = 0x400000000L,
+
+        [Hint("node has segment[s] with pedestrian bollards")]
+        PedestrianBollards = 0x100000000L,
+
+        [Hint("Node contains both pedestrian and none-pedestrian streets")]
+        PedestrianStreetTransition = 0x200000000L,
+
+        OneWayOutTrafficLights = OneWayOut | TrafficLights,
+        UndergroundTransition = Underground | Transition,
+        All = -1
+    }
+
 
 
     [Flags]
