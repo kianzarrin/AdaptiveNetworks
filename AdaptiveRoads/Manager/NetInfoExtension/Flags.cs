@@ -73,7 +73,11 @@ namespace AdaptiveRoads.Manager {
         }
 
         [FlagPair(MergeWithEnum = typeof(NetNode.Flags))]
+        [FlagPair(MergeWithEnum = typeof(NetNode.Flags2))]
+        [FlagPair(MergeWithEnum = typeof(NetNode.FlagsLong))]
         [FlagPair(MergeWithEnum = typeof(NetNodeFlags))]
+        [FlagPair(MergeWithEnum = typeof(NetNodeFlags2))]
+        [FlagPair(MergeWithEnum = typeof(NetNodeFlagsLong))]
         [Serializable]
         public struct NodeInfoFlags {
             public NetNodeExt.Flags Required, Forbidden;

@@ -671,7 +671,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             if (!Merge) return false;
 
             foreach (var vanillaField in vanillaTarget.GetFieldsWithAttribute<CustomizablePropertyAttribute>()) {
-                if (CanMergeWith(extensionField, vanillaField)) {
+                if (CanMergeWith(extensionField, vanillaField) && !vanillaField.Name.EndsWith("2")) {
                     if (vanillaField.Name.EndsWith("Required"))
                         vanillaRequiredField = vanillaField;
                     else
