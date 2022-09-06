@@ -347,7 +347,9 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         public static bool CreateGenericComponentExt0(
             RoadEditorPanel roadEditorPanel, string groupName,
             object target, object metadata, FieldInfo extensionField) {
-            if(target != metadata && TryGetMerge(extensionField, target, out var vanillaRequired, out var vanillaForbidden)) {
+            if(extensionField.FieldType == typeof(TagsInfo)) {
+                CreateTagsSection(roadEditorPanel, metadata, extensionField);
+            } else if(target != metadata && TryGetMerge(extensionField, target, out var vanillaRequired, out var vanillaForbidden)) {
                 CreateMergedComponent(
                     roadEditorPanel: roadEditorPanel, groupName: groupName,
                     fieldInfo: extensionField, metadata: metadata,
