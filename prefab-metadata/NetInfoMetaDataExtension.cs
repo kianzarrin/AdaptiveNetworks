@@ -68,8 +68,6 @@ namespace PrefabMetadata {
                 ret.m_metaData = m_metaData.Clone();
                 ret.m_tagsForbidden = m_tagsForbidden?.Clone() as string[];
                 ret.m_tagsRequired = m_tagsRequired?.Clone() as string[];
-                ret.m_nodeTagsRequired = m_nodeTagsRequired.Clone();
-                ret.m_nodeTagsForbidden = m_nodeTagsForbidden.Clone();
                 return ret;
             }
 

@@ -46,14 +46,15 @@ namespace PrefabMetadata.Utils {
 
         internal static ushort Clamp2U16(int value) => (ushort)Mathf.Clamp(value, 0, ushort.MaxValue);
 
-        internal static DynamicFlags Clone(ref this DynamicFlags flags) {
-            FieldInfo f_flags = flags.GetType().GetField("m_flags", BindingFlags.NonPublic | BindingFlags.Instance);
-            ulong[] m_flags = f_flags.GetValue(flags) as ulong[];
-            m_flags = m_flags?.Clone() as ulong[];
-            var ret = new DynamicFlags();
-            f_flags.SetValue(ret, m_flags);
-            return ret;
-        }
+        // no need to clone dynamic flags because its array is readonly.
+        //internal static DynamicFlags Clone(ref this DynamicFlags flags) {
+        //    FieldInfo f_flags = flags.GetType().GetField("m_flags", BindingFlags.NonPublic | BindingFlags.Instance);
+        //    ulong[] m_flags = f_flags.GetValue(flags) as ulong[];
+        //    m_flags = m_flags?.Clone() as ulong[];
+        //    var ret = new DynamicFlags();
+        //    f_flags.SetValue(ret, m_flags);
+        //    return ret;
+        //}
     }
 }
 
