@@ -4,6 +4,8 @@ namespace AdaptiveRoads.Manager {
     using AdaptiveRoads.Data.NetworkExtensions;
     using System.Reflection;
     using System.Runtime.Serialization;
+    using ColossalFramework;
+    using UnityEngine.Networking.Types;
 
     public static partial class NetInfoExtionsion {
         [Serializable]
@@ -121,6 +123,82 @@ namespace AdaptiveRoads.Manager {
             [BitMask]
             public LaneTransition.Flags Required, Forbidden;
             public bool CheckFlags(LaneTransition.Flags flags) => flags.CheckFlags(Required, Forbidden);
+        }
+
+
+        [Serializable]
+        public struct TagsInfo {
+            private static string[] EMPTY = new string[0];
+            private static DynamicFlags EMPTY_FLAGS = new DynamicFlags(new ulong[0]);
+            public string[] Required = EMPTY, Forbidden = EMPTY;
+            public byte MinMatch = 0, MaxMatch = 7;
+            public byte MinMismatch = 0, MaxMismatch = 7;
+
+            [NonSerialized]
+            internal DynamicFlags FlagsRequired = EMPTY_FLAGS, FlagsForbidden = EMPTY_FLAGS;
+            [NonSerialized]
+            private bool needCheck_ = false, needCheckLimits_ = false;
+
+            public TagsInfo() { }
+
+            public void Recalculate() {
+                // todo recalculate dynamic flags.
+                NetInfo.AddTags(Required);
+                NetInfo.AddTags(Forbidden);
+                FlagsRequired = NetInfo.GetFlags(Required);
+                FlagsForbidden = NetInfo.GetFlags(Forbidden);
+
+                needCheckLimits_ = MaxMismatch < 7 || MaxMatch < 7 || MinMatch > 0 || MinMismatch > 0;
+                needCheck_ = needCheckLimits_ || !Required.IsNullorEmpty() || !Forbidden.IsNullorEmpty();
+            }
+
+            public bool CheckTags(ushort nodeId) {
+                if (!needCheck_) {
+                    return true;
+                } else if (needCheckLimits_) {
+                    return CheckTagsLimit(nodeId);
+                } else {
+                    return CheckTags(nodeId.ToNode().m_tags);
+                }
+            }
+
+            public bool CheckTags(ushort nodeId, NetInfo segmentNetInfo) {
+                if (!needCheck_) {
+                    return true;
+                } else if (!needCheckLimits_ || CheckTagsLimit(nodeId)) {
+                    return CheckTags(segmentNetInfo.m_netTags);
+                } else {
+                    return false;
+                }
+            }
+
+            private bool CheckTags(DynamicFlags flags) => DynamicFlags.Check(flags, FlagsRequired, FlagsForbidden);
+
+            private bool CheckTagsLimit(ushort nodeID) {
+                ref NetNode node = ref nodeID.ToNode();
+                int nMisMatch = 0;
+                int n_match = 0;
+                for (int segmentIndex = 0; segmentIndex < 8; segmentIndex++) {
+                    ushort segmentId = node.GetSegment(segmentIndex);
+                    if (segmentId == 0) continue;
+                    ref NetSegment segment = ref segmentId.ToSegment();
+                    if (CheckTags(segment.Info.m_netTags)) {
+                        n_match++;
+                        if (n_match > MaxMatch) {
+                            return false;
+                        }
+                    } else {
+                        nMisMatch++;
+                        if (nMisMatch > MaxMismatch) {
+                            return false;
+                        }
+                    }
+                }
+                if (nMisMatch < MinMismatch || n_match < MinMatch) {
+                    return false;
+                }
+                return true;
+            }
         }
     }
 }

@@ -136,6 +136,7 @@ namespace AdaptiveRoads.Manager {
                     Log.Called(netInfo, $"inMainthread={Helpers.InMainThread()}");
                     this.ParentInfo = netInfo;
                     Assertion.NotNull(ParentInfo, "ParentInfo");
+                    Tags.Recalculate();
                     this.m_trackMesh = this.m_mesh;
                     if(this.m_mesh) {
                         float corner1 = netInfo.m_minHeight - netInfo.m_maxSlope * 64f - 10f;
@@ -264,12 +265,6 @@ namespace AdaptiveRoads.Manager {
             [NonSerialized]
             public float m_lodRenderDistance;
 
-            //[NonSerialized]
-            //public bool m_requireSurfaceMaps; // terrain network
-
-            //[NonSerialized]
-            //public bool m_requireHeightMap; // fence
-
             [NonSerialized]
             public bool m_requireWindSpeed;
 
@@ -357,6 +352,9 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Transition")]
             [Hint("TMPE routing between 2 lanes.")] 
             public LaneTransitionInfoFlags LaneTransitionFlags;
+
+            [CustomizableProperty("Tags")]
+            public TagsInfo Tags;
 
             [CustomizableProperty("Segment Custom Data", "Custom Segment User Data")]
             public UserDataInfo SegmentUserData;

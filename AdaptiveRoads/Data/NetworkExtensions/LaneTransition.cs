@@ -213,7 +213,9 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                     LaneExtA.m_flags, LaneA.Flags(),
                     segmentUserData: SegmentExtA.UserData);
             }
-            return ret && trackInfo.CheckLaneTransitionFlag(this.m_flags);
+            ret = ret && trackInfo.CheckLaneTransitionFlag(this.m_flags);
+            ret = ret && trackInfo.Tags.CheckTags(NodeID, SegmentA.Info);
+            return ret;
         }
 
         public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo) {
