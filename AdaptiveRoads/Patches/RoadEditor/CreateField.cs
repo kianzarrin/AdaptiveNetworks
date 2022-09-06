@@ -17,6 +17,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using PrefabMetadata.API;
     using AdaptiveRoads.UI.QuayRoads;
     using AdaptiveRoads.Data;
+    using TagsInfo = AdaptiveRoads.Manager.NetInfoExtionsion.TagsInfo;
 
     /// <summary>
     /// most of UI in road editor panels are managed here:
@@ -125,6 +126,46 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 from: Traverse.Create(nodeInfo).Field<byte>(nameof(NetInfo.Node.m_minOtherTags)),
                 to: Traverse.Create(nodeInfo).Field<byte>(nameof(NetInfo.Node.m_maxOtherTags)));
         }
+
+        public static void CreateTagsSection(RoadEditorPanel roadEditorPanel, object metadata, FieldInfo fieldInfo) {
+            string group = fieldInfo.GetAttribute<CustomizablePropertyAttribute>().name;
+            var container = GetContainer(roadEditorPanel, group);
+            const string hint = null;
+            Traverse TraverseRoot = Traverse.Create(metadata).Field(fieldInfo.Name);
+
+            var traverseRequired = TraverseRoot.Field(fieldInfo.Name).Field<string[]>(nameof(TagsInfo.Required));
+            StringListMSDD.Add(
+                roadEditorPanel: roadEditorPanel,
+                container: container,
+                label: "Required",
+                hint: hint,
+                customStringData: new CustomTagsDataT(traverseRequired));
+
+            var traverseForbidden = TraverseRoot.Field<string[]>(nameof(TagsInfo.Forbidden));
+            StringListMSDD.Add(
+                roadEditorPanel: roadEditorPanel,
+                container: container,
+                label: "Forbidden",
+                hint: hint,
+                customStringData: new CustomTagsDataT(traverseForbidden));
+
+
+            RangePanel8.Add(
+                roadEditorPanel: roadEditorPanel,
+                container: container,
+                label: "match         count",
+                hint: "number of segments that match required/forbidden criteria",
+                from: TraverseRoot.Field<byte>(nameof(TagsInfo.MinMatch)),
+                to: TraverseRoot.Field<byte>(nameof(TagsInfo.MaxMatch)));
+            RangePanel8.Add(
+                roadEditorPanel: roadEditorPanel,
+                container: container,
+                label: "mismatch count",
+                hint: "number of segments that do not match required/forbidden criteria",
+                from: TraverseRoot.Field<byte>(nameof(TagsInfo.MinMismatch)),
+                to: TraverseRoot.Field<byte>(nameof(TagsInfo.MaxMismatch)));
+        }
+
 
 
         /// <summary>
