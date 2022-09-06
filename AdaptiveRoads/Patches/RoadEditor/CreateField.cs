@@ -94,34 +94,34 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
         public static void CreateTagsSection(RoadEditorPanel roadEditorPanel, NetInfo.Node nodeInfo) {
             var container = GetContainer(roadEditorPanel, NetInfoExtionsion.Node.TAG_GROUP_NAME);
-            const string h1 =
+            const string hint =
                 "tags can apply for nodes with or without Direct connect.\n" +
                 "For Direct connect nodes the required/forbidden criteria is  additionally checked on the segment.";
             StringListMSDD.Add(
                 roadEditorPanel: roadEditorPanel,
                 container: container,
                 label: "Required",
-                hint: h1,
+                hint: hint,
                 customStringData: new CustomTagsDataT(nodeInfo, nameof(NetInfo.Node.m_tagsRequired)));
             StringListMSDD.Add(
                 roadEditorPanel: roadEditorPanel,
                 container: container,
                 label: "Forbidden",
-                hint: h1,
+                hint: hint,
                 customStringData: new CustomTagsDataT(nodeInfo, nameof(NetInfo.Node.m_tagsForbidden)));
 
             RangePanel8.Add(
                 roadEditorPanel: roadEditorPanel,
                 container: container,
                 label: "match         count",
-                hint: "tooltip: number of segments that match required/forbidden criteria",
+                hint: "number of segments that match required/forbidden criteria",
                 from: Traverse.Create(nodeInfo).Field<byte>(nameof(NetInfo.Node.m_minSameTags)),
                 to: Traverse.Create(nodeInfo).Field<byte>(nameof(NetInfo.Node.m_maxSameTags)));
             RangePanel8.Add(
                 roadEditorPanel: roadEditorPanel,
                 container: container,
                 label: "mismatch count",
-                hint: "tooltip: number of segments that do not match required/forbidden criteria",
+                hint: "number of segments that do not match required/forbidden criteria",
                 from: Traverse.Create(nodeInfo).Field<byte>(nameof(NetInfo.Node.m_minOtherTags)),
                 to: Traverse.Create(nodeInfo).Field<byte>(nameof(NetInfo.Node.m_maxOtherTags)));
         }
