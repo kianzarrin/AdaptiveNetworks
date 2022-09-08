@@ -358,7 +358,7 @@ namespace AdaptiveRoads.Manager {
             public TagsInfo Tags;
 
             [CustomizableProperty("Lane Tags")]
-            [Hint("Tags to match target lane")]
+            [Hint("Match with target lane tags")]
             public LaneTagsT LaneTags;
 
             [CustomizableProperty("Segment Custom Data", "Custom Segment User Data")]
