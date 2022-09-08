@@ -137,6 +137,7 @@ namespace AdaptiveRoads.Manager {
                     this.ParentInfo = netInfo;
                     Assertion.NotNull(ParentInfo, "ParentInfo");
                     Tags.Recalculate();
+                    LaneTags.Recalculate();
                     this.m_trackMesh = this.m_mesh;
                     if(this.m_mesh) {
                         float corner1 = netInfo.m_minHeight - netInfo.m_maxSlope * 64f - 10f;
@@ -355,6 +356,10 @@ namespace AdaptiveRoads.Manager {
 
             [CustomizableProperty("Tags")]
             public TagsInfo Tags;
+
+            [CustomizableProperty("Lane Tags")]
+            [Hint("Tags to match target lane")]
+            public LaneTagsT LaneTags;
 
             [CustomizableProperty("Segment Custom Data", "Custom Segment User Data")]
             public UserDataInfo SegmentUserData;

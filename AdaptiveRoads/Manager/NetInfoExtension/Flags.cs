@@ -4,8 +4,7 @@ namespace AdaptiveRoads.Manager {
     using AdaptiveRoads.Data.NetworkExtensions;
     using System.Reflection;
     using System.Runtime.Serialization;
-    using ColossalFramework;
-    using UnityEngine.Networking.Types;
+    using AdaptiveRoads.Data.Flags;
 
     public static partial class NetInfoExtionsion {
         [Serializable]
@@ -199,6 +198,29 @@ namespace AdaptiveRoads.Manager {
                 }
                 return true;
             }
+        }
+
+        [Serializable]
+        public struct LaneTagsT {
+            public LaneTagsT (string []tags) {
+                Tags = tags ?? new string[0];
+                Flags = default;
+                Recalculate();
+            }
+
+            public static TagSource Source = new TagSource();
+
+            [NonSerialized]
+            public DynamicFlags Flags;
+
+            public string[] Tags;
+
+            public void Recalculate() {
+                Source.RegisterTags(Tags);
+                Flags = Source.GetFlags(Tags);
+            }
+
+            public bool Check(DynamicFlags flags) => Flags.IsAnyFlagSet(flags);
         }
     }
 }
