@@ -147,8 +147,7 @@ namespace AdaptiveRoads.Util {
             public delegate bool get_IsActive();
             public static get_IsActive getIsActive { get; } = CreateDelegate<get_IsActive>();
 
-            public delegate Material GetMaterial(Package package, string checksum);
-
+            public delegate Material GetMaterial(Package package, string checksum /*, bool isLod */);
             public static GetMaterial GetMaterial_ { get; } = CreateDelegate<GetMaterial>();
 
             public delegate Mesh GetMesh(Package package, string checksum);

@@ -484,7 +484,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             Assert(fieldInfo.Name == nameof(NetInfo.m_connectGroup));
             Log.Called(roadEditorPanel, groupName, target, fieldInfo);
 
-            ITags tagSource = null;
+            TagBase tagSource = null;
             if (target is NetInfo.Node nodeInfo)
                 tagSource = nodeInfo.GetOrCreateMetaData().CustomConnectGroups;
             else if (target is NetInfo netInfo)

@@ -13,6 +13,7 @@ namespace AdaptiveRoads.Manager {
     using System.IO;
     using System.Linq;
     using System.Runtime.Serialization;
+    using System.Xml.Serialization;
     using UnityEngine;
     using static AdaptiveRoads.Manager.NetInfoExtionsion;
     using static AdaptiveRoads.UI.ModSettings;
@@ -27,11 +28,13 @@ namespace AdaptiveRoads.Manager {
             public Net Clone() {
                 try {
                     var ret = this.ShalowClone();
-                    ret.CustomConnectGroups = new CustomConnectGroupT(ret.CustomConnectGroups.Tags);
+                    ret.CustomConnectGroups = ret.CustomConnectGroups?.Clone();
                     ret.QuayRoadsProfile = QuayRoadsProfile?.ToArray();
                     ret.CustomFlagNames = ret.CustomFlagNames?.ShallowClone();
                     ret.ScriptedFlags = ret.ScriptedFlags?.ShallowClone();
                     ret.CustomLaneFlagNames0 = ret.CustomLaneFlagNames0?.ShallowClone();
+                    ret.LaneTags = ret.LaneTags?.Select(item => item?.Clone())?.ToArray();
+                    ret.LaneTags0 = ret.LaneTags0?.ToDictionary(pair => pair.Key, pair => pair.Value?.Clone());
                     //Log.Debug($"CustomLaneFlagNames={CustomLaneFlagNames} before cloning");
                     ret.CustomLaneFlagNames = ret.CustomLaneFlagNames
                         ?.Select(item => item?.ShallowClone())
@@ -80,6 +83,7 @@ namespace AdaptiveRoads.Manager {
                     FillCustomLaneFlagNames();
                     RecalculateLaneTags();
                     SerializationUtil.GetObjectFields(info, this);
+                    SerializationUtil.GetObjectProperties(info, this);
                 } catch (Exception ex) {
                     ex.Log();
                     throw;
@@ -90,7 +94,7 @@ namespace AdaptiveRoads.Manager {
             public Net(SerializationInfo info, StreamingContext context) {
                 try {
                     //Log.Called();
-                    CustomConnectGroups.SetObjectFields(info, this);
+                    SerializationUtil.SetObjectProperties(info, this);
                     SerializationUtil.SetObjectFields(info, this);
                 } catch (Exception ex) {
                     ex.Log();
@@ -102,9 +106,18 @@ namespace AdaptiveRoads.Manager {
             [NonSerialized]
             public NetInfo ParentInfo;
 
-            public CustomConnectGroupT CustomConnectGroups;
+            // serialize CustomConnectGroups
+            public string[] ConnectGroups {
+                get => CustomConnectGroups.Selected;
+                set => CustomConnectGroups = new CustomConnectGroupT(value);
+            }
 
             [NonSerialized]
+            [XmlIgnore]
+            public CustomConnectGroupT CustomConnectGroups = new CustomConnectGroupT(null);
+
+            [NonSerialized]
+            [XmlIgnore]
             public DynamicFlags NodeCustomConnectGroups;
 
             [AfterField(nameof(NetInfo.m_pavementWidth))]
@@ -573,6 +586,7 @@ namespace AdaptiveRoads.Manager {
                 }
 
                 for (int laneIndex = 0; laneIndex < LaneTags.Length; ++laneIndex) {
+                    LaneTags[laneIndex] ??= new(null);
                     LaneTags[laneIndex].Recalculate();
                     LaneTags0.Add(ParentInfo.m_lanes[laneIndex], LaneTags[laneIndex]);
                 }

@@ -154,7 +154,7 @@ namespace AdaptiveRoads.Util {
             string text3 = "";
             if (node.m_directConnect) {
                 var tCG1 = MergeFlagText(node.m_connectGroup);
-                var tCG2 = nodeExt?.CustomConnectGroups.Tags?.Join(", ");
+                var tCG2 = nodeExt?.CustomConnectGroups.Selected?.Join(", ");
                 text3 = MergeText(tCG1, tCG2);
             }
 

@@ -129,8 +129,8 @@ namespace AdaptiveRoads.Manager {
 
         [Serializable]
         public struct TagsInfo {
-            private static string[] EMPTY = new string[0];
-            private static DynamicFlags EMPTY_FLAGS = new DynamicFlags(new ulong[0]);
+            private static string[] EMPTY => DynamicFlagsUtil.EMPTY_TAGS;
+            private static DynamicFlags EMPTY_FLAGS => new DynamicFlags(DynamicFlagsUtil.EMPTY_FLAGS);
             public string[] Required = EMPTY, Forbidden = EMPTY;
             public byte MinMatch = 0, MaxMatch = 7;
             public byte MinMismatch = 0, MaxMismatch = 7;
@@ -202,87 +202,54 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
-        public interface ITags {
-            TagSource TagSource { get; }
-            string []Selected { get; set; }
-        }
-
-        [Serializable]
-        public struct LaneTagsT : ITags{
-            public LaneTagsT (string []tags) {
-                Tags = tags ?? new string[0];
+        public abstract class TagBase {
+            public TagBase(string[] tags) {
+                Tags = tags ?? DynamicFlagsUtil.EMPTY_TAGS;
                 Flags = default;
                 Recalculate();
             }
 
-            public static TagSource Source = new TagSource();
+            public abstract TagSource TagSource { get; }
 
             [NonSerialized]
             public DynamicFlags Flags;
 
-            public string[] Tags;
+            private string[] Tags;
 
             public void Recalculate() {
-                Source.RegisterTags(Tags);
-                Flags = Source.GetFlags(Tags);
+                Tags ??= DynamicFlagsUtil.EMPTY_TAGS;
+                TagSource.RegisterTags(Tags);
+                Flags = TagSource.GetFlags(Tags);
                 if (Flags.IsEmpty)
                     Flags = new DynamicFlags(DynamicFlagsUtil.EMPTY_FLAGS); // simplify.
             }
 
             public bool Check(DynamicFlags flags) => Flags.IsAnyFlagSet(flags);
 
-            TagSource ITags.TagSource => Source;
-            string[] ITags.Selected {
-                get => Tags;
+            public string[] Selected {
+                get => Tags ?? DynamicFlagsUtil.EMPTY_TAGS;
                 set {
-                    Tags = value ?? new string[0];
+                    Tags = value ?? DynamicFlagsUtil.EMPTY_TAGS;
                     Recalculate();
                 }
             }
         }
 
-        [Serializable]
-        public struct CustomConnectGroupT : ITags {
-            public CustomConnectGroupT(string[] tags) {
-                Tags = tags ?? new string[0];
-                Flags = default;
-                Recalculate();
-            }
-
-            // load legacy connect groups.
-            public void SetObjectFields(SerializationInfo info, object target, string name = "ConnectGroups") {
-                try {
-                    var connectGroups = info.GetValue<string[]>(name);
-                    Tags = connectGroups ?? new string[0];
-                    Recalculate();
-                } catch (SerializationException) { // not found
-                } catch (Exception ex) { ex.Log(); }
-            }
+        public class LaneTagsT : TagBase {
+            public LaneTagsT (string []tags) : base(tags){}
 
             public static TagSource Source = new TagSource();
+            public override TagSource TagSource => Source;
 
-            [NonSerialized]
-            public DynamicFlags Flags;
+            public LaneTagsT Clone() => new LaneTagsT(Selected);
+        }
 
-            public string[] Tags;
+        public class CustomConnectGroupT : TagBase {
+            public CustomConnectGroupT(string[] tags) : base(tags) { }
 
-            public void Recalculate() {
-                Source.RegisterTags(Tags);
-                Flags = Source.GetFlags(Tags);
-                if (Flags.IsEmpty)
-                    Flags = new DynamicFlags(DynamicFlagsUtil.EMPTY_FLAGS); // simplify.
-            }
-
-            public bool Check(DynamicFlags flags) => Flags.IsAnyFlagSet(flags);
-
-            TagSource ITags.TagSource => Source;
-            string[] ITags.Selected {
-                get => Tags;
-                set {
-                    Tags = value ?? new string[0];
-                    Recalculate();
-                }
-            }
+            public static TagSource Source = new TagSource();
+            public override TagSource TagSource => Source;
+            public CustomConnectGroupT Clone() => new CustomConnectGroupT(Selected);
         }
     }
 }

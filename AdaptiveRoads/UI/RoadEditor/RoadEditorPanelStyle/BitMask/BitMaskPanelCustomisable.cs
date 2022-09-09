@@ -18,7 +18,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
 
 
         internal FlagDataT FlagData;
-        internal ITags Source;
+        internal TagBase Source;
 
         public override void OnDestroy() {
             ReflectionHelpers.SetAllDeclaredFieldsToNull(this);
@@ -31,7 +31,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             string label,
             string hint,
             FlagDataT flagData,
-            ITags tagSource) {
+            TagBase tagSource) {
             Log.Debug($"BitMaskPanel.Add(container:{container}, label:{label})");
             var subPanel = UIView.GetAView().AddUIComponent(typeof(BitMaskPanelCustomisable)) as BitMaskPanelCustomisable;
             subPanel.Target = roadEditorPanel.GetTarget();
@@ -103,10 +103,13 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
 
         private void OnItemAdded(string item) {
             try {
-                LogCalled(item);
-                Source.Selected = Source.Selected;
+                Log.Called(item);
+                Source.Selected = Source.Selected.AddToArray(item);
+                Log.Info("[p1] OnItemAdded: Source.Selected=" + Source.Selected.ToSTR());
                 Refresh();
+                Log.Info("[p2] OnItemAdded: Source.Selected=" + Source.Selected.ToSTR());
                 SetChecked(item, true);
+                Log.Info("[p3] OnItemAdded: Source.Selected=" + Source.Selected.ToSTR());
             } catch (Exception ex) {
                 ex.Log();
             }

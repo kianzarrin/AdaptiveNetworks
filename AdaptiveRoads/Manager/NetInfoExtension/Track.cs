@@ -11,6 +11,7 @@ namespace AdaptiveRoads.Manager {
     using System.Linq;
     using System.Reflection;
     using System.Runtime.Serialization;
+    using System.Xml.Serialization;
     using UnityEngine;
     using static AdaptiveRoads.UI.ModSettings;
     using static KianCommons.ReflectionHelpers;
@@ -359,7 +360,9 @@ namespace AdaptiveRoads.Manager {
 
             [CustomizableProperty("Lane Tags")]
             [Hint("Match with target lane tags")]
-            public LaneTagsT LaneTags;
+            [NonSerialized]
+            [XmlIgnore]
+            public LaneTagsT LaneTags = new LaneTagsT(null);
 
             [CustomizableProperty("Segment Custom Data", "Custom Segment User Data")]
             public UserDataInfo SegmentUserData;
