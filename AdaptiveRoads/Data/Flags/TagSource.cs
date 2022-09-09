@@ -1,13 +1,16 @@
 namespace AdaptiveRoads.Data.Flags {
-    using KianCommons.Util;
+    using KianCommons;
     using System.Collections.Generic;
+    using System.Linq;
 
     public class TagSource {
-        public Dictionary<string, int> AllTags = new();
+        public Dictionary<string, int> Tags2Index = new();
         private List<ulong> allFlags_ = new();
 
         public static DynamicFlags EmptyFlags => new DynamicFlags(DynamicFlagsUtil.EMPTY_FLAGS);
         public DynamicFlags All => new DynamicFlags(allFlags_.ToArray());
+        public string[] AllTags => Tags2Index.Keys.ToArray();
+
 
         public void RegisterTags(string[] tags) {
             if (tags == null) return;
@@ -17,16 +20,16 @@ namespace AdaptiveRoads.Data.Flags {
         public void RegisterTag(string tag) {
             if (tag == null)
                 return;
-            if (!AllTags.ContainsKey(tag))
-                AllTags.Add(tag, AllTags.Count);
-            if (AllTags.Count > allFlags_.Count * 64)
+            if (!Tags2Index.ContainsKey(tag))
+                Tags2Index.Add(tag, Tags2Index.Count);
+            if (Tags2Index.Count > allFlags_.Count * 64)
                 allFlags_.Add(ulong.MaxValue);
         }
         public DynamicFlags GetFlags(params string[] tags) {
             ulong[] flags = new ulong[allFlags_.Count];
             if (tags != null) {
                 foreach (string key in tags) {
-                    if (AllTags.TryGetValue(key, out var index)) {
+                    if (Tags2Index.TryGetValue(key, out var index)) {
                         flags[index / 64] |= (ulong)(1L << index % 64);
                     }
                 }
@@ -37,7 +40,7 @@ namespace AdaptiveRoads.Data.Flags {
         /// <summary>WARNING: low performance!</summary>
         public string[] GetTags(DynamicFlags flags) {
             List<string> tags = new();
-            foreach (string tag in AllTags.Keys) {
+            foreach (string tag in Tags2Index.Keys) {
                 var flag = GetFlags(new[] { tag });
                 bool hasFlag = !(flag & flags).IsEmpty;
                 if (hasFlag) {

@@ -8,14 +8,10 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
     using System.Linq;
     using KianCommons.UI.Helpers;
     using AdaptiveRoads.Manager;
-    using AdaptiveRoads.Util;
     using static KianCommons.ReflectionHelpers;
     using KianCommons.Plugins;
     using System.Collections.Generic;
-    using PrefabMetadata.API;
-    using PrefabMetadata.Helpers;
     using AdaptiveRoads.CustomScript;
-    using System.IO;
 
     internal struct FlagDataT {
         public delegate void SetHandlerD(IConvertible flag);

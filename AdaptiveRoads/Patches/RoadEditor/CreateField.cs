@@ -18,6 +18,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using AdaptiveRoads.UI.QuayRoads;
     using AdaptiveRoads.Data;
     using TagsInfo = AdaptiveRoads.Manager.NetInfoExtionsion.TagsInfo;
+    using static AdaptiveRoads.Manager.NetInfoExtionsion;
 
     /// <summary>
     /// most of UI in road editor panels are managed here:
@@ -482,17 +483,16 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             Assert(fieldInfo.FieldType == typeof(NetInfo.ConnectGroup), "field type is connect group");
             Assert(fieldInfo.Name == nameof(NetInfo.m_connectGroup));
             Log.Called(roadEditorPanel, groupName, target, fieldInfo);
-            object metadata = null;
+
+            ITags tagSource = null;
             if (target is NetInfo.Node nodeInfo)
-                metadata = nodeInfo.GetOrCreateMetaData();
+                tagSource = nodeInfo.GetOrCreateMetaData().CustomConnectGroups;
             else if (target is NetInfo netInfo)
-                metadata = netInfo.GetOrCreateMetaData();
-            Assertion.NotNull(metadata,"metadata");
+                tagSource = netInfo.GetOrCreateMetaData().CustomConnectGroups;
+            Assertion.NotNull(tagSource, "tagSource");
+
             var container = GetContainer(roadEditorPanel, groupName);
             var uidata = GetVanillaFlagUIData(fieldInfo, target);
-            var customdata = new CustomFlagDataT(
-                itemSource: ItemSource.GetOrCreate(fieldInfo.FieldType),
-                selected: Traverse.Create(metadata).Field("ConnectGroups"));
 
             var bitMaskPanel = BitMaskPanelCustomisable.Add(
                 roadEditorPanel: roadEditorPanel,
@@ -500,7 +500,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 label: uidata.Label,
                 hint: uidata.Hint,
                 flagData: uidata.FlagData,
-                customFlagData: customdata);
+                tagSource: tagSource);
         }
 
         public static void CreateUserDataInfoSection(RoadEditorPanel roadEditorPanel, object target, FieldInfo fieldInfo, string groupName) {

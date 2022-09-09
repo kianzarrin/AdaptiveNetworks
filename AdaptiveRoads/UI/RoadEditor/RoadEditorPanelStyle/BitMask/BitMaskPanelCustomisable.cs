@@ -7,52 +7,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
     using System.Linq;
     using HarmonyLib;
     using System.Collections.Generic;
-
-    internal class ItemSource {
-        static Dictionary<Type, ItemSource> sources_ = new Dictionary<Type, ItemSource>();
-        public static ItemSource GetOrCreate<T>() => GetOrCreate(typeof(T));
-        public static ItemSource GetOrCreate(Type type) {
-            if (!sources_.ContainsKey(type))
-                sources_[type] = new ItemSource();
-            return sources_[type];
-        }
-
-        public event Action eventItemSourceUpdated;
-        string[] items_ = new string[0];
-        public string[] Items => items_;
-        
-
-        public bool Add(string item) {
-            LogCalled(item);
-            if (!item.IsNullorEmpty() && !items_.Contains(item)) {
-                items_ = items_.AddToArray(item);
-                eventItemSourceUpdated?.Invoke();
-                return true;
-            }
-            return false;
-        }
-    }
-
-    internal struct CustomFlagDataT {
-        public readonly ItemSource ItemSource;
-        readonly Traverse selected_;
-
-        public CustomFlagDataT(ItemSource itemSource, Traverse selected) {
-            ItemSource = itemSource;
-            selected_ = selected;
-        }
-
-        public string[] Selected {
-            get => selected_.GetValue<string[]>() ?? new string[0];
-            set {
-                if (value == null || value.Length == 0)
-                    selected_.SetValue(null);
-                else
-                    selected_.SetValue(value);
-            }
-        }
-    }
-
+    using static AdaptiveRoads.Manager.NetInfoExtionsion;
 
     public class BitMaskPanelCustomisable : BitMaskPanelBase {
         class CustomItemUserData {
@@ -63,10 +18,9 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
 
 
         internal FlagDataT FlagData;
-        internal CustomFlagDataT CustomFlagData;
+        internal ITags Source;
 
         public override void OnDestroy() {
-            CustomFlagData.ItemSource.eventItemSourceUpdated -= Refresh;
             ReflectionHelpers.SetAllDeclaredFieldsToNull(this);
             base.OnDestroy();
         }
@@ -77,12 +31,12 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             string label,
             string hint,
             FlagDataT flagData,
-            CustomFlagDataT customFlagData) {
+            ITags tagSource) {
             Log.Debug($"BitMaskPanel.Add(container:{container}, label:{label})");
             var subPanel = UIView.GetAView().AddUIComponent(typeof(BitMaskPanelCustomisable)) as BitMaskPanelCustomisable;
             subPanel.Target = roadEditorPanel.GetTarget();
             subPanel.FlagData = flagData;
-            subPanel.CustomFlagData = customFlagData;
+            subPanel.Source = tagSource;
             subPanel.Initialize();
             subPanel.Label.text = label + ":";
             subPanel.Hint = hint;
@@ -97,12 +51,10 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
         protected override void Initialize() {
             //Disable();
             DropDown.Clear();
-            Populate(DropDown, FlagData, CustomFlagData.ItemSource.Items, CustomFlagData.Selected);
+            Populate(DropDown, FlagData, Source.TagSource.AllTags, Source.Selected);
             UpdateText();
             DropDown.eventCheckedChanged -= DropDown_eventCheckedChanged;
             DropDown.eventCheckedChanged += DropDown_eventCheckedChanged;
-            CustomFlagData.ItemSource.eventItemSourceUpdated -= Refresh;
-            CustomFlagData.ItemSource.eventItemSourceUpdated += Refresh;
             Enable();
         }
 
@@ -152,7 +104,8 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
         private void OnItemAdded(string item) {
             try {
                 LogCalled(item);
-                CustomFlagData.ItemSource.Add(item); // adds item to drop down
+                Source.Selected = Source.Selected;
+                Refresh();
                 SetChecked(item, true);
             } catch (Exception ex) {
                 ex.Log();
@@ -184,10 +137,10 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
 
         // apply checked strings from UI to prefab
         protected void SetValue(string[] values) {
-            var selected = CustomFlagData.Selected;
+            var selected = Source.Selected;
             bool change = values.Except(selected).Any() || selected.Except(values).Any();
             if (change) {
-                CustomFlagData.Selected = values;
+                Source.Selected = values;
                 OnPropertyChanged();
             }
         }
@@ -229,7 +182,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
 
         private void UpdateText() {
             var enumFlags = FlagData.GetValue();
-            var strings = CustomFlagData.Selected;
+            var strings = Source.Selected;
             string text = ToText(enumFlags, strings);
             ApplyText(DropDown, text);
         }

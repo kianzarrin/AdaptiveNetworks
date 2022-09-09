@@ -27,9 +27,7 @@ namespace AdaptiveRoads.Manager {
             public Net Clone() {
                 try {
                     var ret = this.ShalowClone();
-                    ret.ConnectGroups = ret.ConnectGroups?.ToArray();
-                    ret.ConnectGroupsHash = ret.ConnectGroupsHash?.ToArray();
-                    ret.NodeConnectGroupsHash = ret.NodeConnectGroupsHash?.ToArray();
+                    ret.CustomConnectGroups = new CustomConnectGroupT(ret.CustomConnectGroups.Tags);
                     ret.QuayRoadsProfile = QuayRoadsProfile?.ToArray();
                     ret.CustomFlagNames = ret.CustomFlagNames?.ShallowClone();
                     ret.ScriptedFlags = ret.ScriptedFlags?.ShallowClone();
@@ -92,6 +90,7 @@ namespace AdaptiveRoads.Manager {
             public Net(SerializationInfo info, StreamingContext context) {
                 try {
                     //Log.Called();
+                    CustomConnectGroups.SetObjectFields(info, this);
                     SerializationUtil.SetObjectFields(info, this);
                 } catch (Exception ex) {
                     ex.Log();
@@ -103,14 +102,10 @@ namespace AdaptiveRoads.Manager {
             [NonSerialized]
             public NetInfo ParentInfo;
 
-            public string[] ConnectGroups;
+            public CustomConnectGroupT CustomConnectGroups;
 
             [NonSerialized]
-            public int[] NodeConnectGroupsHash;
-
-
-            [NonSerialized]
-            public int[] ConnectGroupsHash;
+            public DynamicFlags NodeCustomConnectGroups;
 
             [AfterField(nameof(NetInfo.m_pavementWidth))]
             [CustomizableProperty("Pavement Width Right", "Properties")]
@@ -768,42 +763,20 @@ namespace AdaptiveRoads.Manager {
             void RecalculateConnectGroups(NetInfo netInfo) {
                 try {
                     LogCalled();
-                    ConnectGroupsHash = ConnectGroups?.Select(item => item.GetHashCode()).ToArray();
-                    if (ConnectGroupsHash.IsNullorEmpty()) ConnectGroupsHash = null;
-
                     foreach (var node in netInfo.m_nodes)
-                        node.GetMetaData()?.Update();
-
-                    NodeConnectGroupsHash = GetNodeConnectGroupsHash(netInfo).ToArray();
-                    if (NodeConnectGroupsHash.IsNullorEmpty()) NodeConnectGroupsHash = null;
-
-                    var itemSource = ItemSource.GetOrCreate<NetInfo.ConnectGroup>();
-                    foreach (var connectGroup in GetAllConnectGroups(netInfo))
-                        itemSource.Add(connectGroup);
+                        node.GetMetaData()?.CustomConnectGroups.Recalculate();
+                    CustomConnectGroups.Recalculate();
+                    NodeCustomConnectGroups = GetNodeCustomConnectGroups(netInfo);
                 } catch (Exception ex) { ex.Log(); }
             }
 
-            IEnumerable<int> GetNodeConnectGroupsHash(NetInfo netInfo) {
+            DynamicFlags GetNodeCustomConnectGroups(NetInfo netInfo) {
+                DynamicFlags ret = new DynamicFlags(DynamicFlagsUtil.EMPTY_FLAGS);
                 foreach(var node in netInfo.m_nodes) {
-                    var hashes = node.GetMetaData()?.ConnectGroupsHash;
-                    if(hashes == null) continue;
-                    foreach(int hash in hashes)
-                        yield return hash;
+                    if(node.GetMetaData() is Node nodeMetaData)
+                        ret = ret | nodeMetaData.CustomConnectGroups.Flags;
                 }
-            }
-
-            IEnumerable<string> GetAllConnectGroups(NetInfo netInfo) {
-                if(ConnectGroups != null) {
-                    foreach(var cg in ConnectGroups)
-                        yield return cg;
-                }
-
-                foreach(var node in netInfo.m_nodes) {
-                    var connectGroups = node.GetMetaData()?.ConnectGroups;
-                    if(connectGroups == null) continue;
-                    foreach(var cg in connectGroups)
-                        yield return cg;
-                }
+                return ret;
             }
         }
     }

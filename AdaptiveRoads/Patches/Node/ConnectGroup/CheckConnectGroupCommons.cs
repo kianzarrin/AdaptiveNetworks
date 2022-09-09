@@ -17,10 +17,8 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
         // the next instruction is brfalse which automatically takes a not of the above phrase so at the end it will be
         // (ConnectGroup == None && MetaData.ConnectGroups == null) ||
         public static bool CheckConnectGroup(NetInfo.ConnectGroup cg, NetInfo.Node node) {
-#if DEBUG
-            DirectConnectUtil.AssertNotEmpty(node.GetMetaData()?.ConnectGroupsHash, "connect groups");
-#endif
-            return !(cg == 0 && node.GetMetaData()?.ConnectGroupsHash == null);
+            var flags2 = node.GetMetaData()?.CustomConnectGroups.Flags ?? new DynamicFlags(DynamicFlagsUtil.EMPTY_FLAGS);
+            return !(cg == 0 && flags2.IsEmpty);
         }
 
         static FieldInfo fNodeConnectGroup => typeof(NetInfo.Node).GetField(nameof(NetInfo.Node.m_connectGroup));
@@ -62,8 +60,8 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
             if(flagsMatch)
                 return true;
             return DirectConnectUtil.ConnectGroupsMatch(
-                node.GetMetaData()?.ConnectGroupsHash,
-                info.GetMetaData()?.ConnectGroupsHash);
+                node.GetMetaData()?.CustomConnectGroups.Flags,
+                info.GetMetaData()?.CustomConnectGroups.Flags);
         }
 
         static FieldInfo fNodeConnectGroup => typeof(NetInfo.Node).GetField(nameof(NetInfo.Node.m_connectGroup));
@@ -116,10 +114,8 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
         // the next instruction is brfalse which automatically takes a not of the above phrase so at the end it will be
         // (ConnectGroup == None && MetaData.ConnectGroups == null) ||
         public static bool CheckConnectGroup(NetInfo.ConnectGroup cg, NetInfo info) {
-#if DEBUG
-            DirectConnectUtil.AssertNotEmpty(info.GetMetaData()?.NodeConnectGroupsHash, "connect groups");
-#endif
-            return !(cg == 0 && info.GetMetaData()?.NodeConnectGroupsHash == null);
+            var flags2 = info.GetMetaData()?.CustomConnectGroups.Flags ?? new DynamicFlags(DynamicFlagsUtil.EMPTY_FLAGS);
+            return !(cg == 0 && flags2.IsEmpty);
         }
 
 
@@ -166,8 +162,8 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
                 return true; 
             }
             return DirectConnectUtil.ConnectGroupsMatch(
-                sourceInfo.GetMetaData()?.NodeConnectGroupsHash,
-                targetInfo.GetMetaData()?.ConnectGroupsHash);
+                sourceInfo.GetMetaData()?.CustomConnectGroups.Flags,
+                targetInfo.GetMetaData()?.CustomConnectGroups.Flags);
         }
 
         static FieldInfo fNetNodeConnectGroups => typeof(NetInfo).GetField(nameof(NetInfo.m_nodeConnectGroups));

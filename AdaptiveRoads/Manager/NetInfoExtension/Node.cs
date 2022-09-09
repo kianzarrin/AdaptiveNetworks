@@ -41,10 +41,7 @@ namespace AdaptiveRoads.Manager {
             [AfterField(nameof(NetInfo.Node.m_directConnect))]
             public bool CheckTargetFlags;
 
-            public string[] ConnectGroups;
-
-            [NonSerialized] [XmlIgnore]
-            public int[] ConnectGroupsHash;
+            public CustomConnectGroupT CustomConnectGroups;
 
             [Hint("used by other mods to decide how hide tracks/medians")]
             [CustomizableProperty("Lane Type", DC_GROUP_NAME)]
@@ -93,7 +90,7 @@ namespace AdaptiveRoads.Manager {
             };
 
             public void Update() {
-                ConnectGroupsHash = ConnectGroups?.Select(item => item.GetHashCode()).ToArray();
+                CustomConnectGroups.Recalculate();
             }
 
             [Obsolete("only useful for the purpose of shallow clone", error: true)]
@@ -113,8 +110,10 @@ namespace AdaptiveRoads.Manager {
             }
 
             // deserialization
-            public Node(SerializationInfo info, StreamingContext context) =>
+            public Node(SerializationInfo info, StreamingContext context) {
                 SerializationUtil.SetObjectFields(info, this);
+                CustomConnectGroups.SetObjectFields(info, this);
+            }
             #endregion
 
             public void SetupTiling(NetInfo.Node nodeInfo) {
