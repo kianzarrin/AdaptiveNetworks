@@ -104,13 +104,13 @@ namespace AdaptiveRoads.Manager {
                         if (field != null) {
                             object val;
                             if (field.FieldType == typeof(Mesh)) {
-                                bool lod = field.Name.Contains("lod");
+                                //bool lod = field.Name.Contains("lod");
                                 string checksum = item.Value as string;
                                 val = LSMRevisited.GetMesh(checksum, AssetDataExtension.CurrentBasicNetInfo);
                             } else if (field.FieldType == typeof(Material)) {
                                 bool lod = field.Name.Contains("lod");
                                 string checksum = item.Value as string;
-                                val = LSMRevisited.GetMaterial(checksum, AssetDataExtension.CurrentBasicNetInfo);
+                                val = LSMRevisited.GetMaterial(checksum, AssetDataExtension.CurrentBasicNetInfo, lod);
 #pragma warning disable CS0618 // Type or member is obsolete
                             } else if(item.Value is VanillaNodeInfoFlags flags) {
 #pragma warning restore CS0618 // Type or member is obsolete

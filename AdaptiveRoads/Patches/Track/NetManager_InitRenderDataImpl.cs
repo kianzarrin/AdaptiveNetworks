@@ -18,12 +18,9 @@ namespace AdaptiveRoads.Patches.Track {
             return false;
         }
 
-        static bool LSM => LSMRevisited.LastActive || LSMUtil.LastSharing != null;
-
         public static IEnumerator InitRenderDataImpl() {
             yield return 0;
             Log.Debug("NetManager_InitRenderDataImpl.InitRenderDataImpl() started ...");
-            Log.Debug("LSM=" + LSM);
             Singleton<LoadingManager>.instance.m_loadingProfilerMain.BeginLoading("NetManager.InitRenderData");
             int netCount = PrefabCollection<NetInfo>.LoadedCount();
             var subInfos = new List<KeyValuePair<NetInfo, object>>(netCount * 10);
@@ -217,12 +214,6 @@ namespace AdaptiveRoads.Patches.Track {
                                         }
 
                                         subInfos.Add(new KeyValuePair<NetInfo, object>(netInfo, track));
-                                        if (LSM) {
-                                            // work around shared lod textures.
-                                            rgb = Texture2D.Instantiate(rgb);
-                                            xys = Texture2D.Instantiate(xys);
-                                            apr = Texture2D.Instantiate(apr);
-                                        }
                                         rgbTextures.Add(rgb);
                                         xysTextures.Add(xys);
                                         aprTextures.Add(apr);
@@ -297,15 +288,6 @@ namespace AdaptiveRoads.Patches.Track {
 
                     } else if (subInfos[i].Value is NetInfoExtionsion.Track trackInfo) {
                         netInfo.GetMetaData()?.InitMeshData(trackInfo, rects[i], netMan.m_lodRgbAtlas, netMan.m_lodXysAtlas, netMan.m_lodAprAtlas);
-                        if (LSM) {
-                            // destroy cloned textures.
-                            Texture2D.Destroy(rgbTextures[i]);
-                            rgbTextures[i] = null;
-                            Texture2D.Destroy(xysTextures[i]);
-                            xysTextures[i] = null;
-                            Texture2D.Destroy(aprTextures[i]);
-                            aprTextures[i] = null;
-                        }
                     }
                 } catch(Exception ex) { ex.Log(); }
             }
