@@ -60,7 +60,7 @@ namespace AdaptiveRoads.Patches.Parking {
             var info = pathPos.m_segment.ToSegment().Info;
             var net = info?.GetMetaData();
             Angle = net?.ParkingAngleDegrees ?? 0;
-            if (Angle > 30) {
+            if (Angle >= 30) {
                 OneOverSinAngle = net.OneOverSinOfParkingAngle;
                 var laneInfo = info.m_lanes[pathPos.m_lane];
                 width = FixWidth(length, OneOverSinAngle, laneInfo.m_width);
@@ -71,7 +71,7 @@ namespace AdaptiveRoads.Patches.Parking {
 
         static Quaternion Rotate(Quaternion parkRot) {
             if (Angle != 0)
-                parkRot *= Quaternion.Euler(0, Angle, 0);
+                parkRot *= Quaternion.Euler(0, Angle * 0.5f, 0);
             return parkRot;
         }
 
@@ -106,7 +106,7 @@ namespace AdaptiveRoads.Patches.Parking {
         }
 
         static float FixGap(float gap) {
-            if(ParkingAnglePatch.Angle > 30)
+            if(ParkingAnglePatch.Angle >= 30)
                 return SIDE_GAP * ParkingAnglePatch.OneOverSinAngle; 
             else
                 return gap;
