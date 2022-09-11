@@ -132,6 +132,7 @@ namespace AdaptiveRoads.Manager {
 
             [AfterField(nameof(NetInfo.m_minCornerOffset))]
             [CustomizableProperty("Parking Angle °", "Properties")]
+            [Hint("accepted values are 0 or between 30 to 90 degrees")]
             public float ParkingAngleDegrees = 0;
 
             /// <summary>
@@ -708,7 +709,7 @@ namespace AdaptiveRoads.Manager {
             void RecalculateParkingAngle() {
                 try {
                     float sin = Mathf.Abs(Mathf.Sin(Mathf.Deg2Rad * ParkingAngleDegrees));
-                    if (sin >= Mathf.Sin(30))
+                    if (sin >= Mathf.Sin(29 * Mathf.Deg2Rad))
                         OneOverSinOfParkingAngle = 1 / sin;
                     else
                         OneOverSinOfParkingAngle = 1;

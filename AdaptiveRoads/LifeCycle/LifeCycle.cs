@@ -90,7 +90,7 @@ namespace AdaptiveRoads.LifeCycle {
 #endif
 
         public static void HotReload3rdparty() {
-            Log.Called();
+            if(loaded_!)Log.Called();
             if (loaded_ && PluginUtil.GetTrafficManager().IsActive()) {
                 var notifier = TMPENotifier;
                 if (notifier != null) {
