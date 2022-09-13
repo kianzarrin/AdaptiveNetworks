@@ -13,7 +13,6 @@ namespace AdaptiveRoads.Patches.Parking {
     using ColossalFramework.Math;
     using ICities;
 
-    [InGamePatch]
     [UsedImplicitly]
     [HarmonyPatch(typeof(PassengerCarAI), "FindParkingSpaceRoadSide")]
     [PreloadPatch]
@@ -71,7 +70,7 @@ namespace AdaptiveRoads.Patches.Parking {
 
         static Quaternion Rotate(Quaternion parkRot) {
             if (Angle != 0)
-                parkRot *= Quaternion.Euler(0, Angle * 0.5f, 0);
+                parkRot *= Quaternion.Euler(0, Angle, 0);
             return parkRot;
         }
 
@@ -82,7 +81,7 @@ namespace AdaptiveRoads.Patches.Parking {
             carWidth * oneOverSinOfParkingAngle;
     }
 
-    [InGamePatch]
+    [PreloadPatch]
     [UsedImplicitly]
     [HarmonyPatch]
     // angled cars need less gap only for their doors

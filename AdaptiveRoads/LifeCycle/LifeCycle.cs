@@ -164,7 +164,7 @@ namespace AdaptiveRoads.LifeCycle {
                 Log.Info($"Scene={Scene} LoadMode={Mode}");
                 if(Scene != "AssetEditor") {
                     Log.Info("Applying in game patches");
-                    HarmonyUtil.InstallHarmony<InGamePatchAttribute>(HARMONY_ID);
+                    HarmonyUtil.InstallHarmony(HARMONY_ID, required: typeof(InGamePatchAttribute), forbidden: typeof(PreloadPatchAttribute));
                 } else {
                     Log.Info("Applying all patches");
                     HarmonyUtil.InstallHarmony(HARMONY_ID, forbidden:typeof(PreloadPatchAttribute));
