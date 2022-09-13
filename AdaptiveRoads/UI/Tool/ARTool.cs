@@ -110,7 +110,7 @@ namespace AdaptiveRoads.UI.Tool {
                     hints.Add("This road has no custom AN flags to modify.");
                 ShowToolInfo(true, hints.JoinLines(), HitPos);
             } else {
-                ShowToolInfo(true, "Page Down => underground\n" + "Page Up => overground", HitPos);
+                ShowToolInfo2("Page Down => underground\n" + "Page Up => overground");
             }
         }
 

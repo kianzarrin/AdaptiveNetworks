@@ -1,7 +1,6 @@
 - lane/track templates
 - smartCustomFlags for templates
 
-- lane/track connect groups (might take time)
 - fence (None lanes with Connect group act as fence?)
 
 - fix the gap (skew lane if junction is not straight)
