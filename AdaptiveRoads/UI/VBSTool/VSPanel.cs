@@ -1,5 +1,6 @@
 namespace AdaptiveRoads.UI.VBSTool {
     using AdaptiveRoads.Manager;
+    using AdaptiveRoads.UI.RoadEditor;
     using ColossalFramework;
     using ColossalFramework.UI;
     using KianCommons;
@@ -63,13 +64,70 @@ namespace AdaptiveRoads.UI.VBSTool {
                 cb.isChecked = flags.IsFlagSet(flag);
                 cb.objectUserData = (NetSegment.Flags)flag;
                 cb.eventCheckChanged += Cb_eventCheckChanged;
+                cb.eventMouseHover += Cb_eventMouseHover;
+                cb.eventMouseEnter += Cb_eventMouseHover;
+                cb.eventMouseLeave += Cb_eventMouseLeave;
+            }
+        }
+        private void Cb_eventMouseLeave(UIComponent component, UIMouseEventParameter eventParam) {
+            Overlay.HoveredInstace = default;
+        }
+
+        private void Cb_eventMouseHover(UIComponent component, UIMouseEventParameter eventParam) {
+            Log.Called();
+            ref NetSegment segment = ref segmentID_.ToSegment();
+            NetSegment.Flags flag = (NetSegment.Flags)component.objectUserData;
+            bool leftFlag = flag.IsFlagSet(NetSegment.Flags.StopLeft | NetSegment.Flags.StopLeft2);
+            bool rightFlag = flag.IsFlagSet(NetSegment.Flags.StopRight | NetSegment.Flags.StopRight2);
+            bool busFlag = flag.IsFlagSet(NetSegment.Flags.StopBoth);
+            bool tramFlag = flag.IsFlagSet(NetSegment.Flags.StopBoth2);
+            foreach (var lane in new LaneDataIterator(segmentID_)) {
+                bool leftLane = lane.LaneInfo.m_position < 0;
+                leftLane ^= segment.IsInvert();
+                var stopType = lane.LaneInfo.m_stopType;
+                bool busLane = stopType.IsFlagSet(VehicleInfo.VehicleType.Car);
+                bool tramLane = stopType.IsFlagSet(VehicleInfo.VehicleType.Tram);
+
+                bool show = leftLane && leftFlag || !leftLane && rightFlag;
+                show &= busFlag && busLane || tramFlag && tramLane;
+                Log.Debug("show:" + show);
+                if (show) {
+                    Overlay.HoveredInstace = new InstanceID { NetLane = lane.LaneID };
+                }
             }
         }
 
         private void Cb_eventCheckChanged(UIComponent component, bool value) {
             NetSegment.Flags flag = (NetSegment.Flags)component.objectUserData;
-            segmentID_.ToSegment().m_flags = segmentID_.ToSegment().m_flags.SetFlags(flag, value);
+            ref NetSegment segment = ref segmentID_.ToSegment();
+            segment.m_flags = segment.m_flags.SetFlags(flag, value);
+            UpdateLaneFlags();
             NetworkExtensionManager.Instance.UpdateSegment(segmentID_);
+        }
+
+    private void UpdateLaneFlags() {
+            ref NetSegment segment = ref segmentID_.ToSegment();
+            var segmentFlags = segment.m_flags;
+            foreach (var lane in new LaneDataIterator(segmentID_)) {
+                var leftLane = lane.LaneInfo.m_position < 0;
+                leftLane ^= segment.IsInvert();
+                var stopType = lane.LaneInfo.m_stopType;
+                bool busLane = stopType.IsFlagSet(VehicleInfo.VehicleType.Car);
+                bool tramLane = stopType.IsFlagSet(VehicleInfo.VehicleType.Tram);
+
+                bool stop =
+                    leftLane & segmentFlags.IsFlagSet(NetSegment.Flags.StopLeft) ||
+                    !leftLane & segmentFlags.IsFlagSet(NetSegment.Flags.StopRight);
+                stop &= busLane;
+
+                bool stop2 =
+                    leftLane & segmentFlags.IsFlagSet(NetSegment.Flags.StopLeft2) ||
+                    !leftLane & segmentFlags.IsFlagSet(NetSegment.Flags.StopRight2);
+                stop2 &= tramLane;
+
+                lane.Flags = lane.Flags.SetFlags(NetLane.Flags.Stop, stop);
+                lane.Flags = lane.Flags.SetFlags(NetLane.Flags.Stop2, stop2);
+            }
         }
     }
 }

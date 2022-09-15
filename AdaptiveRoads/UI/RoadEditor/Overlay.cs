@@ -11,7 +11,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
     internal static class Overlay {
         static Color ORANGE = new Color32(255, 165, 0, 255); //orange
         internal static object HoveredInfo; // NetInfo[.Node/Segment/Prop]
-
+        internal static InstanceID HoveredInstace;
         internal struct PropData {
             internal PropInfo Prop;
             internal Vector3 Pos;
@@ -45,6 +45,8 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
         internal static void RenderOverlay(RenderManager.CameraInfo cameraInfo) {
             //Log.DebugWait($"Managers_RenderOverlay.Postfix(): LaneIndex={LaneIndex} Info={Info}");
+            RenderUtil.RenderInstanceOverlay(cameraInfo, HoveredInstace, Color.yellow, alphaBlend:true);
+
             if (HoveredInfo is NetInfo.Lane laneInfo) {
                 for (ushort segmentID = 1; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
                     if (!NetUtil.IsSegmentValid(segmentID)) continue;
@@ -56,6 +58,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
                     RenderUtil.RenderLaneOverlay(cameraInfo, lane, Color.yellow);
                 }
             }
+
 
             while (SegmentQueue.Count > 0) {
                 var item = SegmentQueue.Dequeue();
