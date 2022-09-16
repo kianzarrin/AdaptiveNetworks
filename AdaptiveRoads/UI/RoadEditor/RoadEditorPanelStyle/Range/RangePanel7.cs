@@ -14,7 +14,7 @@ namespace AdaptiveRoads.UI.RoadEditor {
         string hint_;
         UILabel Label;
         TextFieldByte_8 LowerField, UpperField;
-        Traverse<byte> from_, to_;
+        RefChain<byte> from_, to_;
 
         public override void OnDestroy() {
             ReflectionHelpers.SetAllDeclaredFieldsToNull(this);
@@ -26,8 +26,8 @@ namespace AdaptiveRoads.UI.RoadEditor {
             UIComponent container,
             string label,
             string hint,
-            Traverse<byte> from,
-            Traverse<byte> to) {
+            RefChain<byte> from,
+            RefChain<byte> to) {
             Log.Debug($"RangePanel.Add(container:{container}, label:{label})");
             var subPanel = UIView.GetAView().AddUIComponent(typeof(RangePanel8)) as RangePanel8;
             subPanel.from_ = from;
@@ -81,10 +81,17 @@ namespace AdaptiveRoads.UI.RoadEditor {
         }
 
         private void TextSubmitted(UIComponent component, string value) {
-            if(LowerField.TryGetValue(out byte lower))
+            if (LowerField.TryGetValue(out byte lower)) {
+                Log.Debug("LowerField -> " + lower);
                 from_.Value = lower;
-            if (UpperField.TryGetValue(out byte upper))
+                Log.Debug("from_.Value set to " + from_.Value);
+            }
+            if (UpperField.TryGetValue(out byte upper)) {
+                Log.Debug("UpperField -> " + upper);
                 to_.Value = upper;
+                Log.Debug("to_.Value set to " + to_.Value);
+
+            }
             EventPropertyChanged?.Invoke();
         }
 

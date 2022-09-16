@@ -10,10 +10,10 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
 
     internal class CustomStringDataT  {
         static string[] EMPTY = new string[0];
-        readonly Traverse<string[]> selected_;
+        readonly RefChain<string[]> selected_;
         readonly Dictionary<string, int> source_;
 
-        public CustomStringDataT(Traverse<string[]> selected, Dictionary<string, int> source_) {
+        public CustomStringDataT(RefChain<string[]> selected, Dictionary<string, int> source_) {
             selected_ = selected;
             this.source_ = source_;
         }
@@ -27,9 +27,9 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
     }
 
     internal class CustomTagsDataT : CustomStringDataT {
-        public CustomTagsDataT(Traverse<string[]> selected) : base(selected, NetUtil.kTags) { }
+        public CustomTagsDataT(RefChain<string[]> selected) : base(selected, NetUtil.kTags) { }
         public CustomTagsDataT(object target, string field) :
-            this(Traverse.Create(target).Field<string[]>(field)) { }
+            this(RefChain.Create(target).Field<string[]>(field)) { }
     }
 
     // MSDD = multi select drop down

@@ -116,24 +116,24 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 container: container,
                 label: "match         count",
                 hint: "number of segments that match required/forbidden criteria",
-                from: Traverse.Create(nodeInfo).Field<byte>(nameof(NetInfo.Node.m_minSameTags)),
-                to: Traverse.Create(nodeInfo).Field<byte>(nameof(NetInfo.Node.m_maxSameTags)));
+                from: RefChain.Create(nodeInfo).Field<byte>(nameof(NetInfo.Node.m_minSameTags)),
+                to: RefChain.Create(nodeInfo).Field<byte>(nameof(NetInfo.Node.m_maxSameTags)));
             RangePanel8.Add(
                 roadEditorPanel: roadEditorPanel,
                 container: container,
                 label: "mismatch count",
                 hint: "number of segments that do not match required/forbidden criteria",
-                from: Traverse.Create(nodeInfo).Field<byte>(nameof(NetInfo.Node.m_minOtherTags)),
-                to: Traverse.Create(nodeInfo).Field<byte>(nameof(NetInfo.Node.m_maxOtherTags)));
+                from: RefChain.Create(nodeInfo).Field<byte>(nameof(NetInfo.Node.m_minOtherTags)),
+                to: RefChain.Create(nodeInfo).Field<byte>(nameof(NetInfo.Node.m_maxOtherTags)));
         }
 
         public static void CreateTagsSection(RoadEditorPanel roadEditorPanel, object metadata, FieldInfo fieldInfo) {
             string group = fieldInfo.GetAttribute<CustomizablePropertyAttribute>().name;
             var container = GetContainer(roadEditorPanel, group);
             const string hint = null;
-            Traverse TraverseRoot = Traverse.Create(metadata).Field(fieldInfo.Name);
+            RefChain refChainRoot = RefChain.Create(metadata).Field(fieldInfo);
 
-            var traverseRequired = TraverseRoot.Field(fieldInfo.Name).Field<string[]>(nameof(TagsInfo.Required));
+            var traverseRequired = refChainRoot.Field<string[]>(nameof(TagsInfo.Required));
             StringListMSDD.Add(
                 roadEditorPanel: roadEditorPanel,
                 container: container,
@@ -141,7 +141,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 hint: hint,
                 customStringData: new CustomTagsDataT(traverseRequired));
 
-            var traverseForbidden = TraverseRoot.Field<string[]>(nameof(TagsInfo.Forbidden));
+            var traverseForbidden = refChainRoot.Field<string[]>(nameof(TagsInfo.Forbidden));
             StringListMSDD.Add(
                 roadEditorPanel: roadEditorPanel,
                 container: container,
@@ -155,18 +155,16 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 container: container,
                 label: "match         count",
                 hint: "number of segments that match required/forbidden criteria",
-                from: TraverseRoot.Field<byte>(nameof(TagsInfo.MinMatch)),
-                to: TraverseRoot.Field<byte>(nameof(TagsInfo.MaxMatch)));
+                from: refChainRoot.Field<byte>(nameof(TagsInfo.MinMatch)),
+                to: refChainRoot.Field<byte>(nameof(TagsInfo.MaxMatch)));
             RangePanel8.Add(
                 roadEditorPanel: roadEditorPanel,
                 container: container,
                 label: "mismatch count",
                 hint: "number of segments that do not match required/forbidden criteria",
-                from: TraverseRoot.Field<byte>(nameof(TagsInfo.MinMismatch)),
-                to: TraverseRoot.Field<byte>(nameof(TagsInfo.MaxMismatch)));
+                from: refChainRoot.Field<byte>(nameof(TagsInfo.MinMismatch)),
+                to: refChainRoot.Field<byte>(nameof(TagsInfo.MaxMismatch)));
         }
-
-
 
         /// <summary>
         /// Adds new custom fields after a built-in field.
@@ -237,18 +235,18 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         ExposeField(
                             roadEditorPanel: __instance,
                             groupName: groupName,
-                            target: target,
+                            target: netInfo,
                             fieldName: nameof(NetInfo.m_terrainStartOffset),
                             label: "Terrain Start Offset");
                         ExposeField(
                             roadEditorPanel: __instance,
                             groupName: groupName,
-                            target: target,
+                            target: netInfo,
                             fieldName: nameof(NetInfo.m_terrainEndOffset),
                             label: "Terrain End Offset");
                     }
                     if (field.Name == nameof(NetInfo.m_connectGroup)) {
-                        CustomTagsDataT data = new (target, nameof(netInfo.m_tags));
+                        CustomTagsDataT data = new (netInfo, nameof(netInfo.m_tags));
                         StringListMSDD.Add(
                             roadEditorPanel: __instance,
                             container: GetContainer(__instance, groupName),
