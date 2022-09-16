@@ -82,15 +82,10 @@ namespace AdaptiveRoads.UI.RoadEditor {
 
         private void TextSubmitted(UIComponent component, string value) {
             if (LowerField.TryGetValue(out byte lower)) {
-                Log.Debug("LowerField -> " + lower);
                 from_.Value = lower;
-                Log.Debug("from_.Value set to " + from_.Value);
             }
             if (UpperField.TryGetValue(out byte upper)) {
-                Log.Debug("UpperField -> " + upper);
                 to_.Value = upper;
-                Log.Debug("to_.Value set to " + to_.Value);
-
             }
             EventPropertyChanged?.Invoke();
         }

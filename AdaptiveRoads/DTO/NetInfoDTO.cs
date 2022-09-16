@@ -190,10 +190,10 @@ namespace AdaptiveRoads.DTO {
         public class Prop : IDTO<NetLaneProps.Prop> {
             public NetLane.Flags m_flagsRequired;
             public NetLane.Flags m_flagsForbidden;
-            public NetNode.FlagsLong m_startFlagsForbidden;
             public NetNode.FlagsLong m_startFlagsRequired;
-            public NetNode.FlagsLong m_endFlagsForbidden;
+            public NetNode.FlagsLong m_startFlagsForbidden;
             public NetNode.FlagsLong m_endFlagsRequired;
+            public NetNode.FlagsLong m_endFlagsForbidden;
 
             public int m_probability;
             public float m_cornerAngle;
@@ -211,10 +211,10 @@ namespace AdaptiveRoads.DTO {
 
             public void ReadFromGame(NetLaneProps.Prop gameProp) {
                 DTOUtil.CopyAllMatchingFields<Prop>(this, gameProp);
-                m_startFlagsForbidden = gameProp.startFlagsForbidden;
                 m_startFlagsRequired = gameProp.startFlagsRequired;
-                m_endFlagsForbidden = gameProp.endFlagsForbidden;
+                m_startFlagsForbidden = gameProp.startFlagsForbidden;
                 m_endFlagsRequired = gameProp.endFlagsRequired;
+                m_endFlagsForbidden = gameProp.endFlagsForbidden;
 
                 MetaData = gameProp.GetMetaData()?.Clone();
                 //Log.Debug($"ReadFromGame: m_prop={this.m_prop?.name_} " +
@@ -228,10 +228,10 @@ namespace AdaptiveRoads.DTO {
 
             public void WriteToGame(NetLaneProps.Prop gameProp) {
                 DTOUtil.CopyAllMatchingFields<Prop>(gameProp, this);
-                gameProp.startFlagsForbidden = m_startFlagsForbidden;
                 gameProp.startFlagsRequired = m_startFlagsRequired;
-                gameProp.endFlagsForbidden = m_endFlagsForbidden;
+                gameProp.startFlagsForbidden = m_startFlagsForbidden;
                 gameProp.endFlagsRequired = m_endFlagsRequired;
+                gameProp.endFlagsForbidden = m_endFlagsForbidden;
                 gameProp.m_finalProp = gameProp.m_prop;
                 gameProp.m_finalTree = gameProp.m_tree;
                 (gameProp as IInfoExtended)?.SetMetaData(MetaData?.Clone());
