@@ -32,6 +32,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         public NetNode.Flags DCFlags;
 
         public void Init(uint laneID1, uint laneID2, ushort nodeID, int antiFlickerIndex) {
+            //Log.Called("laneID1:" + laneID1, "laneID2:" + laneID2, "nodeID:" + nodeID, "antiFlickerIndex:" + antiFlickerIndex);
             AntiFlickerIndex = antiFlickerIndex;
             ushort segmentID1 = laneID1.ToLane().m_segment;
             ushort segmentID2 = laneID2.ToLane().m_segment;

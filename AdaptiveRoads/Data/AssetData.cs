@@ -43,7 +43,7 @@ namespace AdaptiveRoads.Manager {
 
             public void Apply(NetInfo info) {
                 try {
-                    Assertion.Assert(info, "info)");
+                    Assertion.Assert(info != null, "info)");
                     info.EnsureExtended();
                     for (int i = 0; i < Nodes.Count; ++i)
                         (info.m_nodes[i] as IInfoExtended).SetMetaData(Nodes[i]);

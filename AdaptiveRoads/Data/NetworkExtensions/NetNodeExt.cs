@@ -379,6 +379,7 @@ namespace AdaptiveRoads.Manager {
                     transitions[index++].Init(connection.LaneID1, connection.LaneID2, NodeID, index - n2); // also calculates
                 }
                 transitions_ = transitions;
+                //Log.Debug(transitions_.ToSTR());
                 if(Log.VERBOSE) Log.Debug($"NetNodeExt.GetTrackConnections() succeeded for node:{NodeID} transitions.len={transitions.Length}", false);
             } catch(Exception ex) {
                 throw ex;
