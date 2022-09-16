@@ -354,7 +354,7 @@ namespace AdaptiveRoads.Manager {
             public LaneTransitionInfoFlags LaneTransitionFlags;
 
             [CustomizableProperty("Tags")]
-            public TagsInfo Tags;
+            public TagsInfo Tags = new TagsInfo();
 
             [CustomizableProperty("Segment Custom Data", "Custom Segment User Data")]
             public UserDataInfo SegmentUserData;
