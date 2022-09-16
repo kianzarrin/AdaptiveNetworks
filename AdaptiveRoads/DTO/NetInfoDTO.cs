@@ -214,8 +214,7 @@ namespace AdaptiveRoads.DTO {
                 m_startFlagsRequired = gameProp.startFlagsRequired;
                 m_startFlagsForbidden = gameProp.startFlagsForbidden;
                 m_endFlagsRequired = gameProp.endFlagsRequired;
-                //m_endFlagsForbidden = gameProp.endFlagsForbidden;
-                m_endFlagsForbidden = NetNode.GetFlags(gameProp.m_endFlagsForbidden, gameProp.m_endFlagsForbidden2); // workaround game bug
+                m_endFlagsForbidden = gameProp.endFlagsForbidden;
 
                 MetaData = gameProp.GetMetaData()?.Clone();
                 //Log.Debug($"ReadFromGame: m_prop={this.m_prop?.name_} " +
@@ -228,19 +227,16 @@ namespace AdaptiveRoads.DTO {
             }
 
             public void WriteToGame(NetLaneProps.Prop gameProp) {
-                Log.Called();
                 DTOUtil.CopyAllMatchingFields<Prop>(gameProp, this);
                 gameProp.startFlagsRequired = m_startFlagsRequired;
                 gameProp.startFlagsForbidden = m_startFlagsForbidden;
                 gameProp.endFlagsRequired = m_endFlagsRequired;
-                //gameProp.endFlagsForbidden = m_endFlagsForbidden;
-                NetNode.GetFlagParts(m_endFlagsForbidden, out gameProp.m_endFlagsForbidden, out gameProp.m_endFlagsForbidden2); // workaround game bug
-
+                gameProp.endFlagsForbidden = m_endFlagsForbidden;
                 gameProp.m_finalProp = gameProp.m_prop;
                 gameProp.m_finalTree = gameProp.m_tree;
                 (gameProp as IInfoExtended)?.SetMetaData(MetaData?.Clone());
                 //Log.Debug($"WriteToGame: m_prop={this.m_prop?.name_} " +
-                //    $"m_startFlagsRequired={m_startFlagsRequired} gameProp.startFlagsRequired={gameProp.startFlagsRequired}");
+                //    $"gameProp.m_finalProp={gameProp.m_finalProp}");
             }
 
             public static explicit operator NetLaneProps.Prop(Prop dto) {
