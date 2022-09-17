@@ -13,6 +13,7 @@ namespace AdaptiveRoads.Manager {
     using System.IO;
     using System.Linq;
     using System.Runtime.Serialization;
+    using System.Xml.Serialization;
     using UnityEngine;
     using static AdaptiveRoads.Manager.NetInfoExtionsion;
     using static AdaptiveRoads.UI.ModSettings;
@@ -27,13 +28,13 @@ namespace AdaptiveRoads.Manager {
             public Net Clone() {
                 try {
                     var ret = this.ShalowClone();
-                    ret.ConnectGroups = ret.ConnectGroups?.ToArray();
-                    ret.ConnectGroupsHash = ret.ConnectGroupsHash?.ToArray();
-                    ret.NodeConnectGroupsHash = ret.NodeConnectGroupsHash?.ToArray();
+                    ret.CustomConnectGroups = ret.CustomConnectGroups?.Clone();
                     ret.QuayRoadsProfile = QuayRoadsProfile?.ToArray();
                     ret.CustomFlagNames = ret.CustomFlagNames?.ShallowClone();
                     ret.ScriptedFlags = ret.ScriptedFlags?.ShallowClone();
                     ret.CustomLaneFlagNames0 = ret.CustomLaneFlagNames0?.ShallowClone();
+                    ret.LaneTags = ret.LaneTags?.Select(item => item?.Clone())?.ToArray();
+                    ret.LaneTags0 = ret.LaneTags0?.ToDictionary(pair => pair.Key, pair => pair.Value?.Clone());
                     //Log.Debug($"CustomLaneFlagNames={CustomLaneFlagNames} before cloning");
                     ret.CustomLaneFlagNames = ret.CustomLaneFlagNames
                         ?.Select(item => item?.ShallowClone())
@@ -44,7 +45,7 @@ namespace AdaptiveRoads.Manager {
                         ret.Tracks[i] = ret.Tracks[i].Clone();
                     }
                     return ret;
-                } catch(Exception ex) {
+                } catch (Exception ex) {
                     ex.Log();
                     throw;
                 }
@@ -80,7 +81,9 @@ namespace AdaptiveRoads.Manager {
                 try {
                     //Log.Called();
                     FillCustomLaneFlagNames();
+                    RecalculateLaneTags();
                     SerializationUtil.GetObjectFields(info, this);
+                    SerializationUtil.GetObjectProperties(info, this);
                 } catch (Exception ex) {
                     ex.Log();
                     throw;
@@ -91,6 +94,7 @@ namespace AdaptiveRoads.Manager {
             public Net(SerializationInfo info, StreamingContext context) {
                 try {
                     //Log.Called();
+                    SerializationUtil.SetObjectProperties(info, this);
                     SerializationUtil.SetObjectFields(info, this);
                 } catch (Exception ex) {
                     ex.Log();
@@ -102,14 +106,19 @@ namespace AdaptiveRoads.Manager {
             [NonSerialized]
             public NetInfo ParentInfo;
 
-            public string[] ConnectGroups;
+            // serialize CustomConnectGroups
+            public string[] ConnectGroups {
+                get => CustomConnectGroups.Selected;
+                set => CustomConnectGroups = new CustomConnectGroupT(value);
+            }
 
             [NonSerialized]
-            public int[] NodeConnectGroupsHash;
-
+            [XmlIgnore]
+            public CustomConnectGroupT CustomConnectGroups = new CustomConnectGroupT(null);
 
             [NonSerialized]
-            public int[] ConnectGroupsHash;
+            [XmlIgnore]
+            public DynamicFlags NodeCustomConnectGroups;
 
             [AfterField(nameof(NetInfo.m_pavementWidth))]
             [CustomizableProperty("Pavement Width Right", "Properties")]
@@ -168,7 +177,7 @@ namespace AdaptiveRoads.Manager {
                         }
                     }
                     AllocateUserData();
-                } catch(Exception ex) {
+                } catch (Exception ex) {
                     ex.Log();
                 }
             }
@@ -209,7 +218,7 @@ namespace AdaptiveRoads.Manager {
                         Assertion.NotNull(nodeMetadata, "nodeMetadata");
                         nodeMetadata.AllocateUserData(UserDataNamesSet?.Segment);
                     }
-                    foreach(var track in Tracks) {
+                    foreach (var track in Tracks) {
                         track.AllocateUserData(UserDataNamesSet?.Segment);
                     }
                     foreach (var lane in ParentInfo.m_lanes) {
@@ -353,7 +362,7 @@ namespace AdaptiveRoads.Manager {
                         var lane = ParentInfo.m_lanes[laneIndex];
                         var dict = CustomLaneFlagNames[laneIndex];
                         if (!dict.IsNullorEmpty()) {
-                            CustomLaneFlagNames0[lane] = dict ;
+                            CustomLaneFlagNames0[lane] = dict;
                         }
                     }
                     //Log.Succeeded($"CustomLaneFlagNames0={CustomLaneFlagNames0.ToSTR()} CustomLaneFlagNames={CustomLaneFlagNames}.ToSTR()");
@@ -453,7 +462,7 @@ namespace AdaptiveRoads.Manager {
                             if (!ScriptCompiler.CompileSource(file, out dllFile)) {
                                 throw new Exception("failed to compile " + file);
                             }
-                        } else if(file.Extension == ".dll") {
+                        } else if (file.Extension == ".dll") {
                             dllFile = file;
                         } else {
                             throw new Exception($"File type not recognized : " + file);
@@ -471,12 +480,12 @@ namespace AdaptiveRoads.Manager {
             void RenameCustomFlag(Enum flag, string name) {
                 try {
                     CustomFlagNames ??= new Dictionary<Enum, string>();
-                    if(name.IsNullOrWhiteSpace() || name == flag.ToString())
+                    if (name.IsNullOrWhiteSpace() || name == flag.ToString())
                         CustomFlagNames.Remove(flag);
                     else
                         CustomFlagNames[flag] = name;
                     OnCustomFlagRenamed?.Invoke();
-                } catch(Exception ex) { ex.Log(); }
+                } catch (Exception ex) { ex.Log(); }
             }
 
             void RenameCustomFlag(int laneIndex, NetLaneExt.Flags flag, string name) {
@@ -486,29 +495,29 @@ namespace AdaptiveRoads.Manager {
                     Dictionary<NetLaneExt.Flags, string> dict;
 
                     CustomLaneFlagNames0 ??= new Dictionary<NetInfo.Lane, Dictionary<NetLaneExt.Flags, string>>();
-                    if(!CustomLaneFlagNames0.TryGetValue(lane, out dict)) {
+                    if (!CustomLaneFlagNames0.TryGetValue(lane, out dict)) {
                         dict = CustomLaneFlagNames0[lane] = new Dictionary<NetLaneExt.Flags, string>();
                     }
 
-                    if(name.IsNullOrWhiteSpace() || name == flag.ToString())
+                    if (name.IsNullOrWhiteSpace() || name == flag.ToString())
                         dict.Remove(flag);
                     else
                         dict[flag] = name;
 
                     OnCustomFlagRenamed?.Invoke();
-                } catch(Exception ex) { ex.Log(); }
+                } catch (Exception ex) { ex.Log(); }
             }
 
             public static void RenameCustomFlag(Enum flag, object target, string name) {
                 try {
-                    if(flag is NetLaneExt.Flags laneFlag) {
-                        if(target is NetLaneProps.Prop prop) {
+                    if (flag is NetLaneExt.Flags laneFlag) {
+                        if (target is NetLaneProps.Prop prop) {
                             var netInfo = prop.GetParent(laneIndex: out int laneIndex, out _);
                             netInfo.GetMetaData().RenameCustomFlag(laneIndex: laneIndex, flag: laneFlag, name: name);
-                        } else if(target is Track track) {
+                        } else if (target is Track track) {
                             var netInfo = track.ParentInfo;
-                            for(int laneIndex = 0; laneIndex < netInfo.m_lanes.Length; ++laneIndex) {
-                                if(track.HasTrackLane(laneIndex)) {
+                            for (int laneIndex = 0; laneIndex < netInfo.m_lanes.Length; ++laneIndex) {
+                                if (track.HasTrackLane(laneIndex)) {
                                     netInfo.GetMetaData().RenameCustomFlag(laneIndex: laneIndex, flag: laneFlag, name: name);
                                 }
                             }
@@ -523,7 +532,7 @@ namespace AdaptiveRoads.Manager {
                         //    (target as NetLaneProps.Prop)?.GetParent(out _, out _);
                         netInfo.GetMetaData().RenameCustomFlag(flag: flag, name: name);
                     }
-                } catch(Exception ex) { ex.Log(); }
+                } catch (Exception ex) { ex.Log(); }
             }
 
             public NetLaneExt.Flags GetUsedCustomFlagsLane(int laneIndex) {
@@ -534,10 +543,10 @@ namespace AdaptiveRoads.Manager {
                         foreach (var prop in props) {
                             if (prop.GetMetaData() is LaneProp propExt) {
                                 ret |= propExt.UsedCustomFlags.Lane;
-                            } 
+                            }
                         }
                     }
-                    foreach(var track in Tracks) {
+                    foreach (var track in Tracks) {
                         if (track.HasTrackLane(laneIndex)) {
                             ret |= track.UsedCustomFlags.Lane;
                         }
@@ -546,6 +555,56 @@ namespace AdaptiveRoads.Manager {
                 return ret;
             }
             #endregion
+
+            #region lane tags
+            [NonSerialized]
+            public Dictionary<NetInfo.Lane, LaneTagsT> LaneTags0;
+
+            public LaneTagsT[] LaneTags;
+
+            public void RecalculateLaneTags() {
+                var lanes = ParentInfo.m_lanes;
+                if (lanes == null || LaneTags0 == null) {
+                    LaneTags = new LaneTagsT[0];
+                    return;
+                }
+
+                List<LaneTagsT> laneTags = new(lanes.Length);
+                foreach (var lane in  lanes) {
+                    if(LaneTags0.TryGetValue(lane, out var tags)) {
+                        tags.Recalculate();
+                        laneTags.Add(tags);
+                    }
+                }
+                LaneTags = laneTags.ToArray();
+            }
+
+            public void RecalculateLaneTags0() {
+                var lanes = ParentInfo.m_lanes;
+                LaneTags0 = new();
+                if (lanes == null || LaneTags == null) {
+                    return;
+                }
+
+                for (int laneIndex = 0; laneIndex < LaneTags.Length; ++laneIndex) {
+                    LaneTags[laneIndex] ??= new(null);
+                    LaneTags[laneIndex].Recalculate();
+                    LaneTags0.Add(ParentInfo.m_lanes[laneIndex], LaneTags[laneIndex]);
+                }
+            }
+
+            public void SetLaneTags(int laneIndex, string[] tags) {
+                LaneTags0 ??= new();
+                LaneTags0.Add(ParentInfo.m_lanes[laneIndex], new LaneTagsT(tags));
+                RecalculateLaneTags();
+            }
+
+            public static void SetLaneTags(NetInfo.Lane lane, string[] tags) {
+                NetInfo netInfo = lane.GetParent(out int laneIndex);
+                netInfo.GetMetaData().SetLaneTags(laneIndex, tags);
+            }
+
+            #endregion lane tags
 
             public void Recalculate(NetInfo netInfo) {
                 try {
@@ -557,6 +616,7 @@ namespace AdaptiveRoads.Manager {
                         AllocateMetadata();
                     }
                     FillCustomLaneFlagNames0();
+                    RecalculateLaneTags0();
                     RecalculateTracks(netInfo);
                     UpdateTextureScales(netInfo);
                     RefreshLevelOfDetail(netInfo);
@@ -598,7 +658,6 @@ namespace AdaptiveRoads.Manager {
                             this.TrackLanes |= track.LaneIndeces;
                         }
                         if (lodMissing) {
-                            CODebugBase<LogChannel>.Warn(LogChannel.Core, "LOD missing: " + netInfo.gameObject.name, netInfo.gameObject);
                         }
                     }
                 } catch (Exception ex) {
@@ -719,42 +778,20 @@ namespace AdaptiveRoads.Manager {
             void RecalculateConnectGroups(NetInfo netInfo) {
                 try {
                     LogCalled();
-                    ConnectGroupsHash = ConnectGroups?.Select(item => item.GetHashCode()).ToArray();
-                    if (ConnectGroupsHash.IsNullorEmpty()) ConnectGroupsHash = null;
-
                     foreach (var node in netInfo.m_nodes)
-                        node.GetMetaData()?.Update();
-
-                    NodeConnectGroupsHash = GetNodeConnectGroupsHash(netInfo).ToArray();
-                    if (NodeConnectGroupsHash.IsNullorEmpty()) NodeConnectGroupsHash = null;
-
-                    var itemSource = ItemSource.GetOrCreate<NetInfo.ConnectGroup>();
-                    foreach (var connectGroup in GetAllConnectGroups(netInfo))
-                        itemSource.Add(connectGroup);
+                        node.GetMetaData()?.CustomConnectGroups.Recalculate();
+                    CustomConnectGroups.Recalculate();
+                    NodeCustomConnectGroups = GetNodeCustomConnectGroups(netInfo);
                 } catch (Exception ex) { ex.Log(); }
             }
 
-            IEnumerable<int> GetNodeConnectGroupsHash(NetInfo netInfo) {
+            DynamicFlags GetNodeCustomConnectGroups(NetInfo netInfo) {
+                DynamicFlags ret = new DynamicFlags(DynamicFlagsUtil.EMPTY_FLAGS);
                 foreach(var node in netInfo.m_nodes) {
-                    var hashes = node.GetMetaData()?.ConnectGroupsHash;
-                    if(hashes == null) continue;
-                    foreach(int hash in hashes)
-                        yield return hash;
+                    if(node.GetMetaData() is Node nodeMetaData)
+                        ret = ret | nodeMetaData.CustomConnectGroups.Flags;
                 }
-            }
-
-            IEnumerable<string> GetAllConnectGroups(NetInfo netInfo) {
-                if(ConnectGroups != null) {
-                    foreach(var cg in ConnectGroups)
-                        yield return cg;
-                }
-
-                foreach(var node in netInfo.m_nodes) {
-                    var connectGroups = node.GetMetaData()?.ConnectGroups;
-                    if(connectGroups == null) continue;
-                    foreach(var cg in connectGroups)
-                        yield return cg;
-                }
+                return ret;
             }
         }
     }

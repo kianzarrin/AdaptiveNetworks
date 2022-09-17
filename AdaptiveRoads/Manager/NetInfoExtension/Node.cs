@@ -41,10 +41,15 @@ namespace AdaptiveRoads.Manager {
             [AfterField(nameof(NetInfo.Node.m_directConnect))]
             public bool CheckTargetFlags;
 
-            public string[] ConnectGroups;
+            // serialize CustomConnectGroups
+            public string[] ConnectGroups {
+                get => CustomConnectGroups.Selected;
+                set => CustomConnectGroups = new CustomConnectGroupT(value);
+            }
 
-            [NonSerialized] [XmlIgnore]
-            public int[] ConnectGroupsHash;
+            [NonSerialized]
+            [XmlIgnore]
+            public CustomConnectGroupT CustomConnectGroups = new CustomConnectGroupT(null);
 
             [Hint("used by other mods to decide how hide tracks/medians")]
             [CustomizableProperty("Lane Type", DC_GROUP_NAME)]
@@ -76,7 +81,7 @@ namespace AdaptiveRoads.Manager {
             [Hint("title to display(asset editor only)")]
             [AfterField(nameof(NetInfo.Node.m_directConnect))]
             public string Title;
-            [XmlIgnore] string IModel.Title => Title;
+            [XmlIgnore][NonSerialized2] string IModel.Title => Title;
 
             public bool CheckFlags(
                 NetNodeExt.Flags nodeFlags, NetSegmentEnd.Flags segmentEndFlags,
@@ -86,6 +91,8 @@ namespace AdaptiveRoads.Manager {
                 SegmentFlags.CheckFlags(segmentFlags) && VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags) &&
                 SegmentUserData.CheckOrNull(segmentUserData);
 
+            [XmlIgnore]
+            [NonSerialized2]
             internal CustomFlags UsedCustomFlags => new CustomFlags {
                 Segment = SegmentFlags.UsedCustomFlags,
                 SegmentEnd = SegmentEndFlags.UsedCustomFlags,
@@ -93,7 +100,7 @@ namespace AdaptiveRoads.Manager {
             };
 
             public void Update() {
-                ConnectGroupsHash = ConnectGroups?.Select(item => item.GetHashCode()).ToArray();
+                CustomConnectGroups.Recalculate();
             }
 
             [Obsolete("only useful for the purpose of shallow clone", error: true)]
@@ -102,6 +109,7 @@ namespace AdaptiveRoads.Manager {
             public Node Clone() {
                 var ret = this.ShalowClone();
                 ret.SegmentUserData = ret.SegmentUserData?.ShalowClone();
+                ret.CustomConnectGroups = ret.CustomConnectGroups?.Clone();
                 return ret;
             }
             object ICloneable.Clone() => Clone();
@@ -110,11 +118,14 @@ namespace AdaptiveRoads.Manager {
             public void GetObjectData(SerializationInfo info, StreamingContext context) {
                 OptimizeUserData(); // avoid saving redundant stuff.
                 SerializationUtil.GetObjectFields(info, this);
+                SerializationUtil.GetObjectProperties(info, this);
             }
 
             // deserialization
-            public Node(SerializationInfo info, StreamingContext context) =>
+            public Node(SerializationInfo info, StreamingContext context) {
                 SerializationUtil.SetObjectFields(info, this);
+                SerializationUtil.SetObjectProperties(info, this);
+            }
             #endregion
 
             public void SetupTiling(NetInfo.Node nodeInfo) {

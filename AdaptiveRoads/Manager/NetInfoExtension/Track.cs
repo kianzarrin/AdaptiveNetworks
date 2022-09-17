@@ -11,6 +11,7 @@ namespace AdaptiveRoads.Manager {
     using System.Linq;
     using System.Reflection;
     using System.Runtime.Serialization;
+    using System.Xml.Serialization;
     using UnityEngine;
     using static AdaptiveRoads.UI.ModSettings;
     using static KianCommons.ReflectionHelpers;
@@ -137,6 +138,7 @@ namespace AdaptiveRoads.Manager {
                     this.ParentInfo = netInfo;
                     Assertion.NotNull(ParentInfo, "ParentInfo");
                     Tags.Recalculate();
+                    LaneTags.Recalculate();
                     this.m_trackMesh = this.m_mesh;
                     if(this.m_mesh) {
                         float corner1 = netInfo.m_minHeight - netInfo.m_maxSlope * 64f - 10f;
@@ -355,6 +357,10 @@ namespace AdaptiveRoads.Manager {
 
             [CustomizableProperty("Tags")]
             public TagsInfo Tags = new TagsInfo();
+
+            [CustomizableProperty("Lane Tags")]
+            [Hint("Match with target lane tags")]
+            public LaneTagsT LaneTags = new LaneTagsT(null);
 
             [CustomizableProperty("Segment Custom Data", "Custom Segment User Data")]
             public UserDataInfo SegmentUserData;

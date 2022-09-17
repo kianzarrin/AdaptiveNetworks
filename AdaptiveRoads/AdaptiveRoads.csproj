@@ -170,6 +170,8 @@
     <Compile Include="KianCommons\KianCommons\UI\Table\UITableRow.cs" />
     <Compile Include="KianCommons\KianCommons\UI\UIHelperExtension.cs" />
     <Compile Include="KianCommons\KianCommons\UI\UIToolButton.cs" />
+    <Compile Include="KianCommons\KianCommons\Util\DynamicFlagsUtil.cs" />
+    <Compile Include="KianCommons\KianCommons\Util\DynamicFlags2.cs" />
     <Compile Include="KianCommons\KianCommons\Util\SingletonStrong.cs" />
     <Compile Include="KianCommons\KianCommons\Tool\KianToolBase.cs" />
     <Compile Include="KianCommons\KianCommons\UI\RenderUtil.cs" />
