@@ -7,16 +7,26 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using static AdaptiveRoads.Manager.NetInfoExtionsion;
 
-    internal class CustomStringDataT  {
+    interface ICustomStringData {
+        string[] Selected { get; set; }
+        string[] AllItems { get; }
+    }
+
+
+    internal class CustomTagsDataT : ICustomStringData {
         static string[] EMPTY = new string[0];
         readonly RefChain<string[]> selected_;
         readonly Dictionary<string, int> source_;
 
-        public CustomStringDataT(RefChain<string[]> selected, Dictionary<string, int> source_) {
+        public CustomTagsDataT(RefChain<string[]> selected) {
             selected_ = selected;
-            this.source_ = source_;
+            source_ = NetUtil.kTags;
         }
+
+        public CustomTagsDataT(object target, string field) :
+            this(RefChain.Create(target).Field<string[]>(field)) { }
 
         public string[] Selected {
             get => selected_.Value ?? EMPTY;
@@ -26,10 +36,16 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
         public string[] AllItems => source_.Keys.ToArray();
     }
 
-    internal class CustomTagsDataT : CustomStringDataT {
-        public CustomTagsDataT(RefChain<string[]> selected) : base(selected, NetUtil.kTags) { }
-        public CustomTagsDataT(object target, string field) :
-            this(RefChain.Create(target).Field<string[]>(field)) { }
+    internal class CustomTagBaseDataT : ICustomStringData {
+        TagBase tagBase_;
+        public CustomTagBaseDataT(TagBase tagBase) => tagBase_ = tagBase;
+
+        public string[] Selected {
+            get => tagBase_.Selected;
+            set => tagBase_.Selected = value;
+        }
+
+        public string[] AllItems => tagBase_.TagSource.AllTags;
     }
 
     // MSDD = multi select drop down
@@ -40,7 +56,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             public override string ToString() => Hint;
         }
 
-        CustomStringDataT CustomStringData;
+        ICustomStringData CustomStringData;
 
 
         public override void OnDestroy() {
@@ -53,7 +69,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             UIComponent container,
             string label,
             string hint,
-            CustomStringDataT customStringData) {
+            ICustomStringData customStringData) {
             Log.Debug($"BitMaskPanel.Add(container:{container}, label:{label})");
             var subPanel = UIView.GetAView().AddUIComponent(typeof(StringListMSDD)) as StringListMSDD;
             subPanel.Target = roadEditorPanel.GetTarget();

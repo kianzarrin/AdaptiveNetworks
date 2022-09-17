@@ -56,6 +56,23 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
                 default: throw new Exception("unreachable code");
             }
         }
+
+        /// <summary>
+        /// converts enum value to its underlying type. (useful for enum.format)
+        /// </summary>
+        public static IConvertible Convert2RawInteger(IConvertible value, TypeCode underlyingType) {
+            return underlyingType switch {
+                TypeCode.Int32 => (int)value,
+                TypeCode.Int64 => (long)value,
+                _ => value,
+            };
+        }
+
+        public string GetValueString() {
+            var value = GetValue();
+            value = Convert2RawInteger(value, UnderlyingType);
+            return Enum.Format(enumType: EnumType, value: value, format: "G");
+        }
     }
 
     public abstract class BitMaskPanelBase : UIPanel, IDataUI {
@@ -202,21 +219,6 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
                 ex.Log();
             }
         }
-
-        /// <summary>
-        /// convirts enum value to its underlying type. (useful for enum.format)
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="underlyingType"></param>
-        /// <returns></returns>
-        public static IConvertible Convert2RawInteger(IConvertible value, TypeCode underlyingType) {
-            return underlyingType switch {
-                TypeCode.Int32 => (int)value,
-                TypeCode.Int64 => (long)value,
-                _ => value,
-            };
-        }
-
 
         // private UIFontRenderer ObtainTextRenderer()
         static MethodInfo mObtainTextRenderer = GetMethod(typeof(UIButton), "ObtainTextRenderer");

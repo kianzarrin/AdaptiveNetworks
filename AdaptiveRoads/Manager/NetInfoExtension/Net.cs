@@ -158,6 +158,21 @@ namespace AdaptiveRoads.Manager {
                   "u-turn or pedestrian crossing and cars can go through.")]
             public bool RoadRules;
 
+            [CustomizableProperty("Tracks")]
+            [AfterField("m_nodes")]
+            public Track[] Tracks = new Track[0];
+
+            [NonSerialized]
+            public ulong TrackLanes;
+
+            [NonSerialized]
+            public int TrackLaneCount;
+
+            [NonSerialized]
+            public bool HasTitlableTracks;
+
+            public bool HasTrackLane(int laneIndex) => ((1ul << laneIndex) & TrackLanes) != 0;
+
             #region UserData
             public UserDataNamesSet UserDataNamesSet;
             public void RemoveSegmentUserValue(int i) {
@@ -281,20 +296,7 @@ namespace AdaptiveRoads.Manager {
 
             public Dictionary<NetLaneExt.Flags, string>[] CustomLaneFlagNames;
 
-            [CustomizableProperty("Tracks")]
-            [AfterField("m_nodes")]
-            public Track[] Tracks = new Track[0];
 
-            [NonSerialized]
-            public ulong TrackLanes;
-
-            [NonSerialized]
-            public int TrackLaneCount;
-
-            [NonSerialized]
-            public bool HasTitlableTracks;
-
-            public bool HasTrackLane(int laneIndex) => ((1ul << laneIndex) & TrackLanes) != 0;
 
             static CustomFlags GatherUsedCustomFlags(NetInfo info) {
                 try {

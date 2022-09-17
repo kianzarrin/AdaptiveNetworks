@@ -169,25 +169,23 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             }
         }
 
-        private string ToText(IConvertible value, string [] values) {
-            value = Convert2RawInteger(value, FlagData.UnderlyingType);
+        private string GetText() {
             string ret = "";
-            if (value.ToInt64() != 0)
-                ret = Enum.Format(enumType: FlagData.EnumType, value: value, format: "G");
+            if (FlagData.GetValue().ToInt64() != 0)
+                ret = FlagData.GetValueString();
 
-            if (values.Any())
-                if (ret != "") ret += ", ";
-                ret += values.Join(", ");
+            var values = Source.Selected;
+            if (values.Any() && ret != "")
+                ret += ", ";
+
+            ret += values.Join(", ");
 
             if (ret == "") ret = "None";
             return ret;
         }
 
         private void UpdateText() {
-            var enumFlags = FlagData.GetValue();
-            var strings = Source.Selected;
-            string text = ToText(enumFlags, strings);
-            ApplyText(DropDown, text);
+            ApplyText(DropDown, GetText());
         }
     }
 }

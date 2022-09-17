@@ -81,15 +81,8 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             return ret;
         }
 
-        private string ToText(IConvertible value) {
-            value = Convert2RawInteger(value, FlagData.UnderlyingType);
-            return Enum.Format(enumType: FlagData.EnumType, value: value, format: "G");
-        }
-
         private void UpdateText() {
-            var flags = FlagData.GetValue();
-            string text = ToText(flags);
-            ApplyText(DropDown, text);
+            ApplyText(DropDown, FlagData.GetValueString());
         }
     }
 }

@@ -67,23 +67,12 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         return false; // will be merged with AN drop-down later or has been merge with Node.Flags earlier
                     var container = GetContainer(__instance, groupName);
                     var uidata = GetVanillaFlagUIData(field, target);
-                    if (TryGetField2(field, target, out FieldInfo field2)) {
-                        // merge NetNode.m_flags with NetNode.m_flags2
-                        var uidata2 = GetVanillaFlagUIData(field2, target);
-                        var bitMaskPanel = MultiBitMaskPanel.Add(
-                            roadEditorPanel: __instance,
-                            container: container,
-                            label: uidata.Label,
-                            hint: uidata.Hint,
-                            flagDatas: new[] { uidata.FlagData, uidata2.FlagData });
-                    } else {
-                        var bitMaskPanel = BitMaskPanel.Add(
-                            roadEditorPanel: __instance,
-                            container: container,
-                            label: uidata.Label,
-                            hint: uidata.Hint,
-                            flagData: uidata.FlagData);
-                    }
+                    var bitMaskPanel = BitMaskPanel.Add(
+                        roadEditorPanel: __instance,
+                        container: container,
+                        label: uidata.Label,
+                        hint: uidata.Hint,
+                        flagData: uidata.FlagData);
                     return false;
                 }
 
@@ -268,7 +257,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             qrButtonPanel.EventDestroy += (_, _) => { QuayRoadsPanel.CloseIfOpen(netInfo); };
                         }
                     }
-                }else if( target is NetInfo.Node nodeInfo) {
+                } else if( target is NetInfo.Node nodeInfo) {
                     if (field.Name == nameof(NetInfo.Node.m_connectGroup)) {
                         CreateTagsSection(__instance, nodeInfo);
                     }
@@ -346,20 +335,18 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         public static bool CreateGenericComponentExt0(
             RoadEditorPanel roadEditorPanel, string groupName,
             object target, object metadata, FieldInfo extensionField) {
-            if(extensionField.FieldType == typeof(TagsInfo)) {
-                CreateTagsSection(roadEditorPanel, metadata, extensionField);
-            } else if(target != metadata && TryGetMerge(extensionField, target, out var vanillaRequired, out var vanillaForbidden)) {
+            if (target != metadata && TryGetMerge(extensionField, target, out var vanillaRequired, out var vanillaForbidden)) {
                 CreateMergedComponent(
                     roadEditorPanel: roadEditorPanel, groupName: groupName,
                     fieldInfo: extensionField, metadata: metadata,
                     mergedFieldRequired: vanillaRequired,
                     mergedFieldForbidden: vanillaForbidden,
                     mergedTarget: target);
-            } else if(TryGetMerge(extensionField, metadata, out var vanilla)) {
+            } else if (TryGetMergeExt(extensionField, metadata, out var vanilla)) {
                 CreateMergedComponent(
                     roadEditorPanel: roadEditorPanel, groupName: groupName,
                     fieldInfo: extensionField, mergedField: vanilla, metadata: metadata);
-            } else if(ARCanMerge(extensionField)) {
+            } else if (ARCanMerge(extensionField)) {
                 // do not create because it will merge with something in future.
             } else {
                 return CreateExtendedComponent(roadEditorPanel, groupName, extensionField, metadata);
@@ -409,7 +396,17 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 var container = GetContainer(roadEditorPanel, groupName);
                 var att = fieldInfo.GetAttribute<CustomizablePropertyAttribute>();
 
-                if (fieldInfo.HasAttribute<BitMaskLanesAttribute>()) {
+                if (fieldInfo.FieldType == typeof(TagsInfo)) {
+                    CreateTagsSection(roadEditorPanel, metadata, fieldInfo);
+                } else if (fieldInfo.FieldType.IsAssignableFrom(typeof(TagBase))) {
+                    TagBase tagBase = (TagBase)fieldInfo.GetValue(metadata);
+                    StringListMSDD.Add(
+                        roadEditorPanel: roadEditorPanel,
+                        container: container,
+                        label: att.name,
+                        hint: fieldInfo.GetHints().JoinLines(),
+                        customStringData: new CustomTagBaseDataT(tagBase));
+                } else if (fieldInfo.HasAttribute<BitMaskLanesAttribute>()) {
                     NetInfo netInfo =
                         (metadata as NetInfoExtionsion.Track)?.ParentInfo ??
                         RoadEditorUtils.GetSelectedNetInfo(out _);
@@ -482,7 +479,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             Assert(fieldInfo.Name == nameof(NetInfo.m_connectGroup));
             Log.Called(roadEditorPanel, groupName, target, fieldInfo);
 
-            TagBase tagSource = null;
+            CustomConnectGroupT tagSource = null;
             if (target is NetInfo.Node nodeInfo)
                 tagSource = nodeInfo.GetOrCreateMetaData().CustomConnectGroups;
             else if (target is NetInfo netInfo)
@@ -613,17 +610,10 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 for (int i = 0; i < 2; ++i) {
                     FieldInfo vanillaField = vanillaFields[i];
                     FlagUIData vanillaData = GetVanillaFlagUIData(vanillaField, mergedTarget);
-                    FlagUIData? vanillaData2 = null;
-                    if(TryGetField2(vanillaField, mergedTarget, out var vanillaField2)) {
-                        vanillaData2 = GetVanillaFlagUIData(vanillaField2, mergedTarget); ;
-                    }
-
                     string hint = arDatas.IsNullorEmpty() ? vanillaData.Hint : arDatas[i].Hint;
 
                     List<FlagDataT> flagDatas = new();
                     flagDatas.Add(vanillaData.FlagData);
-                    if (vanillaData2.HasValue)
-                        flagDatas.Add(vanillaData2.Value.FlagData);
                     if(!arDatas.IsNullorEmpty())
                         flagDatas.Add(arDatas[i].FlagData);
 
@@ -738,16 +728,15 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             }
         }
 
-        static bool TryGetField2(FieldInfo field, object target, out FieldInfo field2) {
-            field2 = null;
-            if (!Merge) return false;
+        static bool TryGetReplacementProperty(FieldInfo field, object target, out PropertyInfo property) {
+            property = null;
             if (target is NetInfo or NetAI) {
                 return false;
             }
 
-            foreach (var otherField in target.GetFieldsWithAttribute<CustomizablePropertyAttribute>()) {
-                if (field.Name + "2" == otherField.Name) {
-                    field2 = otherField;
+            foreach (var otherProperty in target.GetType().GetProperties()) {
+                if(field.Name == "m_" + otherProperty.Name) {
+                    property = otherProperty;
                     return true;
                 }
             }
@@ -755,19 +744,22 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             return false;
         }
 
-        static bool TryGetMerge(FieldInfo extensionField, object metadata, out FieldInfo vanillaFlags) {
+        ///<summary>
+        /// get extensions fields that can be merged together.
+        /// </summary>
+        static bool TryGetMergeExt(FieldInfo extensionField, object metadata, out FieldInfo vanillaFlags) {
             vanillaFlags = null;
             if (!Merge) return false;
 
             foreach (var vanillaField in metadata.GetFieldsWithAttribute<CustomizablePropertyAttribute>()) {
-                if (CanMergeWith2(extensionField, vanillaField)) {
+                if (CanMergeWithExt(extensionField, vanillaField)) {
                     vanillaFlags = vanillaField;
                     return true;
                 }
             }
             return false;
 
-            static bool CanMergeWith2(FieldInfo extensionField, FieldInfo vanillaField) {
+            static bool CanMergeWithExt(FieldInfo extensionField, FieldInfo vanillaField) {
                 try {
                     if (!extensionField.FieldType.HasAttribute<FlagPairAttribute>() ||
                         !vanillaField.FieldType.HasAttribute<FlagPairAttribute>()) {
@@ -799,13 +791,25 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         }
 
         static bool VanillaCanMerge(FieldInfo field) {
-            if (!Merge || !ModSettings.ARMode || field.DeclaringType == typeof(NetInfo.Lane))
-                return field.FieldType == typeof(NetNode.Flags2);
-            return
-                field.FieldType == typeof(NetNode.Flags) ||
-                field.FieldType == typeof(NetNode.Flags2) ||
-                field.FieldType == typeof(NetSegment.Flags) ||
-                field.FieldType == typeof(NetLane.Flags);
+            if (!Merge) return false;
+
+            Type fieldType = field.FieldType;
+
+            if (fieldType == typeof(NetNode.Flags2) ||
+                fieldType == typeof(VehicleInfo.VehicleCategoryPart2)) {
+                // always merge
+                return true; 
+            }
+
+            if (field.DeclaringType == typeof(NetInfo.Lane) && fieldType == typeof(NetLane.Flags)) {
+                // exception
+                return false; 
+            }
+
+            return // merged only in ARMode:
+                fieldType == typeof(NetNode.Flags) ||
+                fieldType == typeof(NetSegment.Flags) ||
+                fieldType == typeof(NetLane.Flags);
         }
 
         public static UIComponent GetContainer(RoadEditorPanel roadEditorPanel, string groupName) {
@@ -817,21 +821,107 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             return container;
         }
 
+        public static Type GetMemberType(this MemberInfo memberInfo) {
+            return memberInfo switch {
+                FieldInfo fieldInfo => fieldInfo.FieldType,
+                PropertyInfo propertyInfo => propertyInfo.PropertyType,
+                _ => throw new NotImplementedException(),
+            };
+        }
+        public static object GetValue(this MemberInfo memberInfo, object obj) {
+            return memberInfo switch {
+                FieldInfo fieldInfo => fieldInfo.GetValue(obj),
+                PropertyInfo propertyInfo => propertyInfo.GetValue(obj, null),
+                _ => throw new NotImplementedException(),
+            };
+        }
+        public static void SetValue(this MemberInfo memberInfo, object obj, object value) {
+            switch(memberInfo) {
+                case FieldInfo fieldInfo:
+                    fieldInfo.SetValue(obj, value);
+                    break;
+                case PropertyInfo propertyInfo:
+                    propertyInfo.SetValue(obj, value, null);
+                    break;
+                default:
+                    throw new NotImplementedException();
+            };
+        }
+
         struct FlagUIData {
             internal string Label;
             internal string Hint;
             internal FlagDataT FlagData;
         }
 
+
+        static FlagUIData ReplaceUIData(FlagUIData original, FlagUIData replacement) {
+            replacement.Label = original.Label.Remove(" 1").Remove(" Part 1");
+            return replacement;
+        }
+
+        static VehicleInfo.VehicleCategory VehicleCategoryALL;
+        static CreateField() {
+            foreach(var item in EnumBitMaskExtensions.GetPow2Values<VehicleInfo.VehicleCategory>()) {
+                VehicleCategoryALL |= item;
+            }
+        }
+
+        /// <summary>
+        /// fills in FlagUIData for a vanilla field. uses replacement property or merges field together where appropriate.
+        /// </summary>
+        /// <param name="field"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
         static FlagUIData GetVanillaFlagUIData(FieldInfo field, object target) {
             AssertNotNull(target, "target");
-            AssertNotNull(field, "fieldInfo");
+            AssertNotNull(field, "member");
             Assert(field.HasAttribute<CustomizablePropertyAttribute>(), "field has CustomizablePropertyAttribute");
             Assert(field.HasAttribute<BitMaskAttribute>(), "field has BitMaskAttribute");
-            Assert(field.FieldType.HasAttribute<FlagsAttribute>(), "field has FlagsAttribute");
+            Assert(field.GetMemberType().HasAttribute<FlagsAttribute>(), "field has FlagsAttribute");
 
-            var enumType = field.FieldType;
-            enumType = HintExtension.GetMappedEnumWithHints(enumType);
+            FlagDataT flagData;
+            Type enumType;
+            if(field.FieldType == typeof(VehicleInfo.VehicleCategoryPart1)) {
+                // handle vehicle category
+                var field2 = target.GetFieldsWithAttribute<CustomizablePropertyAttribute>()
+                    .Single(item => item.FieldType == typeof(VehicleInfo.VehicleCategoryPart2));
+                enumType = typeof(VehicleInfo.VehicleCategory);
+
+                flagData = new FlagDataT(
+                    setValue: val => {
+                        var cat = (VehicleInfo.VehicleCategory)val;
+                        if(cat == VehicleCategoryALL) cat = (VehicleInfo.VehicleCategory)(-1L);
+                        VehicleInfo.GetCategoryParts(cat, out var val1, out var val2);
+                        field.SetValue(target, val1);
+                        field2.SetValue(target, val2);
+                    },
+                    getValue: () => {
+                        var val1 = (VehicleInfo.VehicleCategoryPart1)field.GetValue(target);
+                        var val2 = (VehicleInfo.VehicleCategoryPart2)field2.GetValue(target);
+                        var cat = VehicleInfo.GetCategory(val1, val2);
+                        if (cat == VehicleCategoryALL) cat = (VehicleInfo.VehicleCategory)(-1L);
+                        return cat;
+                    },
+                    enumType: enumType);
+            } else if (TryGetReplacementProperty(field, target, out PropertyInfo property)) {
+                enumType = property.PropertyType;
+                enumType = HintExtension.GetMappedEnumWithHints(enumType);
+
+                // handle NetNode.FlagsLong
+                flagData = new FlagDataT(
+                    setValue: val => property.SetValue(target, val),
+                    getValue: () => property.GetValue(target) as IConvertible,
+                    enumType: enumType);
+            } else {
+                enumType = field.GetMemberType();
+                enumType = HintExtension.GetMappedEnumWithHints(enumType);
+                flagData = new FlagDataT(
+                    setValue: val => field.SetValue(target, val),
+                    getValue: () => field.GetValue(target) as IConvertible,
+                    enumType: enumType);
+            }
+
 
             var hints = field.GetHints();
             if (field.Name == "m_stopType")
@@ -839,14 +929,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             hints.AddRange(enumType.GetHints());
             string hint = hints.JoinLines();
             Log.Debug($"{field} -> hint is: " + hint);
-
-            var flagData = new FlagDataT(
-                    setValue: val => field.SetValue(target, val),
-                    getValue: () => field.GetValue(target) as IConvertible,
-                    enumType: enumType);
-
             return new FlagUIData {
-                Label = field.GetAttribute<CustomizablePropertyAttribute>().name,
+                Label = field.GetAttribute<CustomizablePropertyAttribute>().name.Remove("Part 1"),
                 Hint = hint,
                 FlagData = flagData,
             };
