@@ -60,7 +60,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             UIComponent container,
             string hint,
             DataT data) {
-            Log.Debug($"BitMaskPanel.Add(container:{container})");
+            Log.Called($"container:{container})");
             var subPanel = UIView.GetAView().AddUIComponent<UserFlagsPanel>();
             subPanel.Target = roadEditorPanel.GetTarget();
             subPanel.Data = data;

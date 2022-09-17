@@ -70,7 +70,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             string label,
             string hint,
             ICustomStringData customStringData) {
-            Log.Debug($"BitMaskPanel.Add(container:{container}, label:{label})");
+            Log.Called($"container:{container}, label:{label}");
             var subPanel = UIView.GetAView().AddUIComponent(typeof(StringListMSDD)) as StringListMSDD;
             subPanel.Target = roadEditorPanel.GetTarget();
             subPanel.CustomStringData = customStringData;

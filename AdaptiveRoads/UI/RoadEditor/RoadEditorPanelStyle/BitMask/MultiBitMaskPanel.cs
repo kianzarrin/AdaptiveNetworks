@@ -19,7 +19,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             string label,
             string hint,
             params FlagDataT[] flagDatas) {
-            Log.Debug($"BitMaskPanel.Add(container:{container}, label:{label})");
+            Log.Called($"container:{container}, label:{label}");
             var subPanel = UIView.GetAView().AddUIComponent(typeof(MultiBitMaskPanel)) as MultiBitMaskPanel;
             subPanel.FlagDatas = flagDatas;
             subPanel.Label.text = label + ":";

@@ -854,12 +854,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             internal FlagDataT FlagData;
         }
 
-
-        static FlagUIData ReplaceUIData(FlagUIData original, FlagUIData replacement) {
-            replacement.Label = original.Label.Remove(" 1").Remove(" Part 1");
-            return replacement;
-        }
-
         static VehicleInfo.VehicleCategory VehicleCategoryALL;
         static CreateField() {
             foreach(var item in EnumBitMaskExtensions.GetPow2Values<VehicleInfo.VehicleCategory>()) {

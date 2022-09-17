@@ -32,7 +32,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             string hint,
             FlagDataT flagData,
             TagBase tagSource) {
-            Log.Debug($"BitMaskPanel.Add(container:{container}, label:{label})");
+            Log.Called($"container:{container}, label:{label}");
             var subPanel = UIView.GetAView().AddUIComponent(typeof(BitMaskPanelCustomisable)) as BitMaskPanelCustomisable;
             subPanel.Target = roadEditorPanel.GetTarget();
             subPanel.FlagData = flagData;
