@@ -14,5 +14,9 @@ namespace AdaptiveRoads.Util {
             else
                 return segment.ShalowClone();
         }
+
+        public static float CornerAngle(this ref NetSegment segment, ushort nodeId) {
+            return segment.IsStartNode(nodeId) ? segment.m_cornerAngleStart : segment.m_cornerAngleEnd;
+        }
     }
 }

@@ -4,6 +4,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
     using ColossalFramework;
     using KianCommons;
     using System;
+    using System.Collections.Generic;
     using UnityEngine;
     using Log = KianCommons.Log;
 
@@ -30,6 +31,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         public int AntiFlickerIndex;
         public bool Matching;
         public NetNode.Flags DCFlags;
+        PropRenderData[] PropRenderDatas;
 
         public void Init(uint laneID1, uint laneID2, ushort nodeID, int antiFlickerIndex) {
             //Log.Called("laneID1:" + laneID1, "laneID2:" + laneID2, "nodeID:" + nodeID, "antiFlickerIndex:" + antiFlickerIndex);
@@ -86,28 +88,27 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
 
         public override string ToString() => $"LaneTransition[node:{NodeID} lane:{LaneIDSource}->lane:{LaneIDTarget} Flags:{m_flags}]";
         #region shortcuts
-        ref NetLane LaneA => ref LaneIDSource.ToLane();
-        ref NetLane LaneD => ref LaneIDTarget.ToLane();
-        ref NetLaneExt LaneExtA => ref LaneIDSource.ToLaneExt();
-        ref NetLaneExt LaneExtD => ref LaneIDTarget.ToLaneExt();
-        ref NetSegment SegmentA => ref LaneA.m_segment.ToSegment();
-        ref NetSegment SegmentD => ref LaneD.m_segment.ToSegment();
-        ref NetSegmentExt SegmentExtA => ref LaneA.m_segment.ToSegmentExt();
-        ref NetSegmentExt SegmentExtD => ref LaneD.m_segment.ToSegmentExt();
-        ushort segmentID_A => LaneA.m_segment;
-        ushort segmentID_D => LaneD.m_segment;
-        ref NetNode Node => ref NodeID.ToNode();
-        ref NetNodeExt NodeExt => ref NodeID.ToNodeExt();
-        NetInfo Info => Node.Info;
-        NetInfo InfoA => SegmentA.Info;
-        NetInfoExtionsion.Net InfoExtA => segmentID_A.ToSegment().Info?.GetMetaData();
-        NetInfo.Lane laneInfoA => LaneExtA.LaneData.LaneInfo;
-        int laneIndexA => LaneExtA.LaneData.LaneIndex;
-        NetInfoExtionsion.Net InfoExtD => segmentID_D.ToSegment().Info?.GetMetaData();
-        NetInfo.Lane laneInfoD => LaneExtD.LaneData.LaneInfo;
-        int laneIndexD => LaneExtD.LaneData.LaneIndex;
-
-        float Width => laneInfoA.m_width;
+        internal ref NetLane LaneA => ref LaneIDSource.ToLane();
+        internal ref NetLane LaneD => ref LaneIDTarget.ToLane();
+        internal ref NetLaneExt LaneExtA => ref LaneIDSource.ToLaneExt();
+        internal ref NetLaneExt LaneExtD => ref LaneIDTarget.ToLaneExt();
+        internal ref NetSegment SegmentA => ref LaneA.m_segment.ToSegment();
+        internal ref NetSegment SegmentD => ref LaneD.m_segment.ToSegment();
+        internal ref NetSegmentExt SegmentExtA => ref LaneA.m_segment.ToSegmentExt();
+        internal ref NetSegmentExt SegmentExtD => ref LaneD.m_segment.ToSegmentExt();
+        internal ushort segmentID_A => LaneA.m_segment;
+        internal ushort segmentID_D => LaneD.m_segment;
+        internal ref NetNode Node => ref NodeID.ToNode();
+        internal ref NetNodeExt NodeExt => ref NodeID.ToNodeExt();
+        internal NetInfo Info => Node.Info;
+        internal NetInfo InfoA => SegmentA.Info;
+        internal NetInfoExtionsion.Net InfoExtA => segmentID_A.ToSegment().Info?.GetMetaData();
+        internal NetInfo.Lane laneInfoA => LaneExtA.LaneData.LaneInfo;
+        internal int laneIndexA => LaneExtA.LaneData.LaneIndex;
+        internal NetInfoExtionsion.Net InfoExtD => segmentID_D.ToSegment().Info?.GetMetaData();
+        internal NetInfo.Lane laneInfoD => LaneExtD.LaneData.LaneInfo;
+        internal int laneIndexD => LaneExtD.LaneData.LaneIndex;
+        internal float Width => laneInfoA.m_width;
         #endregion
 
         public bool Nodeless => OutLine.Empty;
@@ -169,6 +170,8 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
 
             WireOutLine = new OutlineData(a, d, -dirA, -dirD, Width, true, true, angleA, angleD, wireHeight: InfoExtA.CatenaryHeight);
             WireRenderData = GenerateRenderData(ref WireOutLine);
+
+            CalculateProps();
         }
 
         public TrackRenderData GenerateRenderData(ref OutlineData outline, Vector3? pos = null) {
@@ -196,6 +199,20 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             ret.ObjectIndex = new Vector4(colorLocationA.x, colorLocationA.y, colorLocationD.x, colorLocationD.y);
             ret.CalculateMapping(InfoA);
             return ret;
+        }
+
+        public void CalculateProps() {
+            PropRenderDatas = null;
+            if (Nodeless) return;
+            var infoExtA = InfoExtA;
+            if (infoExtA == null || infoExtA.TrackLaneCount == 0) return;
+
+            List<PropRenderData> propRenderDatas = new List<PropRenderData>(16);
+            foreach(var track in InfoExtA.Tracks) {
+                var renderData = WireRenderData.GetDataFor(track);
+                PropRenderData.CalculatePropData(ref this, ref renderData, track, propRenderDatas);
+            }
+            PropRenderDatas = propRenderDatas.ToArray();
         }
 
         private bool Check(NetInfoExtionsion.Track trackInfo) {
@@ -226,12 +243,13 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         private DynamicFlags LaneTagsFlagsD =>
             InfoExtD?.GetLaneTags(laneInfoD)?.Flags ?? DynamicFlagsUtil.NONE;
 
-        public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo) {
+        public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo, int layerMask) {
             if(Nodeless) return;
             var infoExtA = InfoExtA;
-            if(infoExtA == null || InfoExtA.TrackLaneCount == 0) return;
+            if(infoExtA == null || infoExtA.TrackLaneCount == 0) return;
 
-            foreach(var trackInfo in infoExtA.Tracks) {
+            int propIndex = 0;
+            foreach (var trackInfo in infoExtA.Tracks) {
                 if(Check(trackInfo)) {
                     TrackRenderData renderData;
                     if(trackInfo.m_requireWindSpeed) {
@@ -240,6 +258,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                         renderData = RenderData.GetDataFor(trackInfo, AntiFlickerIndex);
                     }
                     renderData.RenderInstance(trackInfo, cameraInfo);
+                    PropRenderData.RenderProps(cameraInfo, ref this, ref renderData, trackInfo, layerMask, PropRenderDatas, ref propIndex);
                     TrackManager.instance.EnqueuOverlay(trackInfo, ref OutLine, turnAround: /*false */ renderData.TurnAround, DC: true);
                 }
             }

@@ -12,6 +12,10 @@ namespace AdaptiveRoads.Patches.RoadEditor.Track {
                     __result = track.m_mesh?.name;
                     if(__result.IsNullorEmpty())
                         __result = "New Track";
+                } else if (obj is NetInfoExtionsion.TransitionProp prop) {
+                    __result = prop.m_prop?.name ?? prop.m_tree?.name;
+                    if (__result.IsNullorEmpty())
+                        __result = "New Prop";
                 }
             } catch(Exception ex) {
                 Log.Exception(ex);

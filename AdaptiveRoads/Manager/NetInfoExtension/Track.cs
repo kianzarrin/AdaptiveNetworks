@@ -373,6 +373,9 @@ namespace AdaptiveRoads.Manager {
             [Hint("This helps to bend wires.")]
             public bool UseKeywordNETSEGMENT = true;
 
+            [CustomizableProperty("Transition Props")]
+            public TransitionProp[] Props = new TransitionProp[0];
+
             public bool CheckNodeFlags
                 (NetNodeExt.Flags nodeFlags, NetNode.FlagsLong vanillaNodeFlags,
                 NetSegmentExt.Flags sourceSegmentFlags, NetSegment.Flags startVanillaSegmentFlags,

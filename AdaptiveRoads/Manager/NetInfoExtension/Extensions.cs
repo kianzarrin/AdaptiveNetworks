@@ -4,6 +4,7 @@ namespace AdaptiveRoads.Manager {
     using KianCommons.Math;
     using PrefabMetadata.API;
     using PrefabMetadata.Helpers;
+    using System.Collections.Generic;
     using static AdaptiveRoads.Manager.NetInfoExtionsion;
 
     public static class Extensions {
@@ -91,6 +92,10 @@ namespace AdaptiveRoads.Manager {
             if (NetUtil.LHT)
                 shift = -shift;
             return shift;
+        }
+
+        public static void CheckProp(this NetInfo netInfo, PropInfo propInfo, HashSet<PropInfo> traversed = null) {
+            ReflectionHelpers.InvokeMethod(netInfo, "CheckProp", propInfo, traversed);
         }
     }
 
