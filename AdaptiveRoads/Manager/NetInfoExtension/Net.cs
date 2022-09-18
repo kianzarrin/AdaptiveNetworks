@@ -111,6 +111,9 @@ namespace AdaptiveRoads.Manager {
                 set => CustomConnectGroups = new CustomConnectGroupT(value);
             }
 
+            // work around deserializing Tags.
+            public string[] Tags;
+
             [NonSerialized]
             [XmlIgnore]
             public CustomConnectGroupT CustomConnectGroups = new CustomConnectGroupT(null);
@@ -633,8 +636,41 @@ namespace AdaptiveRoads.Manager {
                     } else {
                         OptimizeUserData();
                     }
+                } catch (Exception ex) { ex.Log(); }
+            }
 
-                } catch(Exception ex) { ex.Log(); }
+            public void LoadVanillaTags() {
+                ParentInfo.m_tags = Tags;
+                NetInfo.AddTags(ParentInfo.m_tags);
+                ParentInfo.m_netTags = NetInfo.GetFlags(ParentInfo.m_tags);
+                foreach (var node in ParentInfo.m_nodes) {
+                    if (node?.GetMetaData() is Node metadata) {
+                        node.m_tagsRequired = metadata.TagsInfo.Required;
+                        node.m_tagsForbidden = metadata.TagsInfo.Forbidden;
+                        node.m_minSameTags = metadata.TagsInfo.MinMatch;
+                        node.m_maxSameTags = metadata.TagsInfo.MaxMatch;
+                        node.m_minOtherTags = metadata.TagsInfo.MinMismatch;
+                        node.m_maxOtherTags = metadata.TagsInfo.MaxMismatch;
+                        NetInfo.AddTags(node.m_tagsRequired);
+                        NetInfo.AddTags(node.m_tagsForbidden);
+                        node.m_nodeTagsRequired = NetInfo.GetFlags(node.m_tagsRequired);
+                        node.m_nodeTagsForbidden = NetInfo.GetFlags(node.m_tagsForbidden);
+                    }
+                }
+            }
+
+            public void SaveVanillaTags() {
+                Tags = ParentInfo.m_tags;
+                foreach (var node in ParentInfo.m_nodes) {
+                    if (node?.GetMetaData() is Node metadata) {
+                        metadata.TagsInfo.Required = node.m_tagsRequired;
+                        metadata.TagsInfo.Forbidden = node.m_tagsForbidden;
+                        metadata.TagsInfo.MinMatch = node.m_minSameTags;
+                        metadata.TagsInfo.MaxMatch = node.m_maxSameTags;
+                        metadata.TagsInfo.MinMismatch = node.m_minOtherTags;
+                        metadata.TagsInfo.MaxMismatch = node.m_maxOtherTags;
+                    }
+                }
             }
 
             public void RefreshLevelOfDetail(NetInfo netInfo) {

@@ -27,6 +27,7 @@ namespace AdaptiveRoads.Manager {
             }
 
             public NetInfoMetaData(NetInfo info) {
+                info.GetMetaData()?.SaveVanillaTags();
                 foreach (var item in info.m_nodes)
                     Nodes.Add(item.GetMetaData());
                 foreach (var item in info.m_segments)
@@ -51,6 +52,7 @@ namespace AdaptiveRoads.Manager {
                         (info.m_segments[i] as IInfoExtended).SetMetaData(Segments[i]);
                     ApplyProps(info);
                     info.SetMetedata(NetData?.Clone());
+                    info.GetMetaData()?.LoadVanillaTags();
                     info.RecalculateMetaData();
                     Log.Debug("Net Metadata restored.");
                 } catch(Exception ex) {
