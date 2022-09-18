@@ -236,7 +236,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             label: "Terrain End Offset");
                     }
                     if (field.Name == nameof(NetInfo.m_connectGroup)) {
-                        CustomTagsDataT data = new (netInfo, nameof(netInfo.m_tags));
+                        CustomTagsDataT data = new(netInfo, nameof(netInfo.m_tags));
                         StringListMSDD.Add(
                             roadEditorPanel: __instance,
                             container: GetContainer(__instance, groupName),
@@ -257,9 +257,22 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             qrButtonPanel.EventDestroy += (_, _) => { QuayRoadsPanel.CloseIfOpen(netInfo); };
                         }
                     }
-                } else if( target is NetInfo.Node nodeInfo) {
+                } else if (target is NetInfo.Node nodeInfo) {
                     if (field.Name == nameof(NetInfo.Node.m_connectGroup)) {
                         CreateTagsSection(__instance, nodeInfo);
+                    }
+                } else if (target is NetInfo.Lane laneInfo) {
+                    if (ModSettings.ARMode) {
+                        if (field.Name == nameof(NetInfo.Lane.m_stopType)) {
+                            NetInfo netInfo2 = laneInfo.GetParent(out _);
+                            var laneTags = netInfo2.GetMetaData().GetOrCreateLaneTags(laneInfo);
+                            StringListMSDD.Add(
+                                roadEditorPanel: __instance,
+                                container: GetContainer(__instance, groupName),
+                                label: "Lane Tags",
+                                hint: null,
+                                customStringData: new CustomTagBaseDataT(laneTags));
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -398,7 +411,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
                 if (fieldInfo.FieldType == typeof(TagsInfo)) {
                     CreateTagsSection(roadEditorPanel, metadata, fieldInfo);
-                } else if (fieldInfo.FieldType.IsAssignableFrom(typeof(TagBase))) {
+                } else if (typeof(TagBase).IsAssignableFrom(fieldInfo.FieldType)) {
                     TagBase tagBase = (TagBase)fieldInfo.GetValue(metadata);
                     StringListMSDD.Add(
                         roadEditorPanel: roadEditorPanel,

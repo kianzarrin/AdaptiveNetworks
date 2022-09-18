@@ -81,7 +81,6 @@ namespace AdaptiveRoads.Manager {
                 try {
                     //Log.Called();
                     FillCustomLaneFlagNames();
-                    RecalculateLaneTags();
                     SerializationUtil.GetObjectFields(info, this);
                     SerializationUtil.GetObjectProperties(info, this);
                 } catch (Exception ex) {
@@ -560,50 +559,55 @@ namespace AdaptiveRoads.Manager {
 
             #region lane tags
             [NonSerialized]
-            public Dictionary<NetInfo.Lane, LaneTagsT> LaneTags0;
+            public Dictionary<NetInfo.Lane, LaneTagsT> LaneTags0 = new();
 
-            public LaneTagsT[] LaneTags;
+            public LaneTagsT[] LaneTags {
+                get {
+                    // serialization
+                    var lanes = ParentInfo.m_lanes;
+                    if (lanes == null || LaneTags0 == null) {
+                        return null;
+                    }
 
-            public void RecalculateLaneTags() {
-                var lanes = ParentInfo.m_lanes;
-                if (lanes == null || LaneTags0 == null) {
-                    LaneTags = new LaneTagsT[0];
-                    return;
+                    LaneTagsT[] laneTags = new LaneTagsT[lanes.Length];
+                    for(int i = 0; i < lanes.Length; ++i) {
+                        var lane = lanes[i];
+                        if (LaneTags0.TryGetValue(lane, out var tags)) {
+                            tags.Recalculate();
+                            laneTags[i] = tags;
+                        }
+                    }
+                    return laneTags;
                 }
+                set {
+                    // deserialization
+                    var laneTags = value;
+                    var lanes = ParentInfo.m_lanes;
+                    LaneTags0 = new();
+                    if (lanes == null || laneTags == null) {
+                        return;
+                    }
 
-                List<LaneTagsT> laneTags = new(lanes.Length);
-                foreach (var lane in  lanes) {
-                    if(LaneTags0.TryGetValue(lane, out var tags)) {
-                        tags.Recalculate();
-                        laneTags.Add(tags);
+                    for (int laneIndex = 0; laneIndex < laneTags.Length; ++laneIndex) {
+                        laneTags[laneIndex] ??= new(null);
+                        laneTags[laneIndex].Recalculate();
+                        LaneTags0.Add(ParentInfo.m_lanes[laneIndex], laneTags[laneIndex]);
                     }
                 }
-                LaneTags = laneTags.ToArray();
             }
 
-            public void RecalculateLaneTags0() {
-                var lanes = ParentInfo.m_lanes;
-                LaneTags0 = new();
-                if (lanes == null || LaneTags == null) {
-                    return;
-                }
-
-                for (int laneIndex = 0; laneIndex < LaneTags.Length; ++laneIndex) {
-                    LaneTags[laneIndex] ??= new(null);
-                    LaneTags[laneIndex].Recalculate();
-                    LaneTags0.Add(ParentInfo.m_lanes[laneIndex], LaneTags[laneIndex]);
-                }
+            public LaneTagsT GetLaneTags(NetInfo.Lane lane) {
+                if(LaneTags0 != null && LaneTags0.TryGetValue(lane, out var ret))
+                    return ret;
+                else
+                    return null;
             }
-
-            public void SetLaneTags(int laneIndex, string[] tags) {
+            public LaneTagsT GetOrCreateLaneTags(NetInfo.Lane laneInfo) {
                 LaneTags0 ??= new();
-                LaneTags0.Add(ParentInfo.m_lanes[laneIndex], new LaneTagsT(tags));
-                RecalculateLaneTags();
-            }
-
-            public static void SetLaneTags(NetInfo.Lane lane, string[] tags) {
-                NetInfo netInfo = lane.GetParent(out int laneIndex);
-                netInfo.GetMetaData().SetLaneTags(laneIndex, tags);
+                if (LaneTags0.TryGetValue(laneInfo, out var ret) && ret != null)
+                    return ret;
+                else
+                    return LaneTags0[laneInfo] = new LaneTagsT(null);
             }
 
             #endregion lane tags
@@ -618,7 +622,6 @@ namespace AdaptiveRoads.Manager {
                         AllocateMetadata();
                     }
                     FillCustomLaneFlagNames0();
-                    RecalculateLaneTags0();
                     RecalculateTracks(netInfo);
                     UpdateTextureScales(netInfo);
                     RefreshLevelOfDetail(netInfo);

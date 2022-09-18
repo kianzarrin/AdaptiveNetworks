@@ -219,8 +219,18 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             }
             ret = ret && trackInfo.CheckLaneTransitionFlag(this.m_flags);
             ret = ret && trackInfo.Tags.CheckTags(NodeID, SegmentA.Info);
-            //ret = ret && trackInfo.LaneTags.Check(InfoExtD.LaneTags[laneIndexD].Flags);
+            ret = ret && trackInfo.LaneTags.Check(LaneTagsFlagsD);
             return ret;
+        }
+
+        private DynamicFlags LaneTagsFlagsD {
+            get {
+                var laneTags = InfoExtD.GetLaneTags(laneInfoD);
+                if (laneTags == null)
+                    return new DynamicFlags(DynamicFlagsUtil.EMPTY_FLAGS);
+                else
+                    return laneTags.Flags;
+            }
         }
 
         public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo) {
