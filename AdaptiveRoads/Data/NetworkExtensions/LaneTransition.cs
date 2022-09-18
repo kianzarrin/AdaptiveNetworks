@@ -223,15 +223,8 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             return ret;
         }
 
-        private DynamicFlags LaneTagsFlagsD {
-            get {
-                var laneTags = InfoExtD.GetLaneTags(laneInfoD);
-                if (laneTags == null)
-                    return new DynamicFlags(DynamicFlagsUtil.EMPTY_FLAGS);
-                else
-                    return laneTags.Flags;
-            }
-        }
+        private DynamicFlags LaneTagsFlagsD =>
+            InfoExtD?.GetLaneTags(laneInfoD)?.Flags ?? DynamicFlagsUtil.NONE;
 
         public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo) {
             if(Nodeless) return;
