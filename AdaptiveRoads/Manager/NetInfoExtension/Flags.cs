@@ -7,6 +7,7 @@ namespace AdaptiveRoads.Manager {
     using AdaptiveRoads.Data.Flags;
     using KianCommons.Serialization;
     using static AdaptiveRoads.Manager.NetInfoExtionsion;
+    using System.Xml.Serialization;
 
     public static partial class NetInfoExtionsion {
         [Serializable]
@@ -202,6 +203,7 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
+        [Serializable]
         public abstract class TagBase {
             public TagBase(string[] tags) {
                 Tags = tags ?? DynamicFlagsUtil.EMPTY_TAGS;
@@ -212,6 +214,7 @@ namespace AdaptiveRoads.Manager {
             public abstract TagSource TagSource { get; }
 
             [NonSerialized]
+            [XmlIgnore]
             public DynamicFlags Flags;
 
             private string[] Tags;
@@ -226,6 +229,7 @@ namespace AdaptiveRoads.Manager {
 
             public bool Check(DynamicFlags flags) => Flags.IsAnyFlagSet(flags);
 
+            [XmlElement("Tag")]
             public string[] Selected {
                 get => Tags ?? DynamicFlagsUtil.EMPTY_TAGS;
                 set {
@@ -235,10 +239,13 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
+        [Serializable]
+        [XmlRoot("LaneTags")]
         public class LaneTagsT : TagBase {
             public LaneTagsT (string []tags) : base(tags){}
 
             public static TagSource Source = new TagSource();
+
             public override TagSource TagSource => Source;
 
             public LaneTagsT Clone() => new LaneTagsT(Selected);
