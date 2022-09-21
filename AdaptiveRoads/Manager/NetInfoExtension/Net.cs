@@ -187,6 +187,17 @@ namespace AdaptiveRoads.Manager {
                     foreach (var node in ParentInfo.m_nodes) {
                         node?.GetMetaData()?.SegmentUserData?.RemoveValueAt(i);
                     }
+                    foreach(var lane in ParentInfo.m_lanes) {
+                        foreach (var prop in lane?.m_laneProps?.m_props ?? Enumerable.Empty<NetLaneProps.Prop>()) {
+                            prop?.GetOrCreateMetaData()?.SegmentUserData?.RemoveValueAt(i);
+                        }
+                    }
+                    foreach(var track in Tracks ?? Enumerable.Empty<Track>()) {
+                        track?.SegmentUserData?.RemoveValueAt(i);
+                        foreach(var prop in track?.Props ?? Enumerable.Empty<TransitionProp>()) {
+                            prop?.SegmentUserData?.RemoveValueAt(i);
+                        }
+                    }
                     for (ushort segmentId = 1; segmentId < NetManager.MAX_SEGMENT_COUNT; ++segmentId) {
                         ref NetSegment segment = ref segmentId.ToSegment();
                         if (segment.IsValid() && segment.Info == ParentInfo) {
