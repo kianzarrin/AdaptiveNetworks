@@ -6,7 +6,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         private static NetManager netMan => NetManager.instance;
         public Matrix4x4 LeftMatrix, RightMatrix;
         public Vector4 MeshScale;
-        public Vector4 ObjectIndex;
+        public Vector4 ObjectIndex; // color location
         public Color Color;
         public Quaternion Rotation => Quaternion.identity;
         public Vector3 Position;
