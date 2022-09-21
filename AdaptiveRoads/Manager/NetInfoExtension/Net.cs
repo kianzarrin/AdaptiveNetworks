@@ -421,6 +421,15 @@ namespace AdaptiveRoads.Manager {
                                 }
                             }
                             return null;
+                        } else if (target is TransitionProp tprop) {
+                            var netInfo = tprop.GetParent(trackIndex: out int trackIndex, out _);
+                            var track2 = netInfo.GetMetaData().Tracks[trackIndex];
+                            for (int laneIndex = 0; laneIndex < netInfo.m_lanes.Length; ++laneIndex) {
+                                if (track2.HasTrackLane(laneIndex)) {
+                                    string name = netInfo?.GetMetaData()?.GetCustomLaneFlagName(laneFlag, laneIndex);
+                                    if (!name.IsNullorEmpty()) return name;
+                                }
+                            }
                         } else {
                             throw new NotImplementedException($"GetCustomFlagName({flag}, {target})");
                         }
@@ -533,6 +542,14 @@ namespace AdaptiveRoads.Manager {
                             var netInfo = track.ParentInfo;
                             for (int laneIndex = 0; laneIndex < netInfo.m_lanes.Length; ++laneIndex) {
                                 if (track.HasTrackLane(laneIndex)) {
+                                    netInfo.GetMetaData().RenameCustomFlag(laneIndex: laneIndex, flag: laneFlag, name: name);
+                                }
+                            }
+                        } else if (target is TransitionProp tprop) {
+                            var netInfo = tprop.GetParent(trackIndex: out int trackIndex, out _);
+                            var track2 = netInfo.GetMetaData().Tracks[trackIndex];
+                            for (int laneIndex = 0; laneIndex < netInfo.m_lanes.Length; ++laneIndex) {
+                                if (track2.HasTrackLane(laneIndex)) {
                                     netInfo.GetMetaData().RenameCustomFlag(laneIndex: laneIndex, flag: laneFlag, name: name);
                                 }
                             }

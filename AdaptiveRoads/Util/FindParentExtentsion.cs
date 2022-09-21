@@ -1,5 +1,6 @@
 namespace AdaptiveRoads.Util {
     using AdaptiveRoads.Manager;
+    using KianCommons;
     using PrefabMetadata.API;
 
     public static class FindParentExtentsion {
@@ -56,6 +57,28 @@ namespace AdaptiveRoads.Util {
             }
             propIndex = -1;
             laneIndex = -1;
+            return null;
+        }
+
+        public static NetInfo GetParent(this NetInfoExtionsion.TransitionProp prop, out int trackIndex, out int propIndex) {
+            Assertion.NotNull(prop);
+            foreach (var netInfo in NetInfoExtionsion.EditedNetInfos) {
+                var tracks = netInfo?.GetMetaData()?.Tracks;
+                if (tracks == null) continue;
+                for (int i = 0; i < tracks.Length; ++i) {
+                    var props = tracks[i].Props;
+                    if (props == null) continue;
+                    for (int j = 0; j < props.Length; ++j) {
+                        if (props[j] == prop) {
+                            trackIndex = i;
+                            propIndex = j;
+                            return netInfo;
+                        }
+                    }
+                }
+            }
+            propIndex = -1;
+            trackIndex = -1;
             return null;
         }
 

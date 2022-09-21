@@ -61,7 +61,7 @@ namespace AdaptiveRoads.Manager {
             //[CustomizableProperty("Lane", "Flags")]
             //public VanillaLaneInfoFlags VanillaLaneFlags;
 
-            [CustomizableProperty("Lane Extension", "Flags")]
+            [CustomizableProperty("Lane Flags", "Flags")]
             [Hint("Source lane flags")]
             public LaneInfoFlags LaneFlags;
             #endregion
