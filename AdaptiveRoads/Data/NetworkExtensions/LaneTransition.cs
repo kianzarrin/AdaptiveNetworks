@@ -258,7 +258,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                         renderData = RenderData.GetDataFor(trackInfo, AntiFlickerIndex);
                     }
                     renderData.RenderInstance(trackInfo, cameraInfo);
-                    PropRenderData.Render\(cameraInfo, ref this, ref renderData, trackInfo, layerMask, PropRenderDatas, ref propIndex);
+                    PropRenderData.Render(cameraInfo, ref this, ref renderData, trackInfo, layerMask, PropRenderDatas, ref propIndex);
                     TrackManager.instance.EnqueuOverlay(trackInfo, ref OutLine, turnAround: /*false */ renderData.TurnAround, DC: true);
                 }
             }
