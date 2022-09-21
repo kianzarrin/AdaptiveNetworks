@@ -1,5 +1,7 @@
 namespace AdaptiveRoads.Data.NetworkExtensions {
     using AdaptiveRoads.Manager;
+    using AdaptiveRoads.Patches.Lane;
+    using AdaptiveRoads.UI.RoadEditor;
     using AdaptiveRoads.Util;
     using ColossalFramework;
     using ColossalFramework.Math;
@@ -152,7 +154,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                                         //        PropInstance.RenderInstance(cameraInfo, variation, instanceID, pos, scale, finalAngle, color, objectIndex, true);
                                         //    }
                                         //}
-                                     }
+                                    }
                                 }
                             }
                             TreeInfo finalTree = prop.m_finalTree;
@@ -257,8 +259,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                             vanillaSegmentFlags: laneTransition.SegmentA.m_flags, laneTransition.SegmentExtA.m_flags, segmentUserData: userData,
                             transitionFlags: laneTransition.m_flags,
                             laneFlags: laneTransition.LaneExtA.m_flags,
-                            trackRenderData.Curve))
-                        {
+                            trackRenderData.Curve)) {
                             float offset = prop.m_segmentOffset * 0.5f;
                             if (trackRenderData.Length != 0f) {
                                 offset = Mathf.Clamp(offset + prop.m_position.z / trackRenderData.Length, -0.5f, 0.5f);
@@ -277,8 +278,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                                         Vector3 pos = currentData.Position;
                                         float finalAngle = currentData.Angle;
 
-                                        if (cameraInfo.CheckRenderDistance(pos, variation.m_maxRenderDistance))
-                                        {
+                                        if (cameraInfo.CheckRenderDistance(pos, variation.m_maxRenderDistance)) {
                                             Vector4 objectIndex = (t <= 0.5f) ? objectIndex1 : objectIndex2;
                                             InstanceID instanceID = new InstanceID { NetNode = laneTransition.NodeID };
                                             if (variation.m_requireWaterMap) {
@@ -288,8 +288,10 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                                                 if (waterHeightMap == null) {
                                                     Singleton<TerrainManager>.instance.GetWaterMapping(laneTransition.Node.m_position, out waterHeightMap, out waterHeightMapping, out waterSurfaceMapping);
                                                 }
+                                                OnAfterRenderInstance(prop, variation, pos, finalAngle, scale);
                                                 PropInstance.RenderInstance(cameraInfo, variation, instanceID, pos, scale, finalAngle, color, objectIndex, true, heightMap, heightMapping, surfaceMapping, waterHeightMap, waterHeightMapping, waterSurfaceMapping);
                                             } else if (!variation.m_requireHeightMap) {
+                                                OnAfterRenderInstance(prop, variation, pos, finalAngle, scale);
                                                 PropInstance.RenderInstance(cameraInfo, variation, instanceID, pos, scale, finalAngle, color, objectIndex, true);
                                             }
                                         }
@@ -316,6 +318,23 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                         propIndex = expectedPropIndex;
                     }
                 }
+            }
+
+        }
+
+        static void OnAfterRenderInstance(
+            NetInfoExtionsion.TransitionProp prop,
+            PropInfo variation,
+            Vector3 pos,
+            float angle,
+            float scale) {
+            if (prop == Overlay.HoveredInfo) {
+                Overlay.PropQueue.Enqueue(new Overlay.PropData {
+                    Angle = angle,
+                    Scale = scale,
+                    Pos = pos,
+                    Prop = variation,
+                });
             }
         }
     }
