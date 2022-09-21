@@ -33,6 +33,35 @@ namespace AdaptiveRoads.Manager {
             }
             #endregion
 
+            #region flags
+            [CustomizableProperty("Node", "Flags")]
+            public VanillaNodeInfoFlagsLong VanillaNodeFlags;
+
+            [CustomizableProperty("Node Flags Extension", "Flags")]
+            public NodeInfoFlags NodeFlags;
+
+            [CustomizableProperty("Transition Flags", "Flags")]
+            public LaneTransitionInfoFlags TransitionFlags;
+
+            [CustomizableProperty("Segment Flags", "Flags")]
+            public VanillaSegmentInfoFlags VanillaSegmentFlags;
+
+            [CustomizableProperty("Segment Flags Extension", "Flags")]
+            [Hint("Source segment flags")]
+            public SegmentInfoFlags SegmentFlags;
+
+            [CustomizableProperty("Segment End Flags", "Flags")]
+            [Hint("Source segment flags")]
+            public SegmentEndInfoFlags SegmentEndFlags;
+
+            //[CustomizableProperty("Lane", "Flags")]
+            //public VanillaLaneInfoFlags VanillaLaneFlags;
+
+            [CustomizableProperty("Lane Extension", "Flags")]
+            [Hint("Source lane flags")]
+            public LaneInfoFlags LaneFlags;
+            #endregion
+
             public PropInfo m_prop;
 
             public TreeInfo m_tree;
@@ -67,29 +96,6 @@ namespace AdaptiveRoads.Manager {
             [NonSerialized]
             public TreeInfo m_finalTree;
 
-            [CustomizableProperty("Node Flags")]
-            public VanillaNodeInfoFlagsLong VanillaNodeFlags;
-
-            [CustomizableProperty("Node Flags Extension")]
-            public NodeInfoFlags NodeFlags;
-
-            [CustomizableProperty("Transition Flags")]
-            public LaneTransitionInfoFlags TransitionFlags;
-
-            [CustomizableProperty("Segment")]
-            public VanillaSegmentInfoFlags VanillaSegmentFlags;
-
-            [CustomizableProperty("Segment Extension")]
-            [Hint("Source segment flags are checked")]
-            public SegmentInfoFlags SegmentFlags;
-
-            //[CustomizableProperty("Lane")]
-            //public VanillaLaneInfoFlags VanillaLaneFlags;
-
-            [CustomizableProperty("Lane Extension")]
-            [Hint("Source lane flags are checked")]
-            public LaneInfoFlags LaneFlags;
-
             [CustomizableProperty("Curve")]
             public Range Curve;
 
@@ -99,18 +105,23 @@ namespace AdaptiveRoads.Manager {
             public bool Catenary;
 
             public bool Check(
-                NetNode.FlagsLong vanillaNodeFlags, NetNodeExt.Flags nodeFlags,
+                NetNode.FlagsLong vanillaNodeFlags, NetNodeExt.Flags nodeFlags, NetSegmentEnd.Flags segmentEndFlags,
                 NetSegment.Flags vanillaSegmentFlags, NetSegmentExt.Flags segmentFlags,
                 LaneTransition.Flags transitionFlags,
                 NetLaneExt.Flags laneFlags,
                 float laneCurve) =>
-                VanillaNodeFlags.CheckFlags(vanillaNodeFlags) && NodeFlags.CheckFlags(nodeFlags) &&
+                VanillaNodeFlags.CheckFlags(vanillaNodeFlags) && NodeFlags.CheckFlags(nodeFlags) && SegmentEndFlags.CheckFlags(segmentEndFlags) &&
                 TransitionFlags.CheckFlags(transitionFlags) &&
                 SegmentFlags.CheckFlags(segmentFlags) && VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags) &&
                 LaneFlags.CheckFlags(laneFlags) &&
                 Curve.CheckRange(laneCurve);
 
-            internal CustomFlags UsedCustomFlags => new CustomFlags {Node = NodeFlags.UsedCustomFlags};
+            internal CustomFlags UsedCustomFlags => new CustomFlags {
+                Segment = SegmentFlags.UsedCustomFlags,
+                SegmentEnd = SegmentEndFlags.UsedCustomFlags,
+                Node = NodeFlags.UsedCustomFlags,
+                Lane = LaneFlags.UsedCustomFlags,
+            };
         }
     }
 }

@@ -374,7 +374,7 @@ namespace AdaptiveRoads.Manager {
                     }
                 }
 
-                // None Transitions based on lane tags
+                // None/Pedestrian Transitions based on lane tags
                 {
                     foreach (ushort segmentId1 in SegmentIDs) {
                         ref NetSegment segment1 = ref segmentId1.ToSegment();

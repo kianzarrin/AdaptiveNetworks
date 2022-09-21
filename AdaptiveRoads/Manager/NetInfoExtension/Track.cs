@@ -400,11 +400,18 @@ namespace AdaptiveRoads.Manager {
             public bool CheckLaneTransitionFlag(LaneTransition.Flags flags) =>
                 LaneTransitionFlags.CheckFlags(flags);
 
-            internal CustomFlags UsedCustomFlags => new CustomFlags {
-                Segment = SegmentFlags.UsedCustomFlags,
-                Node = NodeFlags.UsedCustomFlags,
-                Lane = LaneFlags.UsedCustomFlags,
-            };
+            internal CustomFlags UsedCustomFlags {
+                get {
+                    var ret = new CustomFlags {
+                        Segment = SegmentFlags.UsedCustomFlags,
+                        Node = NodeFlags.UsedCustomFlags,
+                        Lane = LaneFlags.UsedCustomFlags,
+                    };
+                    foreach (var prop in Props)
+                        ret |= prop.UsedCustomFlags;
+                    return ret;
+                }
+            }
             #endregion
 
 

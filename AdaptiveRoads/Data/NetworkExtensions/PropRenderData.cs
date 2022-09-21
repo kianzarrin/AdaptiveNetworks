@@ -241,6 +241,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 unchecked {
                     seed = laneTransition.LaneIDSource + (uint)laneTransition.AntiFlickerIndex;
                 }
+                var sourceSegmentEndFlags = laneTransition.SegmentExtA.GetEnd(laneTransition.NodeID).m_flags;
                 for (int i = 0; i < nProps; i++) {
                     var prop = props[i];
                     if (trackRenderData.Length >= prop.m_minLength) {
@@ -251,7 +252,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                         int expectedPropIndex = propIndex + (repeatCountTimes2 + 1 >> 1);
 
                         if (prop.Check(
-                            vanillaNodeFlags: vanillaNodeFlags, nodeFlags: nodeFlags,
+                            vanillaNodeFlags: vanillaNodeFlags, nodeFlags: nodeFlags, segmentEndFlags: sourceSegmentEndFlags,
                             vanillaSegmentFlags: laneTransition.SegmentA.m_flags, laneTransition.SegmentExtA.m_flags,
                             transitionFlags: laneTransition.m_flags,
                             laneFlags: laneTransition.LaneExtA.m_flags,
