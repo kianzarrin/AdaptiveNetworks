@@ -23,7 +23,7 @@ namespace AdaptiveRoads.UI.Debug {
         public static void Create() => UIView.GetAView().AddUIComponent<PWSelector>();
         [Conditional("DEBUG")]
         public static void Release() =>
-            DestroyImmediate(UIView.GetAView().FindUIComponent<PWSelector>(nameof(PWSelector))?.gameObject);
+            DestroyImmediate(UIView.GetAView()?.FindUIComponent<PWSelector>(nameof(PWSelector))?.gameObject);
 
         public override void Awake() {
             Log.Called();
