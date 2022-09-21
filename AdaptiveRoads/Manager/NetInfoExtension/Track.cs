@@ -426,6 +426,9 @@ namespace AdaptiveRoads.Manager {
 #endif
                     SegmentUserData ??= new();
                     SegmentUserData.Allocate(names);
+
+                    foreach (var prop in Props)
+                        prop?.AllocateUserData(names);
                 } catch (Exception ex) {
                     ex.Log();
                 }
@@ -437,6 +440,9 @@ namespace AdaptiveRoads.Manager {
 #endif
                     if (SegmentUserData != null && SegmentUserData.IsEmptyOrDefault())
                         SegmentUserData = null;
+
+                    foreach (var prop in Props)
+                        prop?.OptimizeUserData();
                 } catch (Exception ex) {
                     ex.Log();
                 }

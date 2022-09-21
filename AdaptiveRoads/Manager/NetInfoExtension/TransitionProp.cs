@@ -18,6 +18,7 @@ namespace AdaptiveRoads.Manager {
             public TransitionProp Clone() {
                 var ret = this.ShalowClone();
                 ret.Curve = ret.Curve?.ShalowClone();
+                ret.SegmentUserData = ret.SegmentUserData?.ShalowClone();
                 return ret;
             }
 
@@ -49,6 +50,9 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Segment Flags Extension", "Flags")]
             [Hint("Source segment flags")]
             public SegmentInfoFlags SegmentFlags;
+
+            [CustomizableProperty("Segment Custom Data", "Custom Segment User Data")]
+            public UserDataInfo SegmentUserData;
 
             [CustomizableProperty("Segment End Flags", "Flags")]
             [Hint("Source segment flags")]
@@ -106,7 +110,7 @@ namespace AdaptiveRoads.Manager {
 
             public bool Check(
                 NetNode.FlagsLong vanillaNodeFlags, NetNodeExt.Flags nodeFlags, NetSegmentEnd.Flags segmentEndFlags,
-                NetSegment.Flags vanillaSegmentFlags, NetSegmentExt.Flags segmentFlags,
+                NetSegment.Flags vanillaSegmentFlags, NetSegmentExt.Flags segmentFlags, UserData segmentUserData,
                 LaneTransition.Flags transitionFlags,
                 NetLaneExt.Flags laneFlags,
                 float laneCurve) =>
@@ -114,7 +118,8 @@ namespace AdaptiveRoads.Manager {
                 TransitionFlags.CheckFlags(transitionFlags) &&
                 SegmentFlags.CheckFlags(segmentFlags) && VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags) &&
                 LaneFlags.CheckFlags(laneFlags) &&
-                Curve.CheckRange(laneCurve);
+                Curve.CheckRange(laneCurve) &&
+                SegmentUserData.CheckOrNull(segmentUserData);
 
             internal CustomFlags UsedCustomFlags => new CustomFlags {
                 Segment = SegmentFlags.UsedCustomFlags,
@@ -122,6 +127,34 @@ namespace AdaptiveRoads.Manager {
                 Node = NodeFlags.UsedCustomFlags,
                 Lane = LaneFlags.UsedCustomFlags,
             };
+
+
+            /// <summary>
+            /// only call in AR mode to allocate arrays for asset editor.
+            /// </summary>
+            /// <param name="names"></param>
+            public void AllocateUserData(UserDataNames names) {
+                try {
+#if DEBUG
+                    Log.Called(names);
+#endif
+                    SegmentUserData ??= new();
+                    SegmentUserData.Allocate(names);
+                } catch (Exception ex) {
+                    ex.Log();
+                }
+            }
+            public void OptimizeUserData() {
+                try {
+#if DEBUG
+                    Log.Called();
+#endif
+                    if (SegmentUserData != null && SegmentUserData.IsEmptyOrDefault())
+                        SegmentUserData = null;
+                } catch (Exception ex) {
+                    ex.Log();
+                }
+            }
         }
     }
 }
