@@ -686,8 +686,7 @@ namespace AdaptiveRoads.Manager {
 
                         bool lodMissing = false;
                         TrackLanes = 0;
-                        for (int i = 0; i < Tracks.Length; i++) {
-                            var track = Tracks[i];
+                        foreach(var track in Tracks) { 
                             bool hasLod = track.m_mesh;
                             if (hasLod) {
                                 track.m_lodRenderDistance = lodRenderDistance;
@@ -699,11 +698,44 @@ namespace AdaptiveRoads.Manager {
                             this.TrackLanes |= track.LaneIndeces;
                         }
                         if (lodMissing) {
+                            // warn
                         }
+
+                        CheckReferences();
                     }
                 } catch (Exception ex) {
                     ex.Log();
                     throw;
+                }
+            }
+
+            public void CheckReferences() {
+                foreach (var track in Tracks) {
+                    foreach (var prop in track.Props) {
+                        if (prop.m_prop != null) {
+                            if (prop.m_prop.m_prefabInitialized) {
+                                prop.m_finalProp = prop.m_prop;
+                            } else {
+                                prop.m_finalProp = PrefabCollection<PropInfo>.FindLoaded(prop.m_prop.gameObject.name);
+                            }
+                            if (prop.m_finalProp == null) {
+                                throw new PrefabException(ParentInfo, "Referenced prop is not loaded (" + prop.m_prop.gameObject.name + ")");
+                            }
+                            ParentInfo.CheckProp(prop.m_finalProp);
+                            ParentInfo.m_maxPropDistance = Mathf.Max(ParentInfo.m_maxPropDistance, prop.m_finalProp.m_maxRenderDistance);
+                        } else if (prop.m_tree != null) {
+                            ParentInfo.m_hasUpgradableTreeLanes |= prop.m_upgradable;
+                            if (prop.m_tree.m_prefabInitialized) {
+                                prop.m_finalTree = prop.m_tree;
+                            } else {
+                                prop.m_finalTree = PrefabCollection<TreeInfo>.FindLoaded(prop.m_tree.gameObject.name);
+                            }
+                            if (prop.m_finalTree == null) {
+                                throw new PrefabException(ParentInfo, "Referenced tree is not loaded (" + prop.m_tree.gameObject.name + ")");
+                            }
+                            ParentInfo.m_propLayers |= 1 << prop.m_finalTree.m_prefabDataLayer;
+                        }
+                    }
                 }
             }
 

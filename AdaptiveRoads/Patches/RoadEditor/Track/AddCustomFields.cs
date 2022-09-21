@@ -17,7 +17,10 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             if (___m_Target is NetInfoExtionsion.Track) {
                 __instance.AddCrossImportField(); 
                 __instance.AddModelImportField(true);
-            } 
+            }
+            if (___m_Target is NetInfoExtionsion.TransitionProp) {
+                __instance.AddLanePropSelectField();
+            }
         }
     }
 }

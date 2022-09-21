@@ -1,6 +1,13 @@
 namespace AdaptiveRoads.Data.NetworkExtensions {
     using AdaptiveRoads.Manager;
+    using ColossalFramework.Math;
+    using ColossalFramework;
     using UnityEngine;
+    using KianCommons.Math;
+    using KianCommons;
+    using AdaptiveRoads.Util;
+    using Epic.OnlineServices.Presence;
+    using System;
 
     public struct TrackRenderData {
         private static NetManager netMan => NetManager.instance;
@@ -32,6 +39,10 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         public float WindSpeed;
         public bool TurnAround;
 
+        public Bezier3 Bezier;
+        public float Length;
+        public float Curve;
+
         /// <summary>
         /// Calculates control matrix and optionally flips/rotate mesh.
         /// Precondition: TurnAround and Flip are already calculated
@@ -62,6 +73,9 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 MeshScale.x *= -1;
                 MeshScale.y *= -1;
             }
+            Bezier = outline.Center;
+            Length = outline.Center.ArcLength();
+            Curve = outline.Center.CalculateCurve();
         }
 
         public void CalculateMapping(NetInfo netInfo) {
@@ -98,7 +112,8 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         }
 
         public void RenderInstance(NetInfoExtionsion.Track trackInfo, RenderManager.CameraInfo cameraInfo) {
-            if (cameraInfo == null || cameraInfo.CheckRenderDistance(this.Position, trackInfo.m_lodRenderDistance)) {
+            if (cameraInfo == null) return;
+            if (cameraInfo.CheckRenderDistance(this.Position, trackInfo.m_lodRenderDistance)) {
                 netMan.m_materialBlock.Clear();
                 netMan.m_materialBlock.SetMatrix(netMan.ID_LeftMatrix, this.LeftMatrix);
                 netMan.m_materialBlock.SetMatrix(netMan.ID_RightMatrix, this.RightMatrix);

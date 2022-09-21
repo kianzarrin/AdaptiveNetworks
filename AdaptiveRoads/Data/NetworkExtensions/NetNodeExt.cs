@@ -475,7 +475,7 @@ namespace AdaptiveRoads.Manager {
             if(transitions_.IsNullorEmpty())
                 return;
             foreach(var transition in transitions_)
-                transition.RenderTrackInstance(cameraInfo);
+                transition.RenderTrackInstance(cameraInfo, layerMask);
         }
 
         public bool CalculateGroupData(int layer, ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays) {

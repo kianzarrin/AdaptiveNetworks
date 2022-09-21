@@ -195,6 +195,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         bool forward = lane.IsGoingForward();
                         bool backward = lane.IsGoingBackward();
                         bool unidirectional = forward || backward;
+
                         if (!unidirectional) {
                             EditorButtonPanel.Add(
                                 roadEditorPanel: __instance,
@@ -208,6 +209,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
                                 });
                         }
+
 
                         EditorButtonPanel.Add(
                             roadEditorPanel: __instance,
@@ -274,7 +276,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                                 customStringData: new CustomTagBaseDataT(laneTags));
                         }
                     }
-                }
+                } 
             } catch (Exception e) {
                 Log.Exception(e);
             }
@@ -476,6 +478,11 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         hint: fieldInfo.GetHints().JoinLines(),
                         target: metadata,
                         fieldInfo: fieldInfo);
+                } else if (fieldInfo.FieldType == typeof(NetLaneProps)) {
+                    FieldInfo field2 = typeof(NetLaneProps).GetField("m_props");
+                    NetLaneProps laneprops = fieldInfo.GetValue(metadata) as NetLaneProps;
+                    Assertion.NotNull(laneprops);
+                    roadEditorPanel.CreateField(field2, laneprops);
                 } else {
                     return false;
                 }

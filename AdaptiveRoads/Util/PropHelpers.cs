@@ -293,5 +293,22 @@ namespace AdaptiveRoads.Util {
             info = null;
             return false;
         }
+        public static bool LocateEditProp(this NetInfoExtionsion.TransitionProp prop, out NetInfo info, out NetInfoExtionsion.Track track) {
+            foreach (var info2 in NetInfoExtionsion.EditedNetInfos) {
+                foreach (var track2 in info2.GetMetaData().Tracks) {
+                    var props = track2?.Props;
+                    if (props == null)
+                        continue;
+                    if (props.Any(prop2 => prop2 == prop)) {
+                        track = track2;
+                        info = info2;
+                        return true;
+                    }
+                }
+            }
+            track = null;
+            info = null;
+            return false;
+        }
     }
 }
