@@ -210,7 +210,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             List<PropRenderData> propRenderDatas = new List<PropRenderData>(16);
             foreach(var track in InfoExtA.Tracks) {
                 var renderData = WireRenderData.GetDataFor(track);
-                PropRenderData.CalculatePropData(ref this, ref renderData, track, propRenderDatas);
+                PropRenderData.Calculate(ref this, ref renderData, track, propRenderDatas);
             }
             PropRenderDatas = propRenderDatas.ToArray();
         }
@@ -258,7 +258,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                         renderData = RenderData.GetDataFor(trackInfo, AntiFlickerIndex);
                     }
                     renderData.RenderInstance(trackInfo, cameraInfo);
-                    PropRenderData.RenderProps(cameraInfo, ref this, ref renderData, trackInfo, layerMask, PropRenderDatas, ref propIndex);
+                    PropRenderData.Render\(cameraInfo, ref this, ref renderData, trackInfo, layerMask, PropRenderDatas, ref propIndex);
                     TrackManager.instance.EnqueuOverlay(trackInfo, ref OutLine, turnAround: /*false */ renderData.TurnAround, DC: true);
                 }
             }

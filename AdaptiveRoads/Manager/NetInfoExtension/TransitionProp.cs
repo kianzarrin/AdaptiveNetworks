@@ -76,6 +76,20 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Transition Flags")]
             public LaneTransitionInfoFlags TransitionFlags;
 
+            [CustomizableProperty("Segment")]
+            public VanillaSegmentInfoFlags VanillaSegmentFlags;
+
+            [CustomizableProperty("Segment Extension")]
+            [Hint("Source segment flags are checked")]
+            public SegmentInfoFlags SegmentFlags;
+
+            //[CustomizableProperty("Lane")]
+            //public VanillaLaneInfoFlags VanillaLaneFlags;
+
+            [CustomizableProperty("Lane Extension")]
+            [Hint("Source lane flags are checked")]
+            public LaneInfoFlags LaneFlags;
+
             [CustomizableProperty("Curve")]
             public Range Curve;
 
@@ -85,13 +99,15 @@ namespace AdaptiveRoads.Manager {
             public bool Catenary;
 
             public bool Check(
-                NetNode.FlagsLong vanillaNodeFlags,
-                NetNodeExt.Flags nodeFlags,
+                NetNode.FlagsLong vanillaNodeFlags, NetNodeExt.Flags nodeFlags,
+                NetSegment.Flags vanillaSegmentFlags, NetSegmentExt.Flags segmentFlags,
                 LaneTransition.Flags transitionFlags,
+                NetLaneExt.Flags laneFlags,
                 float laneCurve) =>
-                VanillaNodeFlags.CheckFlags(vanillaNodeFlags) &&
-                NodeFlags.CheckFlags(nodeFlags) &&
+                VanillaNodeFlags.CheckFlags(vanillaNodeFlags) && NodeFlags.CheckFlags(nodeFlags) &&
                 TransitionFlags.CheckFlags(transitionFlags) &&
+                SegmentFlags.CheckFlags(segmentFlags) && VanillaSegmentFlags.CheckFlags(vanillaSegmentFlags) &&
+                LaneFlags.CheckFlags(laneFlags) &&
                 Curve.CheckRange(laneCurve);
 
             internal CustomFlags UsedCustomFlags => new CustomFlags {Node = NodeFlags.UsedCustomFlags};
