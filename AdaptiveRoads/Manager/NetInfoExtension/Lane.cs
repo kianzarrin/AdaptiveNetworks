@@ -25,12 +25,8 @@ namespace AdaptiveRoads.Manager {
                 SerializationUtil.GetObjectFields(info, this);
 
             // deserialization
-            public Lane(SerializationInfo info, StreamingContext context) {
+            public Lane(SerializationInfo info, StreamingContext context) =>
                 SerializationUtil.SetObjectFields(info, this);
-
-                // backward compatibility: SpeedLimit, AverageSpeedLimit
-                SerializationUtil.SetObjectProperties(info, this);
-            }
             #endregion
 
             public LaneTagsT LaneTags = new(null);
