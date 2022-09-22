@@ -84,7 +84,7 @@ namespace AdaptiveRoads.Manager {
             [XmlIgnore][NonSerialized2] string IModel.Title => Title;
 
             // for persistency only. work around lack of code to serialize vanilla tags.
-            public TagsInfo TagsInfo;
+            public TagsInfo TagsInfo = new TagsInfo();
 
             public bool CheckFlags(
                 NetNodeExt.Flags nodeFlags, NetSegmentEnd.Flags segmentEndFlags,
