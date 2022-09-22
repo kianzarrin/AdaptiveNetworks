@@ -17,8 +17,8 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
         // the next instruction is brfalse which automatically takes a not of the above phrase so at the end it will be
         // (ConnectGroup == None && MetaData.ConnectGroups == null) ||
         public static bool CheckConnectGroup(NetInfo.ConnectGroup cg, NetInfo.Node node) {
-            var flags2 = node.GetMetaData()?.CustomConnectGroups.Flags ?? DynamicFlagsUtil.NONE;
-            return !(cg == 0 && flags2.IsEmpty);
+            var ccg = node.GetMetaData()?.CustomConnectGroups;
+            return !(cg == 0 && ccg.IsNullOrNone());
         }
 
         static FieldInfo fNodeConnectGroup => typeof(NetInfo.Node).GetField(nameof(NetInfo.Node.m_connectGroup));
@@ -60,8 +60,8 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
             if(flagsMatch)
                 return true;
             return DirectConnectUtil.ConnectGroupsMatch(
-                node.GetMetaData()?.CustomConnectGroups.Flags,
-                info.GetMetaData()?.CustomConnectGroups.Flags);
+                node.GetMetaData()?.CustomConnectGroups,
+                info.GetMetaData()?.CustomConnectGroups);
         }
 
         static FieldInfo fNodeConnectGroup => typeof(NetInfo.Node).GetField(nameof(NetInfo.Node.m_connectGroup));
@@ -114,8 +114,8 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
         // the next instruction is brfalse which automatically takes a not of the above phrase so at the end it will be
         // (ConnectGroup == None && MetaData.ConnectGroups == null) ||
         public static bool CheckConnectGroup(NetInfo.ConnectGroup cg, NetInfo info) {
-            var flags2 = info.GetMetaData()?.CustomConnectGroups.Flags ?? DynamicFlagsUtil.NONE;
-            return !(cg == 0 && flags2.IsEmpty);
+            var ccg = info.GetMetaData()?.CustomConnectGroups;
+            return !(cg == 0 && ccg.IsNullOrNone());
         }
 
 
@@ -162,8 +162,8 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
                 return true; 
             }
             return DirectConnectUtil.ConnectGroupsMatch(
-                sourceInfo.GetMetaData()?.CustomConnectGroups.Flags,
-                targetInfo.GetMetaData()?.CustomConnectGroups.Flags);
+                sourceInfo.GetMetaData()?.CustomConnectGroups,
+                targetInfo.GetMetaData()?.CustomConnectGroups);
         }
 
         static FieldInfo fNetNodeConnectGroups => typeof(NetInfo).GetField(nameof(NetInfo.m_nodeConnectGroups));

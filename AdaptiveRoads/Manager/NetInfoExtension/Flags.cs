@@ -204,6 +204,8 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
+        public static bool IsNullOrNone(this TagBase tagBase) => tagBase == null || tagBase.IsNone();
+
         [Serializable]
         public abstract class TagBase : ISerializable {
             public TagBase(string[] tags) {
@@ -228,7 +230,13 @@ namespace AdaptiveRoads.Manager {
                     Flags = DynamicFlagsUtil.NONE; // simplify.
             }
 
-            public bool Check(DynamicFlags flags) => Flags.IsAnyFlagSet(flags);
+            public virtual bool Check(DynamicFlags flags) => Flags.IsAnyFlagSet(flags);
+
+            public bool IsNone() => Flags.IsEmpty;
+
+            public virtual bool CheckOrNone(DynamicFlags flags) => IsNone() || Flags.IsAnyFlagSet(flags);
+
+
 
             [XmlElement("Tag")]
             public string[] Selected {

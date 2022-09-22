@@ -9,13 +9,14 @@ namespace AdaptiveRoads.Util {
     using Log = KianCommons.Log;
     using VectorUtil = KianCommons.Math.VectorUtil;
     using static Util.Shortcuts;
+    using CustomConnectGroupT = AdaptiveRoads.Manager.NetInfoExtionsion.CustomConnectGroupT;
 
     internal static class DirectConnectUtil {
         #region custom connect groups
-        internal static bool ConnectGroupsMatch(DynamicFlags? group1, DynamicFlags? group2) {
+        internal static bool ConnectGroupsMatch(CustomConnectGroupT group1, CustomConnectGroupT group2) {
             if (group1 == null || group2 == null)
                 return false;
-            return group1.Value.IsAnyFlagSet(group2.Value);
+            return group1.Check(group2.Flags);
         }
         #endregion
 
