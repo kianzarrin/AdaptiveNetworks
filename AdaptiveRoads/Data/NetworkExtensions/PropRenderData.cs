@@ -95,7 +95,11 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                                                 continue;
                                             }
 
-                                            var propPosition = prop.m_position;
+                                            var propPosition = CalculatePropPos(
+                                                pos:prop.m_position, tan: tan, t: t,
+                                                nodeId: laneTransition.NodeID,
+                                                startSegmentId: laneTransition.segmentID_A, endSegmentId: laneTransition.segmentID_D,
+                                                isCatenary: prop.Catenary);
 
                                             tan.y = 0f;
                                             if (prop.m_position.x != 0f) {
