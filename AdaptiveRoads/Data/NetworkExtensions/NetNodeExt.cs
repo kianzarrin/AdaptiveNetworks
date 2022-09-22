@@ -174,7 +174,6 @@ namespace AdaptiveRoads.Manager {
             }
             center /= counter;
             center.y += heightOffset;
-            building.m_position = center;
 
             /************************
             /* rotate */
@@ -201,7 +200,8 @@ namespace AdaptiveRoads.Manager {
             }
 
             float angle = Mathf.Atan2(dir.z, dir.x);
-            building.m_angle = angle + Mathf.PI * 0.5f;
+
+            BuildingUtil.RelocatePillar(buildingId, center, angle);
 
             static int CompareSegments(ushort seg1Id, ushort seg2Id) {
                 ref NetSegment seg1 = ref seg1Id.ToSegment();
@@ -418,9 +418,11 @@ namespace AdaptiveRoads.Manager {
             var tracks1 = infoExt1?.Tracks;
             var tracks2 = infoExt2?.Tracks;
             var tags1 = infoExt1?.GetLaneTags(lane1.LaneInfo);
-            var tags2 = infoExt2?.GetLaneTags(lane1.LaneInfo);
+            var tags2 = infoExt2?.GetLaneTags(lane2.LaneInfo);
             if (tracks1 != null && tags2 != null) {
                 foreach (var track in tracks1) {
+                    Assertion.NotNull(track);
+                    Assertion.NotNull(tags2);
                     if (track.LaneTags.Check(tags2.Flags)) {
                         return true;
                     }
@@ -428,6 +430,8 @@ namespace AdaptiveRoads.Manager {
             }
             if (tracks2 != null && tags1 != null) {
                 foreach (var track in tracks2) {
+                    Assertion.NotNull(track);
+                    Assertion.NotNull(tags1);
                     if (track.LaneTags.Check(tags1.Flags)) {
                         return true;
                     }
