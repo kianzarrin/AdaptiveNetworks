@@ -33,8 +33,8 @@ namespace AdaptiveRoads.Patches.TMPE {
         static bool hasDC(NetInfo sourceInfo, NetInfo targetInfo) {
             return (sourceInfo.m_nodeConnectGroups & targetInfo.m_connectGroup) != 0 ||
                 DirectConnectUtil.ConnectGroupsMatch(
-                sourceInfo.GetMetaData()?.CustomConnectGroups.Flags,
-                targetInfo.GetMetaData()?.CustomConnectGroups.Flags);
+                sourceInfo.GetMetaData()?.CustomConnectGroups,
+                targetInfo.GetMetaData()?.CustomConnectGroups);
         }
     }
 }

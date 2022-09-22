@@ -228,6 +228,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                     SegmentExtA.m_flags, SegmentA.m_flags,
                     LaneExtA.m_flags, LaneA.Flags(),
                     segmentUserData: SegmentExtA.UserData);
+                ret = ret && trackInfo.LaneTags.CheckOrNone(LaneTagsFlagsD);
             } else { // treat bend as segment:
                 ret = trackInfo.CheckSegmentFlags(
                     SegmentExtA.m_flags, SegmentA.m_flags,
@@ -236,7 +237,6 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             }
             ret = ret && trackInfo.CheckLaneTransitionFlag(this.m_flags);
             ret = ret && trackInfo.Tags.CheckTags(NodeID, SegmentA.Info);
-            ret = ret && trackInfo.LaneTags.Check(LaneTagsFlagsD);
             return ret;
         }
 
