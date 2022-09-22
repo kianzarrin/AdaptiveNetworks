@@ -8,7 +8,7 @@ namespace AdaptiveRoads.UI {
         public override SavedString SavedVersion => new SavedString("WhatsNewVersion", ModSettings.FILE_NAME, def: "0.0.0", autoUpdate: true);
         public override WhatsNewEntry[] Messages { get; } = new WhatsNewEntry[] {
             new WhatsNewEntry {
-                version = new Version(3, 13, 0),
+                version = new Version(3, 13, 1),
                 messages = new string[] {
                     "Feature: Lane Tags",
                     "Feature: Fence (tracks that use None lanes and lane tags)",
@@ -21,7 +21,7 @@ namespace AdaptiveRoads.UI {
                 version = new Version(3, 12, 4),
                 messages = new string[] {
                     "Fixed: Virtual bus stops did not work on props",
-                    "Feature: Virtual bus stop highlights affected lane",
+                    "Feature: Virtual bus stop tool highlights affected lane on hover",
                 }
             },
 
