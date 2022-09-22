@@ -3,8 +3,10 @@ namespace AdaptiveRoads.Manager {
     using AdaptiveRoads.Data.NetworkExtensions;
     using KianCommons;
     using KianCommons.Serialization;
+    using NetworkSkins.Skins.Serialization;
     using System;
     using System.Runtime.Serialization;
+    using System.Xml.Serialization;
     using UnityEngine;
     using static KianCommons.ReflectionHelpers;
     using static NetLaneProps;
@@ -25,12 +27,33 @@ namespace AdaptiveRoads.Manager {
             object ICloneable.Clone() => Clone();
 
             //serialization
-            public void GetObjectData(SerializationInfo info, StreamingContext context) =>
+            public void GetObjectData(SerializationInfo info, StreamingContext context) {
                 SerializationUtil.GetObjectFields(info, this);
+                SerializationUtil.GetObjectProperties(info, this);
+            }
 
             // deserialization
             public TransitionProp(SerializationInfo info, StreamingContext context) {
                 SerializationUtil.SetObjectFields(info, this);
+                SerializationUtil.SetObjectProperties(info, this);
+            }
+
+            static T FindLoaded<T>(string name) where T : PrefabInfo {
+                if (name.IsNullorEmpty()) return null;
+                return PrefabCollection<T>.FindLoaded(name);
+            }
+
+            public string PropInfo {
+                get => m_prop?.name;
+                set => m_prop = FindLoaded<PropInfo>(value);
+            }
+            public string TreeInfo {
+                get => m_tree?.name;
+                set => m_tree = FindLoaded<TreeInfo>(value);
+            }
+            Vector3Serializable Position {
+                get => m_position;
+                set => m_position = Position;
             }
             #endregion
 
@@ -66,11 +89,20 @@ namespace AdaptiveRoads.Manager {
             public LaneInfoFlags LaneFlags;
             #endregion
 
+            [NonSerialized][XmlIgnore]
             public PropInfo m_prop;
 
+            [NonSerialized][XmlIgnore]
             public TreeInfo m_tree;
 
+            [NonSerialized][XmlIgnore]
+            public PropInfo m_finalProp;
+
+            [NonSerialized][XmlIgnore]
+            public TreeInfo m_finalTree;
+
             [CustomizableProperty("Position")]
+            [NonSerialized] [XmlIgnore]
             public Vector3 m_position;
 
             [CustomizableProperty("Angle")]
@@ -94,12 +126,6 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Upgradable")]
             public bool m_upgradable;
 
-            [NonSerialized]
-            public PropInfo m_finalProp;
-
-            [NonSerialized]
-            public TreeInfo m_finalTree;
-
             [CustomizableProperty("Curve")]
             public Range Curve;
 
@@ -121,6 +147,9 @@ namespace AdaptiveRoads.Manager {
                 Curve.CheckRange(laneCurve) &&
                 SegmentUserData.CheckOrNull(segmentUserData);
 
+
+            [NonSerialized2]
+            [XmlIgnore]
             internal CustomFlags UsedCustomFlags => new CustomFlags {
                 Segment = SegmentFlags.UsedCustomFlags,
                 SegmentEnd = SegmentEndFlags.UsedCustomFlags,

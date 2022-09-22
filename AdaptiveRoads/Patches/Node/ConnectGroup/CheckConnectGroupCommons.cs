@@ -17,7 +17,7 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
         // the next instruction is brfalse which automatically takes a not of the above phrase so at the end it will be
         // (ConnectGroup == None && MetaData.ConnectGroups == null) ||
         public static bool CheckConnectGroup(NetInfo.ConnectGroup cg, NetInfo.Node node) {
-            var flags2 = node.GetMetaData()?.CustomConnectGroups.Flags ?? new DynamicFlags(DynamicFlagsUtil.EMPTY_FLAGS);
+            var flags2 = node.GetMetaData()?.CustomConnectGroups.Flags ?? DynamicFlagsUtil.NONE;
             return !(cg == 0 && flags2.IsEmpty);
         }
 
@@ -114,7 +114,7 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
         // the next instruction is brfalse which automatically takes a not of the above phrase so at the end it will be
         // (ConnectGroup == None && MetaData.ConnectGroups == null) ||
         public static bool CheckConnectGroup(NetInfo.ConnectGroup cg, NetInfo info) {
-            var flags2 = info.GetMetaData()?.CustomConnectGroups.Flags ?? new DynamicFlags(DynamicFlagsUtil.EMPTY_FLAGS);
+            var flags2 = info.GetMetaData()?.CustomConnectGroups.Flags ?? DynamicFlagsUtil.NONE;
             return !(cg == 0 && flags2.IsEmpty);
         }
 

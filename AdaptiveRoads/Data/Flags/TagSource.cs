@@ -7,7 +7,7 @@ namespace AdaptiveRoads.Data.Flags {
         public Dictionary<string, int> Tags2Index = new();
         private List<ulong> allFlags_ = new();
 
-        public static DynamicFlags EmptyFlags => new DynamicFlags(DynamicFlagsUtil.EMPTY_FLAGS);
+        public static DynamicFlags NONE => DynamicFlagsUtil.NONE;
         public DynamicFlags All => new DynamicFlags(allFlags_.ToArray());
         public string[] AllTags => Tags2Index.Keys.ToArray();
 

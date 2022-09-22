@@ -267,7 +267,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     if (ModSettings.ARMode) {
                         if (field.Name == nameof(NetInfo.Lane.m_stopType)) {
                             NetInfo netInfo2 = laneInfo.GetParent(out _);
-                            var laneTags = netInfo2.GetMetaData().GetOrCreateLaneTags(laneInfo);
+                            var laneTags = netInfo2.GetMetaData().GetOrCreateLane(laneInfo).LaneTags;
                             StringListMSDD.Add(
                                 roadEditorPanel: __instance,
                                 container: GetContainer(__instance, groupName),

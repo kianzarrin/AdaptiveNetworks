@@ -11,13 +11,16 @@ namespace AdaptiveRoads.Manager {
     public class AssetData : ISerializable{
         [Serializable]
         public class NetInfoMetaData {
-            public List<NetInfoExtionsion.Node> Nodes = new List<NetInfoExtionsion.Node>();
-            public List<NetInfoExtionsion.Segment> Segments = new List<NetInfoExtionsion.Segment>();
+            public List<NetInfoExtionsion.Node> Nodes = new ();
 
-            /// <summary>
-            /// props for all lanes is stored here in order.
-            /// </summary>
-            public List<NetInfoExtionsion.LaneProp> Props = new List<NetInfoExtionsion.LaneProp>();
+            public List<NetInfoExtionsion.Segment> Segments = new ();
+
+            /// <summary>props for all lanes are stored here in order.</summary>
+            public List<NetInfoExtionsion.LaneProp> Props = new ();
+
+            /// <summary>all lane extensions are stored here in order.</summary>
+            public List<NetInfoExtionsion.Lane> Lanes = new ();
+
             public NetInfoExtionsion.Net NetData;
 
             public static NetInfoMetaData Create(NetInfo info) {
@@ -40,6 +43,8 @@ namespace AdaptiveRoads.Manager {
                         Props.Add(item.GetMetaData());
                 }
                 NetData = info.GetMetaData();
+                foreach (var lane in info.m_lanes)
+                    Lanes.Add(NetData.GetOrCreateLane(lane));
             }
 
             public void Apply(NetInfo info) {
@@ -51,9 +56,20 @@ namespace AdaptiveRoads.Manager {
                     for (int i = 0; i < Segments.Count; ++i)
                         (info.m_segments[i] as IInfoExtended).SetMetaData(Segments[i]);
                     ApplyProps(info);
-                    info.SetMetedata(NetData?.Clone());
-                    info.GetMetaData()?.LoadVanillaTags();
+
+                    var net = NetData?.Clone();
+                    info.SetMetedata(net);
+
+                    if (Lanes != null && net != null) {
+                        for (int laneIndex = 0; laneIndex < Lanes.Count; ++laneIndex) {
+                            var laneInfo = info.m_lanes[laneIndex];
+                            net.Lanes[laneInfo] = Lanes[laneIndex] ?? new(laneInfo);
+                        }
+                    }
+
+                    info.GetMetaData()?.LoadVanillaTags(info);
                     info.RecalculateMetaData();
+
                     Log.Debug("Net Metadata restored.");
                 } catch(Exception ex) {
                     Log.Exception(ex);

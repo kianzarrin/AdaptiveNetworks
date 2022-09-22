@@ -8,6 +8,7 @@ namespace AdaptiveRoads.Manager {
     using KianCommons.Serialization;
     using static AdaptiveRoads.Manager.NetInfoExtionsion;
     using System.Xml.Serialization;
+    using Epic.OnlineServices.Presence;
 
     public static partial class NetInfoExtionsion {
         [Serializable]
@@ -131,13 +132,13 @@ namespace AdaptiveRoads.Manager {
         [Serializable]
         public struct TagsInfo {
             private static string[] EMPTY => DynamicFlagsUtil.EMPTY_TAGS;
-            private static DynamicFlags EMPTY_FLAGS => new DynamicFlags(DynamicFlagsUtil.EMPTY_FLAGS);
+            private static DynamicFlags NONE => DynamicFlagsUtil.NONE;
             public string[] Required = EMPTY, Forbidden = EMPTY;
             public byte MinMatch = 0, MaxMatch = 7;
             public byte MinMismatch = 0, MaxMismatch = 7;
 
             [NonSerialized]
-            internal DynamicFlags FlagsRequired = EMPTY_FLAGS, FlagsForbidden = EMPTY_FLAGS;
+            internal DynamicFlags FlagsRequired = NONE, FlagsForbidden = NONE;
             [NonSerialized]
             private bool needCheck_ = false, needCheckLimits_ = false;
 
@@ -204,10 +205,10 @@ namespace AdaptiveRoads.Manager {
         }
 
         [Serializable]
-        public abstract class TagBase {
+        public abstract class TagBase : ISerializable {
             public TagBase(string[] tags) {
                 Tags = tags ?? DynamicFlagsUtil.EMPTY_TAGS;
-                Flags = default;
+                Flags = DynamicFlagsUtil.NONE;
                 Recalculate();
             }
 
@@ -215,16 +216,16 @@ namespace AdaptiveRoads.Manager {
 
             [NonSerialized]
             [XmlIgnore]
-            public DynamicFlags Flags;
+            public DynamicFlags Flags = DynamicFlagsUtil.NONE;
 
-            private string[] Tags;
+            private string[] Tags = DynamicFlagsUtil.EMPTY_TAGS;
 
             public void Recalculate() {
                 Tags ??= DynamicFlagsUtil.EMPTY_TAGS;
                 TagSource.RegisterTags(Tags);
                 Flags = TagSource.GetFlags(Tags);
                 if (Flags.IsEmpty)
-                    Flags = new DynamicFlags(DynamicFlagsUtil.EMPTY_FLAGS); // simplify.
+                    Flags = DynamicFlagsUtil.NONE; // simplify.
             }
 
             public bool Check(DynamicFlags flags) => Flags.IsAnyFlagSet(flags);
@@ -236,6 +237,17 @@ namespace AdaptiveRoads.Manager {
                     Tags = value ?? DynamicFlagsUtil.EMPTY_TAGS;
                     Recalculate();
                 }
+            }
+
+            public virtual void GetObjectData(SerializationInfo info, StreamingContext context) {
+                SerializationUtil.GetObjectFields(info, this);
+                SerializationUtil.GetObjectProperties(info, this);
+            }
+
+            public TagBase(SerializationInfo info, StreamingContext context) {
+                SerializationUtil.SetObjectFields(info, this);
+                SerializationUtil.SetObjectProperties(info, this);
+                Recalculate();
             }
         }
 
@@ -249,6 +261,8 @@ namespace AdaptiveRoads.Manager {
             public override TagSource TagSource => Source;
 
             public LaneTagsT Clone() => new LaneTagsT(Selected);
+
+            public LaneTagsT(SerializationInfo info, StreamingContext context) : base(info, context) { }
         }
 
         public class CustomConnectGroupT : TagBase {
@@ -257,6 +271,9 @@ namespace AdaptiveRoads.Manager {
             public static TagSource Source = new TagSource();
             public override TagSource TagSource => Source;
             public CustomConnectGroupT Clone() => new CustomConnectGroupT(Selected);
+
+            public CustomConnectGroupT(SerializationInfo info, StreamingContext context) : base(info, context) { }
+
         }
     }
 }

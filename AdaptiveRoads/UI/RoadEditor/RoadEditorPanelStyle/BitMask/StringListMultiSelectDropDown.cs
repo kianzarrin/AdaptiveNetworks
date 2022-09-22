@@ -126,7 +126,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
                     var panel = MiniPanel.Display();
                     var field = panel.AddTextField();
                     field.width = 200;
-                    panel.AddButton("Add Custom item", null, () => OnItemAdded(field.text));
+                    panel.AddButton("Add item", null, () => OnItemAdded(field.text));
                 }
             } catch (Exception ex) {
                 ex.Log();

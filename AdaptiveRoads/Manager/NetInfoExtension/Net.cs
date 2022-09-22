@@ -33,8 +33,7 @@ namespace AdaptiveRoads.Manager {
                     ret.CustomFlagNames = ret.CustomFlagNames?.ShallowClone();
                     ret.ScriptedFlags = ret.ScriptedFlags?.ShallowClone();
                     ret.CustomLaneFlagNames0 = ret.CustomLaneFlagNames0?.ShallowClone();
-                    ret.LaneTags = ret.LaneTags?.Select(item => item?.Clone())?.ToArray();
-                    ret.LaneTags0 = ret.LaneTags0?.ToDictionary(pair => pair.Key, pair => pair.Value?.Clone());
+                    ret.Lanes = ret.Lanes?.ToDictionary(pair => pair.Key, pair => pair.Value?.Clone());
                     //Log.Debug($"CustomLaneFlagNames={CustomLaneFlagNames} before cloning");
                     ret.CustomLaneFlagNames = ret.CustomLaneFlagNames
                         ?.Select(item => item?.ShallowClone())
@@ -588,60 +587,24 @@ namespace AdaptiveRoads.Manager {
             }
             #endregion
 
-            #region lane tags
+            #region lanes
             [NonSerialized]
-            public Dictionary<NetInfo.Lane, LaneTagsT> LaneTags0 = new();
+            public Dictionary<NetInfo.Lane, Lane> Lanes = new();
 
-            public LaneTagsT[] LaneTags {
-                get {
-                    // serialization
-                    var lanes = ParentInfo.m_lanes;
-                    if (lanes == null || LaneTags0 == null) {
-                        return null;
-                    }
-
-                    LaneTagsT[] laneTags = new LaneTagsT[lanes.Length];
-                    for(int i = 0; i < lanes.Length; ++i) {
-                        var lane = lanes[i];
-                        if (LaneTags0.TryGetValue(lane, out var tags)) {
-                            tags.Recalculate();
-                            laneTags[i] = tags;
-                        }
-                    }
-                    return laneTags;
-                }
-                set {
-                    // deserialization
-                    var laneTags = value;
-                    var lanes = ParentInfo.m_lanes;
-                    LaneTags0 = new();
-                    if (lanes == null || laneTags == null) {
-                        return;
-                    }
-
-                    for (int laneIndex = 0; laneIndex < laneTags.Length; ++laneIndex) {
-                        laneTags[laneIndex] ??= new(null);
-                        laneTags[laneIndex].Recalculate();
-                        LaneTags0.Add(ParentInfo.m_lanes[laneIndex], laneTags[laneIndex]);
-                    }
-                }
+            public Lane GetOrCreateLane(NetInfo.Lane laneInfo) {
+                if (!Lanes.ContainsKey(laneInfo))
+                    return Lanes[laneInfo] = new Lane(laneInfo);
+                else 
+                    return Lanes[laneInfo];
             }
 
             public LaneTagsT GetLaneTags(NetInfo.Lane lane) {
-                if(LaneTags0 != null && LaneTags0.TryGetValue(lane, out var ret))
-                    return ret;
+                if (Lanes.TryGetValue(lane, out var laneExt))
+                    return laneExt.LaneTags;
                 else
                     return null;
             }
-            public LaneTagsT GetOrCreateLaneTags(NetInfo.Lane laneInfo) {
-                LaneTags0 ??= new();
-                if (LaneTags0.TryGetValue(laneInfo, out var ret) && ret != null)
-                    return ret;
-                else
-                    return LaneTags0[laneInfo] = new LaneTagsT(null);
-            }
-
-            #endregion lane tags
+            #endregion lanes
 
             public void Recalculate(NetInfo netInfo) {
                 try {
@@ -667,11 +630,11 @@ namespace AdaptiveRoads.Manager {
                 } catch (Exception ex) { ex.Log(); }
             }
 
-            public void LoadVanillaTags() {
-                ParentInfo.m_tags = Tags;
-                NetInfo.AddTags(ParentInfo.m_tags);
-                ParentInfo.m_netTags = NetInfo.GetFlags(ParentInfo.m_tags);
-                foreach (var node in ParentInfo.m_nodes) {
+            public void LoadVanillaTags(NetInfo info) {
+                info.m_tags = Tags;
+                NetInfo.AddTags(info.m_tags);
+                info.m_netTags = NetInfo.GetFlags(info.m_tags);
+                foreach (var node in info.m_nodes) {
                     if (node?.GetMetaData() is Node metadata) {
                         node.m_tagsRequired = metadata.TagsInfo.Required;
                         node.m_tagsForbidden = metadata.TagsInfo.Forbidden;
@@ -887,7 +850,7 @@ namespace AdaptiveRoads.Manager {
             }
 
             DynamicFlags GetNodeCustomConnectGroups(NetInfo netInfo) {
-                DynamicFlags ret = new DynamicFlags(DynamicFlagsUtil.EMPTY_FLAGS);
+                DynamicFlags ret = DynamicFlagsUtil.NONE;
                 foreach(var node in netInfo.m_nodes) {
                     if(node.GetMetaData() is Node nodeMetaData)
                         ret = ret | nodeMetaData.CustomConnectGroups.Flags;
