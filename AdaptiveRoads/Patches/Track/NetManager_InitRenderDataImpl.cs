@@ -57,36 +57,7 @@ namespace AdaptiveRoads.Patches.Track {
                                     if(rgb == null && xys == null && apr == null) {
                                         netInfo.InitMeshData(segment, new Rect(0f, 0f, 1f, 1f), null, null, null);
                                     } else {
-                                        if(rgb == null) {
-                                            throw new PrefabException(netInfo, "LOD diffuse null");
-                                        }
-                                        if(xys == null) {
-                                            throw new PrefabException(netInfo, "LOD xys null");
-                                        }
-                                        if(apr == null) {
-                                            throw new PrefabException(netInfo, "LOD apr null");
-                                        }
-                                        if(xys.width != rgb.width || xys.height != rgb.height) {
-                                            throw new PrefabException(netInfo, "LOD xys size doesn't match diffuse size");
-                                        }
-                                        if(apr.width != rgb.width || apr.height != rgb.height) {
-                                            throw new PrefabException(netInfo, "LOD apr size doesn't match diffuse size");
-                                        }
-                                        try {
-                                            rgb.GetPixel(0, 0);
-                                        } catch(UnityException) {
-                                            throw new PrefabException(netInfo, "LOD diffuse not readable");
-                                        }
-                                        try {
-                                            xys.GetPixel(0, 0);
-                                        } catch(UnityException) {
-                                            throw new PrefabException(netInfo, "LOD xys not readable");
-                                        }
-                                        try {
-                                            apr.GetPixel(0, 0);
-                                        } catch(UnityException) {
-                                            throw new PrefabException(netInfo, "LOD apr not readable");
-                                        }
+                                        Assert(rgb, xys, apr, netInfo);
                                         subInfos.Add(new KeyValuePair<NetInfo, object>(netInfo, segment));
                                         rgbTextures.Add(rgb);
                                         xysTextures.Add(xys);
@@ -119,36 +90,7 @@ namespace AdaptiveRoads.Patches.Track {
                                     if(rgb == null && xys == null && apr == null) {
                                         netInfo.InitMeshData(node, new Rect(0f, 0f, 1f, 1f), null, null, null);
                                     } else {
-                                        if(rgb == null) {
-                                            throw new PrefabException(netInfo, "LOD diffuse null");
-                                        }
-                                        if(xys == null) {
-                                            throw new PrefabException(netInfo, "LOD xys null");
-                                        }
-                                        if(apr == null) {
-                                            throw new PrefabException(netInfo, "LOD apr null");
-                                        }
-                                        if(xys.width != rgb.width || xys.height != rgb.height) {
-                                            throw new PrefabException(netInfo, "LOD xys size doesn't match diffuse size");
-                                        }
-                                        if(apr.width != rgb.width || apr.height != rgb.height) {
-                                            throw new PrefabException(netInfo, "LOD apr size doesn't match diffuse size");
-                                        }
-                                        try {
-                                            rgb.GetPixel(0, 0);
-                                        } catch(UnityException) {
-                                            throw new PrefabException(netInfo, "LOD diffuse not readable");
-                                        }
-                                        try {
-                                            xys.GetPixel(0, 0);
-                                        } catch(UnityException) {
-                                            throw new PrefabException(netInfo, "LOD xys not readable");
-                                        }
-                                        try {
-                                            apr.GetPixel(0, 0);
-                                        } catch(UnityException) {
-                                            throw new PrefabException(netInfo, "LOD apr not readable");
-                                        }
+                                        Assert(rgb, xys, apr, netInfo);
                                         subInfos.Add(new KeyValuePair<NetInfo, object>(netInfo, node));
                                         rgbTextures.Add(rgb);
                                         xysTextures.Add(xys);
@@ -182,37 +124,7 @@ namespace AdaptiveRoads.Patches.Track {
                                     if(rgb == null && xys == null && apr == null) {
                                         netInfoExt.InitMeshData(track, new Rect(0f, 0f, 1f, 1f), null, null, null);
                                     } else {
-                                        if(rgb == null) {
-                                            throw new PrefabException(netInfo, "LOD diffuse null");
-                                        }
-                                        if(xys == null) {
-                                            throw new PrefabException(netInfo, "LOD xys null");
-                                        }
-                                        if(apr == null) {
-                                            throw new PrefabException(netInfo, "LOD apr null");
-                                        }
-                                        if(xys.width != rgb.width || xys.height != rgb.height) {
-                                            throw new PrefabException(netInfo, "LOD xys size doesn't match diffuse size");
-                                        }
-                                        if(apr.width != rgb.width || apr.height != rgb.height) {
-                                            throw new PrefabException(netInfo, "LOD apr size doesn't match diffuse size");
-                                        }
-                                        try {
-                                            rgb.GetPixel(0, 0);
-                                        } catch(UnityException) {
-                                            throw new PrefabException(netInfo, "LOD diffuse not readable");
-                                        }
-                                        try {
-                                            xys.GetPixel(0, 0);
-                                        } catch(UnityException) {
-                                            throw new PrefabException(netInfo, "LOD xys not readable");
-                                        }
-                                        try {
-                                            apr.GetPixel(0, 0);
-                                        } catch(UnityException) {
-                                            throw new PrefabException(netInfo, "LOD apr not readable");
-                                        }
-
+                                        Assert(rgb, xys, apr, netInfo);
                                         subInfos.Add(new KeyValuePair<NetInfo, object>(netInfo, track));
                                         rgbTextures.Add(rgb);
                                         xysTextures.Add(xys);
@@ -263,20 +175,20 @@ namespace AdaptiveRoads.Patches.Track {
             for (int i = 0; i < subInfos.Count; ++i) {
                 var netInfo = subInfos[i].Key;
                 try {
-                    bool failed = false;
                     if (xysRects[i] != rects[i] ) {
-                        failed = true;
                         Handle(new PrefabException(netInfo, $"xys rect mismatch: {xysRects[i]} != {rects[i]}"));
+                        continue;
                     }
                     if (aprRects[i] != rects[i]) {
-                        failed = true;
                         Handle(new PrefabException(netInfo, $"apr rect mismatch: {xysRects[i]} != {rects[i]}"));
+                        continue;
                     }
-                    if (failed) continue;
                 } catch (PrefabException ex) {
                     ex.Handle();
+                    continue;
                 } catch (Exception ex) {
                     ex.Log();
+                    continue;
                 }
 
                 try {
@@ -296,6 +208,26 @@ namespace AdaptiveRoads.Patches.Track {
             yield return 0;
             yield break;
 
+        }
+
+        private static void Assert(Texture2D texture, Texture2D rgb, NetInfo netInfo, string type) {
+            if (texture == null) {
+                throw new PrefabException(netInfo, $"LOD {type} null");
+            }
+            if (texture.width != rgb.width || texture.height != rgb.height) {
+                throw new PrefabException(netInfo, $"LOD {type} size doesn't match diffuse size");
+            }
+            try {
+                texture.GetPixel(0, 0);
+            } catch (UnityException) {
+                throw new PrefabException(netInfo, $"LOD {type} not readable");
+            }
+        }
+
+        private static void Assert(Texture2D rgb, Texture2D xys, Texture2D apr, NetInfo netInfo) {
+            Assert(rgb, rgb, netInfo, "diffuse");
+            Assert(xys, rgb, netInfo, "xys");
+            Assert(apr, rgb, netInfo, "apr");
         }
 
         public static void Handle(this PrefabException ex) {
