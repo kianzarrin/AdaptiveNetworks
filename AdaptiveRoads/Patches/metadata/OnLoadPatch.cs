@@ -18,7 +18,7 @@ namespace AdaptiveRoads.Patches.metadata {
                 }
 
                 // don't know why but the lods do not load the first time i load an asset.
-                NetManager.instance.RebuildLods();
+                //NetManager.instance.RebuildLods();
             }
         }
     }

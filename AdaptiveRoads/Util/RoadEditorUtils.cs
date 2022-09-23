@@ -518,7 +518,7 @@ namespace AdaptiveRoads.Util {
             try {
                 var mainPanel = Object.FindObjectOfType<RoadEditorMainPanel>();
                 if(mainPanel) {
-                    InvokeMethod(mainPanel, "OnObjectModified");
+                    //InvokeMethod(mainPanel, "OnObjectModified");
                     InvokeMethod(mainPanel, "Clear");
                     InvokeMethod(mainPanel, "Initialize");
                     InvokeMethod(mainPanel, "OnObjectModified");

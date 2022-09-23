@@ -7,20 +7,36 @@ namespace AdaptiveRoads.Patches.Track {
     using UnityEngine;
     using KianCommons;
     using System;
-    using AdaptiveRoads.Util;
+
+    //[HarmonyPatch(typeof(NetManager), nameof(NetManager.RebuildLods))]
+    //[PreloadPatch]
+    //public static class NetManager_RebuildLods {
+    //    //static bool Prefix(ref Coroutine __result) {
+    //    //    NetInfo.ClearLodValues();
+    //    //    LoadingManager.instance.QueueLoadingAction(NetManager_InitRenderDataImpl.InitRenderDataImpl());
+    //    //    __result = null;
+    //    //    return false;
+    //    //}
+    //}
+
 
     [HarmonyPatch(typeof(NetManager), "InitRenderDataImpl")]
     [PreloadPatch]
     public static class NetManager_InitRenderDataImpl {
+        static IEnumerator last = null;
         static bool Prefix(ref IEnumerator __result) {
+            Log.Debug(Environment.StackTrace);
             Log.Called();
-            __result = InitRenderDataImpl();
+            if(last != null) {
+                NetManager.instance.StopCoroutine(last);
+            }
+            last = __result = InitRenderDataImpl();
             return false;
         }
 
         public static IEnumerator InitRenderDataImpl() {
             yield return 0;
-            Log.Debug("NetManager_InitRenderDataImpl.InitRenderDataImpl() started ...");
+            Log.Debug(ReflectionHelpers.ThisMethod + "  started ...");
             Singleton<LoadingManager>.instance.m_loadingProfilerMain.BeginLoading("NetManager.InitRenderData");
             int netCount = PrefabCollection<NetInfo>.LoadedCount();
             var subInfos = new List<KeyValuePair<NetInfo, object>>(netCount * 10);
@@ -175,6 +191,11 @@ namespace AdaptiveRoads.Patches.Track {
             for (int i = 0; i < subInfos.Count; ++i) {
                 var netInfo = subInfos[i].Key;
                 try {
+                    if (netInfo == null) {
+                        // netinfo died (presumably prev edit prefab.
+                        Log.Error("netInfo died");
+                        continue;
+                    }
                     if (xysRects[i] != rects[i] ) {
                         Handle(new PrefabException(netInfo, $"xys rect mismatch: {xysRects[i]} != {rects[i]}"));
                         continue;
@@ -194,7 +215,9 @@ namespace AdaptiveRoads.Patches.Track {
                 try {
                     if (subInfos[i].Value is NetInfo.Segment segmentInfo) {
                         netInfo.InitMeshData(segmentInfo, rects[i], netMan.m_lodRgbAtlas, netMan.m_lodXysAtlas, netMan.m_lodAprAtlas);
-
+                        if (netInfo.name == "Large Road with Median") {
+                            Log.Debug(netInfo + " lod mesh=" + segmentInfo.m_combinedLod.m_key.m_mesh);
+                        }
                     } else if (subInfos[i].Value is NetInfo.Node nodeInfo) {
                         netInfo.InitMeshData(nodeInfo, rects[i], netMan.m_lodRgbAtlas, netMan.m_lodXysAtlas, netMan.m_lodAprAtlas);
 
@@ -205,9 +228,9 @@ namespace AdaptiveRoads.Patches.Track {
             }
 
             Singleton<LoadingManager>.instance.m_loadingProfilerMain.EndLoading();
+            last = null;
+            Log.Succeeded();
             yield return 0;
-            yield break;
-
         }
 
         private static void Assert(Texture2D texture, Texture2D rgb, NetInfo netInfo, string type) {
