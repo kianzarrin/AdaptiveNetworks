@@ -1,5 +1,6 @@
 namespace AdaptiveRoads.Util {
     using AdaptiveRoads.Manager;
+    using AdaptiveRoads.UI;
     using ColossalFramework;
     using KianCommons;
     using PrefabMetadata.Helpers;
@@ -182,7 +183,7 @@ namespace AdaptiveRoads.Util {
             prop.m_position = pos;
         }
 
-        public static void CopyPropsToOtherElevations(bool clear = true) =>
+        public static void CopyPropsToOtherElevations(bool clear) =>
             CopyPropsToOtherElevationsMain(clear);
 
         public static void CopyPropsToOtherElevations(
@@ -197,13 +198,13 @@ namespace AdaptiveRoads.Util {
         /// if prop is provided,
         ///     - clear is ignored.
         ///     - if laneIndex=-1, it will be the lane that contains the prop.
-        ///     - if laneIndex>=0 , prop will be copied to all coresponding lanes of other elevations
+        ///     - if laneIndex>=0 , prop will be copied to all corresponding lanes of other elevations
         /// </summary>
         /// <param name="laneIndex">copy only this lane index (-1 for all lanes)</param>
         /// <param name="clear">clears target lane[s] before copying</param>
         /// <param name="prop">copy only this prop. set null to copy all props</param>
         static void CopyPropsToOtherElevationsMain(
-        bool clear = true,
+        bool clear,
         int laneIndex = -1,
         NetLaneProps.Prop prop = null) {
             var srcInfo = NetInfoExtionsion.EditedNetInfo;
@@ -220,10 +221,11 @@ namespace AdaptiveRoads.Util {
                         if (prop != null) {
                             if (laneIndex < 0) {
                                 if (srcLane.m_laneProps.m_props.ContainsRef(prop)) {
-                                    AddProp(prop, targetLane);
+                                    CopyProp(prop, targetLane, overwrite: clear);
                                 }
                             } else {
-                                if (ii == laneIndex) AddProp(prop, targetLane);
+                                if (ii == laneIndex) // TODO compare to jj?
+                                    CopyProp(prop, targetLane, overwrite: clear);
                             }
                         } else if (ii == laneIndex || laneIndex < 0) {
                             CopyProps(srcLane, targetLane, clear);
@@ -237,8 +239,11 @@ namespace AdaptiveRoads.Util {
             }
         }
 
-        public static void AddProp(NetLaneProps.Prop prop, NetInfo.Lane targetLane) {
-            EnumerationExtensions.AppendElement(ref targetLane.m_laneProps.m_props, prop);
+        public static NetLaneProps.Prop CopyProp(NetLaneProps.Prop prop, NetInfo.Lane targetLane, bool overwrite) {
+            var prop2 = prop.Clone();
+            EnumerationExtensions.AppendElement(ref targetLane.m_laneProps.m_props, prop2);
+            CopyCustomFlagName(prop, prop2, overwrite);
+            return prop2;
         }
 
         public static void CopyProps(NetInfo.Lane srcLane, NetInfo.Lane targetLane, bool clear) {
@@ -246,16 +251,44 @@ namespace AdaptiveRoads.Util {
             if (clear) {
                 targetLane.m_laneProps.m_props = Clone(srcProps);
             } else {
+                var clonedProps = Clone(srcProps);
                 var targetProps =
                     targetLane.m_laneProps.m_props
-                    .Concat(Clone(srcProps));
+                    .Concat(clonedProps);
                 targetLane.m_laneProps.m_props = targetProps.ToArray();
+                for(int i=0; i<srcProps.Length; ++i) {
+                    var srcProp = srcProps[i];
+                    var targetProp = clonedProps[i];
+                    CopyCustomFlagName(srcProp, targetProp, overwrite: clear);
+                }
+            }
+        }
+
+        public static void CopyCustomFlagName(
+            NetLaneProps.Prop srcProp, NetLaneProps.Prop targetProp, bool overwrite) {
+            if (ModSettings.ARMode) {
+                NetInfo srcInfo = srcProp.GetParent(laneIndex: out int srcLaneIndex, out _);
+                NetInfo targetInfo = targetProp.GetParent(laneIndex: out int targetLaneIndex, out _);
+                foreach(Enum flag in srcProp.GetMetaData().UsedCustomFlags.Iterate()) {
+                    if (flag is NetLaneExt.Flags laneFlag) {
+                        string srcName = srcInfo.GetMetaData().GetCustomLaneFlagName(laneFlag, srcLaneIndex);
+                        string targetName = targetInfo.GetMetaData().GetCustomLaneFlagName(laneFlag, targetLaneIndex);
+                        if (!srcName.IsNullorEmpty() && (targetName.IsNullorEmpty() || overwrite)) {
+                            targetInfo.GetMetaData().RenameCustomFlag(srcLaneIndex, laneFlag, srcName);
+                        }
+                    } else {
+                        string srcName = srcInfo.GetMetaData().CustomFlagNames?.GetorDefault(flag);
+                        string targetName = targetInfo.GetMetaData().CustomFlagNames?.GetorDefault(flag);
+                        if(!srcName.IsNullorEmpty() && (targetName.IsNullorEmpty() || overwrite)) {
+                            targetInfo.GetMetaData().RenameCustomFlag(flag, srcName);
+                        }
+                    }
+                }
             }
         }
 
         public static NetLaneProps.Prop[] Clone(this NetLaneProps.Prop[] src) =>
             src.Select(prop => prop.Clone()).ToArray();
-
 
         public static NetLaneProps.Prop Clone(this NetLaneProps.Prop prop) {
             if (prop is ICloneable cloneable)

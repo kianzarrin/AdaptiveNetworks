@@ -500,7 +500,7 @@ namespace AdaptiveRoads.Manager {
             }
 
             public static event Action OnCustomFlagRenamed; // TODO move out
-            void RenameCustomFlag(Enum flag, string name) {
+            public void RenameCustomFlag(Enum flag, string name) {
                 try {
                     CustomFlagNames ??= new Dictionary<Enum, string>();
                     if (name.IsNullOrWhiteSpace() || name == flag.ToString())
@@ -511,7 +511,7 @@ namespace AdaptiveRoads.Manager {
                 } catch (Exception ex) { ex.Log(); }
             }
 
-            void RenameCustomFlag(int laneIndex, NetLaneExt.Flags flag, string name) {
+            public void RenameCustomFlag(int laneIndex, NetLaneExt.Flags flag, string name) {
                 try {
                     Assertion.NotNull(ParentInfo, "Template");
                     NetInfo.Lane lane = ParentInfo.m_lanes[laneIndex];
