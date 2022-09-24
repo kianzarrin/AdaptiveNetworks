@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using static AdaptiveRoads.DTO.NetInfoDTO;
 using static AdaptiveRoads.Util.DPTHelpers;
 using static BuildingInfo;
 using static KianCommons.ReflectionHelpers;
@@ -385,7 +386,8 @@ namespace AdaptiveRoads.Util {
         }
         public static void AddNodes(
             RoadEditorCollapsiblePanel groupPanel,
-            NetInfo.Node[] items) {
+            NetInfo.Node[] items,
+            NetInfo sourceInfo = null) {
             try {
                 Log.Called(items);
                 if (items == null || items.Length == 0) return;
@@ -405,6 +407,18 @@ namespace AdaptiveRoads.Util {
                 }
                 var m_items2 = m_items.AddRangeToArray(items);
 
+                if (ModSettings.ARMode && sourceInfo != null) {
+                    NetInfo targetInfo = groupPanel.GetTarget() as NetInfo;
+
+                    // copy custom flag names
+                    CustomFlags customFlags = default;
+                    foreach (var prop in items) customFlags |= prop.GetMetaData().UsedCustomFlags;
+                    PropHelpers.CopyCustomFlagNames(
+                        customFlags, overwrite: false,
+                        sourceInfo, -1,
+                        targetInfo, -1);
+                }
+
                 var sidePanel = groupPanel.component.GetComponentInParent<RoadEditorPanel>();
                 var arrayField = groupPanel.GetField();
                 var target = groupPanel.GetTarget();
@@ -421,7 +435,8 @@ namespace AdaptiveRoads.Util {
         }
         public static void AddSegments(
             RoadEditorCollapsiblePanel groupPanel,
-            NetInfo.Segment[] items) {
+            NetInfo.Segment[] items,
+            NetInfo sourceInfo = null) {
             try {
                 Log.Called(items);
                 if (items == null || items.Length == 0) return;
@@ -439,7 +454,22 @@ namespace AdaptiveRoads.Util {
                         }
                     }).ToArray();
                 }
+
+                // add segments.
                 var m_items2 = m_items.AddRangeToArray(items);
+
+                if (ModSettings.ARMode && sourceInfo != null) {
+                    NetInfo targetInfo = groupPanel.GetTarget() as NetInfo;
+
+                    // copy custom flag names
+                    CustomFlags customFlags = default;
+                    foreach (var prop in items) customFlags |= prop.GetMetaData().UsedCustomFlags;
+                    PropHelpers.CopyCustomFlagNames(
+                        customFlags, overwrite: false,
+                        sourceInfo, -1,
+                        targetInfo, -1);
+                }
+
 
                 var sidePanel = groupPanel.component.GetComponentInParent<RoadEditorPanel>();
                 var arrayField = groupPanel.GetField();
@@ -478,15 +508,14 @@ namespace AdaptiveRoads.Util {
                     }).ToArray();
                 }
 
-                // add props.
                 var m_props2 = m_props.AddRangeToArray(props);
 
                 if (ModSettings.ARMode && sourceInfo != null && sourceLane != null) {
+                    // copy custom flag names
                     int sourceLaneIndex = Array.IndexOf(sourceInfo.m_lanes, sourceLane);
                     var netLaneProps = groupPanel.GetTarget() as NetLaneProps;
                     var targetInfo = netLaneProps.GetParent(out int targetLaneIndex);
 
-                    // copy custom flag names
                     CustomFlags customFlags = default;
                     foreach (var prop in props) customFlags |= prop.GetMetaData().UsedCustomFlags;
                     PropHelpers.CopyCustomFlagNames(

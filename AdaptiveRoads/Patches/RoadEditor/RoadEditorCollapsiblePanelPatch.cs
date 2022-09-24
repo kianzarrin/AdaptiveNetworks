@@ -149,19 +149,19 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         }
 
         static void PasteAllProps(RoadEditorCollapsiblePanel groupPanel) {
-            Log.Debug("PasteAll called");
+            Log.Called();
             NetLaneProps.Prop[] props = ClipBoard.GetDataArray() as NetLaneProps.Prop[];
             AddProps(groupPanel, props, ClipBoard.SourceInfo, ClipBoard.SourceLane);
         }
         static void PasteAllNodes(RoadEditorCollapsiblePanel groupPanel) {
-            Log.Debug("PasteAll called");
+            Log.Called();
             NetInfo.Node[] nodes = ClipBoard.GetDataArray() as NetInfo.Node[];
-            AddNodes(groupPanel, nodes);
+            AddNodes(groupPanel, nodes, ClipBoard.SourceInfo);
         }
         static void PasteAllSegments(RoadEditorCollapsiblePanel groupPanel) {
-            Log.Debug("PasteAll called");
+            Log.Called();
             NetInfo.Segment[] segments = ClipBoard.GetDataArray() as NetInfo.Segment[];
-            AddSegments(groupPanel, segments);
+            AddSegments(groupPanel, segments, ClipBoard.SourceInfo);
         }
     }
 }
