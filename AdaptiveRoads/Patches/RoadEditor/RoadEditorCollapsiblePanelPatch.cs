@@ -151,7 +151,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         static void PasteAllProps(RoadEditorCollapsiblePanel groupPanel) {
             Log.Debug("PasteAll called");
             NetLaneProps.Prop[] props = ClipBoard.GetDataArray() as NetLaneProps.Prop[];
-            AddProps(groupPanel, props);
+            AddProps(groupPanel, props, ClipBoard.SourceInfo, ClipBoard.SourceLane);
         }
         static void PasteAllNodes(RoadEditorCollapsiblePanel groupPanel) {
             Log.Debug("PasteAll called");

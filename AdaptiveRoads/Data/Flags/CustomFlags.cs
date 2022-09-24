@@ -20,6 +20,12 @@ namespace AdaptiveRoads.Manager {
             };
         }
 
+        public static CustomFlags Or(IEnumerable<CustomFlags> source) {
+            CustomFlags ret = default;
+            foreach (var item in source) ret |= item;
+            return ret;
+        }
+
         public bool IsDefault() {
             return
                 Node == default &&

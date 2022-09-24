@@ -6,6 +6,8 @@ namespace AdaptiveRoads.Util {
     using PrefabMetadata.Helpers;
     using System;
     using System.Linq;
+    using static AdaptiveRoads.DTO.NetInfoDTO;
+    using static BuildingInfo;
     using static KianCommons.EnumerationExtensions;
 
     internal static class PropHelpers {
@@ -242,7 +244,7 @@ namespace AdaptiveRoads.Util {
         public static NetLaneProps.Prop CopyProp(NetLaneProps.Prop prop, NetInfo.Lane targetLane, bool overwrite) {
             var prop2 = prop.Clone();
             EnumerationExtensions.AppendElement(ref targetLane.m_laneProps.m_props, prop2);
-            CopyCustomFlagName(prop, prop2, overwrite);
+            CopyCustomFlagNames(prop, prop2, overwrite);
             return prop2;
         }
 
@@ -256,32 +258,48 @@ namespace AdaptiveRoads.Util {
                     targetLane.m_laneProps.m_props
                     .Concat(clonedProps);
                 targetLane.m_laneProps.m_props = targetProps.ToArray();
-                for(int i=0; i<srcProps.Length; ++i) {
-                    var srcProp = srcProps[i];
-                    var targetProp = clonedProps[i];
-                    CopyCustomFlagName(srcProp, targetProp, overwrite: clear);
-                }
+
+                CustomFlags customFlags = default;
+                foreach (var prop in srcProps) customFlags |= prop.GetMetaData().UsedCustomFlags;
+                NetInfo srcInfo = srcLane.GetParent(out int srcLanIndex);
+                NetInfo targetInfo = targetLane.GetParent(out int targetLaneIndex);
+                CopyCustomFlagNames(
+                    customFlags, clear,
+                    srcInfo, srcLanIndex,
+                    targetInfo, targetLaneIndex);
             }
         }
 
-        public static void CopyCustomFlagName(
+        public static void CopyCustomFlagNames(
             NetLaneProps.Prop srcProp, NetLaneProps.Prop targetProp, bool overwrite) {
             if (ModSettings.ARMode) {
                 NetInfo srcInfo = srcProp.GetParent(laneIndex: out int srcLaneIndex, out _);
                 NetInfo targetInfo = targetProp.GetParent(laneIndex: out int targetLaneIndex, out _);
-                foreach(Enum flag in srcProp.GetMetaData().UsedCustomFlags.Iterate()) {
-                    if (flag is NetLaneExt.Flags laneFlag) {
-                        string srcName = srcInfo.GetMetaData().GetCustomLaneFlagName(laneFlag, srcLaneIndex);
-                        string targetName = targetInfo.GetMetaData().GetCustomLaneFlagName(laneFlag, targetLaneIndex);
+                CopyCustomFlagNames(
+                    srcProp.GetMetaData().UsedCustomFlags, overwrite,
+                    srcInfo, srcLaneIndex,
+                    targetInfo, targetLaneIndex);
+            }
+        }
+
+        public static void CopyCustomFlagNames(
+            CustomFlags customFlags, bool overwrite,
+            NetInfo sourceNetnfo, int sourceLaneIndex,
+            NetInfo targetNetInfo, int targetLaneIndex) {
+            foreach (Enum flag in customFlags.Iterate()) {
+                if (flag is NetLaneExt.Flags laneFlag) {
+                    if (sourceLaneIndex >= 0 && targetLaneIndex >= 0) {
+                        string srcName = sourceNetnfo.GetMetaData().GetCustomLaneFlagName(laneFlag, sourceLaneIndex);
+                        string targetName = targetNetInfo.GetMetaData().GetCustomLaneFlagName(laneFlag, targetLaneIndex);
                         if (!srcName.IsNullorEmpty() && (targetName.IsNullorEmpty() || overwrite)) {
-                            targetInfo.GetMetaData().RenameCustomFlag(srcLaneIndex, laneFlag, srcName);
+                            targetNetInfo.GetMetaData().RenameCustomFlag(sourceLaneIndex, laneFlag, srcName);
                         }
-                    } else {
-                        string srcName = srcInfo.GetMetaData().CustomFlagNames?.GetorDefault(flag);
-                        string targetName = targetInfo.GetMetaData().CustomFlagNames?.GetorDefault(flag);
-                        if(!srcName.IsNullorEmpty() && (targetName.IsNullorEmpty() || overwrite)) {
-                            targetInfo.GetMetaData().RenameCustomFlag(flag, srcName);
-                        }
+                    }
+                } else {
+                    string srcName = sourceNetnfo.GetMetaData().CustomFlagNames?.GetorDefault(flag);
+                    string targetName = targetNetInfo.GetMetaData().CustomFlagNames?.GetorDefault(flag);
+                    if (!srcName.IsNullorEmpty() && (targetName.IsNullorEmpty() || overwrite)) {
+                        targetNetInfo.GetMetaData().RenameCustomFlag(flag, srcName);
                     }
                 }
             }

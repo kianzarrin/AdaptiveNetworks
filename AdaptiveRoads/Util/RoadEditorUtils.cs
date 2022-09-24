@@ -13,6 +13,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using static AdaptiveRoads.Util.DPTHelpers;
+using static BuildingInfo;
 using static KianCommons.ReflectionHelpers;
 using Object = UnityEngine.Object;
 
@@ -457,7 +458,8 @@ namespace AdaptiveRoads.Util {
         #region prop
         public static void AddProps(
             RoadEditorCollapsiblePanel groupPanel,
-            NetLaneProps.Prop[] props) {
+            NetLaneProps.Prop[] props,
+            NetInfo sourceInfo = null, NetInfo.Lane sourceLane = null) {
             try {
                 Log.Debug("AddProps called, props.count=" + props.Length);
                 if(props == null || props.Length == 0) return;
@@ -475,7 +477,24 @@ namespace AdaptiveRoads.Util {
                         }
                     }).ToArray();
                 }
+
+                // add props.
                 var m_props2 = m_props.AddRangeToArray(props);
+
+                if (ModSettings.ARMode && sourceInfo != null && sourceLane != null) {
+                    int sourceLaneIndex = Array.IndexOf(sourceInfo.m_lanes, sourceLane);
+                    var netLaneProps = groupPanel.GetTarget() as NetLaneProps;
+                    var targetInfo = netLaneProps.GetParent(out int targetLaneIndex);
+
+                    // copy custom flag names
+                    CustomFlags customFlags = default;
+                    foreach (var prop in props) customFlags |= prop.GetMetaData().UsedCustomFlags;
+                    PropHelpers.CopyCustomFlagNames(
+                        customFlags, overwrite: false,
+                        sourceInfo, sourceLaneIndex,
+                        targetInfo, targetLaneIndex);
+                }
+
 
                 var sidePanel = groupPanel.component.GetComponentInParent<RoadEditorPanel>();
                 var arrayField = groupPanel.GetField();
