@@ -214,7 +214,7 @@ namespace AdaptiveRoads.Manager {
                 Recalculate();
             }
 
-            public abstract TagSource TagSource { get; }
+            public abstract TagSource Source { get; }
 
             [NonSerialized]
             [XmlIgnore]
@@ -224,8 +224,8 @@ namespace AdaptiveRoads.Manager {
 
             public void Recalculate() {
                 Tags ??= DynamicFlagsUtil.EMPTY_TAGS;
-                TagSource.RegisterTags(Tags);
-                Flags = TagSource.GetFlags(Tags);
+                Source.RegisterTags(Tags);
+                Flags = Source.GetFlags(Tags);
                 if (Flags.IsEmpty)
                     Flags = DynamicFlagsUtil.NONE; // simplify.
             }
@@ -262,26 +262,22 @@ namespace AdaptiveRoads.Manager {
         [Serializable]
         [XmlRoot("LaneTags")]
         public class LaneTagsT : TagBase {
-            public LaneTagsT (string []tags) : base(tags){}
-
-            public static TagSource Source = new TagSource();
-
-            public override TagSource TagSource => Source;
-
-            public LaneTagsT Clone() => new LaneTagsT(Selected);
+            public static TagSource TagSource = new TagSource();
+            public override TagSource Source => TagSource;
 
             public LaneTagsT(SerializationInfo info, StreamingContext context) : base(info, context) { }
+            public LaneTagsT (string []tags) : base(tags){}
+            public LaneTagsT Clone() => new LaneTagsT(Selected);
+
         }
 
         public class CustomConnectGroupT : TagBase {
-            public CustomConnectGroupT(string[] tags) : base(tags) { }
-
-            public static TagSource Source = new TagSource();
-            public override TagSource TagSource => Source;
-            public CustomConnectGroupT Clone() => new CustomConnectGroupT(Selected);
+            public static TagSource TagSource = new TagSource();
+            public override TagSource Source => TagSource;
 
             public CustomConnectGroupT(SerializationInfo info, StreamingContext context) : base(info, context) { }
-
+            public CustomConnectGroupT(string[] tags) : base(tags) { }
+            public CustomConnectGroupT Clone() => new CustomConnectGroupT(Selected);
         }
     }
 }

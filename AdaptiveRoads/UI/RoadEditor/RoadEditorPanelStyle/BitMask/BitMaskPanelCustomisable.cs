@@ -18,7 +18,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
 
 
         internal FlagDataT FlagData;
-        internal TagBase Source;
+        internal TagBase Tags;
 
         public override void OnDestroy() {
             ReflectionHelpers.SetAllDeclaredFieldsToNull(this);
@@ -31,12 +31,12 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             string label,
             string hint,
             FlagDataT flagData,
-            TagBase tagSource) {
+            TagBase Tags) {
             Log.Called($"container:{container}, label:{label}");
             var subPanel = UIView.GetAView().AddUIComponent(typeof(BitMaskPanelCustomisable)) as BitMaskPanelCustomisable;
             subPanel.Target = roadEditorPanel.GetTarget();
             subPanel.FlagData = flagData;
-            subPanel.Source = tagSource;
+            subPanel.Tags = Tags;
             subPanel.Initialize();
             subPanel.Label.text = label + ":";
             subPanel.Hint = hint;
@@ -44,6 +44,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             container.AttachUIComponent(subPanel.gameObject);
             roadEditorPanel.FitToContainer(subPanel);
             subPanel.EventPropertyChanged += roadEditorPanel.OnObjectModified;
+            Tags.Source.EventChanged += subPanel.Refresh;
 
             return subPanel;
         }
@@ -51,7 +52,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
         protected override void Initialize() {
             //Disable();
             DropDown.Clear();
-            Populate(DropDown, FlagData, Source.TagSource.AllTags, Source.Selected);
+            Populate(DropDown, FlagData, Tags.Source.AllTags, Tags.Selected);
             UpdateText();
             DropDown.eventCheckedChanged -= DropDown_eventCheckedChanged;
             DropDown.eventCheckedChanged += DropDown_eventCheckedChanged;
@@ -104,12 +105,12 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
         private void OnItemAdded(string item) {
             try {
                 Log.Called(item);
-                Source.Selected = Source.Selected.AddToArray(item);
-                Log.Info("[p1] OnItemAdded: Source.Selected=" + Source.Selected.ToSTR());
+                Tags.Selected = Tags.Selected.AddToArray(item);
+                Log.Info("[p1] OnItemAdded: Source.Selected=" + Tags.Selected.ToSTR());
                 Refresh();
-                Log.Info("[p2] OnItemAdded: Source.Selected=" + Source.Selected.ToSTR());
+                Log.Info("[p2] OnItemAdded: Source.Selected=" + Tags.Selected.ToSTR());
                 SetChecked(item, true);
-                Log.Info("[p3] OnItemAdded: Source.Selected=" + Source.Selected.ToSTR());
+                Log.Info("[p3] OnItemAdded: Source.Selected=" + Tags.Selected.ToSTR());
             } catch (Exception ex) {
                 ex.Log();
             }
@@ -140,10 +141,10 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
 
         // apply checked strings from UI to prefab
         protected void SetValue(string[] values) {
-            var selected = Source.Selected;
+            var selected = Tags.Selected;
             bool change = values.Except(selected).Any() || selected.Except(values).Any();
             if (change) {
-                Source.Selected = values;
+                Tags.Selected = values;
                 OnPropertyChanged();
             }
         }
@@ -174,7 +175,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             if (FlagData.GetValue().ToInt64() != 0)
                 ret = FlagData.GetValueString();
 
-            var values = Source.Selected;
+            var values = Tags.Selected;
             if (values.Any() && ret != "")
                 ret += ", ";
 

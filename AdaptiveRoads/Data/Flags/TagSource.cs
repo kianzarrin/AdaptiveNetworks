@@ -1,5 +1,6 @@
 namespace AdaptiveRoads.Data.Flags {
     using KianCommons;
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -11,6 +12,7 @@ namespace AdaptiveRoads.Data.Flags {
         public DynamicFlags All => new DynamicFlags(allFlags_.ToArray());
         public string[] AllTags => Tags2Index.Keys.ToArray();
 
+        public event Action EventChanged;
 
         public void RegisterTags(string[] tags) {
             if (tags == null) return;
@@ -20,11 +22,13 @@ namespace AdaptiveRoads.Data.Flags {
         public void RegisterTag(string tag) {
             if (tag == null)
                 return;
-            if (!Tags2Index.ContainsKey(tag))
+            if (!Tags2Index.ContainsKey(tag)) 
                 Tags2Index.Add(tag, Tags2Index.Count);
             if (Tags2Index.Count > allFlags_.Count * 64)
                 allFlags_.Add(ulong.MaxValue);
+            EventChanged?.Invoke();
         }
+
         public DynamicFlags GetFlags(params string[] tags) {
             ulong[] flags = new ulong[allFlags_.Count];
             if (tags != null) {

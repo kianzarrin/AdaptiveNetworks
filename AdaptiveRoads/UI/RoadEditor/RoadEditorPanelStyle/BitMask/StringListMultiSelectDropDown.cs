@@ -45,7 +45,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
             set => tagBase_.Selected = value;
         }
 
-        public string[] AllItems => tagBase_.TagSource.AllTags;
+        public string[] AllItems => tagBase_.Source.AllTags;
     }
 
     // MSDD = multi select drop down
