@@ -1,3 +1,6 @@
+asym pavement width issues:
+    - wide to narrow fix when side road is normal
+
 - lane/track templates
 - smartCustomFlags for templates
 

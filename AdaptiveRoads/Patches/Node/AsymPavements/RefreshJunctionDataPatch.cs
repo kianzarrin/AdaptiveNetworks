@@ -89,6 +89,7 @@ namespace AdaptiveRoads.Patches.AsymPavements {
             segment.CalculateCorner(nodeSegment, heightOffset: true, bStartNode, leftSide: false, out cornerPos_right, out cornerDir_right, out var smooth);
             segment.CalculateCorner(nodeSegment, heightOffset: true, bStartNode, leftSide: true, out cornerPos_left, out cornerDir_left, out smooth);
 
+            // A=Right B=Left
             if (segmentID_A != 0 && segmentID_B != 0) {
                 float pavementRatio_avgA = Commons.ModifyPavement(info.m_pavementWidth, nodeSegment, segmentID_A, 1) / info.m_halfWidth * 0.5f;
                 float widthRatioA = 1f;
