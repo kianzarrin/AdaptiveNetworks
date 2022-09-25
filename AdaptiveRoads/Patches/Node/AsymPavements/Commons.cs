@@ -29,7 +29,7 @@ namespace AdaptiveRoads.Patches.AsymPavements {
                 new[] {
                     ldSegmentIDA.Clone(),
                     ldSegmentID.Clone(), // does not matter
-                    new CodeInstruction(OpCodes.Ldc_I4_2), // occurance
+                    new CodeInstruction(OpCodes.Ldc_I4_2), // occurrence
                     new CodeInstruction(OpCodes.Call, mModifyPavement),
                 });
 
@@ -38,7 +38,7 @@ namespace AdaptiveRoads.Patches.AsymPavements {
                 new[] {
                     ldSegmentID.Clone(),
                     ldSegmentIDB.Clone(),
-                    new CodeInstruction(OpCodes.Ldc_I4_3), // occurance
+                    new CodeInstruction(OpCodes.Ldc_I4_3), // occurrence
                     new CodeInstruction(OpCodes.Call, mModifyPavement),
                 });
 
@@ -49,7 +49,7 @@ namespace AdaptiveRoads.Patches.AsymPavements {
                 new[] {
                     ldSegmentID.Clone(),
                     ldSegmentIDA.Clone(),
-                    new CodeInstruction(OpCodes.Ldc_I4_1), // occurance
+                    new CodeInstruction(OpCodes.Ldc_I4_1), // occurrence
                     new CodeInstruction(OpCodes.Call, mModifyPavement),
                 });
 
@@ -58,7 +58,7 @@ namespace AdaptiveRoads.Patches.AsymPavements {
                 new[] {
                     ldSegmentIDB.Clone(),
                     ldSegmentID.Clone(), // does not matter
-                    new CodeInstruction(OpCodes.Ldc_I4_4), // occurance
+                    new CodeInstruction(OpCodes.Ldc_I4_4), // occurrence
                     new CodeInstruction(OpCodes.Call, mModifyPavement),
                 });
 
@@ -69,7 +69,7 @@ namespace AdaptiveRoads.Patches.AsymPavements {
                 new[] {
                     ldSegmentID.Clone(),
                     ldSegmentID.Clone(), // does not matter
-                    new CodeInstruction(OpCodes.Ldc_I4_5), // occurance
+                    new CodeInstruction(OpCodes.Ldc_I4_5), // occurrence
                     new CodeInstruction(OpCodes.Call, mModifyPavement),
                 });
 
@@ -78,7 +78,7 @@ namespace AdaptiveRoads.Patches.AsymPavements {
                 new[] {
                     ldSegmentID.Clone(),
                     ldSegmentID.Clone(), // does not matter
-                    new CodeInstruction(OpCodes.Ldc_I4_6), // occurance
+                    new CodeInstruction(OpCodes.Ldc_I4_6), // occurrence
                     new CodeInstruction(OpCodes.Call, mModifyPavement),
                 });
             return codes;
@@ -86,8 +86,9 @@ namespace AdaptiveRoads.Patches.AsymPavements {
 
         public static float ModifyPavement(float width, ushort segmentID, ushort segmentID2, int occurance) {
             ref var segment = ref segmentID.ToSegment();
+            ref var segment2 = ref segmentID2.ToSegment();
             NetInfo info = segment.Info;
-            NetInfo info2 = segmentID2.ToSegment().Info;
+            NetInfo info2 = segment2.Info;
             if (info.GetMetaData() is not NetInfoExtionsion.Net netData)
                 return width;
 
@@ -100,8 +101,15 @@ namespace AdaptiveRoads.Patches.AsymPavements {
             ushort nodeID = segment.GetSharedNode(segmentID2);
             bool startNode = segment.IsStartNode(nodeID);
             bool reverse = startNode ^ segment.IsInvert();
+            bool biggerLeft = pwLeft < pwRight;
 
-            var op = Util.GetOperation(occurance: occurance, reverse: reverse, biggerLeft: pwLeft < pwRight);
+            bool reverse2 = segment2.IsStartNode(nodeID) ^ segment2.IsInvert();
+            if(reverse2 != reverse) {
+                reverse = !reverse;
+                biggerLeft = !biggerLeft;
+            }
+
+            var op = Util.GetOperation(occurance: occurance, reverse: reverse, biggerLeft: biggerLeft);
             switch (op) {
                 case Util.Operation.PWBig:
                     return pwBig;
