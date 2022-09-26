@@ -239,6 +239,8 @@ namespace AdaptiveRoads.Util {
                     }
                 }
             }
+
+            foreach (var info in NetInfoExtionsion.EditedNetInfos) info.GetMetaData()?.Recalculate(info);
         }
 
         public static NetLaneProps.Prop CopyProp(NetLaneProps.Prop prop, NetInfo.Lane targetLane, bool overwrite) {
@@ -286,13 +288,16 @@ namespace AdaptiveRoads.Util {
             CustomFlags customFlags, bool overwrite,
             NetInfo sourceNetnfo, int sourceLaneIndex,
             NetInfo targetNetInfo, int targetLaneIndex) {
+            Log.Called(customFlags, "overwrite:" + overwrite,
+                "sourceNetnfo:" + sourceNetnfo, "sourceLaneIndex:" + sourceLaneIndex,
+                 "targetNetInfo:" + targetNetInfo, "targetLaneIndex:" + targetLaneIndex);
             foreach (Enum flag in customFlags.Iterate()) {
                 if (flag is NetLaneExt.Flags laneFlag) {
                     if (sourceLaneIndex >= 0 && targetLaneIndex >= 0) {
                         string srcName = sourceNetnfo.GetMetaData().GetCustomLaneFlagName(laneFlag, sourceLaneIndex);
                         string targetName = targetNetInfo.GetMetaData().GetCustomLaneFlagName(laneFlag, targetLaneIndex);
                         if (!srcName.IsNullorEmpty() && (targetName.IsNullorEmpty() || overwrite)) {
-                            targetNetInfo.GetMetaData().RenameCustomFlag(sourceLaneIndex, laneFlag, srcName);
+                            targetNetInfo.GetMetaData().RenameCustomFlag(targetLaneIndex, laneFlag, srcName);
                         }
                     }
                 } else {

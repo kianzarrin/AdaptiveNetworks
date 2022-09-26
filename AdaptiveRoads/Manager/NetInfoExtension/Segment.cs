@@ -116,6 +116,7 @@ namespace AdaptiveRoads.Manager {
             internal CustomFlags UsedCustomFlags => new CustomFlags {
                 Segment = Forward.UsedCustomFlags | Backward.UsedCustomFlags,
                 SegmentEnd = Head.UsedCustomFlags | Tail.UsedCustomFlags,
+                Node = HeadNode.UsedCustomFlags | TailtNode.UsedCustomFlags
             };
 
             [Obsolete("only useful for the purpose of shallow clone", error: true)]

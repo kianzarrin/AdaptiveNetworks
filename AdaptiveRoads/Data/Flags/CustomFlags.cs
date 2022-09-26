@@ -41,6 +41,9 @@ namespace AdaptiveRoads.Manager {
                 }
             }
         }
+
+        public override string ToString() =>
+            $"CustomFlags{{Node: {Node} | Segment: {Segment}  | SegmentEnd: {SegmentEnd} | Lane: {Lane}}}";
     }
 
     public class CustomFlagAttribute : Attribute {

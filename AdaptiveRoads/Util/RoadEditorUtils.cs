@@ -428,6 +428,8 @@ namespace AdaptiveRoads.Util {
                 foreach (var item in items) {
                     sidePanel.AddToArrayField(groupPanel, item, arrayField, target);
                 }
+
+                foreach (var info in NetInfoExtionsion.EditedNetInfos) info?.GetMetaData().Recalculate(info);
                 sidePanel.OnObjectModified();
             } catch (Exception ex) {
                 Log.Exception(ex);
@@ -480,6 +482,8 @@ namespace AdaptiveRoads.Util {
                 foreach (var item in items) {
                     sidePanel.AddToArrayField(groupPanel, item, arrayField, target);
                 }
+
+                foreach (var info in NetInfoExtionsion.EditedNetInfos) info?.GetMetaData().Recalculate(info);
                 sidePanel.OnObjectModified();
             } catch (Exception ex) {
                 Log.Exception(ex);
@@ -534,6 +538,8 @@ namespace AdaptiveRoads.Util {
                 foreach(var prop in props) {
                     sidePanel.AddToArrayField(groupPanel, prop, arrayField, target);
                 }
+
+                foreach (var info in NetInfoExtionsion.EditedNetInfos) info?.GetMetaData().Recalculate(info);
                 sidePanel.OnObjectModified();
             } catch(Exception ex) {
                 Log.Exception(ex);
