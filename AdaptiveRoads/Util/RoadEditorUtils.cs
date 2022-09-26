@@ -298,7 +298,7 @@ namespace AdaptiveRoads.Util {
                         });
                 }
                 panel.AddButton("Copy" + strAll, null, delegate () {
-                    ClipBoard.SetData(cloned_props);
+                    ClipBoard.SetData(original_props);
                 });
                 panel.AddButton("Copy" + strAll + " to other elevations", null, delegate () {
                     foreach(var item in cloned_props)
@@ -349,7 +349,7 @@ namespace AdaptiveRoads.Util {
                     AddNodes(groupPanel, cloned_items.ToArray());
                 });
                 panel.AddButton("Copy" + strAll, null, delegate () {
-                    ClipBoard.SetData(cloned_items);
+                    ClipBoard.SetData(original_items);
                 });
                 panel.AddButton("Add" + strAll + " to Template", null, delegate () {
                     SaveNodeTemplatePanel.Display(cloned_items);
@@ -367,7 +367,7 @@ namespace AdaptiveRoads.Util {
                     AddSegments(groupPanel, cloned_items.ToArray());
                 });
                 panel.AddButton("Copy" + strAll, null, delegate () {
-                    ClipBoard.SetData(cloned_items);
+                    ClipBoard.SetData(original_items);
                 });
                 panel.AddButton("Add" + strAll + " to Template", null, delegate () {
                     SaveSegmentTemplatePanel.Display(cloned_items);
@@ -389,7 +389,7 @@ namespace AdaptiveRoads.Util {
             NetInfo.Node[] items,
             NetInfo sourceInfo = null) {
             try {
-                Log.Called(items);
+                Log.Called(items.ToSTR(), sourceInfo);
                 if (items == null || items.Length == 0) return;
                 NetInfo.Node[] m_items = groupPanel.GetArray() as NetInfo.Node[];
                 if (ModSettings.ARMode) {
@@ -438,7 +438,7 @@ namespace AdaptiveRoads.Util {
             NetInfo.Segment[] items,
             NetInfo sourceInfo = null) {
             try {
-                Log.Called(items);
+                Log.Called(items, sourceInfo);
                 if (items == null || items.Length == 0) return;
                 NetInfo.Segment[] m_items = groupPanel.GetArray() as NetInfo.Segment[];
                 if (ModSettings.ARMode) {
@@ -491,7 +491,7 @@ namespace AdaptiveRoads.Util {
             NetLaneProps.Prop[] props,
             NetInfo sourceInfo = null, NetInfo.Lane sourceLane = null) {
             try {
-                Log.Debug("AddProps called, props.count=" + props.Length);
+                Log.Called("props.count=" + props.Length, sourceInfo, sourceLane);
                 if(props == null || props.Length == 0) return;
                 NetLaneProps.Prop[] m_props = groupPanel.GetArray() as NetLaneProps.Prop[];
                 if(ModSettings.ARMode) {

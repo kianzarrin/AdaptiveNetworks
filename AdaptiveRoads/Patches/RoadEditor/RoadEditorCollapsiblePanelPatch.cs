@@ -150,18 +150,15 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
         static void PasteAllProps(RoadEditorCollapsiblePanel groupPanel) {
             Log.Called();
-            NetLaneProps.Prop[] props = ClipBoard.GetDataArray() as NetLaneProps.Prop[];
-            AddProps(groupPanel, props, ClipBoard.SourceInfo, ClipBoard.SourceLane);
+            AddProps(groupPanel, ClipBoard.GetProps(), ClipBoard.SourceInfo, ClipBoard.SourceLane);
         }
         static void PasteAllNodes(RoadEditorCollapsiblePanel groupPanel) {
             Log.Called();
-            NetInfo.Node[] nodes = ClipBoard.GetDataArray() as NetInfo.Node[];
-            AddNodes(groupPanel, nodes, ClipBoard.SourceInfo);
+            AddNodes(groupPanel, ClipBoard.GetNodes(), ClipBoard.SourceInfo);
         }
         static void PasteAllSegments(RoadEditorCollapsiblePanel groupPanel) {
             Log.Called();
-            NetInfo.Segment[] segments = ClipBoard.GetDataArray() as NetInfo.Segment[];
-            AddSegments(groupPanel, segments, ClipBoard.SourceInfo);
+            AddSegments(groupPanel, ClipBoard.GetSegments(), ClipBoard.SourceInfo);
         }
     }
 }

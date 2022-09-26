@@ -69,16 +69,32 @@ namespace AdaptiveRoads.Util {
         }
 
         public static Array GetDataArray() {
-            if(Data is NetLaneProps.Prop prop) {
+            return
+                (Array)GetProps() ??
+                (Array)GetNodes() ??
+                (Array)GetSegments();
+        }
+
+        public static NetLaneProps.Prop[] GetProps() {
+            if (Data is NetLaneProps.Prop prop) {
                 return new NetLaneProps.Prop[1] { prop.Clone() };
-            }
-            if(Data is IEnumerable<NetLaneProps.Prop> props) {
+            } else if (Data is IEnumerable<NetLaneProps.Prop> props) {
                 return props.Select(_prop => _prop.Clone()).ToArray();
             }
-            if(Data is NetInfo.Node node) {
-                return new NetInfo.Node[1] { node };
+            return null;
+        }
+        public static NetInfo.Node[] GetNodes() {
+            if (Data is NetInfo.Node node) {
+                return new NetInfo.Node[1] { node.Clone() };
+            } else if (Data is IEnumerable<NetInfo.Node> nodes) {
+                return nodes.Select(node => node.Clone()).ToArray();
             }
-            if (Data is IEnumerable<NetInfo.Segment> segments) {
+            return null;
+        }
+        public static NetInfo.Segment[] GetSegments() {
+            if (Data is NetInfo.Segment segment) {
+                return new NetInfo.Segment[1] { segment.Clone() };
+            } else if (Data is IEnumerable<NetInfo.Segment> segments) {
                 return segments.Select(segment => segment.Clone()).ToArray();
             }
             return null;
