@@ -200,6 +200,7 @@ namespace AdaptiveRoads.Manager {
             }
 
             float angle = Mathf.Atan2(dir.z, dir.x);
+            angle += Mathf.PI * 0.5f;
 
             BuildingUtil.RelocatePillar(buildingId, center, angle);
 

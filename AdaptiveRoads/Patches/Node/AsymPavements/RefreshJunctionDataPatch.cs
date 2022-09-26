@@ -18,13 +18,34 @@ namespace AdaptiveRoads.Patches.AsymPavements {
     static class RefreshJunctionDataPatch {
         delegate void RefreshJunctionData(NetNode instance, ushort nodeID, int segmentIndex, ushort nodeSegment, Vector3 centerPos, ref uint instanceIndex, ref RenderManager.Instance data);
 
-        static bool HasSymPavements(this NetInfo info) {
-            // todo calculate start/end ratio for asym roads too.   
-            bool asym = info.GetMetaData() is NetInfoExtionsion.Net net && net.PavementWidthRight != info.m_pavementWidth;
-            return !asym;
+        static bool Fix(ushort segmentId, ushort segmentId2, bool right) {
+            ref NetSegment segment = ref segmentId.ToSegment();
+            ref NetSegment segment2 = ref segmentId2.ToSegment();
+            NetInfo info = segment.Info;
+            NetInfo info2 = segment2.Info;
+
+            bool sym = info.HasSymPavements();
+            bool sym2 = info2.HasSymPavements();
+            if (sym && sym2) {
+                return true;
+            }
+
+            ushort nodeId = segment.GetSharedNode(segmentId2);
+            bool reverse = segment.IsInvert() ^ segment.IsStartNode(nodeId);
+            bool reverse2 = segment2.IsInvert() ^ segment2.IsStartNode(nodeId);
+
+
+            bool b = reverse != right;
+            bool wide = info.PW(b) >= info.PW(!b);
+
+            bool b2 = reverse2 == right;
+            bool wide2 = info2.PW(b2) >= info2.PW(!b2);
+
+            bool ret = wide && wide2;
+            return ret.LogRet($"Fix({segmentId} -> {segmentId2}, right={right}) : wide={wide} wide2={wide2}");
         }
 
-        static bool Prefix(ushort nodeID, int segmentIndex, ushort nodeSegment, Vector3 centerPos, ref uint instanceIndex, ref RenderManager.Instance data) {
+        static bool Prefix(ushort nodeID, int segmentIndex, [HarmonyArgument("nodeSegment")]ushort segmentId, Vector3 centerPos, ref uint instanceIndex, ref RenderManager.Instance data) {
             ref NetNode node = ref nodeID.ToNode();
             data.m_position = node.m_position;
             data.m_rotation = Quaternion.identity;
@@ -41,7 +62,7 @@ namespace AdaptiveRoads.Patches.AsymPavements {
             Vector3 cornerPos6 = Vector3.zero;
             Vector3 cornerDirection5 = Vector3.zero;
             Vector3 cornerDirection6 = Vector3.zero;
-            NetSegment segment = nodeSegment.ToSegment();
+            NetSegment segment = segmentId.ToSegment();
             NetInfo info = segment.Info;
             float vScale = info.m_netAI.GetVScale();
             ItemClass connectionClass = info.GetConnectionClass();
@@ -52,7 +73,7 @@ namespace AdaptiveRoads.Patches.AsymPavements {
             ushort segmentID_B = 0;
             for (int i = 0; i < 8; i++) {
                 ushort segmentID2 = node.GetSegment(i);
-                if (segmentID2 == 0 || segmentID2 == nodeSegment) {
+                if (segmentID2 == 0 || segmentID2 == segmentId) {
                     continue;
                 }
                 ref NetSegment segment2 = ref segmentID2.ToSegment();
@@ -86,11 +107,12 @@ namespace AdaptiveRoads.Patches.AsymPavements {
                 }
             }
             bool bStartNode = segment.m_startNode == nodeID;
-            segment.CalculateCorner(nodeSegment, heightOffset: true, bStartNode, leftSide: false, out cornerPos_right, out cornerDir_right, out var smooth);
-            segment.CalculateCorner(nodeSegment, heightOffset: true, bStartNode, leftSide: true, out cornerPos_left, out cornerDir_left, out smooth);
+            segment.CalculateCorner(segmentId, heightOffset: true, bStartNode, leftSide: false, out cornerPos_right, out cornerDir_right, out var smooth);
+            segment.CalculateCorner(segmentId, heightOffset: true, bStartNode, leftSide: true, out cornerPos_left, out cornerDir_left, out smooth);
 
+            // A=Right B=Left
             if (segmentID_A != 0 && segmentID_B != 0) {
-                float pavementRatio_avgA = Commons.ModifyPavement(info.m_pavementWidth, nodeSegment, segmentID_A, 1) / info.m_halfWidth * 0.5f;
+                float pavementRatio_avgA = Commons.ModifyPavement(info.m_pavementWidth, segmentId, segmentID_A, 1) / info.m_halfWidth * 0.5f;
                 float widthRatioA = 1f;
                 float startRatioA = 0.3f;
                 float endRatioA = 0.3f;
@@ -100,15 +122,15 @@ namespace AdaptiveRoads.Patches.AsymPavements {
                     bStartNode = segment_A.m_startNode == nodeID;
                     segment_A.CalculateCorner(segmentID_A, heightOffset: true, bStartNode, leftSide: true, out cornerPosA_right, out cornerDirA_right, out smooth);
                     segment_A.CalculateCorner(segmentID_A, heightOffset: true, bStartNode, leftSide: false, out cornerPosA_left, out cornerDirA_left, out smooth);
-                    float pavementRatioA = Commons.ModifyPavement(infoA.m_pavementWidth, segmentID_A, nodeSegment, 2) / infoA.m_halfWidth * 0.5f;
-                    if (dot_A > -0.5f && info.HasSymPavements() && infoA.HasSymPavements()) {
+                    float pavementRatioA = Commons.ModifyPavement(infoA.m_pavementWidth, segmentID_A, segmentId, 2) / infoA.m_halfWidth * 0.5f;
+                    if (dot_A > -0.5f && Fix(segmentId, segmentID_A, true)) {
                         startRatioA = Mathf.Clamp(startRatioA * (2f * pavementRatioA / (pavementRatio_avgA + pavementRatioA)), 0.05f, 0.7f);
                         endRatioA = Mathf.Clamp(endRatioA * (2f * pavementRatio_avgA / (pavementRatio_avgA + pavementRatioA)), 0.05f, 0.7f);
                     }
                     pavementRatio_avgA = (pavementRatio_avgA + pavementRatioA) * 0.5f;
                     widthRatioA = 2f * info.m_halfWidth / (info.m_halfWidth + infoA.m_halfWidth);
                 }
-                float pavementRatio_avgB = Commons.ModifyPavement(info.m_pavementWidth, nodeSegment, segmentID_B, 3) / info.m_halfWidth * 0.5f;
+                float pavementRatio_avgB = Commons.ModifyPavement(info.m_pavementWidth, segmentId, segmentID_B, 3) / info.m_halfWidth * 0.5f;
                 float widthRatioB = 1f;
                 float startRatioB = 0.3f;
                 float endRatioB = 0.3f;
@@ -118,8 +140,8 @@ namespace AdaptiveRoads.Patches.AsymPavements {
                     bStartNode = segment_B.m_startNode == nodeID;
                     segment_B.CalculateCorner(segmentID_B, heightOffset: true, bStartNode, leftSide: true, out cornerPos5, out cornerDirection5, out smooth);
                     segment_B.CalculateCorner(segmentID_B, heightOffset: true, bStartNode, leftSide: false, out cornerPos6, out cornerDirection6, out smooth);
-                    float pavementRatioB = Commons.ModifyPavement(infoB.m_pavementWidth, segmentID_B, nodeSegment, 4) / infoB.m_halfWidth * 0.5f;
-                    if (dot_B > -0.5f && info.HasSymPavements() && infoB.HasSymPavements()) {
+                    float pavementRatioB = Commons.ModifyPavement(infoB.m_pavementWidth, segmentID_B, segmentId, 4) / infoB.m_halfWidth * 0.5f;
+                    if (dot_B > -0.5f && Fix(segmentId, segmentID_B, false)) {
                         startRatioB = Mathf.Clamp(startRatioB * (2f * pavementRatioB / (pavementRatio_avgB + pavementRatioB)), 0.05f, 0.7f);
                         endRatioB = Mathf.Clamp(endRatioB * (2f * pavementRatio_avgB / (pavementRatio_avgB + pavementRatioB)), 0.05f, 0.7f);
                     }
@@ -137,8 +159,8 @@ namespace AdaptiveRoads.Patches.AsymPavements {
                 data.m_dataVector0 = new Vector4(
                     0.5f / info.m_halfWidth,
                     1f / info.m_segmentLength,
-                    0.5f - Commons.ModifyPavement(info.m_pavementWidth, nodeSegment, nodeSegment, 5) / info.m_halfWidth * 0.5f,
-                    Commons.ModifyPavement(info.m_pavementWidth, nodeSegment, nodeSegment, 6) / info.m_halfWidth * 0.5f);
+                    0.5f - Commons.ModifyPavement(info.m_pavementWidth, segmentId, segmentId, 5) / info.m_halfWidth * 0.5f,
+                    Commons.ModifyPavement(info.m_pavementWidth, segmentId, segmentId, 6) / info.m_halfWidth * 0.5f);
                 data.m_dataVector1 = centerPos - data.m_position;
                 data.m_dataVector1.w = (data.m_dataMatrix0.m31 + data.m_dataMatrix0.m32 + data.m_extraData.m_dataMatrix2.m31 + data.m_extraData.m_dataMatrix2.m32 + data.m_extraData.m_dataMatrix3.m31 + data.m_extraData.m_dataMatrix3.m32 + data.m_dataMatrix1.m31 + data.m_dataMatrix1.m32) * 0.125f;
                 data.m_dataVector2 = new Vector4(pavementRatio_avgA, widthRatioA, pavementRatio_avgB, widthRatioB);
@@ -177,7 +199,7 @@ namespace AdaptiveRoads.Patches.AsymPavements {
                 colorLocation = RenderManager.GetColorLocation((uint)(86016 + nodeID));
                 vector11 = colorLocation;
             } else {
-                colorLocation = RenderManager.GetColorLocation((uint)(49152 + nodeSegment));
+                colorLocation = RenderManager.GetColorLocation((uint)(49152 + segmentId));
                 vector11 = RenderManager.GetColorLocation((uint)(86016 + nodeID));
             }
             data.m_extraData.m_dataVector4 = new Vector4(colorLocation.x, colorLocation.y, vector11.x, vector11.y);

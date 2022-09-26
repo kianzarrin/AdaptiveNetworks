@@ -29,7 +29,7 @@ namespace AdaptiveRoads.Patches.AsymPavements {
                 new[] {
                     ldSegmentIDA.Clone(),
                     ldSegmentID.Clone(), // does not matter
-                    new CodeInstruction(OpCodes.Ldc_I4_2), // occurance
+                    new CodeInstruction(OpCodes.Ldc_I4_2), // occurrence
                     new CodeInstruction(OpCodes.Call, mModifyPavement),
                 });
 
@@ -38,7 +38,7 @@ namespace AdaptiveRoads.Patches.AsymPavements {
                 new[] {
                     ldSegmentID.Clone(),
                     ldSegmentIDB.Clone(),
-                    new CodeInstruction(OpCodes.Ldc_I4_3), // occurance
+                    new CodeInstruction(OpCodes.Ldc_I4_3), // occurrence
                     new CodeInstruction(OpCodes.Call, mModifyPavement),
                 });
 
@@ -49,7 +49,7 @@ namespace AdaptiveRoads.Patches.AsymPavements {
                 new[] {
                     ldSegmentID.Clone(),
                     ldSegmentIDA.Clone(),
-                    new CodeInstruction(OpCodes.Ldc_I4_1), // occurance
+                    new CodeInstruction(OpCodes.Ldc_I4_1), // occurrence
                     new CodeInstruction(OpCodes.Call, mModifyPavement),
                 });
 
@@ -58,7 +58,7 @@ namespace AdaptiveRoads.Patches.AsymPavements {
                 new[] {
                     ldSegmentIDB.Clone(),
                     ldSegmentID.Clone(), // does not matter
-                    new CodeInstruction(OpCodes.Ldc_I4_4), // occurance
+                    new CodeInstruction(OpCodes.Ldc_I4_4), // occurrence
                     new CodeInstruction(OpCodes.Call, mModifyPavement),
                 });
 
@@ -69,7 +69,7 @@ namespace AdaptiveRoads.Patches.AsymPavements {
                 new[] {
                     ldSegmentID.Clone(),
                     ldSegmentID.Clone(), // does not matter
-                    new CodeInstruction(OpCodes.Ldc_I4_5), // occurance
+                    new CodeInstruction(OpCodes.Ldc_I4_5), // occurrence
                     new CodeInstruction(OpCodes.Call, mModifyPavement),
                 });
 
@@ -78,7 +78,7 @@ namespace AdaptiveRoads.Patches.AsymPavements {
                 new[] {
                     ldSegmentID.Clone(),
                     ldSegmentID.Clone(), // does not matter
-                    new CodeInstruction(OpCodes.Ldc_I4_6), // occurance
+                    new CodeInstruction(OpCodes.Ldc_I4_6), // occurrence
                     new CodeInstruction(OpCodes.Call, mModifyPavement),
                 });
             return codes;
@@ -86,22 +86,25 @@ namespace AdaptiveRoads.Patches.AsymPavements {
 
         public static float ModifyPavement(float width, ushort segmentID, ushort segmentID2, int occurance) {
             ref var segment = ref segmentID.ToSegment();
+            ref var segment2 = ref segmentID2.ToSegment();
             NetInfo info = segment.Info;
-            NetInfo info2 = segmentID2.ToSegment().Info;
-            if (info.GetMetaData() is not NetInfoExtionsion.Net netData)
+            NetInfo info2 = segment2.Info;
+            if (info.HasSymPavements())
                 return width;
 
-            float pwLeft = info.m_pavementWidth;
-            float pwRight = netData.PavementWidthRight;
+            float pwLeft = info.PWLeft();
+            float pwRight = info.PWRight();
             if (pwLeft == pwRight) return width;
             float pwSmall = Mathf.Min(pwLeft, pwRight);
             float pwBig = Mathf.Max(pwLeft, pwRight);
 
             ushort nodeID = segment.GetSharedNode(segmentID2);
             bool startNode = segment.IsStartNode(nodeID);
+            bool biggerLeft = pwLeft < pwRight;
             bool reverse = startNode ^ segment.IsInvert();
+            bool reverse2 = segment2.IsStartNode(nodeID) ^ segment2.IsInvert();
 
-            var op = Util.GetOperation(occurance: occurance, reverse: reverse, biggerLeft: pwLeft < pwRight);
+            var op = Util.GetOperation(occurance: occurance, reverse: reverse, biggerLeft: biggerLeft);
             switch (op) {
                 case Util.Operation.PWBig:
                     return pwBig;
@@ -109,18 +112,12 @@ namespace AdaptiveRoads.Patches.AsymPavements {
                     return pwSmall;
                 case Util.Operation.PWAR: {
                         float A = pwBig / pwSmall - 1;
-                        float r = info2.m_pavementWidth * info.m_halfWidth / info2.m_halfWidth;
+                        float r = info2.PW(reverse2 == reverse) * info.m_halfWidth / info2.m_halfWidth;
                         return A * r + pwBig;
                     }
                 case Util.Operation.PWAR2: {
-                        float pwRight2;
-                        if (info2.GetMetaData() is NetInfoExtionsion.Net net2)
-                            pwRight2 = net2.PavementWidthRight;
-                        else
-                            pwRight2 = info2.m_pavementWidth;
-
                         float A = pwBig / pwSmall - 1;
-                        float r = pwRight2 * info.m_halfWidth / info2.m_halfWidth;
+                        float r = info2.PW(reverse2 != reverse) * info.m_halfWidth / info2.m_halfWidth;
                         return A * r + pwBig;
                     }
                 case Util.Operation.PWForced:
@@ -128,6 +125,17 @@ namespace AdaptiveRoads.Patches.AsymPavements {
                 default:
                     return width;
             }
+        }
+
+        public static float PWLeft(this NetInfo info) => info.m_pavementWidth;
+        public static float PWRight(this NetInfo info) => info.GetMetaData()?.PavementWidthRight ??  info.m_pavementWidth;
+        public static float PW(this NetInfo info, bool left) => left ? PWLeft(info) : PWRight(info);
+        public static float PWBig(this NetInfo info) => Mathf.Max(info.PWLeft(), info.PWRight());
+        public static float PWSmal(this NetInfo info) => Mathf.Min(info.PWLeft(), info.PWRight());
+        public static bool HasSymPavements(this NetInfo info) {
+            return
+                info.GetMetaData() is not NetInfoExtionsion.Net net ||
+                net.PavementWidthRight == info.m_pavementWidth;
         }
     }
 }

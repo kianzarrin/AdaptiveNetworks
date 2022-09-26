@@ -515,7 +515,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 label: uidata.Label,
                 hint: uidata.Hint,
                 flagData: uidata.FlagData,
-                tagSource: tagSource);
+                Tags: tagSource);
         }
 
         public static void CreateUserDataInfoSection(RoadEditorPanel roadEditorPanel, object target, FieldInfo fieldInfo, string groupName) {
