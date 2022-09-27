@@ -62,8 +62,6 @@
     <Reference Include="NS.Helpers">
       <Private>true</Private>
     </Reference>
-
-
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="FbxUtil\**" />
