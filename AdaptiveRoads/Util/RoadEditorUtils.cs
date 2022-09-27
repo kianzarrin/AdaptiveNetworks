@@ -301,8 +301,8 @@ namespace AdaptiveRoads.Util {
                     ClipBoard.SetData(original_props);
                 });
                 panel.AddButton("Copy" + strAll + " to other elevations", null, delegate () {
-                    foreach(var item in cloned_props)
-                        PropHelpers.CopyPropsToOtherElevations(item);
+                    foreach(var item in original_props)
+                        PropHelpers.CopyPropToOtherElevations(item);
                 });
                 panel.AddButton("Add" + strAll + " to Template", null, delegate () {
                     SavePropTemplatePanel.Display(cloned_props);

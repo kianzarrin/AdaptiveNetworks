@@ -2,10 +2,12 @@ namespace AdaptiveRoads.Util {
     using AdaptiveRoads.Manager;
     using AdaptiveRoads.UI;
     using ColossalFramework;
+    using Epic.OnlineServices.Presence;
     using KianCommons;
     using PrefabMetadata.Helpers;
     using System;
     using System.Linq;
+    using System.Runtime.ConstrainedExecution;
     using static AdaptiveRoads.DTO.NetInfoDTO;
     using static BuildingInfo;
     using static KianCommons.EnumerationExtensions;
@@ -192,7 +194,7 @@ namespace AdaptiveRoads.Util {
             bool clear, int laneIndex) =>
             CopyPropsToOtherElevationsMain(clear: clear, laneIndex: laneIndex);
 
-        public static void CopyPropsToOtherElevations(NetLaneProps.Prop prop) =>
+        public static void CopyPropToOtherElevations(NetLaneProps.Prop prop) =>
             CopyPropsToOtherElevationsMain(clear: false, prop: prop);
 
         /// <summary>
@@ -209,6 +211,7 @@ namespace AdaptiveRoads.Util {
         bool clear,
         int laneIndex = -1,
         NetLaneProps.Prop prop = null) {
+            Log.Called(clear, laneIndex, Str(prop));
             var srcInfo = NetInfoExtionsion.EditedNetInfo;
             var srcLanes = srcInfo.m_lanes;
             foreach (var targetInfo in NetInfoExtionsion.EditedNetInfos.Skip(1)) {
@@ -225,9 +228,8 @@ namespace AdaptiveRoads.Util {
                                 if (srcLane.m_laneProps.m_props.ContainsRef(prop)) {
                                     CopyProp(prop, targetLane, overwrite: clear);
                                 }
-                            } else {
-                                if (ii == laneIndex) // TODO compare to jj?
-                                    CopyProp(prop, targetLane, overwrite: clear);
+                            } else if (ii == laneIndex) {
+                                CopyProp(prop, targetLane, overwrite: clear);
                             }
                         } else if (ii == laneIndex || laneIndex < 0) {
                             CopyProps(srcLane, targetLane, clear);
@@ -244,6 +246,7 @@ namespace AdaptiveRoads.Util {
         }
 
         public static NetLaneProps.Prop CopyProp(NetLaneProps.Prop prop, NetInfo.Lane targetLane, bool overwrite) {
+            if (Log.VERBOSE) Log.Called(Str(prop), Str(targetLane), overwrite);
             var prop2 = prop.Clone();
             EnumerationExtensions.AppendElement(ref targetLane.m_laneProps.m_props, prop2);
             CopyCustomFlagNames(prop, prop2, overwrite);
@@ -251,6 +254,7 @@ namespace AdaptiveRoads.Util {
         }
 
         public static void CopyProps(NetInfo.Lane srcLane, NetInfo.Lane targetLane, bool clear) {
+            if (Log.VERBOSE) Log.Called($"{Str(srcLane)} -> {Str(targetLane)}", clear);
             var srcProps = srcLane.m_laneProps.m_props;
             if (clear) {
                 targetLane.m_laneProps.m_props = Clone(srcProps);
@@ -272,6 +276,17 @@ namespace AdaptiveRoads.Util {
             }
         }
 
+        static string Str(NetLaneProps.Prop prop) {
+            if (prop == null)  return "<null prop>";
+            NetInfo parent = prop.GetParent(out int li, out int pi);
+            return $"{parent}'.lanes[{li}].props[{pi}]";
+        }
+        static string Str(NetInfo.Lane lane) {
+            if (lane == null) return "<null lane>";
+            NetInfo parent = lane.GetParent(out int li);
+            return $"{parent}'.m_lanes[{li}]";
+        }
+
         public static void CopyCustomFlagNames(
             NetLaneProps.Prop srcProp, NetLaneProps.Prop targetProp, bool overwrite) {
             if (ModSettings.ARMode) {
@@ -288,7 +303,7 @@ namespace AdaptiveRoads.Util {
             CustomFlags customFlags, bool overwrite,
             NetInfo sourceNetnfo, int sourceLaneIndex,
             NetInfo targetNetInfo, int targetLaneIndex) {
-            Log.Called(customFlags, "overwrite:" + overwrite,
+            if(Log.VERBOSE) Log.Called(customFlags, "overwrite:" + overwrite,
                 "sourceNetnfo:" + sourceNetnfo, "sourceLaneIndex:" + sourceLaneIndex,
                  "targetNetInfo:" + targetNetInfo, "targetLaneIndex:" + targetLaneIndex);
             foreach (Enum flag in customFlags.Iterate()) {
