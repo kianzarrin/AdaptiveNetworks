@@ -60,6 +60,19 @@ namespace AdaptiveRoads.Util {
             return null;
         }
 
+        public static NetInfo GetParent(this NetLaneProps netLaneProps, out int laneIndex) {
+            foreach (var netInfo in NetInfoExtionsion.EditedNetInfos) {
+                for (int i = 0; i < netInfo.m_lanes.Length; ++i) {
+                    if (netInfo?.m_lanes?[i]?.m_laneProps == netLaneProps) {
+                        laneIndex = i;
+                        return netInfo;
+                    }
+                }
+            }
+            laneIndex = -1;
+            return null;
+        }
+
         public static NetInfo GetParent(this NetInfoExtionsion.TransitionProp prop, out int trackIndex, out int propIndex) {
             Assertion.NotNull(prop);
             foreach (var netInfo in NetInfoExtionsion.EditedNetInfos) {

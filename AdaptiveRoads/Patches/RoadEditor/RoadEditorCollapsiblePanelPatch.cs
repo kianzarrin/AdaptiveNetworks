@@ -39,6 +39,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
 
         static void OnShowOptions(RoadEditorCollapsiblePanel groupPanel) {
             try {
+                static string Str(string item, int count) => count == 1 ? item : $"all {item}s";
                 Array array = groupPanel.GetArray();
                 var target = groupPanel.GetTarget();
                 if (groupPanel.GetArray() is NetLaneProps.Prop[] m_props) {
@@ -56,7 +57,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             });
                         }
                         if (clipBoardHasData) {
-                            panel.AddButton("Paste all props", null,
+                            string strItems = Str("prop", ClipBoard.Count);
+                            panel.AddButton("Paste " + strItems, null,
                                 () => PasteAllProps(groupPanel));
                         }
                         panel.AddButton(
@@ -79,7 +81,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             });
                         }
                         if (clipBoardHasData) {
-                            panel.AddButton("Paste all nodes", null,
+                            string strItems = Str("node", ClipBoard.Count);
+                            panel.AddButton("Paste " + strItems, null,
                                 () => PasteAllNodes(groupPanel));
                         }
                     }
@@ -98,7 +101,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             });
                         }
                         if (clipBoardHasData) {
-                            panel.AddButton("Paste all segments", null,
+                            string strItems = Str("segment", ClipBoard.Count);
+                            panel.AddButton("Paste " + strItems, null,
                                 () => PasteAllSegments(groupPanel));
                         }
                     }
@@ -149,19 +153,16 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         }
 
         static void PasteAllProps(RoadEditorCollapsiblePanel groupPanel) {
-            Log.Debug("PasteAll called");
-            NetLaneProps.Prop[] props = ClipBoard.GetDataArray() as NetLaneProps.Prop[];
-            AddProps(groupPanel, props);
+            Log.Called();
+            AddProps(groupPanel, ClipBoard.GetProps(), ClipBoard.SourceInfo, ClipBoard.SourceLane);
         }
         static void PasteAllNodes(RoadEditorCollapsiblePanel groupPanel) {
-            Log.Debug("PasteAll called");
-            NetInfo.Node[] nodes = ClipBoard.GetDataArray() as NetInfo.Node[];
-            AddNodes(groupPanel, nodes);
+            Log.Called();
+            AddNodes(groupPanel, ClipBoard.GetNodes(), ClipBoard.SourceInfo);
         }
         static void PasteAllSegments(RoadEditorCollapsiblePanel groupPanel) {
-            Log.Debug("PasteAll called");
-            NetInfo.Segment[] segments = ClipBoard.GetDataArray() as NetInfo.Segment[];
-            AddSegments(groupPanel, segments);
+            Log.Called();
+            AddSegments(groupPanel, ClipBoard.GetSegments(), ClipBoard.SourceInfo);
         }
     }
 }

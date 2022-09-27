@@ -8,6 +8,14 @@ namespace AdaptiveRoads.UI {
         public override SavedString SavedVersion => new SavedString("WhatsNewVersion", ModSettings.FILE_NAME, def: "0.0.0", autoUpdate: true);
         public override WhatsNewEntry[] Messages { get; } = new WhatsNewEntry[] {
             new WhatsNewEntry {
+                version = new Version(3, 13, 6),
+                messages = new string[] {
+                    "Fixed: Asymmetrical pavement distortions at nodes",
+                    "Feature: copying props/nodes/segments to other lane or elevations will copy custom flag names too.",
+                }
+            },
+
+            new WhatsNewEntry {
                 version = new Version(3, 13, 1),
                 messages = new string[] {
                     "Feature: Lane Tags",

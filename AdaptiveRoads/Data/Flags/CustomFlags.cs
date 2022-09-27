@@ -1,6 +1,8 @@
 namespace AdaptiveRoads.Manager {
     using System;
-    using AdaptiveRoads.Data.NetworkExtensions;
+    using System.Collections.Generic;
+    using KianCommons;
+
     public struct CustomFlags {
         public NetNodeExt.Flags Node;
         public NetSegmentExt.Flags Segment;
@@ -18,6 +20,12 @@ namespace AdaptiveRoads.Manager {
             };
         }
 
+        public static CustomFlags Or(IEnumerable<CustomFlags> source) {
+            CustomFlags ret = default;
+            foreach (var item in source) ret |= item;
+            return ret;
+        }
+
         public bool IsDefault() {
             return
                 Node == default &&
@@ -25,6 +33,17 @@ namespace AdaptiveRoads.Manager {
                 SegmentEnd == default &&
                 Lane == default;
         }
+
+        public IEnumerable<Enum> Iterate() {
+            foreach (var item in new Enum[] { Node, Segment, SegmentEnd, Lane }) {
+                foreach (var flag in item.ExtractPow2Flags()) {
+                    yield return flag as Enum;
+                }
+            }
+        }
+
+        public override string ToString() =>
+            $"CustomFlags{{Node: {Node} | Segment: {Segment}  | SegmentEnd: {SegmentEnd} | Lane: {Lane}}}";
     }
 
     public class CustomFlagAttribute : Attribute {
