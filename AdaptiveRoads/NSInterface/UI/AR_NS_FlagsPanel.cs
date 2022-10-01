@@ -14,7 +14,8 @@ namespace AdaptiveRoads.NSInterface.UI {
     public class AR_NS_FlagsPanel : UIPanel {
         internal int HoveredLaneIndex { get; private set; } = -1;
         static ANImplementation Impl => ANImplementation.Instance;
-        static NetInfo Prefab => Impl.Prefab;
+        static NetInfo Prefab => Impl.BasePrefab;
+        static ARCustomFlags Shared;
 
         public override void Awake() {
             try {
@@ -38,14 +39,20 @@ namespace AdaptiveRoads.NSInterface.UI {
             try {
                 base.Start();
                 LogCalled();
+                Shared = Prefab?.GatherSharedARCustomFlags() ?? default;
+                Log.Info("All:" + (Prefab?.GatherAllFlags()).ToSTR());
+                Log.Info("Shared:" + Shared.ToString());
+                Log.Info("Shared names:" + Shared.ToString(Prefab));
+                string m = "";
+                    
 
-                if(Impl.PrefabUsedCustomFlags.Segment != default) {
+                if (Shared.Segment != default) {
                     AddSegmentFlags(this);
                 }
-                if(Impl.PrefabUsedCustomFlags.SegmentEnd != default) {
+                if(Shared.SegmentEnd != default) {
                     AddSegmentEndFlags(this);
                 }
-                if(Impl.PrefabUsedCustomFlags.Node != default) {
+                if(Shared.Node != default) {
                     AddNodeFlags(this);
                 }
                 SizeChanged(default, default);
@@ -57,15 +64,15 @@ namespace AdaptiveRoads.NSInterface.UI {
             AssertNotNull(container, "container");
 
             var subPanel = AddPanel(container, 1);
-            var mask = Impl.PrefabUsedCustomFlags.Segment;
+            var mask = Shared.Segment;
             foreach(var flag in mask.ExtractPow2Flags()) {
                 SegmentFlagToggle.Add(subPanel, flag);
             }
 
-            foreach(int laneIndex in Prefab.m_sortedLanes) {
-                var laneMask = Prefab.GetMetaData()?.GetUsedCustomFlagsLane(laneIndex) ?? default;
+            for(int laneIndex = 0; laneIndex< Shared.Lanes.Length; ++laneIndex) {
+                var laneMask = Shared.Lanes[laneIndex];
                 //Log.Info($"lane:{lane} laneMask:" + laneMask);
-                if(laneMask != 0)
+                if (laneMask != 0)
                     AddLaneFlags(container, laneIndex, laneMask);
             }
         }
@@ -92,7 +99,7 @@ namespace AdaptiveRoads.NSInterface.UI {
             AssertNotNull(container, "container");
             var subPanel = AddPanel(container, 1);
 
-            var mask = Impl.PrefabUsedCustomFlags.SegmentEnd;
+            var mask = Shared.SegmentEnd;
             foreach(var flag in mask.ExtractPow2Flags()) {
                 SegmentEndFlagToggle.Add(subPanel, flag: flag);
             }
@@ -102,7 +109,7 @@ namespace AdaptiveRoads.NSInterface.UI {
             AssertNotNull(container, "container");
             var subPanel = AddPanel(container, 1);
 
-            var mask = Impl.PrefabUsedCustomFlags.Node;
+            var mask = Shared.Node;
             foreach(var flag in mask.ExtractPow2Flags()) {
                 NodeFlagToggle.Add(subPanel, flag);
             }

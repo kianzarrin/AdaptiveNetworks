@@ -1,5 +1,6 @@
 namespace AdaptiveRoads.Manager {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using KianCommons;
 
@@ -20,6 +21,22 @@ namespace AdaptiveRoads.Manager {
             };
         }
 
+        public static CustomFlags operator | (CustomFlags lhs, Enum flag) {
+            CustomFlags ret = lhs;
+            if(flag is NetNodeExt.Flags nodeFlag) {
+                ret.Node |= nodeFlag;
+            } else if (flag is NetSegmentExt.Flags segmentFlag) {
+                ret.Segment |= segmentFlag;
+            } else if (flag is NetSegmentEnd.Flags segmentEndFlag) {
+                ret.SegmentEnd |= segmentEndFlag;
+            } else if (flag is NetLaneExt.Flags laneFlag) {
+                ret.Lane |= laneFlag;
+            } else {
+                throw new ArgumentException("flag: " + flag);
+            }
+            return ret;
+        }
+
         public static CustomFlags Or(IEnumerable<CustomFlags> source) {
             CustomFlags ret = default;
             foreach (var item in source) ret |= item;
@@ -34,7 +51,7 @@ namespace AdaptiveRoads.Manager {
                 Lane == default;
         }
 
-        public IEnumerable<Enum> Iterate() {
+        public IEnumerator<Enum> GetEnumerator() {
             foreach (var item in new Enum[] { Node, Segment, SegmentEnd, Lane }) {
                 foreach (var flag in item.ExtractPow2Flags()) {
                     yield return flag as Enum;
@@ -54,7 +71,9 @@ namespace AdaptiveRoads.Manager {
             return null;
         }
     }
-
+    public static class CustomFlagsExtensions {
+        public static CustomFlags Or(this IEnumerable<CustomFlags> source) => CustomFlags.Or(source);
+    }
 
 }
 

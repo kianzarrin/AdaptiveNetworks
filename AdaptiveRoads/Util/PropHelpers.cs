@@ -302,7 +302,7 @@ namespace AdaptiveRoads.Util {
             if(Log.VERBOSE) Log.Called(customFlags, "overwrite:" + overwrite,
                 "sourceNetnfo:" + sourceNetnfo, "sourceLaneIndex:" + sourceLaneIndex,
                  "targetNetInfo:" + targetNetInfo, "targetLaneIndex:" + targetLaneIndex);
-            foreach (Enum flag in customFlags.Iterate()) {
+            foreach (Enum flag in customFlags) {
                 if (flag is NetLaneExt.Flags laneFlag) {
                     if (sourceLaneIndex >= 0 && targetLaneIndex >= 0) {
                         string srcName = sourceNetnfo.GetMetaData().GetCustomLaneFlagName(laneFlag, sourceLaneIndex);

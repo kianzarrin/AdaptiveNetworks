@@ -6,7 +6,6 @@ namespace AdaptiveRoads.NSInterface {
     using KianCommons;
     using KianCommons.Serialization;
     using AdaptiveRoads.Manager;
-    using ColossalFramework;
     using UnityEngine;
     using NetworkSkins.Persistence;
     using TextureUtil = KianCommons.UI.TextureUtil;
@@ -103,23 +102,24 @@ namespace AdaptiveRoads.NSInterface {
         #endregion
 
         #region controller
-        internal NetInfo Prefab => NetUtil.netTool.m_prefab;
+        internal NetInfo BasePrefab => NetUtil.netTool.m_prefab;
 
         internal ARCustomFlags ARCustomFlags;
-        internal CustomFlags PrefabUsedCustomFlags => Prefab?.GetMetaData()?.UsedCustomFlags ?? default;
-        internal NetLaneExt.Flags GetPrefabLaneUsedCustomFlags(int laneIndex) =>
-            Prefab?.GetMetaData()?.GetUsedCustomFlagsLane(laneIndex) ?? default;
+        internal CustomFlags SharedCustomFlags => BasePrefab?.GatherSharedCustomFlags() ?? default;
+
         private static string GetFlagKey(Enum flag) =>
             $"MOD_AR_{flag.GetType().DeclaringType.Name}_{flag}";
-        
+
+        private static string GetFlagKey(Enum flag, int laneIndex) =>
+            laneIndex < 0 ? GetFlagKey(flag) : GetLaneFlagKey(laneIndex: laneIndex, flag: flag);
 
         private static string GetLaneFlagKey(int laneIndex, Enum flag) =>
             $"MOD_AR_lanes[{laneIndex}]_{flag}";
         
 
-        public bool IsDefault => ARCustomFlags.IsDefault();
+        public bool IsDefault => ARCustomFlags != null && ARCustomFlags.IsDefault();
 
-        public override bool Enabled => !PrefabUsedCustomFlags.IsDefault();
+        public override bool Enabled => !SharedCustomFlags.IsDefault();
 
         public override void LoadWithData(ICloneable data) {
             try {
@@ -127,7 +127,7 @@ namespace AdaptiveRoads.NSInterface {
                 if(data is ARCustomFlags customData) {
                     ARCustomFlags = customData;
                 } else {
-                    ARCustomFlags = new ARCustomFlags(Prefab.m_lanes.Length);
+                    ARCustomFlags = new ARCustomFlags(BasePrefab.m_lanes.Length);
                 }
             } catch(Exception ex) { ex.Log(); }
         }
@@ -135,80 +135,47 @@ namespace AdaptiveRoads.NSInterface {
         public override void LoadActiveSelection() {
             try {
                 Log.Called();
-                ARCustomFlags = new ARCustomFlags(Prefab.m_lanes.Length);
-                foreach(var usedFlag in PrefabUsedCustomFlags.Segment.ExtractPow2Flags()) {
-                    var value = ActiveSelectionData.Instance.GetBoolValue(Prefab, GetFlagKey(usedFlag));
-                    if(value.HasValue && value == true) {
-                        ARCustomFlags.Segment = ARCustomFlags.Segment.SetFlags(usedFlag);
-                    }
-                }
-                foreach(var usedFlag in PrefabUsedCustomFlags.Node.ExtractPow2Flags()) {
-                    var value = ActiveSelectionData.Instance.GetBoolValue(Prefab, GetFlagKey(usedFlag));
-                    if(value.HasValue && value == true) {
-                        ARCustomFlags.Node = ARCustomFlags.Node.SetFlags(usedFlag);
-                    }
-                }
-                foreach(var usedFlag in PrefabUsedCustomFlags.SegmentEnd.ExtractPow2Flags()) {
-                    var value = ActiveSelectionData.Instance.GetBoolValue(Prefab, GetFlagKey(usedFlag));
-                    if(value.HasValue && value == true) {
-                        ARCustomFlags.SegmentEnd = ARCustomFlags.SegmentEnd.SetFlags(usedFlag);
-                    }
-                }
-                if(PrefabUsedCustomFlags.Lane != default) {
-                    foreach(var laneIndex in Prefab.m_sortedLanes) {
-                        var usedLaneFlags = GetPrefabLaneUsedCustomFlags(laneIndex);
-                        foreach(var usedFlag in usedLaneFlags.ExtractPow2Flags()) {
-                            var value = ActiveSelectionData.Instance.GetBoolValue(Prefab, GetLaneFlagKey(laneIndex, usedFlag));
-                            if(value.HasValue && value == true) {
-                                ARCustomFlags.Lanes[laneIndex] = ARCustomFlags.Lanes[laneIndex].SetFlags(usedFlag);
-                            }
+                ARCustomFlags = new ARCustomFlags(BasePrefab.m_lanes.Length);
+                ARCustomFlags shared = BasePrefab?.GatherSharedARCustomFlags();
+                foreach (var elevation in BasePrefab.AllElevations()) {
+                    var elevationFlags = elevation.GatherARCustomFlags();
+                    foreach (var pair in elevationFlags.IterateAll()) {
+                        Enum flag = pair.Key;
+                        int laneIndex = pair.Value;
+                        string key = GetFlagKey(flag, laneIndex);
+                        bool? value = ActiveSelectionData.Instance.GetBoolValue(elevation, key);
+                        if (value.HasValue && value == true && shared.HasFlag(flag)) {
+                            ARCustomFlags.AddFlag(flag, laneIndex);
                         }
                     }
                 }
-
             } catch(Exception ex) { ex.Log(); }
-
         }
+
         public override void SaveActiveSelection() {
             try {
                 Log.Called();
-                foreach(var usedFlag in PrefabUsedCustomFlags.Segment.ExtractPow2Flags()) {
-                    if(ARCustomFlags.Segment.IsFlagSet(usedFlag))
-                        ActiveSelectionData.Instance.SetBoolValue(Prefab, GetFlagKey(usedFlag), true);
-                    else
-                        ActiveSelectionData.Instance.ClearValue(Prefab, GetFlagKey(usedFlag));
-                }
-                foreach(var usedFlag in PrefabUsedCustomFlags.Node.ExtractPow2Flags()) {
-                    if(ARCustomFlags.Node.IsFlagSet(usedFlag))
-                        ActiveSelectionData.Instance.SetBoolValue(Prefab, GetFlagKey(usedFlag), true);
-                    else
-                        ActiveSelectionData.Instance.ClearValue(Prefab, GetFlagKey(usedFlag));
-                }
-                foreach(var usedFlag in PrefabUsedCustomFlags.SegmentEnd.ExtractPow2Flags()) {
-                    if(ARCustomFlags.SegmentEnd.IsFlagSet(usedFlag))
-                        ActiveSelectionData.Instance.SetBoolValue(Prefab, GetFlagKey(usedFlag), true);
-                    else
-                        ActiveSelectionData.Instance.ClearValue(Prefab, GetFlagKey(usedFlag));
-                }
-                if(PrefabUsedCustomFlags.Lane != default) {
-                    foreach(var laneIndex in Prefab.m_sortedLanes) {
-                        var usedLaneFlags = GetPrefabLaneUsedCustomFlags(laneIndex);
-                        foreach(var usedFlag in usedLaneFlags.ExtractPow2Flags()) {
-                            if(ARCustomFlags.Lanes[laneIndex].IsFlagSet(usedFlag))
-                                ActiveSelectionData.Instance.SetBoolValue(Prefab, GetLaneFlagKey(laneIndex, usedFlag), true);
-                            else
-                                ActiveSelectionData.Instance.ClearValue(Prefab, GetLaneFlagKey(laneIndex, usedFlag));
+                foreach (var elevation in BasePrefab.AllElevations()) {
+                    var elevationFlags = elevation.GatherARCustomFlags();
+                    foreach(var pair in elevationFlags.IterateAll()) {
+                        Enum flag = pair.Key;
+                        int laneIndex = pair.Value;
+                        string key = GetFlagKey(flag, laneIndex);
+                        if (ARCustomFlags.HasFlag(flag, laneIndex)) {
+                            Log.Debug($"ActiveSelectionData.Instance.SetBoolValue({elevation}, {key}, {true})");
+                            ActiveSelectionData.Instance.SetBoolValue(elevation, key, true);
+                        } else {
+                            ActiveSelectionData.Instance.ClearValue(elevation, key);
                         }
                     }
                 }
-
             } catch(Exception ex) { ex.Log(); }
         }
 
         public override void Reset() {
             try {
                 Log.Called();
-                ARCustomFlags = new ARCustomFlags(Prefab.m_lanes.Length);
+                ARCustomFlags = new ARCustomFlags(BasePrefab.m_lanes.Length);
             } catch(Exception ex) { ex.Log(); }
         }
 
@@ -218,8 +185,11 @@ namespace AdaptiveRoads.NSInterface {
             try {
                 Log.Called("CustomSegmentFlags are " + ARCustomFlags.Segment);
                 var ret = new Dictionary<NetInfo, ICloneable>();
-                if(!IsDefault) {
-                    ret[Prefab] = ARCustomFlags.Clone() as ARCustomFlags; 
+                foreach (var elevationInfo in BasePrefab.AllElevations()) {
+                    var elevationFlag = ARCustomFlags & elevationInfo.GatherARCustomFlags();
+                    if (!elevationFlag.IsDefault()) {
+                        ret[elevationInfo] = elevationFlag;
+                    }
                 }
                 return ret.LogRet();
             } catch(Exception ex) { ex.Log();}

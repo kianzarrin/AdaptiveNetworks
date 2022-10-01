@@ -15,7 +15,7 @@ namespace AdaptiveRoads.NSInterface.UI {
         UIPanel panel_;
 
         int laneIndex_;
-        static NetInfo Prefab => ANImplementation.Instance.Prefab;
+        static NetInfo Prefab => ANImplementation.Instance.BasePrefab;
         NetInfo.Lane LaneInfo => Prefab.m_lanes[laneIndex_];
 
         public static LaneCaptionButton Add(UIPanel parent,  int laneIndex) {

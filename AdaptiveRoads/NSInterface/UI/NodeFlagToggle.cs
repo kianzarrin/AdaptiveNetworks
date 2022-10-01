@@ -19,7 +19,7 @@ namespace AdaptiveRoads.NSInterface.UI {
 
         public override void Start() {
             base.Start();
-            string name = CustomFlagAttribute.GetName(flag_, Impl.Prefab);
+            string name = Impl.BasePrefab.GetSharedName(flag_);
             this.Label = name ?? flag_.ToString();
             this.tooltip = flag_.ToString();
             Refresh();

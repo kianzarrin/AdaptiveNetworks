@@ -9,7 +9,7 @@ namespace AdaptiveRoads.NSInterface.UI {
     public class LaneFlagToggle : UICheckBoxExt {
         int laneIndex_;
         NetLaneExt.Flags flag_;
-        static NetInfo Prefab => ANImplementation.Instance.Prefab;
+        static NetInfo Prefab => ANImplementation.Instance.BasePrefab;
         ARCustomFlags ARCustomFlags => ANImplementation.Instance.ARCustomFlags;
 
         public static LaneFlagToggle Add(UIPanel parent, int laneIndex, NetLaneExt.Flags flag) {
@@ -26,8 +26,7 @@ namespace AdaptiveRoads.NSInterface.UI {
 
         public override void Start() {
             base.Start();
-            var metadata = Prefab?.GetMetaData();
-            string name = metadata.GetCustomLaneFlagName(flag_, laneIndex_);
+            string name = Prefab.GetSharedName(flag_, laneIndex_);
             this.Label = name ?? flag_.ToString();
             this.tooltip = flag_.ToString();
             Refresh();
