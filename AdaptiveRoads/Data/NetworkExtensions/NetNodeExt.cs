@@ -316,7 +316,7 @@ namespace AdaptiveRoads.Manager {
                             if(routing.type is LaneEndTransitionType.Invalid or LaneEndTransitionType.Relaxed)
                                 continue;
                             var infoExt2 = routing.segmentId.ToSegment().Info?.GetMetaData();
-                            bool hasTrackLane2 = infoExt2?.HasTrackLane(laneIndex) ?? false;
+                            bool hasTrackLane2 = infoExt2?.HasTrackLane(routing.laneIndex) ?? false;
                             if (!(hasTrackLane || hasTrackLane2)) {
                                 continue;
                             }

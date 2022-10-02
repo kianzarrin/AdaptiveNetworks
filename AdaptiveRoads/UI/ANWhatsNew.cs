@@ -10,6 +10,15 @@ namespace AdaptiveRoads.UI {
             new WhatsNewEntry {
                 version = new Version(3, 13, 6),
                 messages = new string[] {
+                    "Fixed: NS integration for other elevations",
+                    "Fixed: missing track connections when lane count mismatches.",
+                    "Fixed: annoying error when adding connect group.",
+                }
+            },
+
+            new WhatsNewEntry {
+                version = new Version(3, 13, 6),
+                messages = new string[] {
                     "Fixed: Asymmetrical pavement distortions at nodes",
                     "Feature: copying props/nodes/segments to other lane or elevations will copy custom flag names too.",
                 }

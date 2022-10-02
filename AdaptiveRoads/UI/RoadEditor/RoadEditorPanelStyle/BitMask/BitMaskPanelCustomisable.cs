@@ -21,6 +21,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
         internal TagBase Tags;
 
         public override void OnDestroy() {
+            Tags.Source.EventChanged -= Refresh;
             ReflectionHelpers.SetAllDeclaredFieldsToNull(this);
             base.OnDestroy();
         }
