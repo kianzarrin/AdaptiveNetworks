@@ -88,6 +88,7 @@ namespace AdaptiveRoads.NSInterface {
                 Assertion.NotNull(panel, "container");
                 container_ = panel;
                 subContainer_ = container_.AddUIComponent<AR_NS_FlagsPanel>();
+                Log.Succeeded();
             } catch(Exception ex) { ex.Log(); }
         }
 
@@ -117,9 +118,9 @@ namespace AdaptiveRoads.NSInterface {
             $"MOD_AR_lanes[{laneIndex}]_{flag}";
         
 
-        public bool IsDefault => ARCustomFlags != null && ARCustomFlags.IsDefault();
+        public bool IsDefault => (ARCustomFlags != null && ARCustomFlags.IsDefault()).LogRet();
 
-        public override bool Enabled => !SharedCustomFlags.IsDefault();
+        public override bool Enabled => (!SharedCustomFlags.IsDefault()).LogRet();
 
         public override void LoadWithData(ICloneable data) {
             try {
@@ -130,6 +131,7 @@ namespace AdaptiveRoads.NSInterface {
                     ARCustomFlags = new ARCustomFlags(BasePrefab.m_lanes.Length);
                 }
             } catch(Exception ex) { ex.Log(); }
+            Log.Succeeded();
         }
 
         public override void LoadActiveSelection() {
@@ -150,6 +152,7 @@ namespace AdaptiveRoads.NSInterface {
                     }
                 }
             } catch(Exception ex) { ex.Log(); }
+            Log.Succeeded();
         }
 
         public override void SaveActiveSelection() {
@@ -170,6 +173,7 @@ namespace AdaptiveRoads.NSInterface {
                     }
                 }
             } catch(Exception ex) { ex.Log(); }
+            Log.Succeeded();
         }
 
         public override void Reset() {
@@ -177,6 +181,7 @@ namespace AdaptiveRoads.NSInterface {
                 Log.Called();
                 ARCustomFlags = new ARCustomFlags(BasePrefab.m_lanes.Length);
             } catch(Exception ex) { ex.Log(); }
+            Log.Succeeded();
         }
 
         public void Change() => this.OnControllerChanged();
