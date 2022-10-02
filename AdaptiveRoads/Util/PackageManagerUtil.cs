@@ -4,16 +4,40 @@ namespace AdaptiveRoads.Util {
     using ColossalFramework.PlatformServices;
     using KianCommons;
     using System;
+    using System.Collections.Generic;
     using System.Linq;
+    using System.Xml.Linq;
 
     public static class PackageManagerUtil {
-        public static Package[] GetPackages(string name) {
-            var ret = PackageManager.allPackages.Where(p => p.packageName == name);
-            if (ret.IsNullorEmpty()) {
-                throw new Exception("did not find package:" +name);
+        private  static Package[] GetPackagesOf(NetInfo info) {
+            string fullName = info.name;
+            int dotIndex = fullName.LastIndexOf('.');
+            if (dotIndex > 0) {
+                string packageName = fullName.Substring(0, dotIndex);
+                var ret = PackageManager.allPackages.Where(p => p.packageName == packageName);
+                if (!ret.IsNullorEmpty()) {
+                    return ret.ToArray();
+                }
+            } else {
+                throw new Exception("could not analyze package name for " + info);
             }
-            if (Log.VERBOSE) ret.LogRet();
-            return ret.ToArray();
+
+            // work around for clus road with space after dot in the road name.
+            dotIndex = -1;
+            for (int i = 0; i < fullName.Length - 1; i++) {
+                if (fullName[i] == '.' && fullName[i + 1] != ' ') {
+                    dotIndex = i;
+                }
+            }
+            if (dotIndex > 0) {
+                string packageName = fullName.Substring(0, dotIndex);
+                var ret = PackageManager.allPackages.Where(p => p.packageName == packageName);
+                if (!ret.IsNullorEmpty()) {
+                    return ret.ToArray();
+                }
+            }
+
+            throw new Exception(message: "did not find package for " + info);
         }
 
         /// <summary>
@@ -29,15 +53,7 @@ namespace AdaptiveRoads.Util {
                         ?? throw new Exception($"ListingMetaData?.assetRef.package is null");
                     return new[] { ret };
                 } else {
-                    string name = AssetDataExtension.CurrentBasicNetInfo.name;
-                    int dotIndex = name.LastIndexOf('.');
-                    if (dotIndex > 0) {
-                        Assertion.Assert(dotIndex > 0, $"dotIndex:{dotIndex} > 0");
-                        string packageName = name.Substring(0, dotIndex);
-                        return GetPackages(packageName);
-                    } else {
-                        throw new Exception("could not analyze package name for NetInfo " + AssetDataExtension.CurrentBasicNetInfo);
-                    }
+                    return GetPackagesOf(AssetDataExtension.CurrentBasicNetInfo);
                 }
             } catch (Exception ex) {
                 ex.Log($"failed to get package for CurrentBasicNetInfo='{AssetDataExtension.CurrentBasicNetInfo}' and ListingMetaData='{AssetDataExtension.ListingMetaData}'");
