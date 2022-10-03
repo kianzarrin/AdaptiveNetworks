@@ -90,13 +90,16 @@ namespace AdaptiveRoads.LifeCycle {
 #endif
 
         public static void HotReload3rdparty() {
-            if(loaded_!)Log.Called();
-            if (loaded_ && PluginUtil.GetTrafficManager().IsActive()) {
-                var notifier = TMPENotifier;
-                if (notifier != null) {
-                    notifier.EventLevelLoaded -= OnTMPELOaded;
-                    notifier.EventLevelLoaded += OnTMPELOaded;
-                    OnTMPELOaded();
+            if (loaded_) {
+                // check for loaded_ to avoid detecting AN hotreload as 3rdparty hotreload.
+                Log.Called();
+                if (PluginUtil.GetTrafficManager().IsActive()) {
+                    var notifier = TMPENotifier;
+                    if (notifier != null) {
+                        notifier.EventLevelLoaded -= OnTMPELoaded;
+                        notifier.EventLevelLoaded += OnTMPELoaded;
+                        OnTMPELoaded();
+                    }
                 }
             }
         }
@@ -135,8 +138,8 @@ namespace AdaptiveRoads.LifeCycle {
                     HarmonyUtil.InstallHarmony<PreloadPatchAttribute>(HARMONY_ID_MANUAL);
                     preloadPatchesApplied_ = true;
                 }
-                TMPENotifier.EventLevelLoaded -= OnTMPELOaded;
-                TMPENotifier.EventLevelLoaded += OnTMPELOaded;
+                TMPENotifier.EventLevelLoaded -= OnTMPELoaded;
+                TMPENotifier.EventLevelLoaded += OnTMPELoaded;
             } catch (Exception ex) {
                 Log.Exception(ex);
             }
@@ -144,7 +147,7 @@ namespace AdaptiveRoads.LifeCycle {
 
         static bool tmpeLoaded_ = false;
         static bool loaded_ = false;
-        public static void OnTMPELOaded() {
+        public static void OnTMPELoaded() {
             tmpeLoaded_ = true;
             if (loaded_) {
                 // if TMPE was loaded last, then update everything here.
