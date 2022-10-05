@@ -221,7 +221,12 @@
       <Output TaskParameter="Assemblies" ItemName="Targets" />
     </GetAssemblyIdentity>
     <ItemGroup>
-      <AuxilaryFiles Include="$(TargetDir)PrefabMetaData*.dll;$(TargetDir)CitiesHarmony.API.dll;$(TargetDir)UnifiedUILib.dll;$(SolutionDir)\libs\UnifiedUILib.dll.mdb;$(TargetDir)\Resources\*.png;$(SolutionDir)\libs\FbxFormatConverter.exe;$(TargetDir)NS.Helpers.dll" Exclude="$(TargetPath);$(TargetDir)*.pdb" />
+      <AuxilaryFiles Include="$(TargetDir)PrefabMetaData*.dll"/>
+      <AuxilaryFiles Include="$(TargetDir)CitiesHarmony.API.dll"/>
+      <AuxilaryFiles Include="$(TargetDir)UnifiedUILib.dll;"/>
+      <AuxilaryFiles Include="$(TargetDir)\Resources\*.png"/>
+      <AuxilaryFiles Include="$(SolutionDir)\libs\FbxFormatConverter.exe"/>
+      <AuxilaryFiles Include="$(TargetDir)NS.Helpers.dll"/>
       <VersionNumber Include="@(Targets->'%(Version)')" />
     </ItemGroup>
     <PropertyGroup>
