@@ -7,7 +7,6 @@ namespace AdaptiveRoads.NSInterface {
     using KianCommons.Serialization;
     using AdaptiveRoads.Manager;
     using UnityEngine;
-    using NetworkSkins.Persistence;
     using TextureUtil = KianCommons.UI.TextureUtil;
     using AdaptiveRoads.NSInterface.UI;
     using AdaptiveRoads.Data.NetworkExtensions;
@@ -145,7 +144,7 @@ namespace AdaptiveRoads.NSInterface {
                         Enum flag = pair.Key;
                         int laneIndex = pair.Value;
                         string key = GetFlagKey(flag, laneIndex);
-                        bool? value = ActiveSelectionData.Instance.GetBoolValue(elevation, key);
+                        bool? value = Persistency.GetBoolValue(elevation, key);
                         if (value.HasValue && value == true && shared.HasFlag(flag)) {
                             ARCustomFlags.AddFlag(flag, laneIndex);
                         }
@@ -166,9 +165,9 @@ namespace AdaptiveRoads.NSInterface {
                         string key = GetFlagKey(flag, laneIndex);
                         if (ARCustomFlags.HasFlag(flag, laneIndex)) {
                             Log.Debug($"ActiveSelectionData.Instance.SetBoolValue({elevation}, {key}, {true})");
-                            ActiveSelectionData.Instance.SetBoolValue(elevation, key, true);
+                            Persistency.SetBoolValue(elevation, key, true);
                         } else {
-                            ActiveSelectionData.Instance.ClearValue(elevation, key);
+                            Persistency.ClearValue(elevation, key);
                         }
                     }
                 }
