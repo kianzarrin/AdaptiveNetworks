@@ -3,7 +3,6 @@ namespace AdaptiveRoads.Manager {
     using AdaptiveRoads.Data.NetworkExtensions;
     using KianCommons;
     using KianCommons.Serialization;
-    using NetworkSkins.Skins.Serialization;
     using System;
     using System.Runtime.Serialization;
     using System.Xml.Serialization;
