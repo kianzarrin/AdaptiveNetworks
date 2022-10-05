@@ -8,7 +8,6 @@ namespace AdaptiveRoads.Manager {
     using System.Xml.Serialization;
     using UnityEngine;
     using static KianCommons.ReflectionHelpers;
-    using static NetLaneProps;
 
     public static partial class NetInfoExtionsion {
         [Serializable]
