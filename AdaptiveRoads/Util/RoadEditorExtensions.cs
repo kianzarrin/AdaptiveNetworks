@@ -1,5 +1,6 @@
 namespace AdaptiveRoads.Util {
     using ColossalFramework.UI;
+    using Epic.OnlineServices.Presence;
     using KianCommons;
     using System;
     using System.Reflection;
@@ -15,6 +16,18 @@ namespace AdaptiveRoads.Util {
         public static void OnPropertyChanged(this REPropertySet instance) =>
             ReflectionHelpers.InvokeMethod(instance, "OnPropertyChanged");
     }
+
+    public static class RoadEditorMainPanelExtensions {
+        public static void OnObjectModified(this RoadEditorMainPanel roadEditorMainPanel) =>
+            ReflectionHelpers.InvokeMethod(roadEditorMainPanel,nameof(OnObjectModified));
+        public static void Reset(this RoadEditorMainPanel roadEditorMainPanel, NetInfo info) =>
+            ReflectionHelpers.InvokeMethod(roadEditorMainPanel, nameof(Reset), info);
+        public static void Clear(this RoadEditorMainPanel roadEditorMainPanel) =>
+            ReflectionHelpers.InvokeMethod(roadEditorMainPanel, nameof(Clear));
+        public static void Initialize(this RoadEditorMainPanel roadEditorMainPanel) =>
+            ReflectionHelpers.InvokeMethod(roadEditorMainPanel, nameof(Initialize));
+    }
+
 
     public static class RoadEditorPanelExtensions {
         public static MethodInfo GetMethod(string methodName) =>
