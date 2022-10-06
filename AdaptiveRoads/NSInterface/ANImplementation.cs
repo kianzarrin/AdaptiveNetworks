@@ -183,7 +183,7 @@ namespace AdaptiveRoads.NSInterface {
             Log.Succeeded();
         }
 
-        public void Change() => this.OnControllerChanged();
+        public void Change() => this.API.OnControllerChanged();
 
         public override Dictionary<NetInfo, ICloneable> BuildCustomData() {
             try {
