@@ -8,15 +8,16 @@
 
 ----------------------------
 version 4:
+    - elevations:
+        - remove
+        - add
+        - change AI
+        - share elevations.
     - export/import road xml.
     - patch AssetImporterAssetTemplate.RefreshCoroutine() to speed up prop model loading time
         micro-benchmark UIComponent.Find<T>(string) to see how much time they take up
     - check track's node/segment flags at segment's/node's : start/end/both (on demand if somebody ask for this feature)
     - auto train track maker.
     - generate AR props for vanilla roads.
-    - elevations:
-        - add
-        - share elevations.
-        - change
     - anti distortion for crossings
-    - height offset for node/segment meshes.
+    - vertical offset for node/segment meshes.
