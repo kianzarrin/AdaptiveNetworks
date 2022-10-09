@@ -8,6 +8,12 @@ namespace AdaptiveRoads.Patches.RoadEditor.Track {
     using KianCommons;
     using ColossalFramework.UI;
     using System.Linq;
+    using KianCommons.Patches;
+    using NetworkSkins.GUI.UIFastList;
+    using System.Reflection;
+    using System.Reflection.Emit;
+    using AdaptiveRoads.Util;
+    using System;
 
     [HarmonyPatch(typeof(RoadEditorCrossImportPanel))]
     public static class RoadEditorCrossImportPanelPatch {
@@ -66,5 +72,50 @@ namespace AdaptiveRoads.Patches.RoadEditor.Track {
             }
         }
 
+        [HarmonyPatch("PopulateRoadList")]
+        [HarmonyPostfix]
+        public static void PopulateRoadListPostfix(UIListBox ___m_RoadListbox) {
+            Log.Called("SelectedInex=" + SelectedInex);
+            if (SelectedInex < 0) return;
+            if (___m_RoadListbox.items.Length > SelectedInex) {
+                ___m_RoadListbox.selectedIndex = SelectedInex;
+            } else {
+                Log.Error($"Selected index is too large. " +
+                    $"SelectedInex={SelectedInex} itemcount={___m_RoadListbox.items.Length} ");
+            }
+        }
+
+        [HarmonyPatch("PopulateRoadList")]
+        [HarmonyTranspiler]
+        public static IEnumerable<CodeInstruction> PopulateRoadListTranspiler(IEnumerable<CodeInstruction> instructions) {
+            foreach (var instruction in instructions) {
+                yield return instruction;
+                if (instruction.Calls(nameof(FastList<NetInfo>.ToArray))) {
+                    MethodInfo mSortRoads = typeof(RoadEditorCrossImportPanelPatch).GetMethod("SortRoads", throwOnError: true);
+                    yield return new CodeInstruction(OpCodes.Call, mSortRoads);
+                }
+            }
+        }
+
+        public static int SelectedInex;
+        public static NetInfo[] SortRoads(NetInfo[] roads) {
+            Log.Called("input road count=" + roads.Length);
+            var groups = RoadFamilyUtil.BuildFamilies(roads);
+
+            HashSet<NetInfo> original = new HashSet<NetInfo>(roads);
+            HashSet<NetInfo> result = new HashSet<NetInfo>();
+            foreach (var family in groups) {
+                foreach(NetInfo info in family) {
+                    if (original.Contains(info)) {
+                        result.Add(info);
+                    }
+                }
+            }
+
+            roads = result.ToArray();
+            SelectedInex = roads.FindIndex(item => item == NetUtil.netTool.Prefab);
+            Log.Info("output road count=" + roads.Length);
+            return roads;
+        }
     }
 }

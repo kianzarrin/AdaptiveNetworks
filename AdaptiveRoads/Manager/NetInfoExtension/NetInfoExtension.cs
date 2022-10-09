@@ -53,17 +53,19 @@ namespace AdaptiveRoads.Manager {
 
         public static IEnumerable<NetInfo> AllElevations(this NetInfo ground) {
             if(ground == null) yield break;
+            yield return ground;
 
             NetInfo elevated = AssetEditorRoadUtils.TryGetElevated(ground);
-            NetInfo bridge = AssetEditorRoadUtils.TryGetBridge(ground);
-            NetInfo slope = AssetEditorRoadUtils.TryGetSlope(ground);
-            NetInfo tunnel = AssetEditorRoadUtils.TryGetTunnel(ground);
+            if (elevated != null) yield return elevated;
 
-            yield return ground;
-            if(elevated != null) yield return elevated;
-            if(bridge != null) yield return bridge;
-            if(slope != null) yield return slope;
-            if(tunnel != null) yield return tunnel;
+            NetInfo bridge = AssetEditorRoadUtils.TryGetBridge(ground);
+            if (bridge != null) yield return bridge;
+
+            NetInfo slope = AssetEditorRoadUtils.TryGetSlope(ground);
+            if (slope != null) yield return slope;
+
+            NetInfo tunnel = AssetEditorRoadUtils.TryGetTunnel(ground);
+            if (tunnel != null) yield return tunnel;
         }
 
         public static void InvokeEditPrefabChanged() {

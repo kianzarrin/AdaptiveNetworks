@@ -163,30 +163,5 @@ namespace AdaptiveRoads.Util {
                 //material.renderQueue = 3000;
             }
         }
-
-        public static IEnumerable<NetInfo> IterateLoadedNetInfos() {
-            int n = PrefabCollection<NetInfo>.LoadedCount();
-            for (uint i = 0; i < n; i++) {
-                NetInfo info = PrefabCollection<NetInfo>.GetLoaded(i);
-                if (info == null) continue;
-                yield return info; 
-            }
-            yield break;
-        }
-
-        public static NetInfo GetBasicElevation(NetInfo info) {
-            if(info == null) return null;
-            foreach(NetInfo info2 in IterateLoadedNetInfos()) {
-                if (info2 == AssetEditorRoadUtils.TryGetElevated(info))
-                    return info2;
-                if (info2 == AssetEditorRoadUtils.TryGetBridge(info))
-                    return info2;
-                if (info2 == AssetEditorRoadUtils.TryGetSlope(info))
-                    return info2;
-                if (info2 == AssetEditorRoadUtils.TryGetTunnel(info))
-                    return info2;
-            }
-            return null;
-        }
     }
 }
