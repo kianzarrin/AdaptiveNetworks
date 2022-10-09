@@ -8,11 +8,19 @@ namespace AdaptiveRoads.UI {
         public override SavedString SavedVersion => new SavedString("WhatsNewVersion", ModSettings.FILE_NAME, def: "0.0.0", autoUpdate: true);
         public override WhatsNewEntry[] Messages { get; } = new WhatsNewEntry[] {
             new WhatsNewEntry {
-                version = new Version(3, 13, 6),
+                version = new Version(3, 14, 0),
                 messages = new string[] {
-                    "Fixed: NS integration for other elevations",
+                    "Feature: add/remove elevations",
+                    "Feature: change AI",
+                }
+            },
+
+
+            new WhatsNewEntry {
+                version = new Version(3, 13, 7),
+                messages = new string[] {
                     "Fixed: missing track connections when lane count mismatches.",
-                    "Fixed: annoying error when adding connect group.",
+                    "Fixed: check all flags including extra AN flags when rendering roads before placement (while drawing roads).",
                 }
             },
 
