@@ -57,12 +57,9 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                     objectIndex2.z = 0f;
                 }
 
-                uint seed;
-                unchecked {
-                    seed = laneTransition.LaneIDSource + (uint)laneTransition.AntiFlickerIndex;
-                }
-                for (int i = 0; i < nProps; i++) {
-                    var prop = props[i];
+                int seed0 = unchecked((int)laneTransition.LaneIDSource + laneTransition.AntiFlickerIndex);
+                for (int iProp = 0; iProp < nProps; iProp++) {
+                    var prop = props[iProp];
                     if (trackRenderData.Length >= prop.m_minLength) {
                         int repeatCountTimes2 = 2;
                         if (prop.m_repeatDistance > 1f) {
@@ -77,8 +74,8 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                                 offset = Mathf.Clamp(offset + prop.m_position.z / trackRenderData.Length, -0.5f, 0.5f);
                             }
                             PropInfo propInfo = prop.m_finalProp;
+                            Randomizer randomizer = new Randomizer(unchecked(seed0 + iProp));
                             if (propInfo != null /*&& (layerMask & 1 << propInfo.m_prefabDataLayer) != 0*/) {
-                                Randomizer randomizer = new Randomizer(seed);
                                 for (int repeateIndex2 = 1; repeateIndex2 <= repeatCountTimes2; repeateIndex2 += 2) {
                                     if (randomizer.Int32(100u) < prop.m_probability) {
                                         float t = offset + (float)repeateIndex2 / (float)repeatCountTimes2;
@@ -163,7 +160,6 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                             }
                             TreeInfo finalTree = prop.m_finalTree;
                             if (finalTree != null /*&& (layerMask & 1 << finalTree.m_prefabDataLayer) != 0*/) {
-                                Randomizer randomizer = new Randomizer(seed);
                                 for (int repeateIndex2 = 1; repeateIndex2 <= repeatCountTimes2; repeateIndex2 += 2) {
                                     if (randomizer.Int32(100u) < prop.m_probability) {
                                         TreeInfo variation = finalTree.GetVariation(ref randomizer);
@@ -243,14 +239,11 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                     objectIndex2.z = 0f;
                 }
 
-                uint seed;
-                unchecked {
-                    seed = laneTransition.LaneIDSource + (uint)laneTransition.AntiFlickerIndex;
-                }
+                int seed0 = unchecked((int)laneTransition.LaneIDSource + laneTransition.AntiFlickerIndex);
                 var sourceSegmentEndFlags = laneTransition.SegmentExtA.GetEnd(laneTransition.NodeID).m_flags;
                 var userData = laneTransition.SegmentExtA.UserData;
-                for (int i = 0; i < nProps; i++) {
-                    var prop = props[i];
+                for (int iProp = 0; iProp < nProps; iProp++) {
+                    var prop = props[iProp];
                     if (trackRenderData.Length >= prop.m_minLength) {
                         int repeatCountTimes2 = 2;
                         if (prop.m_repeatDistance > 1f) {
@@ -269,8 +262,8 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                                 offset = Mathf.Clamp(offset + prop.m_position.z / trackRenderData.Length, -0.5f, 0.5f);
                             }
                             PropInfo propInfo = prop.m_finalProp;
+                            Randomizer randomizer = new Randomizer(unchecked(seed0 + iProp));
                             if (propInfo != null && (layerMask & 1 << propInfo.m_prefabDataLayer) != 0) {
-                                Randomizer randomizer = new Randomizer(seed);
                                 for (int repeateIndex2 = 1; repeateIndex2 <= repeatCountTimes2; repeateIndex2 += 2) {
                                     if (randomizer.Int32(100u) < prop.m_probability) {
                                         float t = offset + (float)repeateIndex2 / (float)repeatCountTimes2;
@@ -304,7 +297,6 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                             }
                             TreeInfo finalTree = prop.m_finalTree;
                             if (finalTree != null && (layerMask & 1 << finalTree.m_prefabDataLayer) != 0) {
-                                Randomizer randomizer = new Randomizer(seed);
                                 for (int repeateIndex2 = 1; repeateIndex2 <= repeatCountTimes2; repeateIndex2 += 2) {
                                     if (randomizer.Int32(100u) < prop.m_probability) {
                                         TreeInfo variation = finalTree.GetVariation(ref randomizer);
