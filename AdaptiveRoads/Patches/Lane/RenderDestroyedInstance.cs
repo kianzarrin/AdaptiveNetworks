@@ -1,14 +1,11 @@
-using HarmonyLib;
-using System;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Collections.Generic;
-using KianCommons;
-using KianCommons.Patches;
-
-// TODO patch RenderDestroyedInstance too.
 namespace AdaptiveRoads.Patches.Lane {
-    using JetBrains.Annotations;
+    using HarmonyLib;
+    using System;
+    using System.Reflection;
+    using System.Reflection.Emit;
+    using System.Collections.Generic;
+    using KianCommons;
+    using KianCommons.Patches;
 
     [HarmonyPatch]
     [InGamePatch]

@@ -1,4 +1,3 @@
-// TODO patch RenderDestroyedInstance too.
 namespace AdaptiveRoads.Patches.Lane {
     using HarmonyLib;
     using KianCommons;
@@ -38,6 +37,7 @@ namespace AdaptiveRoads.Patches.Lane {
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, MethodBase original) {
             try {
                 var codes = TranspilerUtils.ToCodeList(instructions);
+                SeedIndexCommons.Patch(codes, original);
                 PropOverlay.Patch(codes, original);
                 TreeOverlay.Patch(codes, original);
                 Log.Info($"{ReflectionHelpers.ThisMethod} patched {original} successfully!");

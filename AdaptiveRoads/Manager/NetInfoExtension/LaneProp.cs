@@ -108,6 +108,14 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Catenary")]
             public bool Catenary;
 
+            [Hint(
+                "match probability seed with that of the nth prop (index starts from 1).\n" +
+                "useful to make sure both props appear at the same place when probability < 100%.\n" +
+                "this only works if other properties also match.")]
+            [CustomizableProperty("Seed Index")]
+            [AfterField(nameof(NetLaneProps.Prop.m_probability))]
+            public int SeedIndex;
+
             /// <param name="laneSpeed">game speed</param>
             /// <param name="forwardSpeedLimit">game speed</param>
             /// <param name="backwardSpeedLimit">game speed</param>
