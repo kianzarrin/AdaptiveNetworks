@@ -31,11 +31,13 @@ namespace AdaptiveRoads.Patches.Lane {
         }
 
         public static int GetSeed(int seed0, uint laneId, NetLaneProps.Prop prop) {
-            if(prop.GetMetaData() is var metadata && metadata.SeedIndex != 0) {
-                return unchecked((int)laneId + (metadata.SeedIndex -1));
-            } else {
-                return seed0;
-            }
+            try {
+                if (prop.GetMetaData() is NetInfoExtionsion.LaneProp metadata && metadata.SeedIndex != 0) {
+                    return unchecked((int)laneId + (metadata.SeedIndex - 1));
+                }
+            } catch(Exception ex) { ex.Log(); }
+            return seed0;
+
         }
     }
 }
