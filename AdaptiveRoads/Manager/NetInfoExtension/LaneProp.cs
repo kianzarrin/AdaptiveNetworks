@@ -109,8 +109,8 @@ namespace AdaptiveRoads.Manager {
             public bool Catenary;
 
             [Hint(
-                "when probability < 100% if you want props to appear at the same place \n" +
-                "use identical none-zero seed for all of them\n")]
+                "initializes random sequence generator (bing it!) when probability < 100%.\n" +
+                "props with the same (non-zero) seed appear in the same place.")]
             [CustomizableProperty("Seed")]
             [AfterField(nameof(NetLaneProps.Prop.m_probability))]
             public int SeedIndex;
