@@ -109,7 +109,7 @@ namespace AdaptiveRoads.Manager {
             public bool Catenary;
 
             [Hint(
-                "initializes random sequence generator (bing it!) when probability < 100%.\n" +
+                "seed to initialize the random sequence generator (bing it!) when probability < 100%.\n" +
                 "props with the same (non-zero) seed appear in the same place.")]
             [CustomizableProperty("Seed")]
             [AfterField(nameof(NetLaneProps.Prop.m_probability))]
