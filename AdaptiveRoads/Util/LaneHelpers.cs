@@ -43,7 +43,7 @@ namespace AdaptiveRoads.Util {
 
         // splits into multiple lanes at least one of which has only one transitions to it.
         internal static bool IsSplitsUnique(this LaneData lane) {
-            var transitions = GetForwardTransisions(lane.LaneID, lane.StartNode);
+            var transitions = GetForwardTransisions(lane.LaneID, lane.HeadsToStartNode);
 
             if (transitions.Count() < 2)
                 return false; // not split
@@ -60,7 +60,7 @@ namespace AdaptiveRoads.Util {
 
         // has single transition which merges into another lane.
         internal static bool IsMergesUnique(this LaneData lane) {
-            var transitions = GetForwardTransisions(lane.LaneID, lane.StartNode);
+            var transitions = GetForwardTransisions(lane.LaneID, lane.HeadsToStartNode);
             if (transitions.Count() != 1)
                 return false; // not single transition
 
@@ -72,7 +72,7 @@ namespace AdaptiveRoads.Util {
         internal static NetLaneExt.Flags GetArrowsExt(ref this LaneData lane) {
             NetLaneExt.Flags arrows = 0;
             ushort segmentID = lane.SegmentID;
-            foreach(var transition in GetForwardTransisions(lane.LaneID, lane.StartNode)) {
+            foreach(var transition in GetForwardTransisions(lane.LaneID, lane.HeadsToStartNode)) {
                 if (transition.type is LaneEndTransitionType.Default or LaneEndTransitionType.LaneConnection) {
                     arrows |= ArrowDirectionUtil.GetArrowExt(segmentID, transition.segmentId);
                 }
