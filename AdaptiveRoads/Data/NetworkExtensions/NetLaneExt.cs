@@ -213,10 +213,13 @@ namespace AdaptiveRoads.Manager{
             a.y += laneInfo.m_verticalOffset;
             d.y += laneInfo.m_verticalOffset;
 
-            OutLine = new OutlineData(
-                a, d, startDir, endDir, laneInfo.m_width,
-                smoothStart, smoothEnd,
-                segmentExt.Start.TotalAngle, -segmentExt.End.TotalAngle, wireHeight: 0);
+            OutLine = new OutlineData(LaneData.Lane.m_bezier, laneInfo.m_width,
+                true, true, 0, 0, 0);
+
+            //OutLine = new OutlineData(
+            //    a, d, startDir, endDir, laneInfo.m_width,
+            //    smoothStart, smoothEnd,
+            //    segmentExt.Start.TotalAngle, -segmentExt.End.TotalAngle, wireHeight: 0);
 
             RenderData = GenerateRenderData(ref OutLine);
 

@@ -17,31 +17,34 @@ public struct OutlineData {
     public OutlineData(Bezier3 bezier, float width, bool smoothA, bool smoothD, float angleA, float angleD, float wireHeight) {
         //Log.Called($"angleA={angleA}", $"angleD={angleD}", $"wire={wire}");
         float hw = 0.5f * width;
+        float r = (bezier.a - bezier.d).magnitude *(1f/3);
         SmoothA = smoothA;
-        DirA = bezier.DirA();
+        DirA = bezier.DirA()/r;
         SmoothD = smoothD;
-        DirD = bezier.DirD();
+        DirD = bezier.DirD()/r;
 
-        Vector2 shiftA = CalShift(angleA, hw, wireHeight, out float centerShiftA);
-        Vector2 shiftD = CalShift(angleD, hw, wireHeight, out float centerShiftD);
-        Center = bezier.ShiftRight(centerShiftA, centerShiftD);
-        Right = Center.ShiftRight(shiftA, shiftD);
-        Left = Center.ShiftRight(-shiftA, -shiftD);
+        //Vector2 shiftA = CalShift(angleA, hw, wireHeight, out float centerShiftA);
+        //Vector2 shiftD = CalShift(angleD, hw, wireHeight, out float centerShiftD);
+        Center = bezier/*.ShiftRight(centerShiftA, centerShiftD)*/;
+        Right = Center.SimpleShift(hw);
+        Left = Center.SimpleShift(-hw);
+        //Right = Center.ShiftRight(shiftA, shiftD);
+        //Left = Center.ShiftRight(-shiftA, -shiftD);
 
 
-        static Vector2 CalShift(float angle, float hw, float wireHeight, out float centerShift) {
-            Vector2 shift = default;
-            if (wireHeight != 0) {
-                // no need to tilt wires. move them sideways to avoid clipping into tilted train
-                centerShift = wireHeight * Mathf.Sin(angle);
-                shift.x = hw;
-            } else {
-                centerShift = 0;
-                shift.x = hw * Mathf.Cos(angle);
-                shift.y = hw * Mathf.Sin(angle);
-            }
-            return shift;
-        }
+        //static Vector2 CalShift(float angle, float hw, float wireHeight, out float centerShift) {
+        //    Vector2 shift = default;
+        //    if (wireHeight != 0) {
+        //        // no need to tilt wires. move them sideways to avoid clipping into tilted train
+        //        centerShift = wireHeight * Mathf.Sin(angle);
+        //        shift.x = hw;
+        //    } else {
+        //        centerShift = 0;
+        //        shift.x = hw * Mathf.Cos(angle);
+        //        shift.y = hw * Mathf.Sin(angle);
+        //    }
+        //    return shift;
+        //}
     }
 
     /// <param name="angle">tilt angle in radians</param>
