@@ -183,50 +183,22 @@ namespace AdaptiveRoads.Manager{
         public TrackRenderData WireRenderData;
 
         public void UpdateCorners() {
-            ushort segmentID = LaneData.SegmentID;
-            ref var segment = ref LaneData.Segment;
-            ref var segmentExt = ref NetworkExtensionManager.Instance.SegmentBuffer[segmentID];
-
-            var posStartLeft = segmentExt.Start.Corner.Left.Position;
-            var posStartRight = segmentExt.Start.Corner.Right.Position;
-            var posEndLeft = segmentExt.End.Corner.Left.Position;
-            var posEndRight = segmentExt.End.Corner.Right.Position;
-
-            var DirectionStartLeft = segmentExt.Start.Corner.Left.Direction;
-            var DirectionStartRight = segmentExt.Start.Corner.Right.Direction;
-            var DirectionEndLeft = segmentExt.End.Corner.Left.Direction;
-            var DirectionEndRight = segmentExt.End.Corner.Right.Direction;
-
-            var smoothStart = segmentExt.Start.Corner.smooth;
-            var smoothEnd = segmentExt.End.Corner.smooth;
-
+            // TODO: only update corners when NetSegment.UpdateLanes is called. not when traffic rules change.
+            ref var segmentExt = ref LaneData.SegmentID.ToSegmentExt();
             var laneInfo = LaneData.LaneInfo;
-            float posNormalized = laneInfo.m_position / (segment.Info.m_halfWidth * 2f) + 0.5f;
-            if(segment.IsInvert()) {
-                posNormalized = 1f - posNormalized;
-            }
-
-            Vector3 a = posStartLeft + (posStartRight - posStartLeft) * posNormalized;
-            Vector3 startDir = Vector3.Lerp(DirectionStartLeft, DirectionStartRight, posNormalized);
-            Vector3 d = posEndRight + (posEndLeft - posEndRight) * posNormalized;
-            Vector3 endDir = Vector3.Lerp(DirectionEndRight, DirectionEndLeft, posNormalized);
-            a.y += laneInfo.m_verticalOffset;
-            d.y += laneInfo.m_verticalOffset;
-
-            OutLine = new OutlineData(LaneData.Lane.m_bezier, laneInfo.m_width,
-                true, true, 0, 0, 0);
-
-            //OutLine = new OutlineData(
-            //    a, d, startDir, endDir, laneInfo.m_width,
-            //    smoothStart, smoothEnd,
-            //    segmentExt.Start.TotalAngle, -segmentExt.End.TotalAngle, wireHeight: 0);
+            OutLine = new OutlineData(
+                LaneData.Lane.m_bezier, laneInfo.m_width,
+                true, true,
+                segmentExt.Start.TotalAngle, -segmentExt.End.TotalAngle,
+                wireHeight: 0);
 
             RenderData = GenerateRenderData(ref OutLine);
 
             WireOutLine = new OutlineData(
-                a, d, startDir, endDir, laneInfo.m_width,
-                smoothStart, smoothEnd,
-                segmentExt.Start.TotalAngle, -segmentExt.End.TotalAngle, wireHeight: segmentExt.NetInfoExt?.CatenaryHeight ?? 0);
+                LaneData.Lane.m_bezier, width: laneInfo.m_width,
+                true, true,
+                segmentExt.Start.TotalAngle, -segmentExt.End.TotalAngle,
+                wireHeight: segmentExt.NetInfoExt?.CatenaryHeight ?? 0);
 
             WireRenderData = GenerateRenderData(ref WireOutLine);
         }

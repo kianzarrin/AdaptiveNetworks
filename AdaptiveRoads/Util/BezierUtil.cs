@@ -1,24 +1,40 @@
 namespace AdaptiveRoads.Util {
     using ColossalFramework.Math;
+    using KianCommons;
     using UnityEngine;
 
-    internal static class GenericBezier3Util {
-        public static Vector3 CalcShiftAt(this Bezier3 bezier, float t, float shift, float vshift) {
+    internal static class ShiftBezier3Util {
+        public static Vector3 CalcShiftRightAt(this Bezier3 bezier, float t, float shift, float vshift) {
             var pos = bezier.Position(t);
             var dir = bezier.Tangent(t);
-            var shiftPos = CalcShift(pos, dir, shift, vshift);
+            var shiftPos = CalcShiftRight(pos, dir, shift, vshift);
             return shiftPos;
         }
 
-        public static Vector3 CalcShift(Vector3 pos, Vector3 dir, float shift, float vshift) {
-            Vector3 normal = new Vector3(-dir.z, 0, dir.x).normalized;
+        public static Vector3 CalcShiftRight(Vector3 pos, Vector3 dir, float shift, float vshift) {
+            Vector3 normal = new Vector3(dir.z, 0, -dir.x).normalized; // rotate right
             pos += shift * normal;
             pos.y += vshift;
             return pos;
         }
 
-        public const float T1 = 1f / 3;
+        public const float T1 = 1f/3;
         public const float T2 = 1 - T1;
+
+
+        public static Bezier3 ShiftRight(this Bezier3 bezier, float shift) {
+            Bezier3WithPoints ret = default;
+            ret.a = CalcShiftRight(pos: bezier.a, dir: bezier.b - bezier.a, shift: shift, vshift: 0);
+
+            ret.t1 = T1;
+            ret.p1 = bezier.CalcShiftRightAt(t: ret.t1, shift: shift, vshift: 0);
+
+            ret.t2 = T2;
+            ret.p2 = bezier.CalcShiftRightAt(t: ret.t2, shift: shift, vshift: 0);
+
+            ret.d = CalcShiftRight(pos: bezier.d, dir: bezier.d - bezier.c, shift: shift, vshift: 0);
+            return ret.ToBezier3();
+        }
 
         public static Bezier3 ShiftRight(this Bezier3 bezier, float shiftA, float shiftD) {
             return ShiftRightImpl(
@@ -36,17 +52,17 @@ namespace AdaptiveRoads.Util {
         /// shift.y is vertical shift.
         /// TODO: input vertical shift velocity
         public static Bezier3WithPoints ShiftRightImpl(Bezier3 bezier, Vector2 shiftA, Vector2 shiftD) {
+            //Log.Called(shiftA, shiftD);
             Bezier3WithPoints ret = default;
-            ret.a = CalcShift(pos: bezier.a, dir: bezier.b - bezier.a, shift: shiftA.x, vshift: shiftA.y);
-            ret.a.y += shiftA.y;
+            ret.a = CalcShiftRight(pos: bezier.a, dir: bezier.b - bezier.a, shift: shiftA.x, vshift: shiftA.y);
 
             ret.t1 = T1;
-            ret.p1 = bezier.CalcShiftAt(t: ret.t1, shift: shiftA.x, vshift: shiftA.y);
+            ret.p1 = bezier.CalcShiftRightAt(t: ret.t1, shift: shiftA.x, vshift: shiftA.y);
 
             ret.t2 = T2;
-            ret.p2 = bezier.CalcShiftAt(t: ret.t2, shift: shiftD.x, vshift: shiftA.y);
+            ret.p2 = bezier.CalcShiftRightAt(t: ret.t2, shift: shiftD.x, vshift: shiftD.y);
 
-            ret.d = CalcShift(pos: bezier.d, dir: bezier.d - bezier.c, shift: shiftD.x, vshift: shiftA.y);
+            ret.d = CalcShiftRight(pos: bezier.d, dir: bezier.d - bezier.c, shift: shiftD.x, vshift: shiftD.y);
             return ret;
         }
     }
@@ -67,8 +83,8 @@ namespace AdaptiveRoads.Util {
         }
 
         /// <summary>
+        /// bezier curve fitting for to the given points.
         /// t1 and t2 are offsets for point1 and point2 on bezier
-        /// b and c are middle points
         /// </summary>
         public void CalcMiddlePoints(out Vector3 middle1, out Vector3 middle2) {
             CalcCoef(t1, out float a1, out float b1, out float c1, out float d1);
@@ -78,26 +94,6 @@ namespace AdaptiveRoads.Util {
             Vector3 u2 = CalcU(a, d, p2, a2, d2);
 
             CalcMiddlePoints(b1, c1, u1, b2, c2, u2, out middle1, out middle2);
-        }
-
-
-        public static Bezier3 CalcPerfict(Vector3 a, Vector3 d, Vector3 point1, Vector3 point2, float t1, float t2) {
-            CalcCoef(t1, out float a1, out float b1, out float c1, out float d1);
-            CalcCoef(t2, out float a2, out float b2, out float c2, out float d2);
-
-            Vector3 u1 = CalcU(a, d, point1, a1, d1);
-            Vector3 u2 = CalcU(a, d, point2, a2, d2);
-
-            CalcMiddlePoints(b1, c1, u1, b2, c2, u2, out Vector3 middle1, out Vector3 middle2);
-
-            var bezier = new Bezier3() {
-                a = a,
-                b = middle1,
-                c = middle2,
-                d = d
-            };
-
-            return bezier;
         }
 
         public static void CalcCoef(float t, out float a, out float b, out float c, out float d) {

@@ -1,3 +1,9 @@
+- improve code for transitions
+- try to drop DirA/DirD SmoothA, SmoothB from OutLineData
+- optimisation, simple curve fitting when possible.
+
+-----
+
 - lane/track templates
 - smartCustomFlags for templates
 
