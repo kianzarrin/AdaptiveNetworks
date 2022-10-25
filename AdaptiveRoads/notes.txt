@@ -20,3 +20,9 @@ start/end flags:
     - no u-turn (UK/Elly)
     - parking (UK)
     - no parking (vanilla)
+
+smooth bezier:
+    if smooth => dir *.3
+    else => dir *.15
+    - segment is smooth at middle nodes 
+    - beziers are also smooth on transitions.

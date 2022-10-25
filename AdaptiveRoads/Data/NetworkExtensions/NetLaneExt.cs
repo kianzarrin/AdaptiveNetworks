@@ -184,19 +184,24 @@ namespace AdaptiveRoads.Manager{
 
         public void UpdateCorners() {
             // TODO: only update corners when NetSegment.UpdateLanes is called. not when traffic rules change.
-            ref var segmentExt = ref LaneData.SegmentID.ToSegmentExt();
-            var laneInfo = LaneData.LaneInfo;
+            ushort segmentId = LaneData.SegmentID;
+            ref NetSegment segment = ref segmentId.ToSegment();
+            ref var segmentExt = ref segmentId.ToSegmentExt();
+            bool smoothA = segment.SmoothStart();
+            bool smoothD = segment.SmoothEnd();
+            float width = LaneData.LaneInfo.m_width;
+
             OutLine = new OutlineData(
-                LaneData.Lane.m_bezier, laneInfo.m_width,
-                true, true,
+                LaneData.Lane.m_bezier, width,
+                smoothA, smoothD,
                 segmentExt.Start.TotalAngle, -segmentExt.End.TotalAngle,
                 wireHeight: 0);
 
             RenderData = GenerateRenderData(ref OutLine);
 
             WireOutLine = new OutlineData(
-                LaneData.Lane.m_bezier, width: laneInfo.m_width,
-                true, true,
+                LaneData.Lane.m_bezier, width: width,
+                smoothA, smoothD,
                 segmentExt.Start.TotalAngle, -segmentExt.End.TotalAngle,
                 wireHeight: segmentExt.NetInfoExt?.CatenaryHeight ?? 0);
 
