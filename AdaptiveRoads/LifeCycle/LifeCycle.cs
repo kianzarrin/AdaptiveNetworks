@@ -172,14 +172,14 @@ namespace AdaptiveRoads.LifeCycle {
                     Log.Info("Applying all patches");
                     HarmonyUtil.InstallHarmony(HARMONY_ID, forbidden:typeof(PreloadPatchAttribute));
                     HintBox.Create();
-                    VBSTool.Create();
+                    VBSTool.Create().enabled = false;
                     ANWhatsNew.Instance.Regsiter();
                 }
 
                 NetInfoExtionsion.Ensure_EditedNetInfos(recalculate:true);
 
 
-                ARTool.Create();
+                ARTool.Create().enabled = false;
 
                 const bool testPWValues = false;
                 if (testPWValues) {
