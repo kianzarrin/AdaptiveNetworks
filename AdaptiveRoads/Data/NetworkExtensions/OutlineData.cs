@@ -1,91 +1,121 @@
-namespace AdaptiveRoads.Data.NetworkExtensions {
-    using ColossalFramework.Math;
-    using UnityEngine;
-    using KianCommons.Math;
-    using KianCommons.UI;
-    using KianCommons;
-    using System;
-    using System.IO;
+namespace AdaptiveRoads.Data.NetworkExtensions; 
+using System;
+using UnityEngine;
+using ColossalFramework.Math;
+using KianCommons;
+using KianCommons.Math;
+using KianCommons.UI;
+using AdaptiveRoads.Util;
 
-    public struct OutlineData {
-        public Bezier3 Center, Left, Right;
-        public Vector3 DirA, DirD;
-        public bool SmoothA, SmoothD;
-        public bool Empty => Center.a == Center.d;
+public struct OutlineData {
+    public Bezier3 Center, Left, Right;
+    public Vector3 DirA, DirD;
+    public bool SmoothA, SmoothD;
+    public bool Empty => Center.a == Center.d;
 
-        // TODO: should I just raise the lane instead of accepting deltaY
-        /// <param name="angle">tilt angle in radians</param>
-        public OutlineData(Vector3 a, Vector3 d, Vector3 dirA, Vector3 dirD, float width, bool smoothA, bool smoothD, float angleA, float angleD, float wireHeight) {
-            //Log.Called($"angleA={angleA}", $"angleD={angleD}", $"wire={wire}");
-            float hw = 0.5f * width;
+    /// <param name="angle">tilt angle in radians</param>
+    public OutlineData(Bezier3 bezier, float width, bool smoothA, bool smoothD, float angleA, float angleD, float wireHeight) {
+        //Log.Called($"angleA={angleA}", $"angleD={angleD}", $"wire={wire}");
+        float hw = 0.5f * width;
+        SmoothA = smoothA;
+        DirA = bezier.DirA();
+        SmoothD = smoothD;
+        DirD = bezier.DirD();
 
-            {
-                var normal = new Vector3(dirA.z, 0, -dirA.x); // rotate right.
-                normal = VectorUtils.NormalizeXZ(normal);
+        Vector2 shiftA = CalShift(angleA, hw, wireHeight, out float centerShiftA);
+        Vector2 shiftD = CalShift(angleD, hw, wireHeight, out float centerShiftD);
+        Center = bezier.ShiftRight(centerShiftA, centerShiftD);
+        Right = Center.ShiftRight(shiftA, shiftD);
+        Left = Center.ShiftRight(-shiftA, -shiftD);
 
-                if(wireHeight != 0) {
-                    // move wires sideways to avoid clipping into tilted train
-                    a -= normal * (wireHeight * Mathf.Sin(angleA));
-                }
 
-                SmoothA = smoothA;
-                Center.a = a;
-                DirA = dirA;
-
-                Vector3 displacement;
-                if(wireHeight!=0) {
-                    displacement = normal * hw;
-                } else {
-                    displacement = normal * (hw * Mathf.Cos(angleA));
-                    displacement.y = hw * Mathf.Sin(angleA);
-                }
-                Right.a = a + displacement;
-                Left.a = a - displacement;
+        static Vector2 CalShift(float angle, float hw, float wireHeight, out float centerShift) {
+            Vector2 shift = default;
+            if (wireHeight != 0) {
+                // no need to tilt wires. move them sideways to avoid clipping into tilted train
+                centerShift = wireHeight * Mathf.Sin(angle);
+                shift.x = hw;
+            } else {
+                centerShift = 0;
+                shift.x = hw * Mathf.Cos(angle);
+                shift.y = hw * Mathf.Sin(angle);
             }
+            return shift;
+        }
+    }
 
-            {
-                var normal = new Vector3(dirD.z, 0, -dirD.x); // rotate right.
-                normal = -VectorUtils.NormalizeXZ(normal); // end dir needs minus
+    /// <param name="angle">tilt angle in radians</param>
+    public OutlineData(Vector3 a, Vector3 d, Vector3 dirA, Vector3 dirD, float width, bool smoothA, bool smoothD, float angleA, float angleD, float wireHeight) {
+        //Log.Called($"angleA={angleA}", $"angleD={angleD}", $"wire={wire}");
+        float hw = 0.5f * width;
+        SmoothA = smoothA;
+        DirA = dirA;
+        SmoothD = smoothD;
+        DirD = dirD;
 
-                if(wireHeight!=0) {
-                    // move wires sideways to avoid clipping into tilted train
-                    d -= normal * (wireHeight * Mathf.Sin(angleD));
-                }
+        {
+            Vector2 shiftA = CalShift(angleA, hw, wireHeight, out float centerShiftA);
+            Vector3 displacementA = CalcDisplacement(DirA, shiftA);
 
-                SmoothD = smoothD;
-                Center.d = d;
-                DirD = dirD;
-
-                Vector3 displacement;
-                if(wireHeight!=0) {
-                    displacement = normal * hw;
-                } else {
-                    displacement = normal * (hw * Mathf.Cos(angleD));
-                    displacement.y = hw * Mathf.Sin(angleD);
-                }
-                Right.d = d + displacement;
-                Left.d = d - displacement;
-            }
-
-            NetSegment.CalculateMiddlePoints(Center.a, DirA, Center.d, DirD, SmoothA, SmoothD, out Center.b, out Center.c);
-            NetSegment.CalculateMiddlePoints(Left.a, DirA, Left.d, DirD, SmoothA, SmoothD, out Left.b, out Left.c);
-            NetSegment.CalculateMiddlePoints(Right.a, DirA, Right.d, DirD, SmoothA, SmoothD, out Right.b, out Right.c);
+            Center.a = ApplyShift(a, dirA, centerShiftA);
+            Right.a = Center.a + displacementA;
+            Left.a = Center.a - displacementA;
         }
 
-        public void RenderTestOverlay(RenderManager.CameraInfo cameraInfo) {
-            try {
-                bool alphaBlend = false;
+        {
+            Vector2 shiftD = CalShift(angleD, hw, wireHeight, out float centerShiftD);
+            Vector3 displacementD = CalcDisplacement(-DirD, shiftD);
 
-                RenderUtil.DrawOverlayCircle(cameraInfo, Color.green, Right.a, 1, alphaBlend);
-                RenderUtil.DrawOverlayCircle(cameraInfo, Color.yellow, Left.a, 1, alphaBlend);
-                RenderUtil.DrawOverlayCircle(cameraInfo, Color.green / 2, Right.d, 1, alphaBlend);
-                RenderUtil.DrawOverlayCircle(cameraInfo, Color.yellow / 2, Left.d, 1, alphaBlend);
-
-                var startArrow = new Bezier3(Center.a, Center.a + DirA, Center.a + 2 * DirA, Center.a + 3 * DirA);
-                var endArrow = new Bezier3(Center.d, Center.d + DirD, Center.d + 2 * DirD, Center.d + 3 * DirD);
-                startArrow.RenderArrow(cameraInfo, Color.blue, 1, alphaBlend);
-                endArrow.RenderArrow(cameraInfo, Color.blue, 1, alphaBlend);
-            } catch(Exception ex) { ex.Log(); }
+            Center.d = ApplyShift(d, -DirD, centerShiftD);
+            Right.d = Center.d + displacementD;
+            Left.d = Center.d - displacementD;
         }
+
+        static Vector2 CalShift(float angle, float hw, float wireHeight, out float centerShift) {
+            Vector2 shift = default;
+            if (wireHeight != 0) {
+                // no need to tilt wires. move them sideways to avoid clipping into tilted train
+                centerShift = wireHeight * Mathf.Sin(angle);
+                shift.x = hw;
+            } else {
+                centerShift = 0;
+                shift.x = hw * Mathf.Cos(angle);
+                shift.y = hw * Mathf.Sin(angle);
+            }
+            return shift;
+        }
+
+        static Vector3 ApplyShift(Vector3 pos, Vector3 dir, float shift) {
+            var normal = new Vector3(dir.z, 0, -dir.x).normalized; // rotate left.
+            return pos + shift * normal;
+        }
+
+        static Vector3 CalcDisplacement(Vector3 dir, Vector2 shift) {
+            var normal = new Vector3(dir.z, 0, -dir.x).normalized; // rotate left.
+            return shift.x * normal + shift.y * Vector3.up;
+        }
+
+        NetSegment.CalculateMiddlePoints(Center.a, DirA, Center.d, DirD, SmoothA, SmoothD, out Center.b, out Center.c);
+        NetSegment.CalculateMiddlePoints(Left.a, DirA, Left.d, DirD, SmoothA, SmoothD, out Left.b, out Left.c);
+        NetSegment.CalculateMiddlePoints(Right.a, DirA, Right.d, DirD, SmoothA, SmoothD, out Right.b, out Right.c);
+    }
+
+    public void CalculateMiddlePoints() {
+    }
+
+    public void RenderTestOverlay(RenderManager.CameraInfo cameraInfo) {
+        try {
+            bool alphaBlend = false;
+
+            RenderUtil.DrawOverlayCircle(cameraInfo, Color.green, Right.a, 1, alphaBlend);
+            RenderUtil.DrawOverlayCircle(cameraInfo, Color.yellow, Left.a, 1, alphaBlend);
+            RenderUtil.DrawOverlayCircle(cameraInfo, Color.green / 2, Right.d, 1, alphaBlend);
+            RenderUtil.DrawOverlayCircle(cameraInfo, Color.yellow / 2, Left.d, 1, alphaBlend);
+
+            var startArrow = new Bezier3(Center.a, Center.a + DirA, Center.a + 2 * DirA, Center.a + 3 * DirA);
+            var endArrow = new Bezier3(Center.d, Center.d + DirD, Center.d + 2 * DirD, Center.d + 3 * DirD);
+            startArrow.RenderArrow(cameraInfo, Color.blue, 1, alphaBlend);
+            endArrow.RenderArrow(cameraInfo, Color.blue, 1, alphaBlend);
+        } catch (Exception ex) { ex.Log(); }
     }
 }
