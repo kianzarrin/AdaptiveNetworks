@@ -2,6 +2,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
     using AdaptiveRoads.CustomScript;
     using AdaptiveRoads.Manager;
     using ColossalFramework;
+    using ColossalFramework.Math;
     using KianCommons;
     using System;
     using System.Collections.Generic;
@@ -132,43 +133,16 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         public void Calculate() {
             DCFlags = NetNodeExt.CalculateDCAsymFlags(NodeID, segmentID_A, segmentID_D);
 
-            Vector3 a, dirA;
-            float angleA;
-            if(SegmentA.IsStartNode(NodeID)) {
-                a = LaneA.m_bezier.a;
-                dirA = LaneExtA.OutLine.DirA;
+            Bezier3 bezierA = LaneExtA.LaneData.GetBezier(NodeID);
+            Bezier3 bezierD = LaneExtD.LaneData.GetBezier(NodeID);
+            float angleA = SegmentExtA.GetEnd(NodeID).TotalAngle;
+            float angleD = SegmentExtD.GetEnd(NodeID).TotalAngle;
 
-                // the dir is already going away from the node which is against the direction of the bezier at start. so we need - :
-                angleA = -segmentID_A.ToSegmentExt().Start.TotalAngle;
-            } else {
-                a = LaneA.m_bezier.d;
-                dirA = LaneExtA.OutLine.DirD;
-
-                // the dir is already going away from the node which is against the direction of the bezier at start. so we need - :
-                angleA = -segmentID_A.ToSegmentExt().End.TotalAngle; 
-            }
-
-            Vector3 d, dirD;
-            float angleD;
-            if(SegmentD.IsStartNode(NodeID)) {
-                d = LaneD.m_bezier.a;
-                dirD = LaneExtD.OutLine.DirA;
-
-                // the dir is already going away from the node which is in the same direction as lane end. so we need + :
-                angleD = +segmentID_D.ToSegmentExt().Start.TotalAngle;
-            } else {
-                d = LaneD.m_bezier.d;
-                dirD = LaneExtD.OutLine.DirD;
-
-                // the dir is already going away from the node which is in the same direction as lane end. so we need + :
-                angleD = +segmentID_D.ToSegmentExt().End.TotalAngle; 
-            }
-
-            OutLine = new OutlineData(a, d, -dirA, -dirD, Width, true, true, angleA, angleD, wireHeight:0);
+            OutLine = new OutlineData(bezierA, bezierD,width: Width, angleA, angleD, wireHeight:0);
             if(OutLine.Empty) return;
             RenderData = GenerateRenderData(ref OutLine);
 
-            WireOutLine = new OutlineData(a, d, -dirA, -dirD, Width, true, true, angleA, angleD, wireHeight: InfoExtA.CatenaryHeight);
+            WireOutLine = new OutlineData(bezierA, bezierD, width: Width, angleA, angleD, wireHeight: InfoExtA.CatenaryHeight);
             WireRenderData = GenerateRenderData(ref WireOutLine);
 
             CalculateProps();
