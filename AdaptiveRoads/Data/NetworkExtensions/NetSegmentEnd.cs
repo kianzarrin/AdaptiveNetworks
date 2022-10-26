@@ -21,6 +21,8 @@ namespace AdaptiveRoads.Manager {
         #region shortcuts for dummies
         public ref NetNodeExt Node => ref NodeID.ToNodeExt();
         public ref NetSegmentExt Segment => ref SegmentID.ToSegmentExt();
+        public ushort OtherNodeId => SegmentID.ToSegment().GetOtherNode(NodeID);
+        public ref NetSegmentEnd OtherEnd => ref Segment.GetEnd(OtherNodeId);
         #endregion
 
         [Flags]
@@ -299,6 +301,7 @@ namespace AdaptiveRoads.Manager {
         public float DeltaAngle; // in radians
         public float Angle0; // in radians
         public float TotalAngle => Angle0 + DeltaAngle; // in radians
+        public float TotalAngleDifference => TotalAngle - OtherEnd.TotalAngle;
 
         /// <summary>
         /// Precondition: SegmentEnd is initialized. (There is no need to have called Updated anything)
