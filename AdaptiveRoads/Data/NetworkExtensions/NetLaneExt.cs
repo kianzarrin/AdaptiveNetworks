@@ -10,6 +10,7 @@ namespace AdaptiveRoads.Manager{
     using Log = KianCommons.Log;
     using AdaptiveRoads.CustomScript;
     using static AdaptiveRoads.Util.Shortcuts;
+    using KianCommons.Math;
 
     public struct NetLaneExt {
         [Flags]
@@ -305,28 +306,24 @@ namespace AdaptiveRoads.Manager{
             }
         }
 
-        public static void Render(NetInfo info, int laneIndex, NetSegment.Flags flags, OutlineDataExt outlineExt) {
+        public static void Render(NetInfo info, int laneIndex, NetSegment.Flags flags, in OutlineData segmentOutline, bool smoothStart, bool smoothEnd) {
             var infoExt = info?.GetMetaData();
             if(infoExt == null || infoExt.TrackLaneCount == 0)
                 return;
             var laneInfo = info.m_lanes[laneIndex];
 
-            ref var segmentOutline = ref outlineExt.Outline;
             var posStartLeft = segmentOutline.Left.a;
             var posStartRight = segmentOutline.Right.a;
             var posEndLeft = segmentOutline.Left.d;
             var posEndRight = segmentOutline.Right.d;
 
-            var smoothStart = outlineExt.SmoothA;
-            var smoothEnd = outlineExt.SmoothD;
-
             float posNormalized = laneInfo.m_position / (info.m_halfWidth * 2f) + 0.5f;
             if(flags.IsFlagSet(NetSegment.Flags.Invert)) posNormalized = 1f - posNormalized;
             
             Vector3 a = posStartLeft + (posStartRight - posStartLeft) * posNormalized;
-            Vector3 startDir = outlineExt.DirA;
-            Vector3 d = posEndLeft + (posEndRight- posEndLeft) * posNormalized;
-            Vector3 endDir = outlineExt.DirD;
+            Vector3 d = posEndLeft + (posEndRight - posEndLeft) * posNormalized;
+            Vector3 startDir = segmentOutline.Center.DirA().normalized;
+            Vector3 endDir = segmentOutline.Center.DirA().normalized;
             a.y += laneInfo.m_verticalOffset;
             d.y += laneInfo.m_verticalOffset;
             //NetSegment.CalculateMiddlePoints(a, startDir, d, endDir, smoothStart, smoothEnd, out var b, out var c);

@@ -1,3 +1,4 @@
+using AdaptiveRoads.Data.NetworkExtensions;
 using AdaptiveRoads.Manager;
 using AdaptiveRoads.Patches.Lane;
 using ICities;
@@ -17,9 +18,11 @@ namespace AdaptiveRoads.LifeCycle {
             return;
             timer ??= Stopwatch.StartNew();
             if (timer.ElapsedMilliseconds > 1000) {
-                Handle(CheckPropFlagsCommons.timer, "propcheck");
-                Handle(CheckPropFlagsCommons.timer2, "propcheck2");
-                Handle(CheckPropFlagsCommons.timer3, "propcheck3");
+                //Handle(CheckPropFlagsCommons.timer, "propcheck");
+                //Handle(CheckPropFlagsCommons.timer2, "propcheck2");
+                //Handle(CheckPropFlagsCommons.timer3, "propcheck3");
+                Handle2(OutlineData.timer1, "lane-outline");
+                Handle2(OutlineData.timer2, "transition-outline");
                 timer.Restart();
             }
         }
@@ -27,6 +30,9 @@ namespace AdaptiveRoads.LifeCycle {
         public static void Handle(Stopwatch sw, string name) {
             Log.Debug($"{name} = %{100 * sw.ElapsedMilliseconds / timer.ElapsedMilliseconds}", false);
             sw.Reset();
+        }
+        public static void Handle2(Stopwatch sw, string name) {
+            Log.Debug($"{name} : total = {sw.ElapsedMilliseconds / timer.ElapsedMilliseconds}ms", false);
         }
 #endif
     }
