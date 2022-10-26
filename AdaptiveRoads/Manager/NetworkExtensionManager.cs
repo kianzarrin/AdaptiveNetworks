@@ -390,11 +390,11 @@ namespace AdaptiveRoads.Manager {
         public void UpdateNode(ushort nodeID, ushort fromSegmentID = 0, int level = -1) {
             if(!nodeID.ToNode().IsValid()) return;
             if(!Helpers.InSimulationThread()) {
-                Log.Debug("send to simulation thread");
+                if (Log.VERBOSE) Log.Debug("send to simulation thread");
                 SimulationManager.instance.AddAction(() => UpdateNode(nodeID, fromSegmentID, level));
                 return;
             }
-            Log.Debug($"mark node:{nodeID} info:{nodeID.ToNode().Info} update-level={level} from segment:{fromSegmentID}" /*+ Environment.StackTrace*/,false);
+            if(Log.VERBOSE) Log.Debug($"mark node:{nodeID} info:{nodeID.ToNode().Info} update-level={level} from segment:{fromSegmentID}" /*+ Environment.StackTrace*/,false);
             m_updatedNodes[nodeID >> 6] |= 1UL << (int)nodeID;
             m_nodesUpdated = true;
             if (level <= 0) {
@@ -410,11 +410,11 @@ namespace AdaptiveRoads.Manager {
         public void UpdateSegment(ushort segmentID, ushort fromNodeID = 0, int level = -1) {
             if(!segmentID.ToSegment().IsValid()) return;
             if(!Helpers.InSimulationThread()) {
-                Log.Debug("send to simulation thread");
+                if (Log.VERBOSE) Log.Debug("send to simulation thread");
                 SimulationManager.instance.AddAction(() => UpdateSegment(segmentID, fromNodeID, level));
                 return;
             }
-            Log.Debug($"mark segment:{segmentID} info:{segmentID.ToSegment().Info} update-level={level} from node:{fromNodeID}" /*+ Environment.StackTrace*/,false);
+            if (Log.VERBOSE) Log.Debug($"mark segment:{segmentID} info:{segmentID.ToSegment().Info} update-level={level} from node:{fromNodeID}" /*+ Environment.StackTrace*/,false);
             m_updatedSegments[segmentID >> 6] |= 1UL << (int)segmentID;
             m_segmentsUpdated = true;
             if (level <= 0) {
