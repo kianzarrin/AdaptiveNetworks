@@ -170,25 +170,6 @@ namespace AdaptiveRoads.UI.Tool {
             }
         }
 
-        public void RenderLaneOverlay(RenderManager.CameraInfo cameraInfo) {
-            if(HoverValid) {
-                HoveredSegmentID.ToSegment().GetClosestLanePosition(
-                    HitPos,
-                    NetInfo.LaneType.All,
-                    VehicleInfo.VehicleType.All,
-                    VehicleInfo.VehicleCategory.All,
-                    out Vector3 pos,
-                    out uint laneId,
-                    out int laneIndex,
-                    out float laneOffset);
-
-                ref var laneExt = ref NetworkExtensionManager.Instance.LaneBuffer[laneId];
-                ref var lane = ref laneId.ToLane();
-                laneExt.OutLine.Right.Render(cameraInfo, Color.green, 0.1f);
-                laneExt.OutLine.Left.Render(cameraInfo, Color.yellow, 0.1f);
-                return;
-            }
-        }
         public override void RenderOverlay(RenderManager.CameraInfo cameraInfo) {
             base.RenderOverlay(cameraInfo);
             // uncomment to test

@@ -153,8 +153,11 @@ namespace AdaptiveRoads.Manager {
         // should be called from simulation thread.
         void LoadImpl() {
             LogCalled();
+            TMPENotifier.EventModified -= OnTMPEModified;
             UpdateAllNetworkFlags();
             UpdateAllNetworkFlags();
+            TMPENotifier.EventModified -= OnTMPEModified;
+            TMPENotifier.EventModified += OnTMPEModified;
             ThreadingExtensions.Handle2(OutlineData.timer1, OutlineData.counter1, "lane-outline");
             ThreadingExtensions.Handle2(OutlineData.timer2, OutlineData.counter2, "transition-outline");
             LogSucceeded();
@@ -192,8 +195,6 @@ namespace AdaptiveRoads.Manager {
                     if(!NetUtil.IsNodeValid(nodeID)) continue;
                     NetManager.instance.UpdateNodeRenderer(nodeID, true);
                 }
-                TMPENotifier.EventModified -= OnTMPEModified;
-                TMPENotifier.EventModified += OnTMPEModified;
             } catch(Exception ex) {
                 ex.Log();
             }

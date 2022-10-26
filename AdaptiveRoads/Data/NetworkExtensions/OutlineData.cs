@@ -58,8 +58,8 @@ public struct TiltData {
     }
 
     public static Vector2 CalcSideShift(float angle, float wireHeight) {
-        if (wireHeight != 0) {
-            return default;
+        if (wireHeight != 0 || MathUtil.EqualAprox(angle,0)) {
+            return Vector2.right;
         } else {
             return new Vector2 {
                 x = Mathf.Cos(angle),

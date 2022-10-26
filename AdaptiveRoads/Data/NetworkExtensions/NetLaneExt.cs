@@ -180,14 +180,19 @@ namespace AdaptiveRoads.Manager{
         }
 
         #region track
-        public OutlineData OutLine;
-        public TrackRenderData RenderData;
-        public OutlineData WireOutLine;
-        public TrackRenderData WireRenderData;
+        // these fields are not calculated if there are not tracks. Therefore they are private.
+        private OutlineData OutLine;
+        private TrackRenderData RenderData;
+        private OutlineData WireOutLine;
+        private TrackRenderData WireRenderData;
 
         public void UpdateCorners() {
+            if (LaneData.Segment.Info?.GetMetaData()?.HasTrackLane(LaneData.LaneIndex) != true) {
+                // no render data needed. save time
+                return;
+            }
+
             // TODO: only update corners when NetSegment.UpdateLanes is called. not when traffic rules change.
-            // TODO: only update corners for AN networks
             ushort segmentId = LaneData.SegmentID;
             ref NetSegment segment = ref segmentId.ToSegment();
             ref var segmentExt = ref segmentId.ToSegmentExt();
