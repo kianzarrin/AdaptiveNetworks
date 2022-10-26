@@ -10,6 +10,8 @@ namespace AdaptiveRoads.Manager {
     using KianCommons.IImplict;
     using static Util.Shortcuts;
     using TrafficManager.API.Notifier;
+    using AdaptiveRoads.Data.NetworkExtensions;
+    using AdaptiveRoads.LifeCycle;
 
     public static class NetworkExtensionManagerExtensions {
         static NetworkExtensionManager man_ => NetworkExtensionManager.Instance;
@@ -153,6 +155,8 @@ namespace AdaptiveRoads.Manager {
             LogCalled();
             UpdateAllNetworkFlags();
             UpdateAllNetworkFlags();
+            ThreadingExtensions.Handle2(OutlineData.timer1, OutlineData.counter1, "lane-outline");
+            ThreadingExtensions.Handle2(OutlineData.timer2, OutlineData.counter2, "transition-outline");
             LogSucceeded();
         }
 

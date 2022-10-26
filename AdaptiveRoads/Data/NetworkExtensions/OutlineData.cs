@@ -7,22 +7,51 @@ using KianCommons.UI;
 using System;
 using System.Diagnostics;
 using UnityEngine;
+using static TimeMilestone;
 
-
-public struct TiltAngleData {
-    public struct EndData {
-        public float Angle;
-        public float Velocity;
-    };
-    public EndData A, D;
-    public float wireHeight;
-}
-
-public struct ShiftData {
-    public struct EndData {
-        public Vector2 Shift, Velocity;
+public struct TiltData {
+    public float a, b, c, d; // angles
+    public TiltData(float startAngle, float startVelocity, float endAngle, float endVelocity) {
+        a = startAngle;
+        b = startAngle + startVelocity * (1f/3);
+        c = endAngle + endVelocity * (1f/ 3);
+        d = endAngle;
     }
-    public EndData A, D;
+
+    public float this[int index] => index switch {
+        0 => a,
+        1 => b,
+        2 => c,
+        3 => d,
+        _ => throw new IndexOutOfRangeException(index.ToString()),
+    };
+
+    public bool IsAproxZero =>
+        MathUtil.EqualAprox(a, 0) &&
+        MathUtil.EqualAprox(b, 0) &&
+        MathUtil.EqualAprox(c, 0) &&
+        MathUtil.EqualAprox(d, 0);
+
+    public override string ToString() => $"a:{a*Mathf.Rad2Deg:f} b:{b * Mathf.Rad2Deg:f} c:{c * Mathf.Rad2Deg:f} d:{d * Mathf.Rad2Deg:f}";
+
+    public static float CalcCenterShift(float angle, float wireHeight) {
+        if (wireHeight != 0) {
+            return wireHeight * Mathf.Sin(angle);
+        } else {
+            return 0;
+        }
+    }
+
+    public static Vector2 CalcSideShift(float angle, float wireHeight) {
+        if (wireHeight != 0) {
+            return default;
+        } else {
+            return new Vector2 {
+                x = Mathf.Cos(angle),
+                y = Mathf.Sin(angle),
+            };
+        }
+    }
 }
 
 public struct OutlineData {
@@ -36,7 +65,7 @@ public struct OutlineData {
 #endif 
 
     /// <param name="angle">tilt angle in radians</param>
-    public OutlineData(Bezier3 bezier, float width, TiltAngleData tiltData) {
+    public OutlineData(Bezier3 bezier, float width, TiltData tiltData, float wireHeight) {
         try {
 #if DEBUG
             timer1.Start();
@@ -44,25 +73,21 @@ public struct OutlineData {
 #endif
             float hw = 0.5f * width;
 
-            Vector2 shiftA = CalShift(tiltData.A.Angle, hw, tiltData.wireHeight, out float centerShiftA);
-            Vector2 shiftD = CalShift(tiltData.D.Angle, hw, tiltData.wireHeight, out float centerShiftD);
-            Center = bezier.ShiftRight(centerShiftA, centerShiftD);
-            Right = Center.ShiftRight(shiftA, shiftD);
-            Left = Center.ShiftRight(-shiftA, -shiftD);
+            Bezier1 centerShift;
+            centerShift.a = TiltData.CalcCenterShift(tiltData.a, wireHeight);
+            centerShift.b = TiltData.CalcCenterShift(tiltData.b, wireHeight);
+            centerShift.c = TiltData.CalcCenterShift(tiltData.c, wireHeight);
+            centerShift.d = TiltData.CalcCenterShift(tiltData.d, wireHeight);
 
-            static Vector2 CalShift(float angle, float hw, float wireHeight, out float centerShift) {
-                Vector2 shift = default;
-                if (wireHeight != 0) {
-                    // no need to tilt wires. move them sideways to avoid clipping into tilted train
-                    centerShift = wireHeight * Mathf.Sin(angle);
-                    shift.x = hw;
-                } else {
-                    centerShift = 0;
-                    shift.x = hw * Mathf.Cos(angle);
-                    shift.y = hw * Mathf.Sin(angle);
-                }
-                return shift;
-            }
+            Bezier2 sideShift;
+            sideShift.a = hw * TiltData.CalcSideShift(tiltData.a, wireHeight);
+            sideShift.b = hw * TiltData.CalcSideShift(tiltData.b, wireHeight);
+            sideShift.c = hw * TiltData.CalcSideShift(tiltData.c, wireHeight);
+            sideShift.d = hw * TiltData.CalcSideShift(tiltData.d, wireHeight);
+
+            Center = bezier.ShiftRight(centerShift);
+            Right = Center.ShiftRight(sideShift);
+            Left = Center.ShiftRight(sideShift.Negative());
         } finally {
 #if DEBUG
             timer1.Stop();
@@ -71,7 +96,7 @@ public struct OutlineData {
     }
 
     // transition:
-    public OutlineData(Bezier3 bezierA, in Bezier3 bezierD, float width, TiltAngleData tiltData) {
+    public OutlineData(Bezier3 bezierA, in Bezier3 bezierD, float width, TiltData tiltData, float wireHeight) {
         try {
 #if DEBUG
             timer2.Start();
@@ -82,22 +107,25 @@ public struct OutlineData {
             var dirD = -bezierD.DirA().normalized;
 
             {
-                Vector2 shiftA = CalShift(tiltData.A.Angle, hw, tiltData.wireHeight, out float centerShiftA);
-                Vector3 displacementA = CalcDisplacement(dirA, shiftA);
+                float centerShift = TiltData.CalcCenterShift(tiltData.a, wireHeight);
+                Vector2 sideShift = hw * TiltData.CalcSideShift(tiltData.a, wireHeight);
+                Vector3 displacement = CalcDisplacement(dirA, sideShift);
 
-                Center.a = ApplyShift(bezierA.a, dirA, centerShiftA);
-                Right.a = Center.a + displacementA;
-                Left.a = Center.a - displacementA;
+                Center.a = ApplyShift(bezierA.a, dirA, centerShift);
+                Right.a = Center.a + displacement;
+                Left.a = Center.a - displacement;
             }
 
             {
-                Vector2 shiftD = CalShift(tiltData.D.Angle, hw, tiltData.wireHeight, out float centerShiftD);
-                Vector3 displacementD = CalcDisplacement(-dirD, shiftD);
+                float centerShift = TiltData.CalcCenterShift(tiltData.d, wireHeight);
+                Vector2 sideShift = hw * TiltData.CalcSideShift(tiltData.d, wireHeight);
+                Vector3 displacement = CalcDisplacement(-dirD, sideShift);
 
-                Center.d = ApplyShift(bezierD.a, -dirD, centerShiftD);
-                Right.d = Center.d + displacementD;
-                Left.d = Center.d - displacementD;
+                Center.d = ApplyShift(bezierD.a, -dirD, centerShift);
+                Right.d = Center.d + displacement;
+                Left.d = Center.d - displacement;
             }
+
             NetSegment.CalculateMiddlePoints(Center.a, dirA, Center.d, dirD, true, true, out Center.b, out Center.c);
             NetSegment.CalculateMiddlePoints(Left.a, dirA, Left.d, dirD, true, true, out Left.b, out Left.c);
             NetSegment.CalculateMiddlePoints(Right.a, dirA, Right.d, dirD, true, true, out Right.b, out Right.c);
@@ -105,20 +133,6 @@ public struct OutlineData {
 #if DEBUG
             timer2.Stop();
 #endif
-        }
-
-        static Vector2 CalShift(float angle, float hw, float wireHeight, out float centerShift) {
-            Vector2 shift = default;
-            if (wireHeight != 0) {
-                // no need to tilt wires. move them sideways to avoid clipping into tilted train
-                centerShift = wireHeight * Mathf.Sin(angle);
-                shift.x = hw;
-            } else {
-                centerShift = 0;
-                shift.x = hw * Mathf.Cos(angle);
-                shift.y = hw * Mathf.Sin(angle);
-            }
-            return shift;
         }
 
         static Vector3 ApplyShift(Vector3 pos, Vector3 tan, float shift) {
@@ -136,17 +150,17 @@ public struct OutlineData {
     public OutlineData(Vector3 a, Vector3 d, Vector3 dirA, Vector3 dirD, float width, bool smoothA, bool smoothD) {
         float hw = 0.5f * width;
         {
-            Vector3 displacementA = CalcDisplacement(dirA, hw);
+            Vector3 displacement = CalcDisplacement(dirA, hw);
             Center.a = a;
-            Right.a = a + displacementA;
-            Left.a = a - displacementA;
+            Right.a = a + displacement;
+            Left.a = a - displacement;
         }
 
         {
-            Vector3 displacementD = CalcDisplacement(-dirD, hw);
+            Vector3 displacement = CalcDisplacement(-dirD, hw);
             Center.d = d;
-            Right.d = d + displacementD;
-            Left.d = d - displacementD;
+            Right.d = d + displacement;
+            Left.d = d - displacement;
         }
 
         static Vector3 CalcDisplacement(Vector3 tan, float shift) {

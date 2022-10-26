@@ -187,26 +187,24 @@ namespace AdaptiveRoads.Manager{
 
         public void UpdateCorners() {
             // TODO: only update corners when NetSegment.UpdateLanes is called. not when traffic rules change.
+            // TODO: only update corners for AN networks
             ushort segmentId = LaneData.SegmentID;
             ref NetSegment segment = ref segmentId.ToSegment();
             ref var segmentExt = ref segmentId.ToSegmentExt();
             float width = LaneData.LaneInfo.m_width;
             ref Bezier3 bezier = ref LaneData.Lane.m_bezier;
 
-            TiltAngleData angleData = new TiltAngleData {
-                A = {
-                    Angle = segmentExt.Start.TotalAngle,
-                },
-                D = {
-                    Angle = -segmentExt.End.TotalAngle,
-                }
-            };
+            TiltData angleData = new TiltData(
+                startAngle: segmentExt.Start.TotalAngle,
+                startVelocity: segmentExt.Start.GetAngleVelocity(),
+                endAngle: -segmentExt.End.TotalAngle,
+                endVelocity: -segmentExt.End.GetAngleVelocity());
 
-            OutLine = new OutlineData(bezier, width, angleData);
+            OutLine = new OutlineData(bezier, width, angleData, 0);
             RenderData = GenerateRenderData(ref OutLine);
 
-            angleData.wireHeight = segmentExt.NetInfoExt?.CatenaryHeight ?? 0;
-            WireOutLine = new OutlineData(bezier, width: width, angleData);
+            float wireHeight = segmentExt.NetInfoExt?.CatenaryHeight ?? 0;
+            WireOutLine = new OutlineData(bezier, width: width, angleData, wireHeight);
             WireRenderData = GenerateRenderData(ref WireOutLine);
         }
 

@@ -14,14 +14,12 @@ namespace AdaptiveRoads.LifeCycle {
 #if DEBUG
         public static Stopwatch timer;
         public override void OnUpdate(float realTimeDelta, float simulationTimeDelta) {
-            //return;
+            return;
             timer ??= Stopwatch.StartNew();
             if (timer.ElapsedMilliseconds > 1000) {
                 //Handle(CheckPropFlagsCommons.timer, "propcheck");
                 //Handle(CheckPropFlagsCommons.timer2, "propcheck2");
                 //Handle(CheckPropFlagsCommons.timer3, "propcheck3");
-                Handle2(OutlineData.timer1, OutlineData.counter1, "lane-outline");
-                Handle2(OutlineData.timer2, OutlineData.counter2, "transition-outline");
                 timer.Restart();
             }
         }

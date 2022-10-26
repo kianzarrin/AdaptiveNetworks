@@ -1,17 +1,38 @@
 namespace AdaptiveRoads.Util {
+    using AdaptiveRoads.Data.NetworkExtensions;
     using ColossalFramework.Math;
     using KianCommons;
     using UnityEngine;
+    public struct Bezier1 {
+        public float a, b, c, d;
+    }
+
+    internal static class BezierExtensions {
+        public static Bezier2 Negative(in this Bezier2 bezier) {
+            return new Bezier2(
+                -bezier.a,
+                -bezier.b,
+                -bezier.c,
+                -bezier.d);
+        }
+        public static Bezier2 Mul(in this Bezier2 bezier, float f) {
+            return new Bezier2(
+                bezier.a *f,
+                bezier.b * f,
+                bezier.c * f,
+                bezier.d * f) ;
+        }
+    }
 
     internal static class ShiftBezier3Util {
-        public static Vector3 CalcShiftRightAt(this Bezier3 bezier, float t, float shift, float vshift) {
+        public static Vector3 CalcShiftRightAt(this Bezier3 bezier, float t, float shift, float vshift=0) {
             var pos = bezier.Position(t);
             var dir = bezier.Tangent(t);
             var shiftPos = CalcShiftRight(pos, dir, shift, vshift);
             return shiftPos;
         }
 
-        public static Vector3 CalcShiftRight(Vector3 pos, Vector3 dir, float shift, float vshift) {
+        public static Vector3 CalcShiftRight(Vector3 pos, Vector3 dir, float shift, float vshift=0) {
             Vector3 normal = new Vector3(dir.z, 0, -dir.x).normalized; // rotate right
             pos += shift * normal;
             pos.y += vshift;
@@ -22,47 +43,35 @@ namespace AdaptiveRoads.Util {
         public const float T2 = 1 - T1;
 
         public static Bezier3 ShiftRight(this Bezier3 bezier, float shift) {
-            Bezier3WithPoints ret = default;
-            ret.a = CalcShiftRight(pos: bezier.a, dir: bezier.b - bezier.a, shift: shift, vshift: 0);
-
-            ret.t1 = T1;
-            ret.p1 = bezier.CalcShiftRightAt(t: ret.t1, shift: shift, vshift: 0);
-
-            ret.t2 = T2;
-            ret.p2 = bezier.CalcShiftRightAt(t: ret.t2, shift: shift, vshift: 0);
-
-            ret.d = CalcShiftRight(pos: bezier.d, dir: bezier.d - bezier.c, shift: shift, vshift: 0);
-            return ret.ToBezier3();
+            return bezier.ShiftRight(new Bezier1 { a = shift, b = shift, c = shift, d = shift });
         }
 
-        public static Bezier3 ShiftRight(this Bezier3 bezier, float shiftA, float shiftD) {
-            return ShiftRightImpl(
-                bezier,
-                new Vector2(shiftA,0),
-                new Vector2(shiftD,0)).ToBezier3();
+        public static Bezier3 ShiftRight(this Bezier3 bezier, Bezier1 shift) {
+            Bezier3WithPoints res = default;
+            res.a = CalcShiftRight(pos: bezier.a, dir: bezier.b - bezier.a, shift: shift.a);
+
+            res.t1 = T1;
+            res.p1 = bezier.CalcShiftRightAt(t: res.t1, shift: shift.b);
+
+            res.t2 = T2;
+            res.p2 = bezier.CalcShiftRightAt(t: res.t2, shift: shift.c);
+
+            res.d = CalcShiftRight(pos: bezier.d, dir: bezier.d - bezier.c, shift: shift.d);
+            return res.ToBezier3();
         }
 
-        public static Bezier3 ShiftRight(this Bezier3 bezier, Vector2 shiftA, Vector2 shiftD) {
-            return ShiftRightImpl(bezier, shiftA, shiftD).ToBezier3();
-        }
+        public static Bezier3 ShiftRight(this Bezier3 bezier, Bezier2 shift) {
+            Bezier3WithPoints res = default;
+            res.a = CalcShiftRight(pos: bezier.a, dir: bezier.b - bezier.a, shift: shift.a.x, vshift: shift.a.y);
 
-        /// <summary>
-        /// shift.x is shift in the direction of normal.
-        /// shift.y is vertical shift.
-        /// TODO: input vertical shift velocity
-        public static Bezier3WithPoints ShiftRightImpl(Bezier3 bezier, Vector2 shiftA, Vector2 shiftD) {
-            //Log.Called(shiftA, shiftD);
-            Bezier3WithPoints ret = default;
-            ret.a = CalcShiftRight(pos: bezier.a, dir: bezier.b - bezier.a, shift: shiftA.x, vshift: shiftA.y);
+            res.t1 = T1;
+            res.p1 = bezier.CalcShiftRightAt(t: res.t1, shift: shift.b.x, vshift: shift.b.y);
 
-            ret.t1 = T1;
-            ret.p1 = bezier.CalcShiftRightAt(t: ret.t1, shift: shiftA.x, vshift: shiftA.y);
+            res.t2 = T2;
+            res.p2 = bezier.CalcShiftRightAt(t: res.t2, shift: shift.c.x, vshift: shift.c.y);
 
-            ret.t2 = T2;
-            ret.p2 = bezier.CalcShiftRightAt(t: ret.t2, shift: shiftD.x, vshift: shiftD.y);
-
-            ret.d = CalcShiftRight(pos: bezier.d, dir: bezier.d - bezier.c, shift: shiftD.x, vshift: shiftD.y);
-            return ret;
+            res.d = CalcShiftRight(pos: bezier.d, dir: bezier.d - bezier.c, shift: shift.d.x, vshift: shift.d.y);
+            return res.ToBezier3();
         }
     }
 

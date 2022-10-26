@@ -301,7 +301,20 @@ namespace AdaptiveRoads.Manager {
         public float DeltaAngle; // in radians
         public float Angle0; // in radians
         public float TotalAngle => Angle0 + DeltaAngle; // in radians
-        public float TotalAngleDifference => TotalAngle - OtherEnd.TotalAngle;
+        public float TotalAngleDifference => TotalAngle + OtherEnd.TotalAngle; // + because other segment end is facing another direction.
+        public float GetAngleVelocity(ushort segmentId2) {
+            if (segmentId2 == 0) return 0;
+
+            // - because we want other node to this node:
+            float d2 = -segmentId2.ToSegmentExt().GetEnd(NodeID).TotalAngleDifference;
+            return Mathf.Min(TotalAngleDifference, d2);
+        }
+
+        public float GetAngleVelocity() {
+            if (!NodeID.ToNode().IsMiddle()) return 0;
+            ushort otherSegmentId = NodeID.ToNode().GetAnotherSegment(SegmentID);
+            return GetAngleVelocity(otherSegmentId);
+        }
 
         /// <summary>
         /// Precondition: SegmentEnd is initialized. (There is no need to have called Updated anything)
