@@ -136,18 +136,18 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             Bezier3 bezierA = LaneExtA.LaneData.GetBezier(NodeID);
             Bezier3 bezierD = LaneExtD.LaneData.GetBezier(NodeID);
 
-            TiltData angleData = new(
+            TiltData tiltData = new(
                 SegmentExtA.GetEnd(NodeID).TotalAngle,
                 0,
                 SegmentExtD.GetEnd(NodeID).TotalAngle,
                 0);
 
-            OutLine = new OutlineData(bezierA, bezierD,width: Width, angleData, 0);
+            OutLine = new OutlineData(bezierA, bezierD,width: Width, tiltData);
             if(OutLine.Empty) return;
             RenderData = GenerateRenderData(ref OutLine);
 
-            float wireHeight = InfoExtA.CatenaryHeight;
-            WireOutLine = new OutlineData(bezierA, bezierD, width: Width, angleData, wireHeight);
+            tiltData.wireHeight = InfoExtA.CatenaryHeight;
+            WireOutLine = new OutlineData(bezierA, bezierD, width: Width, tiltData);
             WireRenderData = GenerateRenderData(ref WireOutLine);
 
             CalculateProps();

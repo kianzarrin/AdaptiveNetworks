@@ -194,17 +194,17 @@ namespace AdaptiveRoads.Manager{
             float width = LaneData.LaneInfo.m_width;
             ref Bezier3 bezier = ref LaneData.Lane.m_bezier;
 
-            TiltData angleData = new TiltData(
+            TiltData tiltData = new TiltData(
                 startAngle: segmentExt.Start.TotalAngle,
                 startVelocity: segmentExt.Start.GetAngleVelocity(),
                 endAngle: -segmentExt.End.TotalAngle,
                 endVelocity: -segmentExt.End.GetAngleVelocity());
 
-            OutLine = new OutlineData(bezier, width, angleData, 0);
+            OutLine = new OutlineData(bezier, width, tiltData);
             RenderData = GenerateRenderData(ref OutLine);
 
-            float wireHeight = segmentExt.NetInfoExt?.CatenaryHeight ?? 0;
-            WireOutLine = new OutlineData(bezier, width: width, angleData, wireHeight);
+            tiltData.wireHeight = segmentExt.NetInfoExt?.CatenaryHeight ?? 0;
+            WireOutLine = new OutlineData(bezier, width: width, tiltData);
             WireRenderData = GenerateRenderData(ref WireOutLine);
         }
 
