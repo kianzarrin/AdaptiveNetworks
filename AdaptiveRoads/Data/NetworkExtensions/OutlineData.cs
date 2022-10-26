@@ -8,6 +8,23 @@ using System;
 using System.Diagnostics;
 using UnityEngine;
 
+
+public struct TiltAngleData {
+    public struct EndData {
+        public float Angle;
+        public float Velocity;
+    };
+    public EndData A, D;
+    public float wireHeight;
+}
+
+public struct ShiftData {
+    public struct EndData {
+        public Vector2 Shift, Velocity;
+    }
+    public EndData A, D;
+}
+
 public struct OutlineData {
     public Bezier3 Center, Left, Right;
     public bool Empty => Center.a == Center.d;
@@ -15,18 +32,20 @@ public struct OutlineData {
 #if DEBUG
     public static Stopwatch timer1 = new Stopwatch();
     public static Stopwatch timer2 = new Stopwatch();
+    public static int counter1, counter2;
 #endif 
 
     /// <param name="angle">tilt angle in radians</param>
-    public OutlineData(Bezier3 bezier, float width, bool smoothA, bool smoothD, float angleA, float angleD, float wireHeight) {
+    public OutlineData(Bezier3 bezier, float width, TiltAngleData tiltData) {
         try {
 #if DEBUG
             timer1.Start();
+            counter1++;
 #endif
             float hw = 0.5f * width;
 
-            Vector2 shiftA = CalShift(angleA, hw, wireHeight, out float centerShiftA);
-            Vector2 shiftD = CalShift(angleD, hw, wireHeight, out float centerShiftD);
+            Vector2 shiftA = CalShift(tiltData.A.Angle, hw, tiltData.wireHeight, out float centerShiftA);
+            Vector2 shiftD = CalShift(tiltData.D.Angle, hw, tiltData.wireHeight, out float centerShiftD);
             Center = bezier.ShiftRight(centerShiftA, centerShiftD);
             Right = Center.ShiftRight(shiftA, shiftD);
             Left = Center.ShiftRight(-shiftA, -shiftD);
@@ -52,17 +71,18 @@ public struct OutlineData {
     }
 
     // transition:
-    public OutlineData(Bezier3 bezierA, Bezier3 bezierD, float width, float angleA, float angleD, float wireHeight) {
+    public OutlineData(Bezier3 bezierA, in Bezier3 bezierD, float width, TiltAngleData tiltData) {
         try {
 #if DEBUG
             timer2.Start();
+            counter2++;
 #endif
             float hw = width * .5f;
             var dirA = -bezierA.DirA().normalized;
             var dirD = -bezierD.DirA().normalized;
 
             {
-                Vector2 shiftA = CalShift(angleA, hw, wireHeight, out float centerShiftA);
+                Vector2 shiftA = CalShift(tiltData.A.Angle, hw, tiltData.wireHeight, out float centerShiftA);
                 Vector3 displacementA = CalcDisplacement(dirA, shiftA);
 
                 Center.a = ApplyShift(bezierA.a, dirA, centerShiftA);
@@ -71,7 +91,7 @@ public struct OutlineData {
             }
 
             {
-                Vector2 shiftD = CalShift(angleD, hw, wireHeight, out float centerShiftD);
+                Vector2 shiftD = CalShift(tiltData.D.Angle, hw, tiltData.wireHeight, out float centerShiftD);
                 Vector3 displacementD = CalcDisplacement(-dirD, shiftD);
 
                 Center.d = ApplyShift(bezierD.a, -dirD, centerShiftD);

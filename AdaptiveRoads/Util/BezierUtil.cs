@@ -21,7 +21,6 @@ namespace AdaptiveRoads.Util {
         public const float T1 = 1f/3;
         public const float T2 = 1 - T1;
 
-
         public static Bezier3 ShiftRight(this Bezier3 bezier, float shift) {
             Bezier3WithPoints ret = default;
             ret.a = CalcShiftRight(pos: bezier.a, dir: bezier.b - bezier.a, shift: shift, vshift: 0);

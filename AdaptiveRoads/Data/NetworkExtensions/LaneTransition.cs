@@ -135,14 +135,22 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
 
             Bezier3 bezierA = LaneExtA.LaneData.GetBezier(NodeID);
             Bezier3 bezierD = LaneExtD.LaneData.GetBezier(NodeID);
-            float angleA = SegmentExtA.GetEnd(NodeID).TotalAngle;
-            float angleD = SegmentExtD.GetEnd(NodeID).TotalAngle;
 
-            OutLine = new OutlineData(bezierA, bezierD,width: Width, angleA, angleD, wireHeight:0);
+            TiltAngleData angleData = new TiltAngleData {
+                A = {
+                    Angle = SegmentExtA.GetEnd(NodeID).TotalAngle,
+                },
+                D = {
+                    Angle = SegmentExtD.GetEnd(NodeID).TotalAngle,
+                }
+            };
+
+            OutLine = new OutlineData(bezierA, bezierD,width: Width, angleData);
             if(OutLine.Empty) return;
             RenderData = GenerateRenderData(ref OutLine);
 
-            WireOutLine = new OutlineData(bezierA, bezierD, width: Width, angleA, angleD, wireHeight: InfoExtA.CatenaryHeight);
+            angleData.wireHeight = InfoExtA.CatenaryHeight;
+            WireOutLine = new OutlineData(bezierA, bezierD, width: Width, angleData);
             WireRenderData = GenerateRenderData(ref WireOutLine);
 
             CalculateProps();

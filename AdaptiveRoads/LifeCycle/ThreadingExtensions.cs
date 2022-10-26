@@ -1,6 +1,5 @@
 using AdaptiveRoads.Data.NetworkExtensions;
 using AdaptiveRoads.Manager;
-using AdaptiveRoads.Patches.Lane;
 using ICities;
 using KianCommons;
 using System.Diagnostics;
@@ -21,8 +20,8 @@ namespace AdaptiveRoads.LifeCycle {
                 //Handle(CheckPropFlagsCommons.timer, "propcheck");
                 //Handle(CheckPropFlagsCommons.timer2, "propcheck2");
                 //Handle(CheckPropFlagsCommons.timer3, "propcheck3");
-                Handle2(OutlineData.timer1, "lane-outline");
-                Handle2(OutlineData.timer2, "transition-outline");
+                Handle2(OutlineData.timer1, OutlineData.counter1, "lane-outline");
+                Handle2(OutlineData.timer2, OutlineData.counter2, "transition-outline");
                 timer.Restart();
             }
         }
@@ -31,8 +30,10 @@ namespace AdaptiveRoads.LifeCycle {
             Log.Debug($"{name} = %{100 * sw.ElapsedMilliseconds / timer.ElapsedMilliseconds}", false);
             sw.Reset();
         }
-        public static void Handle2(Stopwatch sw, string name) {
-            Log.Debug($"{name} : total = {sw.ElapsedMilliseconds}ms", false);
+        public static void Handle2(Stopwatch sw, int count, string name) {
+            long ms = sw.ElapsedMilliseconds;
+            float perTime = ms / (float)count;
+            Log.Debug($"{name} : {count} times => {ms}ms - {perTime} per iteration", false);
         }
 #endif
     }

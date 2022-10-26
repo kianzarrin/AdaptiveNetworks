@@ -11,6 +11,8 @@ namespace AdaptiveRoads.Manager{
     using AdaptiveRoads.CustomScript;
     using static AdaptiveRoads.Util.Shortcuts;
     using KianCommons.Math;
+    using UnityEngine.Networking.Types;
+    using ColossalFramework.Math;
 
     public struct NetLaneExt {
         [Flags]
@@ -188,24 +190,23 @@ namespace AdaptiveRoads.Manager{
             ushort segmentId = LaneData.SegmentID;
             ref NetSegment segment = ref segmentId.ToSegment();
             ref var segmentExt = ref segmentId.ToSegmentExt();
-            bool smoothA = segment.SmoothStart();
-            bool smoothD = segment.SmoothEnd();
             float width = LaneData.LaneInfo.m_width;
+            ref Bezier3 bezier = ref LaneData.Lane.m_bezier;
 
-            OutLine = new OutlineData(
-                LaneData.Lane.m_bezier, width,
-                smoothA, smoothD,
-                segmentExt.Start.TotalAngle, -segmentExt.End.TotalAngle,
-                wireHeight: 0);
+            TiltAngleData angleData = new TiltAngleData {
+                A = {
+                    Angle = segmentExt.Start.TotalAngle,
+                },
+                D = {
+                    Angle = -segmentExt.End.TotalAngle,
+                }
+            };
 
+            OutLine = new OutlineData(bezier, width, angleData);
             RenderData = GenerateRenderData(ref OutLine);
 
-            WireOutLine = new OutlineData(
-                LaneData.Lane.m_bezier, width: width,
-                smoothA, smoothD,
-                segmentExt.Start.TotalAngle, -segmentExt.End.TotalAngle,
-                wireHeight: segmentExt.NetInfoExt?.CatenaryHeight ?? 0);
-
+            angleData.wireHeight = segmentExt.NetInfoExt?.CatenaryHeight ?? 0;
+            WireOutLine = new OutlineData(bezier, width: width, angleData);
             WireRenderData = GenerateRenderData(ref WireOutLine);
         }
 
