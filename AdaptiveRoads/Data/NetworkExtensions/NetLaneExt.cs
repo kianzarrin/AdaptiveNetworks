@@ -305,33 +305,34 @@ namespace AdaptiveRoads.Manager{
             }
         }
 
-        public static void Render(NetInfo info, int laneIndex, NetSegment.Flags flags, OutlineData segmentOutline) {
+        public static void Render(NetInfo info, int laneIndex, NetSegment.Flags flags, OutlineDataExt outlineExt) {
             var infoExt = info?.GetMetaData();
             if(infoExt == null || infoExt.TrackLaneCount == 0)
                 return;
             var laneInfo = info.m_lanes[laneIndex];
 
+            ref var segmentOutline = ref outlineExt.Outline;
             var posStartLeft = segmentOutline.Left.a;
             var posStartRight = segmentOutline.Right.a;
             var posEndLeft = segmentOutline.Left.d;
             var posEndRight = segmentOutline.Right.d;
 
-            var smoothStart = segmentOutline.SmoothA;
-            var smoothEnd = segmentOutline.SmoothD;
+            var smoothStart = outlineExt.SmoothA;
+            var smoothEnd = outlineExt.SmoothD;
 
             float posNormalized = laneInfo.m_position / (info.m_halfWidth * 2f) + 0.5f;
             if(flags.IsFlagSet(NetSegment.Flags.Invert)) posNormalized = 1f - posNormalized;
             
             Vector3 a = posStartLeft + (posStartRight - posStartLeft) * posNormalized;
-            Vector3 startDir = segmentOutline.DirA;
+            Vector3 startDir = outlineExt.DirA;
             Vector3 d = posEndLeft + (posEndRight- posEndLeft) * posNormalized;
-            Vector3 endDir = segmentOutline.DirD;
+            Vector3 endDir = outlineExt.DirD;
             a.y += laneInfo.m_verticalOffset;
             d.y += laneInfo.m_verticalOffset;
             //NetSegment.CalculateMiddlePoints(a, startDir, d, endDir, smoothStart, smoothEnd, out var b, out var c);
             //var bezier = new Bezier3(a, b, c, d);
 
-            var laneOutline = new OutlineData(a, d, startDir, endDir, laneInfo.m_width, smoothStart, smoothEnd, 0, 0, 0);
+            var laneOutline = new OutlineData(a, d, startDir, endDir, laneInfo.m_width, smoothStart, smoothEnd);
 
             TrackRenderData renderData = default;
             renderData.Position = (laneOutline.Center.a + laneOutline.Center.d) * 0.5f;

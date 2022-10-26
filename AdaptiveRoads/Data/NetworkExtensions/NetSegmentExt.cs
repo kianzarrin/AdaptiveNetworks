@@ -293,14 +293,14 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
-        public static void Render(NetInfo info, NetSegment.Flags flags, OutlineData outline) {
+        public static void Render(NetInfo info, NetSegment.Flags flags, OutlineDataExt outlineExt) {
             var infoExt = info?.GetMetaData();
             if(infoExt == null || infoExt.TrackLaneCount == 0)
                 return;
 
             for(int laneIndex=0;laneIndex< info.m_lanes.Length; ++laneIndex) {
                 if(infoExt.HasTrackLane(laneIndex)) {
-                    NetLaneExt.Render(info, laneIndex, flags, outline);
+                    NetLaneExt.Render(info, laneIndex, flags, outlineExt);
                 }
             }
         }
