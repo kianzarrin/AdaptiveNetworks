@@ -2,6 +2,7 @@ namespace AdaptiveRoads {
    using AdaptiveRoads.Manager;
     using KianCommons;
     using AdaptiveRoads.Patches.Corner;
+    using AdaptiveRoads.Patches.Node.Corner;
 
     public static class API {
         static NetworkExtensionManager man => NetworkExtensionManager.Instance;
@@ -34,7 +35,7 @@ namespace AdaptiveRoads {
         public static NetInfo.LaneType NodeLaneTypes(NetInfo.Node node) => node.GetMetaData()?.LaneType ?? 0;
         public static bool HideBrokenMedians(NetInfo.Node node) => node.GetMetaData()?.HideBrokenMedians ?? true;
         public static bool GetSharpCorners(NetInfo info) => info?.GetMetaData()?.SharpCorners ?? false;
-        public static void OverrideSharpner(bool value) => CalculateCornerPatch.SharpnerOverriden = value;
+        public static void OverrideSharpner(bool value) => CalculateCorner_SharpPatch.SharpnerOverriden = value;
         
 #pragma warning restore HAA0601
     }
