@@ -201,9 +201,9 @@ namespace AdaptiveRoads.Manager{
 
             TiltData tiltData = new TiltData(
                 startAngle: segmentExt.Start.TotalAngle,
-                startVelocity: segmentExt.Start.GetAngleVelocity(),
+                startVelocity: -segmentExt.Start.GetAngleVelocity(),
                 endAngle: -segmentExt.End.TotalAngle,
-                endVelocity: -segmentExt.End.GetAngleVelocity());
+                endVelocity: +segmentExt.End.GetAngleVelocity());
 
             OutLine = new OutlineData(bezier, width, tiltData);
             RenderData = GenerateRenderData(ref OutLine);

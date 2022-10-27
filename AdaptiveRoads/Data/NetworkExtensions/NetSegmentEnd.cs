@@ -307,7 +307,18 @@ namespace AdaptiveRoads.Manager {
 
             // - because we want other node to this node:
             float d2 = -segmentId2.ToSegmentExt().GetEnd(NodeID).TotalAngleDifference;
-            return Mathf.Min(TotalAngleDifference, d2);
+            return MinByAbs(TotalAngleDifference, d2);
+        }
+
+        static float MinByAbs(float a, float b) {
+            int comp = Math.Abs(a).CompareTo(Math.Abs(b));
+            if (comp == 0) {
+                return Math.Max(a, b); //return the positive one.
+            } else if (comp < 0) {
+                return b;
+            } else {
+                return a;
+            }
         }
 
         public float GetAngleVelocity() {
