@@ -8,6 +8,13 @@ namespace AdaptiveRoads.UI {
         public override SavedString SavedVersion => new SavedString("WhatsNewVersion", ModSettings.FILE_NAME, def: "0.0.0", autoUpdate: true);
         public override WhatsNewEntry[] Messages { get; } = new WhatsNewEntry[] {
             new WhatsNewEntry {
+                version = new Version(3, 15, 2),
+                messages = new string[] {
+                    "Feature: new lane transition flag for tracks: Next-curb",
+                }
+            },
+
+            new WhatsNewEntry {
                 version = new Version(3, 14, 2),
                 messages = new string[] {
                     "Feature: prop seed",
