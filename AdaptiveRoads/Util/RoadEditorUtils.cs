@@ -378,7 +378,7 @@ namespace AdaptiveRoads.Util {
             object target, FieldInfo arrayField, object newElement) {
             Log.Debug("RoadEditorDynamicPropertyToggle_OnEnable.AddArrayElement() called");
             newElement = AssetEditorRoadUtils.AddArrayElement(
-                target, arrayField, newElement);
+                target, arrayField,  newIndex: out _, newObject: newElement);
             roadEditorPanel.AddToArrayField(groupPanel, newElement, arrayField, target);
             return newElement;
         }
