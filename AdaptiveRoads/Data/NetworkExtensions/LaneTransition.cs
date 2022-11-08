@@ -22,6 +22,8 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             [ExpressionFlag] Expression6 = 1 << 6,
             [ExpressionFlag] Expression7 = 1 << 7,
             ExpressionMask = Expression0 | Expression1 | Expression2 | Expression3 | Expression4 | Expression5 | Expression6 | Expression7,
+            [Hint("useful for pavement/fence connections")]
+            NextCurb = 1 << 8,
 
         }
 
@@ -132,6 +134,36 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
 
         public void Calculate() {
             DCFlags = NetNodeExt.CalculateDCAsymFlags(NodeID, segmentID_A, segmentID_D);
+
+            {
+                float pos1 = laneInfoA.m_position;
+                float pos2 = laneInfoD.m_position;
+                bool nextCurb = false;
+                if (pos1 != 0 && pos2 != 0) {
+                    SegmentA.GetLeftAndRightSegments(NodeID, out ushort leftSegemntID, out ushort rightSegmentID);
+                    bool left = leftSegemntID == segmentID_D;
+                    bool right = rightSegmentID == segmentID_D;
+                     
+                    bool head1 = SegmentA.IsInvert() == SegmentA.IsStartNode(NodeID);
+                    bool head2 = SegmentD.IsInvert() == SegmentD.IsStartNode(NodeID);
+
+                    bool neightbor = false;
+                    if (pos1 < 0) {
+                        neightbor = (head1 && left) || (!head1 && right);
+                    } else if (pos1 > 0) {
+                        neightbor = (head1 && right) || (!head1 && left);
+                    }
+
+                    if (neightbor) {
+                        if (head1 != head2) {
+                            nextCurb = (pos1 < 0 && pos2 < 0) || (pos1 > 0 && pos2 > 0);
+                        } else {
+                            nextCurb = (pos1 < 0 && pos2 > 0) || (pos1 > 0 && pos2 < 0);
+                        }
+                    }
+                }
+                m_flags = m_flags.SetFlags(Flags.NextCurb, nextCurb);
+            }
 
             Bezier3 bezierA = LaneExtA.LaneData.GetBezier(NodeID);
             Bezier3 bezierD = LaneExtD.LaneData.GetBezier(NodeID);
