@@ -30,7 +30,7 @@ namespace AdaptiveRoads.Manager {
             }
 
             public NetInfoMetaData(NetInfo info) {
-                info.GetMetaData()?.SaveVanillaTags();
+                //info.GetMetaData()?.SaveVanillaTags();
                 foreach (var item in info.m_nodes)
                     Nodes.Add(item.GetMetaData());
                 foreach (var item in info.m_segments)
@@ -67,7 +67,9 @@ namespace AdaptiveRoads.Manager {
                         }
                     }
 
-                    info.GetMetaData()?.LoadVanillaTags(info);
+                    if (SerializationUtil.DeserializationVersion < new Version(3, 16)) {
+                        info.GetMetaData()?.LoadVanillaTags(info);
+                    }
                     info.RecalculateMetaData();
 
                     Log.Debug("Net Metadata restored.");
