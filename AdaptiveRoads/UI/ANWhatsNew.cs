@@ -10,7 +10,7 @@ namespace AdaptiveRoads.UI {
             new WhatsNewEntry {
                 version = new Version(3, 15, 2),
                 messages = new string[] {
-                    "Feature: new lane transition flag for tracks: Next-curb",
+                    "Feature: new lane transition flag for tracks: Near-Curb, Wind-Wires",
                 }
             },
 

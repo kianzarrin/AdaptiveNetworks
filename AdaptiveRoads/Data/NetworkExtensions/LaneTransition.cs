@@ -1,6 +1,7 @@
 namespace AdaptiveRoads.Data.NetworkExtensions {
     using AdaptiveRoads.CustomScript;
     using AdaptiveRoads.Manager;
+    using AdaptiveRoads.Util;
     using ColossalFramework;
     using ColossalFramework.Math;
     using KianCommons;
@@ -22,9 +23,11 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             [ExpressionFlag] Expression6 = 1 << 6,
             [ExpressionFlag] Expression7 = 1 << 7,
             ExpressionMask = Expression0 | Expression1 | Expression2 | Expression3 | Expression4 | Expression5 | Expression6 | Expression7,
-            [Hint("useful for pavement/fence connections")]
-            NextCurb = 1 << 8,
+            [Hint("Curb transition. Useful for pavement/fence connections")]
+            NearCurb = 1 << 8,
 
+            [Hint("target wires are influenced by wind.")]
+            WindWires = 1 << 9,
         }
 
         public Flags m_flags; // TODO complete
@@ -135,10 +138,12 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         public void Calculate() {
             DCFlags = NetNodeExt.CalculateDCAsymFlags(NodeID, segmentID_A, segmentID_D);
 
+            m_flags = m_flags.SetFlags(Flags.WindWires, SegmentD.Info.WireHasWind());
+
             {
                 float pos1 = laneInfoA.m_position;
                 float pos2 = laneInfoD.m_position;
-                bool nextCurb = false;
+                bool nearCurb = false;
                 if (pos1 != 0 && pos2 != 0) {
                     SegmentA.GetLeftAndRightSegments(NodeID, out ushort leftSegemntID, out ushort rightSegmentID);
                     bool left = leftSegemntID == segmentID_D;
@@ -156,13 +161,13 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
 
                     if (neightbor) {
                         if (head1 != head2) {
-                            nextCurb = (pos1 < 0 && pos2 < 0) || (pos1 > 0 && pos2 > 0);
+                            nearCurb = (pos1 < 0 && pos2 < 0) || (pos1 > 0 && pos2 > 0);
                         } else {
-                            nextCurb = (pos1 < 0 && pos2 > 0) || (pos1 > 0 && pos2 < 0);
+                            nearCurb = (pos1 < 0 && pos2 > 0) || (pos1 > 0 && pos2 < 0);
                         }
                     }
                 }
-                m_flags = m_flags.SetFlags(Flags.NextCurb, nextCurb);
+                m_flags = m_flags.SetFlags(Flags.NearCurb, nearCurb);
             }
 
             Bezier3 bezierA = LaneExtA.LaneData.GetBezier(NodeID);
