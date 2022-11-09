@@ -19,6 +19,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using AdaptiveRoads.Data;
     using TagsInfo = AdaptiveRoads.Manager.NetInfoExtionsion.TagsInfo;
     using static AdaptiveRoads.Manager.NetInfoExtionsion;
+    using System.Globalization;
 
     /// <summary>
     /// most of UI in road editor panels are managed here:
@@ -51,12 +52,11 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         groupName: groupName,
                         target: target,
                         metadata: target,
-                        field))
-                {
+                        field)) {
                     return false;
                 }
 
-                if(ModSettings.ARMode &&
+                if (ModSettings.ARMode &&
                     field.FieldType == typeof(NetInfo.ConnectGroup)) {
                     CreateConnectGroupComponent(__instance, groupName, target, field);
                     return false;
@@ -75,46 +75,85 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         flagData: uidata.FlagData);
                     return false;
                 }
-
-                return true;
-            } catch (Exception ex) {
-                ex.Log();
-                return false;
-            }
+            } catch (Exception ex) { ex.Log(); }
+            return true;
         }
 
-        public static void CreateTagsSection(RoadEditorPanel roadEditorPanel, NetInfo.Node nodeInfo) {
+        [HarmonyPatch(typeof(RoadEditorPanel), "CreateField")]
+        public static bool Prefix(RoadEditorPanel __instance, FieldInfo field, object target) {
+            try {
+                if (field.Name.ToLower().Contains("tags")) {
+                    // special tag section.
+                    if (target is NetInfo netInfo) {
+                        string groupName = field.GetAttribute<CustomizablePropertyAttribute>()?.group;
+                        if (field.Name == nameof(NetInfo.m_tags)) {
+                            CustomTagsDataT data = new(netInfo, nameof(netInfo.m_tags));
+                            StringListMSDD.Add(
+                                roadEditorPanel: __instance,
+                                container: GetContainer(__instance, "Properties"),
+                                label: "Tags",
+                                hint: null,
+                                customStringData: data);
+                            return false;
+                        }
+                    } else if (target is NetInfo.Node nodeInfo) {
+                        if (ReplaceTagsSection(__instance, nodeInfo, field)) {
+                            return false;
+                        }
+                    }
+                }
+            } catch (Exception ex) { ex.Log(); }
+            return true;
+        }
+
+
+        /// <returns>true if replaced, false to use original</returns>
+        public static bool ReplaceTagsSection(RoadEditorPanel roadEditorPanel, NetInfo.Node nodeInfo, FieldInfo field) {
             var container = GetContainer(roadEditorPanel, NetInfoExtionsion.Node.TAG_GROUP_NAME);
             const string hint =
                 "tags can apply for nodes with or without Direct connect.\n" +
                 "For Direct connect nodes the required/forbidden criteria is  additionally checked on the segment.";
-            StringListMSDD.Add(
-                roadEditorPanel: roadEditorPanel,
-                container: container,
-                label: "Required",
-                hint: hint,
-                customStringData: new CustomTagsDataT(nodeInfo, nameof(NetInfo.Node.m_tagsRequired)));
-            StringListMSDD.Add(
-                roadEditorPanel: roadEditorPanel,
-                container: container,
-                label: "Forbidden",
-                hint: hint,
-                customStringData: new CustomTagsDataT(nodeInfo, nameof(NetInfo.Node.m_tagsForbidden)));
-
-            RangePanel8.Add(
-                roadEditorPanel: roadEditorPanel,
-                container: container,
-                label: "match         count",
-                hint: "number of segments that match required/forbidden criteria",
-                from: RefChain.Create(nodeInfo).Field<byte>(nameof(NetInfo.Node.m_minSameTags)),
-                to: RefChain.Create(nodeInfo).Field<byte>(nameof(NetInfo.Node.m_maxSameTags)));
-            RangePanel8.Add(
-                roadEditorPanel: roadEditorPanel,
-                container: container,
-                label: "mismatch count",
-                hint: "number of segments that do not match required/forbidden criteria",
-                from: RefChain.Create(nodeInfo).Field<byte>(nameof(NetInfo.Node.m_minOtherTags)),
-                to: RefChain.Create(nodeInfo).Field<byte>(nameof(NetInfo.Node.m_maxOtherTags)));
+            switch (field.Name) {
+                case nameof(nodeInfo.m_tagsRequired):
+                    StringListMSDD.Add(
+                        roadEditorPanel: roadEditorPanel,
+                        container: container,
+                        label: "Required",
+                        hint: hint,
+                        customStringData: new CustomTagsDataT(nodeInfo, nameof(NetInfo.Node.m_tagsRequired)));
+                    StringListMSDD.Add(
+                        roadEditorPanel: roadEditorPanel,
+                        container: container,
+                        label: "Forbidden",
+                        hint: hint,
+                        customStringData: new CustomTagsDataT(nodeInfo, nameof(NetInfo.Node.m_tagsForbidden)));
+                    roadEditorPanel.CreateGenericField(groupName: NetInfoExtionsion.Node.TAG_GROUP_NAME, field: field, target: nodeInfo);
+                    RangePanel8.Add(
+                    roadEditorPanel: roadEditorPanel,
+                    container: container,
+                    label: "match         count",
+                    hint: "number of segments that match required/forbidden criteria",
+                    from: RefChain.Create(nodeInfo).Field<byte>(nameof(NetInfo.Node.m_minSameTags)),
+                    to: RefChain.Create(nodeInfo).Field<byte>(nameof(NetInfo.Node.m_maxSameTags)));
+                    RangePanel8.Add(
+                    roadEditorPanel: roadEditorPanel,
+                    container: container,
+                    label: "mismatch count",
+                    hint: "number of segments that do not match required/forbidden criteria",
+                    from: RefChain.Create(nodeInfo).Field<byte>(nameof(NetInfo.Node.m_minOtherTags)),
+                    to: RefChain.Create(nodeInfo).Field<byte>(nameof(NetInfo.Node.m_maxOtherTags)));
+                    return true;
+                case nameof(nodeInfo.m_tagsForbidden):
+                case nameof(nodeInfo.m_forbidAnyTags):
+                case nameof(nodeInfo.m_minSameTags):
+                case nameof(nodeInfo.m_maxSameTags):
+                case nameof(nodeInfo.m_minOtherTags):
+                case nameof(nodeInfo.m_maxOtherTags):
+                    return true; // already covered above
+                default:
+                    // unknown field.
+                    return false;
+            }
         }
 
         public static void CreateTagsSection(RoadEditorPanel roadEditorPanel, object metadata, FieldInfo fieldInfo) {
@@ -139,6 +178,11 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 hint: hint,
                 customStringData: new CustomTagsDataT(traverseForbidden));
 
+            // TODO allow to modify toggles in structs.
+            //roadEditorPanel.CreateGenericField(
+            //    groupName: NetInfoExtionsion.Node.TAG_GROUP_NAME,
+            //    field: typeof(TagsInfo).GetField(nameof(TagsInfo.ForbidAll)),
+            //    target: TagsInfo)
 
             RangePanel8.Add(
                 roadEditorPanel: roadEditorPanel,
@@ -237,15 +281,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             fieldName: nameof(NetInfo.m_terrainEndOffset),
                             label: "Terrain End Offset");
                     }
-                    if (field.Name == nameof(NetInfo.m_connectGroup)) {
-                        CustomTagsDataT data = new(netInfo, nameof(netInfo.m_tags));
-                        StringListMSDD.Add(
-                            roadEditorPanel: __instance,
-                            container: GetContainer(__instance, groupName),
-                            label: "Tags",
-                            hint: null,
-                            customStringData: data);
-                    }
                     if (ModSettings.ARMode) {
                         ReplaceLabel(__instance, "Pavement Width", "Pavement Width Left");
                         if (field.Name == nameof(NetInfo.m_surfaceLevel)) {
@@ -258,10 +293,6 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             action: () => QuayRoadsPanel.GetOrOpen(netInfo, __instance));
                             qrButtonPanel.EventDestroy += (_, _) => { QuayRoadsPanel.CloseIfOpen(netInfo); };
                         }
-                    }
-                } else if (target is NetInfo.Node nodeInfo) {
-                    if (field.Name == nameof(NetInfo.Node.m_connectGroup)) {
-                        CreateTagsSection(__instance, nodeInfo);
                     }
                 } else if (target is NetInfo.Lane laneInfo) {
                     if (ModSettings.ARMode) {

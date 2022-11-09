@@ -215,6 +215,8 @@ namespace AdaptiveRoads.UI.RoadEditor {
                                             Hint1 = "change terrain height along segment (used for start of tunnel entrance)";
                                         } else if (field.Name == nameof(NetInfo.m_terrainEndOffset)) {
                                             Hint1 = "change terrain height along segment (used for end of tunnel entrance)";
+                                        } else if (field.Name == nameof(NetInfo.Node.m_forbidAnyTags)) {
+                                            Hint1 = "forbid all tags";
                                         } else {
                                             var hints = field.GetHints()
                                                 .Concat(field.DeclaringType.GetHints())

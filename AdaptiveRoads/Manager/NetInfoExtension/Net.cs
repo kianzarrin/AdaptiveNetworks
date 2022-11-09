@@ -110,7 +110,7 @@ namespace AdaptiveRoads.Manager {
                 set => CustomConnectGroups = new CustomConnectGroupT(value);
             }
 
-            // work around deserializing Tags.
+            // backward compatibility.
             public string[] Tags;
 
             [NonSerialized]
