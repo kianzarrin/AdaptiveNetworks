@@ -41,7 +41,7 @@ namespace AdaptiveRoads.LifeCycle {
                         Log.Debug("AssetDataExtension.OnAssetLoadedImpl(): extracted data for " + ID_NetInfo);
                         AssertNotNull(data, "data");
                         var assetData0 = SerializationUtil.Deserialize(data, default);
-                        AssertNotNull(assetData0, $"assetData0 | deserialization failed for '{prefab}'. data version = V{SerializationUtil.DeserializationVersion}");
+                        AssertNotNull(assetData0, $"assetData0 | deserialization failed for '{prefab}'. data version = V{AssetData.DeserializationVersion}");
                         var assetData = assetData0 as AssetData;
                         AssertNotNull(assetData, $"assetData: {assetData0.GetType()} is not ${typeof(AssetData)}");
                         AssetData.Load(assetData, prefab);

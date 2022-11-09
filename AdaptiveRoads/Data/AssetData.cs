@@ -67,7 +67,7 @@ namespace AdaptiveRoads.Manager {
                         }
                     }
 
-                    if (SerializationUtil.DeserializationVersion < new Version(3, 16)) {
+                    if (DeserializationVersion < new Version(3, 16)) {
                         info.GetMetaData()?.LoadVanillaTags(info);
                     }
                     info.RecalculateMetaData();
@@ -131,13 +131,14 @@ namespace AdaptiveRoads.Manager {
         // deserialization
         public AssetData(SerializationInfo info, StreamingContext context) {
             if(Log.VERBOSE) Log.Called();
+            DeserializationVersion = new Version(0, 0);
             try {
                 VersionString = info.GetString("VersionString");
             } catch {
                 VersionString = "0.0.0";
             }
             try {
-                var version = SerializationUtil.DeserializationVersion = new Version(VersionString);
+                var version = DeserializationVersion = new Version(VersionString);
                 if(version < new Version(1,8)) {
                     Log.Warning($"old asset data (version:{version})");
                 }
@@ -147,6 +148,7 @@ namespace AdaptiveRoads.Manager {
         #endregion
 
         public string VersionString = typeof(AssetData).VersionOf().ToString(3);
+        public static Version DeserializationVersion { get; private set; }
 
         public NetInfoMetaData Ground, Elevated, Bridge, Slope, Tunnel;
 
