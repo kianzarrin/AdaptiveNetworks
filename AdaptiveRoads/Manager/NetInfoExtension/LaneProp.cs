@@ -115,6 +115,11 @@ namespace AdaptiveRoads.Manager {
             [AfterField(nameof(NetLaneProps.Prop.m_probability))]
             public int SeedIndex;
 
+            [Hint("Offset from junctions")]
+            [CustomizableProperty("Junction Distance")]
+            [AfterField(nameof(NetLaneProps.Prop.m_repeatDistance))]
+            public float JunctionDistance;
+
             /// <param name="laneSpeed">game speed</param>
             /// <param name="forwardSpeedLimit">game speed</param>
             /// <param name="backwardSpeedLimit">game speed</param>
