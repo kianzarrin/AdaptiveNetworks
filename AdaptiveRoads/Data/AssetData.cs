@@ -18,7 +18,7 @@ namespace AdaptiveRoads.Manager {
             /// <summary>props for all lanes are stored here in order.</summary>
             public List<NetInfoExtionsion.LaneProp> Props = new ();
 
-            /// <summary>all lane extensions are stored here in order.</summary>
+            /// <summary>all laneInfo extensions are stored here in order.</summary>
             public List<NetInfoExtionsion.Lane> Lanes = new ();
 
             public NetInfoExtionsion.Net NetData;
@@ -43,8 +43,7 @@ namespace AdaptiveRoads.Manager {
                         Props.Add(item.GetMetaData());
                 }
                 NetData = info.GetMetaData();
-                foreach (var lane in info.m_lanes)
-                    Lanes.Add(NetData.GetOrCreateLane(lane));
+                Lanes = NetData.Lanes.AsList(info);
             }
 
             public void Apply(NetInfo info) {
@@ -60,11 +59,8 @@ namespace AdaptiveRoads.Manager {
                     var net = NetData?.Clone();
                     info.SetMetedata(net);
 
-                    if (Lanes != null && net != null) {
-                        for (int laneIndex = 0; laneIndex < Lanes.Count; ++laneIndex) {
-                            var laneInfo = info.m_lanes[laneIndex];
-                            net.Lanes[laneInfo] = Lanes[laneIndex] ?? new(laneInfo);
-                        }
+                    if (net != null) {
+                        net.Lanes = new NetInfoExtionsion.LaneCollection(info, Lanes);
                     }
 
                     info.GetMetaData()?.LoadVanillaTags(info);

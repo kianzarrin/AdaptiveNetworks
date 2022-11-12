@@ -418,8 +418,8 @@ namespace AdaptiveRoads.Manager {
             var infoExt2 = lane2.Segment.Info?.GetMetaData();
             var tracks1 = infoExt1?.Tracks;
             var tracks2 = infoExt2?.Tracks;
-            var tags1 = infoExt1?.GetLaneTags(lane1.LaneInfo);
-            var tags2 = infoExt2?.GetLaneTags(lane2.LaneInfo);
+            var tags1 = infoExt1?.Lanes[lane1.LaneInfo]?.LaneTags;
+            var tags2 = infoExt2?.Lanes[lane2.LaneInfo]?.LaneTags;
             if (tracks1 != null && tags2 != null) {
                 foreach (var track in tracks1) {
                     Assertion.NotNull(track);

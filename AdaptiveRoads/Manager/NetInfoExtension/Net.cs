@@ -33,7 +33,7 @@ namespace AdaptiveRoads.Manager {
                     ret.CustomFlagNames = ret.CustomFlagNames?.ShallowClone();
                     ret.ScriptedFlags = ret.ScriptedFlags?.ShallowClone();
                     ret.CustomLaneFlagNames0 = ret.CustomLaneFlagNames0?.ShallowClone();
-                    ret.Lanes = ret.Lanes?.ToDictionary(pair => pair.Key, pair => pair.Value?.Clone());
+                    ret.Lanes = ret.Lanes?.Clone();
                     //Log.Debug($"CustomLaneFlagNames={CustomLaneFlagNames} before cloning");
                     ret.CustomLaneFlagNames = ret.CustomLaneFlagNames
                         ?.Select(item => item?.ShallowClone())
@@ -367,7 +367,7 @@ namespace AdaptiveRoads.Manager {
                         return;
                     }
                     if (CustomLaneFlagNames.IsNullorEmpty()) {
-                        // no custom lane flag names exist
+                        // no custom laneInfo flag names exist
                         CustomLaneFlagNames0 = null;
                         return;
                     }
@@ -587,24 +587,8 @@ namespace AdaptiveRoads.Manager {
             }
             #endregion
 
-            #region lanes
             [NonSerialized]
-            public Dictionary<NetInfo.Lane, Lane> Lanes = new();
-
-            public Lane GetOrCreateLane(NetInfo.Lane laneInfo) {
-                if (!Lanes.ContainsKey(laneInfo))
-                    return Lanes[laneInfo] = new Lane(laneInfo);
-                else 
-                    return Lanes[laneInfo];
-            }
-
-            public LaneTagsT GetLaneTags(NetInfo.Lane lane) {
-                if (Lanes.TryGetValue(lane, out var laneExt))
-                    return laneExt.LaneTags;
-                else
-                    return null;
-            }
-            #endregion lanes
+            public LaneCollection Lanes = new();
 
             public void Recalculate(NetInfo netInfo) {
                 try {
