@@ -158,8 +158,10 @@ namespace AdaptiveRoads.Manager {
             UpdateAllNetworkFlags();
             TMPENotifier.EventModified -= OnTMPEModified;
             TMPENotifier.EventModified += OnTMPEModified;
+#if DEBUG
             ThreadingExtensions.Handle2(OutlineData.timer1, OutlineData.counter1, "lane-outline");
             ThreadingExtensions.Handle2(OutlineData.timer2, OutlineData.counter2, "transition-outline");
+#endif
             LogSucceeded();
         }
 
@@ -249,7 +251,7 @@ namespace AdaptiveRoads.Manager {
             }
         }
 
-        #endregion LifeCycle
+#endregion LifeCycle
 
         public void SimulationStep() {
             bool updateSegments = m_segmentsUpdated;
@@ -381,7 +383,7 @@ namespace AdaptiveRoads.Manager {
             return ref SegmentBuffer[segmentId].GetEnd(nodeId);
         }
 
-        #region data transfer
+#region data transfer
         private byte[] CopyInstanceID(InstanceID instanceID) {
             throw new NotImplementedException();
         }
@@ -390,7 +392,7 @@ namespace AdaptiveRoads.Manager {
             if (data == null)
                 return;
         }
-        #endregion
+#endregion
 
         public void UpdateNode(ushort nodeID, ushort fromSegmentID = 0, int level = -1) {
             if(!nodeID.ToNode().IsValid()) return;
