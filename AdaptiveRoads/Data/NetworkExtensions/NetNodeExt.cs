@@ -385,9 +385,13 @@ namespace AdaptiveRoads.Manager {
                                 if (segmentId2 == segmentId1) continue;
                                 ref NetSegment segment2 = ref segmentId2.ToSegment();
                                 foreach (var lane2 in new LaneDataIterator(segmentId2)) {
-                                    if (NoneLanesConnect(lane1, lane2)) {
-                                        var key = new Connection { LaneID1 = lane1.LaneID, LaneID2 = lane2.LaneID };
-                                        tempConnections_.Add(key);
+                                    if (
+                                        (lane1.LaneInfo.m_laneType is NetInfo.LaneType.None or NetInfo.LaneType.Pedestrian) ||
+                                        (lane2.LaneInfo.m_laneType is NetInfo.LaneType.None or NetInfo.LaneType.Pedestrian)) {
+                                        if (CheckTagsNoneLanes(lane1, lane2)) {
+                                            var key = new Connection { LaneID1 = lane1.LaneID, LaneID2 = lane2.LaneID };
+                                            tempConnections_.Add(key);
+                                        }
                                     }
                                 }
                             }
@@ -413,7 +417,12 @@ namespace AdaptiveRoads.Manager {
         /// <summary>
         /// checks if any track has lane tags of the other lane.
         /// </summary>
-        public static bool NoneLanesConnect(LaneData lane1, LaneData lane2) {
+        public static bool CheckTagsNoneLanes(LaneData lane1, LaneData lane2) {
+            bool none =
+                (lane1.LaneInfo.m_laneType is NetInfo.LaneType.None or NetInfo.LaneType.Pedestrian) ||
+                (lane2.LaneInfo.m_laneType is NetInfo.LaneType.None or NetInfo.LaneType.Pedestrian);
+            if (!none) return false;
+
             var infoExt1 = lane1.Segment.Info?.GetMetaData();
             var infoExt2 = lane2.Segment.Info?.GetMetaData();
             var tracks1 = infoExt1?.Tracks;
