@@ -70,7 +70,7 @@ namespace AdaptiveRoads.NSInterface {
             foreach (Enum flag in all) {
                 if (flag is NetLaneExt.Flags laneFlag) {
                     for (int laneIndex = 0; laneIndex < info.m_lanes.Length; ++laneIndex) {
-                        string name = info.GetMetaData().CustomLaneFlagNames[laneIndex].GetorDefault(laneFlag);
+                        string name = info.GetMetaData().CustomLaneFlagNames[laneIndex]?.GetorDefault(laneFlag);
                         if (name != null) {
                             ret.Lanes[laneIndex] |= laneFlag;
                             break;

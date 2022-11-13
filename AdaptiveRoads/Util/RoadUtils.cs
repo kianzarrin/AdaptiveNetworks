@@ -163,5 +163,20 @@ namespace AdaptiveRoads.Util {
                 //material.renderQueue = 3000;
             }
         }
+
+        public static bool WireHasWind(this NetInfo info) {
+            foreach(var segmentInfo in info.m_segments) {
+                string shader = segmentInfo.m_material.shader?.name;
+                if (shader == "Custom/Net/Electricity") {
+                    foreach(var color in segmentInfo.m_mesh.colors) {
+                        if(color != Color.black) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            }
+            return false;
+        }
     }
 }
