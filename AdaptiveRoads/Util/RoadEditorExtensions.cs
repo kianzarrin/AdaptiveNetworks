@@ -64,12 +64,12 @@ namespace AdaptiveRoads.Util {
         public static void OnObjectModified(this RoadEditorPanel instance) =>
             GetMethod("OnObjectModified").Invoke(instance, null);
 
-        public static void AddToArrayField(this RoadEditorPanel instance,
-            RoadEditorCollapsiblePanel panel, object element, FieldInfo field, object targetObject) {
-            // private void AddToArrayField(RoadEditorCollapsiblePanel panel,
-            //      object element, FieldInfo field, object targetObject)
-            GetMethod("AddToArrayField")
-                .Invoke(instance, new[] { panel, element, field, targetObject });
+        public static void AddToggle(this RoadEditorPanel instance,
+            RoadEditorCollapsiblePanel panel, object element, FieldInfo field, object target) {
+            // private void AddToggle(RoadEditorCollapsiblePanel panel,
+            //      object element, FieldInfo field, object target)
+            GetMethod("AddToggle")
+                .Invoke(instance, new[] { panel, element, field, target });
         }
 
         public static bool RequiresUserFlag(Type type) {
