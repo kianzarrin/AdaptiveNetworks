@@ -134,6 +134,7 @@ namespace AdaptiveRoads.Manager {
             private static string[] EMPTY => DynamicFlagsUtil.EMPTY_TAGS;
             private static DynamicFlags NONE => DynamicFlagsUtil.NONE;
             public string[] Required = EMPTY, Forbidden = EMPTY;
+            public bool ForbidAll = false;
             public byte MinMatch = 0, MaxMatch = 7;
             public byte MinMismatch = 0, MaxMismatch = 7;
 
@@ -175,7 +176,8 @@ namespace AdaptiveRoads.Manager {
                 }
             }
 
-            private bool CheckTags(DynamicFlags flags) => DynamicFlags.Check(flags, FlagsRequired, FlagsForbidden);
+            private bool CheckTags(DynamicFlags flags) =>
+                DynamicFlags.Check(flags, FlagsRequired, ForbidAll ? NetInfo.allTags : FlagsForbidden);
 
             private bool CheckTagsLimit(ushort nodeID) {
                 ref NetNode node = ref nodeID.ToNode();

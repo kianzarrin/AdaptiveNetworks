@@ -110,7 +110,7 @@ namespace AdaptiveRoads.Manager {
                 set => CustomConnectGroups = new CustomConnectGroupT(value);
             }
 
-            // work around deserializing Tags.
+            // backward compatibility.
             public string[] Tags;
 
             [NonSerialized]
@@ -634,6 +634,7 @@ namespace AdaptiveRoads.Manager {
                 }
             }
 
+            [Obsolete("no longer necessary", true)]
             public void SaveVanillaTags() {
                 Tags = ParentInfo.m_tags;
                 foreach (var node in ParentInfo.m_nodes) {

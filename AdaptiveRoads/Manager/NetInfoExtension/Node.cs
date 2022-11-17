@@ -74,16 +74,16 @@ namespace AdaptiveRoads.Manager {
 
             [CustomizableProperty("Tiling")]
             [Hint("network tiling value")]
-            [AfterField(nameof(NetInfo.Node.m_directConnect))]
+            [AfterField(nameof(NetInfo.Node.m_maxSameTags))]
             public float Tiling;
 
             [CustomizableProperty("Title")]
             [Hint("title to display(asset editor only)")]
-            [AfterField(nameof(NetInfo.Node.m_directConnect))]
+            [AfterField(nameof(NetInfo.Node.m_maxSameTags))]
             public string Title;
             [XmlIgnore][NonSerialized2] string IModel.Title => Title;
 
-            // for persistency only. work around lack of code to serialize vanilla tags.
+            // backward compatiblity.
             public TagsInfo TagsInfo = new TagsInfo();
 
             public bool CheckFlags(

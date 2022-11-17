@@ -378,8 +378,8 @@ namespace AdaptiveRoads.Util {
             object target, FieldInfo arrayField, object newElement) {
             Log.Debug("RoadEditorDynamicPropertyToggle_OnEnable.AddArrayElement() called");
             newElement = AssetEditorRoadUtils.AddArrayElement(
-                target, arrayField, newElement);
-            roadEditorPanel.AddToArrayField(groupPanel, newElement, arrayField, target);
+                target, arrayField,  newIndex: out _, newObject: newElement);
+            roadEditorPanel.AddToggle(groupPanel, newElement, arrayField, target);
             return newElement;
         }
         public static void AddNodes(
@@ -424,7 +424,7 @@ namespace AdaptiveRoads.Util {
                 Log.Debug($"Adding nodes {items.Length}+{m_items.Length}={m_items2.Length}");
                 groupPanel.SetArray(m_items2);
                 foreach (var item in items) {
-                    sidePanel.AddToArrayField(groupPanel, item, arrayField, target);
+                    sidePanel.AddToggle(groupPanel, item, arrayField, target);
                 }
 
                 foreach (var info in NetInfoExtionsion.EditedNetInfos) info?.GetMetaData().Recalculate(info);
@@ -478,7 +478,7 @@ namespace AdaptiveRoads.Util {
                 Log.Debug($"Adding Segments {items.Length}+{m_items.Length}={m_items2.Length}");
                 groupPanel.SetArray(m_items2);
                 foreach (var item in items) {
-                    sidePanel.AddToArrayField(groupPanel, item, arrayField, target);
+                    sidePanel.AddToggle(groupPanel, item, arrayField, target);
                 }
 
                 foreach (var info in NetInfoExtionsion.EditedNetInfos) info?.GetMetaData().Recalculate(info);
@@ -534,7 +534,7 @@ namespace AdaptiveRoads.Util {
                 Log.Debug($"Adding props {props.Length}+{m_props.Length}={m_props2.Length}");
                 groupPanel.SetArray(m_props2);
                 foreach(var prop in props) {
-                    sidePanel.AddToArrayField(groupPanel, prop, arrayField, target);
+                    sidePanel.AddToggle(groupPanel, prop, arrayField, target);
                 }
 
                 foreach (var info in NetInfoExtionsion.EditedNetInfos) info?.GetMetaData().Recalculate(info);
