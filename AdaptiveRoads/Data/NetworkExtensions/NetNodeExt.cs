@@ -337,30 +337,30 @@ namespace AdaptiveRoads.Manager {
                         //Log.Debug($"source: {segmentId1}");
                         ref NetSegment segment1 = ref segmentId1.ToSegment();
                         bool headNode1 = segment1.GetHeadNode() == NodeID;
+                        var infoExt1 = segment1.Info?.GetMetaData();
                         foreach (var lane1 in new LaneDataIterator(segmentId1, null, NetInfo.LaneType.Vehicle, VehicleInfo.VehicleType.Bicycle)) {
-                            bool outGoing;
-                            if (headNode1) {
-                                outGoing = lane1.LaneInfo.m_finalDirection.IsFlagSet(NetInfo.Direction.Forward);
-                            } else {
-                                outGoing = lane1.LaneInfo.m_finalDirection.IsFlagSet(NetInfo.Direction.Backward);
-                            }
-                            //Log.Debug($"{lane1.LaneID} outgoing={outGoing}");
-                            if (!outGoing) {
+                            bool hasTrackLane1 = infoExt1?.HasTrackLane(lane1.LaneIndex) ?? false;
+                            NetInfo.Direction goutoingDir = headNode1 ? NetInfo.Direction.Forward : NetInfo.Direction.Backward;
+                            bool outgoing = lane1.LaneInfo.m_finalDirection.IsFlagSet(goutoingDir);
+                            //Log.Debug($"{lane1.LaneID} outgoing={outgoing}");
+                            if (!outgoing) {
                                 continue;
                             }
+
                             foreach (ushort segmentId2 in SegmentIDs) {
                                 if (segmentId2 == segmentId1) continue;
                                 //Log.Debug($"target: {segmentId2}");
                                 ref NetSegment segment2 = ref segmentId2.ToSegment();
-                                //bool startNode2 = segment2.IsStartNode(NodeID);
+                                var infoExt2 = segment2.Info?.GetMetaData();
                                 bool headNode2 = segment2.GetHeadNode() == NodeID;
                                 foreach (var lane2 in new LaneDataIterator(segmentId2, null, NetInfo.LaneType.Vehicle, VehicleInfo.VehicleType.Bicycle)) {
-                                    bool incoming;
-                                    if (!headNode2) {
-                                        incoming = lane2.LaneInfo.m_finalDirection.IsFlagSet(NetInfo.Direction.Forward);
-                                    } else {
-                                        incoming = lane2.LaneInfo.m_finalDirection.IsFlagSet(NetInfo.Direction.Backward);
+                                    bool hasTrackLane2 = infoExt2?.HasTrackLane(lane2.LaneIndex) ?? false;
+                                    if (!(hasTrackLane1 || hasTrackLane2)) {
+                                        continue;
                                     }
+
+                                    NetInfo.Direction incommingDir = headNode2 ? NetInfo.Direction.Backward : NetInfo.Direction.Forward;
+                                    bool incoming = lane2.LaneInfo.m_finalDirection.IsFlagSet(incommingDir);
                                     //Log.Debug($"{lane2.LaneID} incoming={incoming}");
                                     if (!incoming) {
                                         continue;
@@ -379,12 +379,19 @@ namespace AdaptiveRoads.Manager {
                 {
                     foreach (ushort segmentId1 in SegmentIDs) {
                         ref NetSegment segment1 = ref segmentId1.ToSegment();
+                        var infoExt1 = segment1.Info?.GetMetaData();
                         bool headNode1 = segment1.GetHeadNode() == NodeID;
                         foreach (var lane1 in new LaneDataIterator(segmentId1)) {
+                            bool hasTrackLane1 = infoExt1?.HasTrackLane(lane1.LaneIndex) ?? false;
                             foreach (ushort segmentId2 in SegmentIDs) {
                                 if (segmentId2 == segmentId1) continue;
                                 ref NetSegment segment2 = ref segmentId2.ToSegment();
+                                var infoExt2 = segment2.Info?.GetMetaData();
                                 foreach (var lane2 in new LaneDataIterator(segmentId2)) {
+                                    bool hasTrackLane2 = infoExt2?.HasTrackLane(lane2.LaneIndex) ?? false;
+                                    if (!(hasTrackLane1 || hasTrackLane2)) {
+                                        continue;
+                                    }
                                     if (
                                         (lane1.LaneInfo.m_laneType is NetInfo.LaneType.None or NetInfo.LaneType.Pedestrian) ||
                                         (lane2.LaneInfo.m_laneType is NetInfo.LaneType.None or NetInfo.LaneType.Pedestrian)) {
