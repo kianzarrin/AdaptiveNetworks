@@ -127,7 +127,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         label: "Forbidden",
                         hint: hint,
                         customStringData: new CustomTagsDataT(nodeInfo, nameof(NetInfo.Node.m_tagsForbidden)));
-                    roadEditorPanel.CreateGenericField(groupName: NetInfoExtionsion.Node.TAG_GROUP_NAME, field: field, target: nodeInfo);
+                    FieldInfo f_forbidAnyTags = typeof(NetInfo.Node).GetField(nameof(NetInfo.Node.m_forbidAnyTags));
+                    roadEditorPanel.CreateGenericField(groupName: NetInfoExtionsion.Node.TAG_GROUP_NAME, field: f_forbidAnyTags, target: nodeInfo);
                     RangePanel8.Add(
                     roadEditorPanel: roadEditorPanel,
                     container: container,
@@ -178,11 +179,12 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 hint: hint,
                 customStringData: new CustomTagsDataT(traverseForbidden));
 
-            // TODO allow to modify toggles in structs.
-            //roadEditorPanel.CreateGenericField(
-            //    groupName: NetInfoExtionsion.Node.TAG_GROUP_NAME,
-            //    field: typeof(TagsInfo).GetField(nameof(TagsInfo.ForbidAll)),
-            //    target: TagsInfo)
+            EditorCheckboxPanel.Add(
+                roadEditorPanel,
+                container,
+                label: "Forbid Any Tags",
+                hint: "Forbid all other tags",
+                refChain: refChainRoot.Field<bool>(nameof(TagsInfo.ForbidAll)));
 
             RangePanel8.Add(
                 roadEditorPanel: roadEditorPanel,
