@@ -48,6 +48,8 @@ public static partial class NetInfoExtionsion {
 
         #region serialization
         public LaneCollection(NetInfo netInfo, List<Lane> lanes) : base() {
+            if (netInfo == null) return;
+            if (lanes == null) return;
             for (int laneIndex = 0; laneIndex < lanes.Count; ++laneIndex) {
                 var laneInfo = netInfo.m_lanes[laneIndex];
                 this[laneInfo] = lanes[laneIndex] ?? new(laneInfo);
@@ -64,7 +66,7 @@ public static partial class NetInfoExtionsion {
 
         public new Lane this[NetInfo.Lane laneInfo] {
             get => this.GetorDefault(laneInfo);
-            set => this[laneInfo] = value;
+            set => base[laneInfo] = value;
         }
 
         public Lane this[NetInfo netInfo, int laneIndex] => this.GetorDefault(netInfo.m_lanes[laneIndex]);
