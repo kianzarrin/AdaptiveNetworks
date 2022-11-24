@@ -619,8 +619,12 @@ namespace AdaptiveRoads.Util {
                     m_mesh = new Mesh(),
                     m_material = new Material(shader),
                     m_lodMesh = new Mesh(),
-                    m_lodMaterial = new Material(shader)
-                };
+                    m_lodMaterial = new Material(shader),
+                    m_tagsRequired = DynamicFlagsUtil.EMPTY_TAGS,
+                    m_tagsForbidden = DynamicFlagsUtil.EMPTY_TAGS,
+                    m_nodeTagsRequired = DynamicFlagsUtil.NONE,
+                    m_nodeTagsForbidden = DynamicFlagsUtil.NONE,
+            };
             }
             return null;
         }

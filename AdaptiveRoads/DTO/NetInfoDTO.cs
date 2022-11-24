@@ -76,12 +76,13 @@ namespace AdaptiveRoads.DTO {
             public NetInfo.ConnectGroup m_connectGroup;
             public bool m_directConnect;
 
-            public string[] m_tagsRequired;
-            public string[] m_tagsForbidden;
+            public string[] m_tagsRequired = new string[0];
+            public string[] m_tagsForbidden = new string[0];
             public byte m_minSameTags;
             public byte m_maxSameTags = 7;
             public byte m_minOtherTags;
             public byte m_maxOtherTags = 7;
+            public bool m_forbidAnyTags;
 
             public NetInfoExtionsion.Node MetaData;
 

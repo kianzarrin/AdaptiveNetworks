@@ -2,6 +2,7 @@ namespace AdaptiveRoads.Patches.RoadEditor.Track {
     using AdaptiveRoads.Manager;
     using AdaptiveRoads.Util;
     using HarmonyLib;
+    using KianCommons;
     using System;
     using UnityEngine;
 
@@ -18,6 +19,12 @@ namespace AdaptiveRoads.Patches.RoadEditor.Track {
                     m_lodMaterial = new Material(shader)
                 };
                 __result = true;
+            }
+            if(obj is NetInfo.Node node) {
+                node.m_tagsRequired = DynamicFlagsUtil.EMPTY_TAGS;
+                node.m_tagsForbidden = DynamicFlagsUtil.EMPTY_TAGS;
+                node.m_nodeTagsRequired = DynamicFlagsUtil.NONE;
+                node.m_nodeTagsForbidden = DynamicFlagsUtil.NONE;
             }
         }
     }
