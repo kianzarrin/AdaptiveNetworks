@@ -171,6 +171,7 @@ namespace AdaptiveRoads.Manager {
                 if(!Helpers.InSimulationThread()) {
                     Log.Info("calling UpdateAllNetworkFlags() again from simulation thread");
                     SimulationManager.instance.AddAction(UpdateAllNetworkFlags);
+                    return;
                 }
                 Log.Called();
                 for(ushort segmentID = 0; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
