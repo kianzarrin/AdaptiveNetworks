@@ -152,7 +152,7 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
         }
     }
 
-    /// <summary> insert after the clause:'info.m_nodeConnectGroups & info.m_connectGroup' </summary>
+    /// <summary> insert after the clause:'info.m_nodeConnectGroups & info2.m_connectGroup' </summary>
     internal static class CheckNetConnectGroup {
         public static bool CheckConnectGroup(bool flagsMatch, NetInfo sourceInfo, NetInfo targetInfo) {
             if (flagsMatch)
@@ -162,7 +162,7 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
                 return true; 
             }
             return DirectConnectUtil.ConnectGroupsMatch(
-                sourceInfo.GetMetaData()?.CustomConnectGroups,
+                sourceInfo.GetMetaData()?.NodeCustomConnectGroups,
                 targetInfo.GetMetaData()?.CustomConnectGroups);
         }
 

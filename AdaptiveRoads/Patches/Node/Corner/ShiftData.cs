@@ -11,6 +11,7 @@ namespace AdaptiveRoads.Patches.Corner {
         public static MethodInfo mPostfix = typeof(ShiftData).GetMethod(nameof(Postfix), throwOnError: true);
 
         public static void Prefix(ushort SourceSegmentID, ushort targetSegmentID) {
+            if (Log.VERBOSE) Log.Debug($"RefreshJunctionData(segments: {SourceSegmentID} -> {targetSegmentID})");
             Shift = SourceSegmentID.ToSegment().Info.GetFinalShift(); // target segment uses source shift.
             TargetSegmentID = targetSegmentID;
         }

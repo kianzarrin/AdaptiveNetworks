@@ -30,7 +30,7 @@ namespace AdaptiveRoads.Patches.QuayRoads {
 
             ProfileSection[] profile = net.QuayRoadsProfile;
             if (profile is null) return true;
-            Log.Debug("modifying mask for segment " + segmentID.ToString() + ", section " + index);
+            if(Log.VERBOSE) Log.Debug("modifying mask for segment " + segmentID.ToString() + ", section " + index);
             bool invert = (data.m_flags & NetSegment.Flags.Invert) != 0;
             return ModifyMaskCommon.ModifyMask(profile, invert, index, ref surface, ref heights, ref edges, ref left, ref right, ref leftStartY, ref rightStartY, ref leftEndY, ref rightEndY, ref __result);
         }
@@ -66,7 +66,7 @@ namespace AdaptiveRoads.Patches.QuayRoads {
             ProfileSection[] profile = net.QuayRoadsProfile;
             if (profile is null) return true;
 
-            Log.Debug("modifying mask for node " + nodeID.ToString() + ", section " + index);
+            if (Log.VERBOSE) Log.Debug("modifying mask for node " + nodeID.ToString() + ", section " + index);
             NetManager netManager = Singleton<NetManager>.instance;
             bool isStartNode = netManager.m_segments.m_buffer[segment1].m_startNode == nodeID;
             bool segmentInvert = (netManager.m_segments.m_buffer[segment1].m_flags & NetSegment.Flags.Invert) != NetSegment.Flags.None;
