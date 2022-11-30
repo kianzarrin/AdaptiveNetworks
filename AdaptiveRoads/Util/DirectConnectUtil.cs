@@ -10,6 +10,7 @@ namespace AdaptiveRoads.Util {
     using VectorUtil = KianCommons.Math.VectorUtil;
     using static Util.Shortcuts;
     using CustomConnectGroupT = AdaptiveRoads.Manager.NetInfoExtionsion.CustomConnectGroupT;
+    using AdaptiveRoads.Manager;
 
     internal static class DirectConnectUtil {
         #region custom connect groups
@@ -22,6 +23,42 @@ namespace AdaptiveRoads.Util {
             if (group1 == null || group2 == null)
                 return false;
             return group2.Check(group1.Value);
+        }
+
+        /// <summary>
+        /// checks for matching vanilla/custom connect groups
+        /// between net and node connect groups
+        /// both ways.
+        /// </summary>
+        internal static bool HasMatchingConnectGroup(NetInfo info1, NetInfo info2) {
+            if (info1 == null || info2 == null) return false;
+            if ((info2.m_nodeConnectGroups & info1.m_connectGroup) != 0) return true;
+            if ((info1.m_nodeConnectGroups & info2.m_connectGroup) != 0) return true;
+
+            var infoExt1 = info1.GetMetaData();
+            var infoExt2 = info2.GetMetaData();
+            if (ConnectGroupsMatch(infoExt2?.NodeCustomConnectGroups, infoExt1?.CustomConnectGroups)) return true;
+            if (ConnectGroupsMatch(infoExt1?.NodeCustomConnectGroups, infoExt2?.CustomConnectGroups)) return true;
+            return false;
+        }
+
+        /// <summary>returns true if there are no vanilla/custom connect groups</summary>
+        internal static bool NodeConnectGroupsAreNone(NetInfo info) {
+            if (info == null) return true;
+            if (info.m_nodeConnectGroups != 0) return false;
+            var infoExt = info.GetMetaData();
+            if (infoExt == null) return true;
+            return infoExt.NodeCustomConnectGroups.IsEmpty;
+        }
+
+        /// <summary>
+        /// checks for none or matching vanilla/custom connect groups
+        /// between net and node connect groups
+        /// both ways.
+        /// </summary>
+        internal static bool HasMatchingConnectGroupOrNone(NetInfo info1, NetInfo info2) {
+            if (NodeConnectGroupsAreNone(info1) || NodeConnectGroupsAreNone(info2)) return true;
+            return HasMatchingConnectGroup(info1, info2);
         }
         #endregion
 

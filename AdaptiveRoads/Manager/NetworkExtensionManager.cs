@@ -12,6 +12,7 @@ namespace AdaptiveRoads.Manager {
     using TrafficManager.API.Notifier;
     using AdaptiveRoads.Data.NetworkExtensions;
     using AdaptiveRoads.LifeCycle;
+    using System.Diagnostics;
 
     public static class NetworkExtensionManagerExtensions {
         static NetworkExtensionManager man_ => NetworkExtensionManager.Instance;
@@ -151,16 +152,25 @@ namespace AdaptiveRoads.Manager {
         }
 
         // should be called from simulation thread.
+        static Stopwatch timer2 = new Stopwatch();
+        static int counter2;
         void LoadImpl() {
             LogCalled();
             TMPENotifier.EventModified -= OnTMPEModified;
+            Stopwatch timer = new Stopwatch();
+            timer.Start();
+            timer2.Reset();
+            counter2 = 0;
             UpdateAllNetworkFlags();
             UpdateAllNetworkFlags();
+            timer.Stop();
             TMPENotifier.EventModified -= OnTMPEModified;
             TMPENotifier.EventModified += OnTMPEModified;
 #if DEBUG
             ThreadingExtensions.Handle2(OutlineData.timer1, OutlineData.counter1, "lane-outline");
             ThreadingExtensions.Handle2(OutlineData.timer2, OutlineData.counter2, "transition-outline");
+            ThreadingExtensions.Handle2(timer, 2, "UpdateAllNetworkFlags");
+            ThreadingExtensions.Handle2(timer2, counter2, "CalculateNode");
 #endif
             LogSucceeded();
         }
@@ -192,11 +202,15 @@ namespace AdaptiveRoads.Manager {
                 }
                 for (ushort segmentID = 0; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
                     if(!NetUtil.IsSegmentValid(segmentID)) continue;
-                    NetManager.instance.UpdateSegmentRenderer(segmentID, true);
+                    NetManager.instance.UpdateSegmentRenderer(segmentID, false);
                 }
                 for(ushort nodeID = 0; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID) {
                     if(!NetUtil.IsNodeValid(nodeID)) continue;
-                    NetManager.instance.UpdateNodeRenderer(nodeID, true);
+                    NetManager.instance.UpdateNodeRenderer(nodeID, false);
+                    timer2?.Start();
+                    counter2++;
+                    nodeID.ToNode().CalculateNode(nodeID);
+                    timer2?.Stop();
                 }
             } catch(Exception ex) {
                 ex.Log();
@@ -330,7 +344,7 @@ namespace AdaptiveRoads.Manager {
                         for (int bitIndex = 0; bitIndex < 64; bitIndex++) {
                             if ((bitmask & 1UL << bitIndex) != 0UL) {
                                 ushort segmentID = (ushort)(maskIndex << 6 | bitIndex);
-                                NetManager.instance.UpdateSegmentRenderer(segmentID, true);
+                                NetManager.instance.UpdateSegmentRenderer(segmentID, false);
                             }
                         }
                     }
@@ -345,7 +359,7 @@ namespace AdaptiveRoads.Manager {
                         for(int bitIndex = 0; bitIndex < 64; bitIndex++) {
                             if((bitmask & 1UL << bitIndex) != 0) {
                                 ushort nodeID = (ushort)(maskIndex << 6 | bitIndex);
-                                NetManager.instance.UpdateNodeRenderer(nodeID, true);
+                                NetManager.instance.UpdateNodeRenderer(nodeID, false);
                             }
                         }
 
