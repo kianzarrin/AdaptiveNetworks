@@ -40,6 +40,9 @@ namespace AdaptiveRoads.UI.Tool {
 
         public static FlagsPanel Create() {
             UIPanel wrapper = UIView.GetAView().AddUIComponent<UIPanel>();
+            wrapper.position = default;
+            wrapper.size = Vector2.one;
+            wrapper.isInteractive = false;
             return wrapper.AddUIComponent(typeof(FlagsPanel)) as FlagsPanel;
         }
 

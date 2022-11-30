@@ -14,7 +14,7 @@ using ColossalFramework.Math;
 /// </summary>
 [PreloadPatch]
 [HarmonyPatch]
-public static class CalculateCornerPatch {
+public static class CalculateCorner_ShiftPatch {
     [UsedImplicitly]
     [HarmonyBefore("CS.Kian.NodeController")]
     static MethodBase TargetMethod() {
