@@ -206,11 +206,11 @@ namespace AdaptiveRoads.Manager {
                 }
                 for(ushort nodeID = 0; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID) {
                     if(!NetUtil.IsNodeValid(nodeID)) continue;
-                    NetManager.instance.UpdateNodeRenderer(nodeID, false);
                     timer2?.Start();
                     counter2++;
                     nodeID.ToNode().CalculateNode(nodeID);
                     timer2?.Stop();
+                    NetManager.instance.UpdateNodeRenderer(nodeID, false);
                 }
             } catch(Exception ex) {
                 ex.Log();
