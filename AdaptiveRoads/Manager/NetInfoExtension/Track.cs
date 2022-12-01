@@ -297,8 +297,8 @@ namespace AdaptiveRoads.Manager {
             public bool ScaleToLaneWidth;
 
             //[CustomizableProperty("Low Priority")]
-            [Hint("Other tracks with DC node take priority")]
-            public bool IgnoreDC;
+            //[Hint("Other tracks with DC node take priority")]
+            //public bool IgnoreDC;
 
             [CustomizableProperty("Lanes to apply to")]
             [BitMaskLanes]

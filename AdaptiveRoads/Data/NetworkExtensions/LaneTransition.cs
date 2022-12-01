@@ -28,6 +28,9 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
 
             [Hint("target wires are influenced by wind.")]
             WindWires = 1 << 9,
+
+            [Hint("transition is between two segments with unbroken median.")]
+            UnbrokenMedian = 1 << 10,
         }
 
         public Flags m_flags; // TODO complete
@@ -170,6 +173,10 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 m_flags = m_flags.SetFlags(Flags.NearCurb, nearCurb);
             }
 
+            {
+                bool unBrokenMedian = !DirectConnectUtil.OpenMedian(segmentID_A, segmentID_D);
+                m_flags = m_flags.SetFlags(Flags.UnbrokenMedian, on: unBrokenMedian);
+            }
             Bezier3 bezierA = LaneExtA.LaneData.GetBezier(NodeID);
             Bezier3 bezierD = LaneExtD.LaneData.GetBezier(NodeID);
 

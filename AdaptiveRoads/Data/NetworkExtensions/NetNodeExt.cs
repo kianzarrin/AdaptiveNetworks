@@ -76,6 +76,9 @@ namespace AdaptiveRoads.Manager {
             [Hint("number of incoming lanes incoming toward the node is one less than outgoing lanes")]
             OneExtraOutgoingLane = 1 << 17,
 
+            [Hint("has continues junction median between at least a pair of segments (provided that there are DC nodes)")]
+            HasUnbrokenMedian = 1L << 18,
+
             [CustomFlag] Custom0 = 1 << 24,
             [CustomFlag] Custom1 = 1 << 25,
             [CustomFlag] Custom2 = 1 << 26,
@@ -141,6 +144,15 @@ namespace AdaptiveRoads.Manager {
                         m_flags = m_flags.SetFlags(Flags.OneExtraOutgoingLane, incoming == outgoing + 1);
                     }
 
+                    {
+                        bool hasUnbrokenMedian = false;
+                        foreach (ushort segmentId in SegmentIDs) {
+                            if (segmentId.ToSegment().Info?.m_netAI is RoadBaseAI) {
+                                hasUnbrokenMedian |= DirectConnectUtil.HasUnbrokenMedian(segmentID: segmentId, nodeID: NodeID);
+                            }
+                        }
+                        m_flags = m_flags.SetFlags(Flags.HasUnbrokenMedian, hasUnbrokenMedian);
+                    }
 
                     GetTrackConnections();
                 }
