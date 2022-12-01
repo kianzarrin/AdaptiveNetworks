@@ -8,6 +8,15 @@ namespace AdaptiveRoads.UI {
         public override SavedString SavedVersion => new SavedString("WhatsNewVersion", ModSettings.FILE_NAME, def: "0.0.0", autoUpdate: true);
         public override WhatsNewEntry[] Messages { get; } = new WhatsNewEntry[] {
             new WhatsNewEntry {
+                version = new Version(3, 16, 8),
+                messages = new string[] {
+                    "Feature: Has Unbroken median flags for node and transition",
+                    "Bug-fix: blue void on load",
+                    "Bug-fix: Custom Connect Group matching"
+                }
+            },
+
+            new WhatsNewEntry {
                 version = new Version(3, 16, 4),
                 messages = new string[] {
                     "Feature: Prop junction distance (prevents repeating props from getting too close to the junctions)",
