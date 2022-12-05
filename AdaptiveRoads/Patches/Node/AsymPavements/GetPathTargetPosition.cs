@@ -13,10 +13,14 @@ namespace AdaptiveRoads.Patches.AsymPavements {
     using AdaptiveRoads.Manager;
     using System.Linq;
 
-    // protected Vector4 CitizenAI.GetPathTargetPosition(ushort, ref CitizenInstance, ref CitizenInstance.Frame, float)
+    
+    /// <summary>
+    /// fix pedestrian surface level when crossing street.
+    /// </summary>
     [UsedImplicitly]
     //[HarmonyPatch][InGamePatch]
     static class GetPathTargetPositionPatch {
+        // protected Vector4 CitizenAI.GetPathTargetPosition(ushort, ref CitizenInstance, ref CitizenInstance.Frame, float)
         delegate Vector4 dGetPathTargetPosition
             (ushort instanceID, ref CitizenInstance citizenData, ref CitizenInstance.Frame frameData, float minSqrDistance);
 
