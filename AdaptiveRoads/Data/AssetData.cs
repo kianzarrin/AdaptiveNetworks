@@ -63,9 +63,11 @@ namespace AdaptiveRoads.Manager {
                         net.Lanes = new NetInfoExtionsion.LaneCollection(info, Lanes);
                     }
 
+                    // legacy work around
                     if (DeserializationVersion < new Version(3, 16)) {
                         info.GetMetaData()?.LoadVanillaTags(info);
                     }
+
                     info.RecalculateMetaData();
 
                     Log.Debug("Net Metadata restored.");
@@ -158,6 +160,7 @@ namespace AdaptiveRoads.Manager {
             NetInfo slope = AssetEditorRoadUtils.TryGetSlope(ground);
             NetInfo tunnel = AssetEditorRoadUtils.TryGetTunnel(ground);
 
+            DeserializationVersion = typeof(AssetData).VersionOf();
             var ret = new AssetData {
                 Ground = NetInfoMetaData.Create(ground),
                 Elevated = NetInfoMetaData.Create(elevated),

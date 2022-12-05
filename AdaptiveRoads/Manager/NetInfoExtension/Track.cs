@@ -214,7 +214,7 @@ namespace AdaptiveRoads.Manager {
                 try {
                     if (info?.m_netAI is not TrainTrackBaseAI) return;
                     if (!m_requireWindSpeed) return;
-                    if (ThinWires) {
+                    if (UseThinWires) {
                         Vector2 scale = new Vector2(3.5f, 1.0f);
                         if (m_material) m_material.mainTextureScale = scale;
                         if (m_trackMaterial) m_trackMaterial.mainTextureScale = scale;

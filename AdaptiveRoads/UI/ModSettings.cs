@@ -21,7 +21,10 @@ namespace AdaptiveRoads.UI {
         public static SavedFloat SavedFloat(string key, float def) => new SavedFloat(key, FILE_NAME, def, true);
 
         public static bool RailwayModEnabled => PluginUtil.GetPlugin("RailwayMod", searchOptions: PluginUtil.AssemblyEquals).IsActive();
-        public static SavedBool ThinWires => new SavedBool("enableWires", "RailwayModSettings", RailwayModEnabled, true);
+        public static SavedBool SavedThinWires => new SavedBool("enableWires", "RailwayModSettings", RailwayModEnabled, true);
+        public static bool UseThinWires =>
+            (RailwayModEnabled && SavedThinWires.value);
+
         public enum SpeedUnitType { KPH, MPH }
 
         public const string SEGMENT_NODE = "Segment.Node";
