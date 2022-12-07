@@ -186,7 +186,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 SegmentExtD.GetEnd(NodeID).TotalAngle,
                 0);
 
-            OutLine = new OutlineData(bezierA, bezierD,width: Width, tiltData);
+            OutLine = new OutlineData(bezierA, bezierD, width: Width, tiltData);
             if(OutLine.Empty) return;
             RenderData = GenerateRenderData(ref OutLine);
 

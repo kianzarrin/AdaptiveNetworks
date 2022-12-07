@@ -97,7 +97,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             float deltaY = trackInfo.VerticalOffset;
             float deltaY2 = 0;
             if(trackInfo.AntiFlickering) deltaY2 = antiFlickerIndex * 0.001f;
-            Lift(ref ret.LeftMatrix,deltaY,deltaY2);
+            Lift(ref ret.LeftMatrix, deltaY, deltaY2);
             Lift(ref ret.RightMatrix, deltaY, deltaY2);
 
             return ret;
