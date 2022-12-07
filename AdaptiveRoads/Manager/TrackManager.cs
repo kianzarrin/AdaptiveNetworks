@@ -11,6 +11,8 @@ namespace AdaptiveRoads.Manager {
     using KianCommons.UI;
     using ColossalFramework.Math;
     using AdaptiveRoads.UI.RoadEditor;
+    using AdaptiveRoads.Util;
+    using AdaptiveRoads.UI;
 
     public class TrackManager : Singleton<TrackManager>, IRenderableManager, IAwakingObject, IDestroyableObject {
         private static NetworkExtensionManager NetworkExtensionManager => NetworkExtensionManager.RawInstance; // help with mod-tools
@@ -270,6 +272,9 @@ namespace AdaptiveRoads.Manager {
 
         public void CheckReferences() { }
 
-        public void InitRenderData() { }
+        public void InitRenderData() {
+            Log.Called();
+            RoadUtils.SetupThinWires();
+        }
     }
 }

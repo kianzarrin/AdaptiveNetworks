@@ -212,14 +212,12 @@ namespace AdaptiveRoads.Manager {
 
             private void SetupThinWires(NetInfo info) {
                 try {
-                    if (info?.m_netAI is not TrainTrackBaseAI) return;
                     if (!m_requireWindSpeed) return;
-                    if (UseThinWires) {
-                        Vector2 scale = new Vector2(3.5f, 1.0f);
-                        if (m_material) m_material.mainTextureScale = scale;
-                        if (m_trackMaterial) m_trackMaterial.mainTextureScale = scale;
-                        if (m_lodMaterial) m_lodMaterial.mainTextureScale = scale;
-                        if (m_combinedLod?.m_material) m_combinedLod.m_material.mainTextureScale = scale;
+                    if (ThinWires) {
+                        this.SetupThinWires(WireWidth);
+                    } else if (RLWY.UseThinWires) {
+                        if (info?.m_netAI is not TrainTrackBaseAI) return;
+                        this.SetupThinWires(3.5f);
                     }
                 } catch (Exception ex) {
                     ex.Log();

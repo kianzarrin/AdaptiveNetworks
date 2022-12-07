@@ -1,5 +1,6 @@
 namespace AdaptiveRoads.Util {
     using AdaptiveRoads.Manager;
+    using AdaptiveRoads.UI;
     using ColossalFramework;
     using KianCommons;
     using System;
@@ -177,6 +178,56 @@ namespace AdaptiveRoads.Util {
                 }
             }
             return false;
+        }
+        public static void SetupThinWires() {
+            Log.Called();
+            if(ModSettings.ThinWires && !Helpers.InStartupMenu) {
+                Log.Info("Thin wires: setting global wire width to " + ModSettings.WireWidth);
+                foreach (var netInfo in NetUtil.IterateLoadedNetInfos()) {
+                    netInfo?.SetupThinWires(ModSettings.WireWidth);
+                }
+            }
+        }
+
+
+        public static void SetupThinWires(this NetInfoExtionsion.Track track, float width) {
+            if (track == null || !track.m_requireWindSpeed) return; // not wire
+            Vector2 scale = new Vector2(width, 1.0f);
+            if (track.m_material) track.m_material.mainTextureScale = scale;
+            if (track.m_trackMaterial) track.m_trackMaterial.mainTextureScale = scale;
+            if (track.m_lodMaterial) track.m_lodMaterial.mainTextureScale = scale;
+            if (track.m_combinedLod?.m_material) track.m_combinedLod.m_material.mainTextureScale = scale;
+        }
+
+        public static void SetupThinWires(this NetInfo.Segment segment, float width) {
+            if (segment == null || !segment.m_requireWindSpeed) return; // not wire
+            Vector2 scale = new Vector2(width, 1.0f);
+            if (segment.m_material) segment.m_material.mainTextureScale = scale;
+            if (segment.m_segmentMaterial) segment.m_segmentMaterial.mainTextureScale = scale;
+            if (segment.m_lodMaterial) segment.m_lodMaterial.mainTextureScale = scale;
+            if (segment.m_combinedLod?.m_material) segment.m_combinedLod.m_material.mainTextureScale = scale;
+        }
+
+        public static void SetupThinWires(this NetInfo.Node node, float width) {
+            if (node == null || !node.m_requireWindSpeed) return; // not wire
+            Vector2 scale = new Vector2(width, 1.0f);
+            if (node.m_material) node.m_material.mainTextureScale = scale;
+            if (node.m_nodeMaterial) node.m_nodeMaterial.mainTextureScale = scale;
+            if (node.m_lodMaterial) node.m_lodMaterial.mainTextureScale = scale;
+            if (node.m_combinedLod?.m_material) node.m_combinedLod.m_material.mainTextureScale = scale;
+        }
+
+        public static void SetupThinWires(this NetInfo netInfo, float width) {
+            if (netInfo == null) return;
+            foreach (var segment in netInfo.m_segments)
+                segment?.SetupThinWires(width);
+            foreach (var node in netInfo.m_nodes)
+                node?.SetupThinWires(width);
+            if(netInfo.GetMetaData() is NetInfoExtionsion.Net net) {
+                foreach(var track in net.Tracks) {
+                    track?.SetupThinWires(width);
+                }
+            }
         }
     }
 }

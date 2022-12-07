@@ -12,6 +12,7 @@ using static KianCommons.EnumBitMaskExtensions;
 using KianCommons.Plugins;
 using UnityEngine;
 using KianCommons.UI;
+using AdaptiveRoads.UI.VBSTool;
 
 namespace AdaptiveRoads.UI {
     public static class ModSettings {
@@ -19,11 +20,6 @@ namespace AdaptiveRoads.UI {
         public static SavedBool SavedBool(string key, bool def) => new SavedBool(key, FILE_NAME, def, true);
         public static SavedInt SavedInt(string key, int def) => new SavedInt(key, FILE_NAME, def, true);
         public static SavedFloat SavedFloat(string key, float def) => new SavedFloat(key, FILE_NAME, def, true);
-
-        public static bool RailwayModEnabled => PluginUtil.GetPlugin("RailwayMod", searchOptions: PluginUtil.AssemblyEquals).IsActive();
-        public static SavedBool SavedThinWires => new SavedBool("enableWires", "RailwayModSettings", RailwayModEnabled, true);
-        public static bool UseThinWires =>
-            (RailwayModEnabled && SavedThinWires.value);
 
         public enum SpeedUnitType { KPH, MPH }
 
@@ -63,8 +59,21 @@ namespace AdaptiveRoads.UI {
             "VBS_HotKey", FILE_NAME,
             key: KeyCode.V, control: true, shift: false, alt: true, true);
 
+        #region ThinWires
+        public static SavedBool ThinWires = SavedBool("ThinWires", false);
+        public static SavedFloat WireWidth = SavedFloat("WireWidth", 3.5f);
+
+        public static class RLWY {
+            private static bool ModEnabled => PluginUtil.GetPlugin("RailwayMod", searchOptions: PluginUtil.AssemblyEquals).IsActive();
+            private static SavedBool ThinWires => new SavedBool("enableWires", "RailwayModSettings", ModEnabled, true);
+            public static bool UseThinWires =>
+                (ModEnabled && ThinWires.value);
+        }
+        #endregion
+
 
         public static UICheckBox VanillaModeToggle;
+        public static UIComponent WireWidthComponent;
 
         public static SavedBool GetOption(string key) {
             foreach (var field in typeof(ModSettings).GetFields()) {
@@ -94,79 +103,107 @@ namespace AdaptiveRoads.UI {
 
 
         public static void OnSettingsUI(UIHelperBase helper) {
-            bool inAssetEditor = HelpersExtensions.InAssetEditor;
+            try {
+                bool inAssetEditor = HelpersExtensions.InAssetEditor;
 
 #if DEBUG
-            {
-                helper.AddUpdatingCheckbox("Verbose log", val => Log.VERBOSE = val, () => Log.VERBOSE);
-                helper.AddUpdatingCheckbox("Buffered log", val => Log.Buffered = val, () => Log.Buffered);
-            }
+                {
+                    helper.AddUpdatingCheckbox("Verbose log", val => Log.VERBOSE = val, () => Log.VERBOSE);
+                    helper.AddUpdatingCheckbox("Buffered log", val => Log.Buffered = val, () => Log.Buffered);
+                }
 #endif
-            var general = helper.AddGroup("General") as UIHelper;
+                var general = helper.AddGroup("General") as UIHelper;
 
-            ANWhatsNew.Instance.AddSettings(general);
+                ANWhatsNew.Instance.AddSettings(general);
 
-            var keymappingsPanel = general.AddKeymappingsPanel();
-            keymappingsPanel.AddKeymapping("Hotkey", Hotkey);
+                var keymappingsPanel = general.AddKeymappingsPanel();
+                keymappingsPanel.AddKeymapping("Hotkey", Hotkey);
 
-            if (inAssetEditor || Helpers.InStartupMenu) {
-                keymappingsPanel.AddKeymapping("VBS Hotkey", VBSHotkey);
+                if (inAssetEditor || Helpers.InStartupMenu) {
+                    keymappingsPanel.AddKeymapping("VBS Hotkey", VBSHotkey);
 
-                VanillaModeToggle = general.AddCheckbox("Vanilla mode", !ARMode, delegate (bool vanillaMode) {
-                    if(ARMode == !vanillaMode) // happens after rejecting confirmation message
-                        return; // no change is necessary
-                    if(vanillaMode)
-                        OnConfimRemoveARdata(); // set to vanilla mode
-                    else
-                        OnRefreshARMode(); // set to ARMode
+                    VanillaModeToggle = general.AddCheckbox("Vanilla mode", !ARMode, delegate (bool vanillaMode) {
+                        if (ARMode == !vanillaMode) // happens after rejecting confirmation message
+                            return; // no change is necessary
+                        if (vanillaMode)
+                            OnConfimRemoveARdata(); // set to vanilla mode
+                        else
+                            OnRefreshARMode(); // set to ARMode
 
-                }) as UICheckBox;
-            }
+                    }) as UICheckBox;
+                }
 
-            if (!Helpers.InStartupMenu) {
-                var btn = general.AddCheckbox("Left Hand Traffic", NetUtil.LHT, RoadUtils.SetDirection) as UICheckBox;
-                btn.eventVisibilityChanged += (_, __) => btn.isChecked = NetUtil.LHT;
-            }
-
-            if(inAssetEditor) { 
-                var dd = general.AddDropdown(
-                    "preferred speed unit",
-                    Enum.GetNames(typeof(SpeedUnitType)),
-                    0, // kph
-                    sel => {
-                        var value = GetEnumValues<SpeedUnitType>()[sel];
-                        SpeedUnit.value = (int)value;
-                        Log.Debug("option 'preferred speed unit' is set to " + value);
-                        RoadEditorUtils.RefreshRoadEditor();
+                {
+                    //thin wires
+                    general.AddSavedToggle("Use thin wires globally", ThinWires, val => {
+                        if (WireWidthComponent != null) {
+                            WireWidthComponent.parent.isVisible = val;
+                        }
+                        if (!Helpers.InStartupMenu) {
+                            RoadUtils.SetupThinWires();
+                        }
                     });
+                    WireWidthComponent = general.AddSlider(
+                        text: "wire width:" , min: 1, max: 10, step: 0.1f,
+                        defaultValue: WireWidth,
+                        val => {
+                            WireWidth.value = val;
+                            Log.Info("wire width changed to " + val);
+                            WireWidthComponent.tooltip = val.ToString();
+                            WireWidthComponent.RefreshTooltip();
+                        }) as UIComponent;
+                    WireWidthComponent.tooltip = WireWidth.value.ToString();
+                    WireWidthComponent.parent.isVisible = ThinWires.value;
+                    WireWidthComponent.eventMouseUp += (_, __) => RoadUtils.SetupThinWires(); // on slider released
 
-                general.AddSavedToggle("hide irrelevant flags", HideIrrelavant);
-                general.AddSavedToggle("hide floating hint box", HideHints);
-            }
+                    if (!Helpers.InStartupMenu) {
+                        var toggle = general.AddCheckbox("Left Hand Traffic", NetUtil.LHT, RoadUtils.SetDirection) as UICheckBox;
+                        toggle.eventVisibilityChanged += (_, __) => toggle.isChecked = NetUtil.LHT;
+                    }
+                }
 
-            if(!Helpers.InStartupMenu) {
+                if (inAssetEditor) {
+                    var dd = general.AddDropdown(
+                        "preferred speed unit",
+                        Enum.GetNames(typeof(SpeedUnitType)),
+                        0, // kph
+                        sel => {
+                            var value = GetEnumValues<SpeedUnitType>()[sel];
+                            SpeedUnit.value = (int)value;
+                            Log.Debug("option 'preferred speed unit' is set to " + value);
+                            RoadEditorUtils.RefreshRoadEditor();
+                        });
+
+                    general.AddSavedToggle("hide irrelevant flags", HideIrrelavant);
+                    general.AddSavedToggle("hide floating hint box", HideHints);
+                }
+
+                if (!Helpers.InStartupMenu) {
 #if DEBUG
-                general.AddButton("Rebuild lods", () => NetManager.instance.RebuildLods());
+                    general.AddButton("Rebuild lods", () => NetManager.instance.RebuildLods());
 #endif
-                general.AddButton("Refresh AN networks", RefreshARNetworks);
-            }
+                    general.AddButton("Refresh AN networks", RefreshARNetworks);
+                }
 
-            if(inAssetEditor) {
-                //var export = helper.AddGroup("import/export:");
-                //export.AddButton("export edited road", null);
-                //export.AddButton("import to edited road", null);
+                if (inAssetEditor) {
+                    //var export = helper.AddGroup("import/export:");
+                    //export.AddButton("export edited road", null);
+                    //export.AddButton("import to edited road", null);
 
-                var extensions = helper.AddGroup("UI components visible in asset editor:");
-                var segment = extensions.AddGroup("Segment");
-                segment.AddSavedToggle("Node flags", Segment_Node);
-                segment.AddSavedToggle("Segment End flags", Segment_SegmentEnd);
+                    var extensions = helper.AddGroup("UI components visible in asset editor:");
+                    var segment = extensions.AddGroup("Segment");
+                    segment.AddSavedToggle("Node flags", Segment_Node);
+                    segment.AddSavedToggle("Segment End flags", Segment_SegmentEnd);
 
-                var node = extensions.AddGroup("Node");
-                node.AddSavedToggle("Segment and Segment-extension flags", Node_Segment);
+                    var node = extensions.AddGroup("Node");
+                    node.AddSavedToggle("Segment and Segment-extension flags", Node_Segment);
 
-                var laneProp = extensions.AddGroup("Lane prop");
-                laneProp.AddSavedToggle("Segment and Segment-extension flags", Lane_Segment);
-                laneProp.AddSavedToggle("Segment End flags", Lane_SegmentEnd);
+                    var laneProp = extensions.AddGroup("Lane prop");
+                    laneProp.AddSavedToggle("Segment and Segment-extension flags", Lane_Segment);
+                    laneProp.AddSavedToggle("Segment End flags", Lane_SegmentEnd);
+                }
+            } catch (Exception ex) {
+                ex.Log();
             }
 
         }
