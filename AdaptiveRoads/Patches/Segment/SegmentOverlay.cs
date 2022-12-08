@@ -29,7 +29,7 @@ namespace AdaptiveRoads.Patches.Segment {
 
             int iCheckFlags = codes.Search(_c => _c.Calls(mCheckFlags));
             int iLdaTurnAround = codes.Search(_c =>
-                _c.IsLdLocA(typeof(bool), out _),
+                _c.IsLdLocA(typeof(bool), method),
                 startIndex: iCheckFlags, count: -1);
             var locTurnAround = codes[iLdaTurnAround].operand;
             CodeInstruction ldTurnAround = new CodeInstruction(OpCodes.Ldloc_S, locTurnAround);

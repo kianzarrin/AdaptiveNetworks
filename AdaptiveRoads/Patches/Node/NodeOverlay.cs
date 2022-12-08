@@ -8,6 +8,7 @@ using System.Reflection.Emit;
 using UnityEngine;
 using static KianCommons.Patches.TranspilerUtils;
 using ColossalFramework;
+using static UnityEngine.UI.Image;
 
 namespace AdaptiveRoads.Patches.Node {
     public static class NodeOverlay {
@@ -83,7 +84,7 @@ namespace AdaptiveRoads.Patches.Node {
 
             int iCheckFlags = codes.Search(_c => _c.Calls(mCheckFlags));
             int iLdaTurnAround = codes.Search(_c =>
-                _c.IsLdLocA(typeof(bool), out _),
+                _c.IsLdLocA(typeof(bool), method),
                 startIndex: iCheckFlags, count: -1);
             CodeInstruction loadRefTurnAround = codes[iLdaTurnAround].Clone();
 

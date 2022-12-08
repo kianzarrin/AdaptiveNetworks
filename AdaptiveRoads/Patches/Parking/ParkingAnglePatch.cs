@@ -34,7 +34,7 @@ namespace AdaptiveRoads.Patches.Parking {
                 yield return code;
                 if (code.Calls(mGetLaneID_)) {
                     // laneID is already on the stack
-                    var LoadRefPathPos = instructions.ToList().Find(c => c.IsLdLocA(typeof(PathUnit.Position), out _));
+                    var LoadRefPathPos = instructions.ToList().Find(c => c.IsLdLocA(typeof(PathUnit.Position), origin));
                     yield return LoadRefPathPos.Clone();
                     yield return new CodeInstruction(OpCodes.Ldarga_S, origin.GetArgLoc("width"));
                     yield return new CodeInstruction(OpCodes.Ldarga_S, origin.GetArgLoc("length"));
