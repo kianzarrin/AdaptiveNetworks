@@ -143,24 +143,20 @@ namespace AdaptiveRoads.UI {
                             RoadUtils.SetupThinWires(force: true);
                         }
                     }).tooltip = "applies to all networks (not only AN networks)";
-                    WireScaleComponent = general.AddSlider(
-                        text: $"wire width: 1/{WireScale}" ,
+                    WireScaleComponent = general.AddSavedSlider(
+                        text: "wire width",
+                        tooltip: val => "1/" + val,
+                        savedFloat: WireScale,
                         min: 1, max: 10, step: 0.1f,
-                        defaultValue: WireScale,
-                        val => {
-                            WireScale.value = val;
-                            Log.Info("wire scale changed to " + val);
-                            var label = WireScaleComponent.parent.Find<UILabel>("Label");
-                            label.text = $"wire width: 1/{val}";
-                        }) as UIComponent;
+                        () => RoadUtils.SetupThinWires(force: true));
                     WireScaleComponent.parent.isVisible = ThinWires.value;
-                    WireScaleComponent.eventMouseUp += (_, __) => RoadUtils.SetupThinWires(); // on slider released
-
-                    if (!Helpers.InStartupMenu) {
-                        var toggle = general.AddCheckbox("Left Hand Traffic", NetUtil.LHT, RoadUtils.SetDirection) as UICheckBox;
-                        toggle.eventVisibilityChanged += (_, __) => toggle.isChecked = NetUtil.LHT;
-                    }
                 }
+
+                if (!Helpers.InStartupMenu) {
+                    var toggle = general.AddCheckbox("Left Hand Traffic", NetUtil.LHT, RoadUtils.SetDirection) as UICheckBox;
+                    toggle.eventVisibilityChanged += (_, __) => toggle.isChecked = NetUtil.LHT;
+                }
+                
 
                 if (inAssetEditor) {
                     var dd = general.AddDropdown(
