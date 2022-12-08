@@ -214,7 +214,7 @@ namespace AdaptiveRoads.Manager {
                 try {
                     if (!m_requireWindSpeed) return;
                     if (ThinWires) {
-                        this.SetupThinWires(WireWidth);
+                        this.SetupThinWires(WireScale);
                     } else if (RLWY.UseThinWires) {
                         if (info?.m_netAI is not TrainTrackBaseAI) return;
                         this.SetupThinWires(3.5f);

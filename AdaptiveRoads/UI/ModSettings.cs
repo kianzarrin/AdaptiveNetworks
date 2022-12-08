@@ -61,7 +61,7 @@ namespace AdaptiveRoads.UI {
 
         #region ThinWires
         public static SavedBool ThinWires = SavedBool("ThinWires", false);
-        public static SavedFloat WireWidth = SavedFloat("WireWidth", 3.5f);
+        public static SavedFloat WireScale = SavedFloat("WireScale", 3.5f);
 
         public static class RLWY {
             private static bool ModEnabled => PluginUtil.GetPlugin("RailwayMod", searchOptions: PluginUtil.AssemblyEquals).IsActive();
@@ -73,7 +73,7 @@ namespace AdaptiveRoads.UI {
 
 
         public static UICheckBox VanillaModeToggle;
-        public static UIComponent WireWidthComponent;
+        public static UIComponent WireScaleComponent;
 
         public static SavedBool GetOption(string key) {
             foreach (var field in typeof(ModSettings).GetFields()) {
@@ -135,26 +135,26 @@ namespace AdaptiveRoads.UI {
 
                 {
                     //thin wires
-                    general.AddSavedToggle("Use thin wires globally", ThinWires, val => {
-                        if (WireWidthComponent != null) {
-                            WireWidthComponent.parent.isVisible = val;
+                    general.AddSavedToggle("Use all thin wires globally", ThinWires, val => {
+                        if (WireScaleComponent != null) {
+                            WireScaleComponent.parent.isVisible = val;
                         }
                         if (!Helpers.InStartupMenu) {
-                            RoadUtils.SetupThinWires();
+                            RoadUtils.SetupThinWires(force: true);
                         }
-                    });
-                    WireWidthComponent = general.AddSlider(
-                        text: "wire width:" , min: 1, max: 10, step: 0.1f,
-                        defaultValue: WireWidth,
+                    }).tooltip = "applies to all networks (not only AN networks)";
+                    WireScaleComponent = general.AddSlider(
+                        text: $"wire width: 1/{WireScale}" ,
+                        min: 1, max: 10, step: 0.1f,
+                        defaultValue: WireScale,
                         val => {
-                            WireWidth.value = val;
-                            Log.Info("wire width changed to " + val);
-                            WireWidthComponent.tooltip = val.ToString();
-                            WireWidthComponent.RefreshTooltip();
+                            WireScale.value = val;
+                            Log.Info("wire scale changed to " + val);
+                            var label = WireScaleComponent.parent.Find<UILabel>("Label");
+                            label.text = $"wire width: 1/{val}";
                         }) as UIComponent;
-                    WireWidthComponent.tooltip = WireWidth.value.ToString();
-                    WireWidthComponent.parent.isVisible = ThinWires.value;
-                    WireWidthComponent.eventMouseUp += (_, __) => RoadUtils.SetupThinWires(); // on slider released
+                    WireScaleComponent.parent.isVisible = ThinWires.value;
+                    WireScaleComponent.eventMouseUp += (_, __) => RoadUtils.SetupThinWires(); // on slider released
 
                     if (!Helpers.InStartupMenu) {
                         var toggle = general.AddCheckbox("Left Hand Traffic", NetUtil.LHT, RoadUtils.SetDirection) as UICheckBox;
