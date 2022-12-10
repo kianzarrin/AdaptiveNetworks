@@ -297,6 +297,12 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                             }
                             TreeInfo finalTree = prop.m_finalTree;
                             if (finalTree != null && (layerMask & 1 << finalTree.m_prefabDataLayer) != 0) {
+                                if (prop.m_upgradable) {
+                                    TreeInfo treeInfo2 = laneTransition.SegmentA.TreeInfo;
+                                    if (treeInfo2 != null) {
+                                        finalTree = treeInfo2;
+                                    }
+                                }
                                 for (int repeateIndex2 = 1; repeateIndex2 <= repeatCountTimes2; repeateIndex2 += 2) {
                                     if (randomizer.Int32(100u) < prop.m_probability) {
                                         TreeInfo variation = finalTree.GetVariation(ref randomizer);
