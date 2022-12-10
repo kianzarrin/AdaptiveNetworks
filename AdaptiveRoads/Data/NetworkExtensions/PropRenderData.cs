@@ -99,11 +99,13 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                                                 isCatenary: prop.Catenary);
 
                                             tan.y = 0f;
+                                            Vector3 normal = new Vector3(x: tan.z, y: 0, z: -tan.x);
                                             if (prop.m_position.x != 0f) {
                                                 tan.Normalize();
-                                                pos += tan * propPosition.x;
+                                                normal.Normalize();
+                                                pos += normal * propPosition.x;
                                             }
-                                            finalAngle = Mathf.Atan2(tan.x, 0f - tan.z);
+                                            finalAngle = Mathf.Atan2(normal.z, normal.x);
                                             if (prop.m_cornerAngle != 0f || propPosition.x != 0f) {
                                                 float angleDiff = endAngle - startAngle;
                                                 if (angleDiff > (float)Math.PI) {
