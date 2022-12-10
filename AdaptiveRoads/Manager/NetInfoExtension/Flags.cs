@@ -236,7 +236,7 @@ namespace AdaptiveRoads.Manager {
 
             public bool IsNone() => Flags.IsEmpty;
 
-            public virtual bool CheckOrNone(DynamicFlags flags) => IsNone() || Flags.IsAnyFlagSet(flags);
+            public virtual bool CheckOrNone(DynamicFlags flags) => Flags.IsAnyFlagSetOrEmpty(flags);
 
 
 

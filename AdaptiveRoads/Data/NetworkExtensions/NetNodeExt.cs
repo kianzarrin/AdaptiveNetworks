@@ -293,6 +293,8 @@ namespace AdaptiveRoads.Manager {
                 public bool Equals(Connection x, Connection y) => x.Equals(y);
                 public int GetHashCode(Connection obj) => obj.GetHashCode();
             }
+
+            public override string ToString() => $"lane connection key {LaneID1}->{LaneID2}";
         }
 
         private static HashSet<Connection> tempConnections_ = new (Connection.Comparer);
@@ -337,6 +339,7 @@ namespace AdaptiveRoads.Manager {
                             if (LanesConnect(laneInfo, laneInfo2, routing.group)) {
                                 if (IsNodeless(segmentID: routing.segmentId, nodeID: NodeID)) continue;
                                 var key = new Connection { LaneID1 = laneID, LaneID2 = routing.laneId };
+                                //Log.Debug("routed " + key);
                                 tempConnections_.Add(key);
                             }
                         }
@@ -380,6 +383,7 @@ namespace AdaptiveRoads.Manager {
 
                                     //Log.Debug($"{lane1} -> {lane2}");
                                     var key = new Connection { LaneID1 = lane1.LaneID, LaneID2 = lane2.LaneID };
+                                    //Log.Debug("bicycle " + key);
                                     tempConnections_.Add(key);
                                 }
                             }
@@ -421,6 +425,7 @@ namespace AdaptiveRoads.Manager {
 
                                     //Log.Debug($"{lane1} -> {lane2}");
                                     var key = new Connection { LaneID1 = lane1.LaneID, LaneID2 = lane2.LaneID };
+                                    //Log.Debug("pedestrian " + key);
                                     tempConnections_.Add(key);
                                 }
                             }
@@ -449,7 +454,9 @@ namespace AdaptiveRoads.Manager {
                                         (lane1.LaneInfo.m_laneType == NetInfo.LaneType.None) ||
                                         (lane2.LaneInfo.m_laneType == NetInfo.LaneType.None)) {
                                         if (CheckTagsNoneLanes(lane1, lane2)) {
+                                            Log.Debug($"{lane1} -> {lane2}");
                                             var key = new Connection { LaneID1 = lane1.LaneID, LaneID2 = lane2.LaneID };
+                                            Log.Debug(message: "NONE " + key);
                                             tempConnections_.Add(key);
                                         }
                                     }
@@ -491,19 +498,25 @@ namespace AdaptiveRoads.Manager {
             var tags2 = infoExt2?.Lanes[lane2.LaneInfo]?.LaneTags;
             if (tracks1 != null && tags2 != null) {
                 foreach (var track in tracks1) {
-                    Assertion.NotNull(track);
-                    Assertion.NotNull(tags2);
-                    if (track.LaneTags.Check(tags2.Flags)) {
-                        return true;
+                    if (track.HasTrackLane(lane1.LaneIndex)) {
+                        Assertion.NotNull(track);
+                        Assertion.NotNull(tags2);
+                        if (track.LaneTags.Check(tags2.Flags)) {
+                            Log.Debug($"[p1]{track.LaneTags.Flags}.Check({tags1.Flags}) -> true");
+                            return true;
+                        }
                     }
                 }
             }
             if (tracks2 != null && tags1 != null) {
                 foreach (var track in tracks2) {
-                    Assertion.NotNull(track);
-                    Assertion.NotNull(tags1);
-                    if (track.LaneTags.Check(tags1.Flags)) {
-                        return true;
+                    if (track.HasTrackLane(lane2.LaneIndex)) {
+                        Assertion.NotNull(track);
+                        Assertion.NotNull(tags1);
+                        if (track.LaneTags.Check(tags1.Flags)) {
+                            Log.Debug($"[p2]{track.LaneTags.Flags}.Check({tags1.Flags}) -> true");
+                            return true;
+                        }
                     }
                 }
             }
