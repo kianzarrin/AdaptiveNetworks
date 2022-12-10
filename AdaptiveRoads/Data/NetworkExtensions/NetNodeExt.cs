@@ -498,11 +498,10 @@ namespace AdaptiveRoads.Manager {
             var tags2 = infoExt2?.Lanes[lane2.LaneInfo]?.LaneTags;
             if (tracks1 != null && tags2 != null) {
                 foreach (var track in tracks1) {
+                    Assertion.NotNull(track);
                     if (track.HasTrackLane(lane1.LaneIndex)) {
-                        Assertion.NotNull(track);
                         Assertion.NotNull(tags2);
                         if (track.LaneTags.Check(tags2.Flags)) {
-                            Log.Debug($"[p1]{track.LaneTags.Flags}.Check({tags1.Flags}) -> true");
                             return true;
                         }
                     }
@@ -510,11 +509,10 @@ namespace AdaptiveRoads.Manager {
             }
             if (tracks2 != null && tags1 != null) {
                 foreach (var track in tracks2) {
+                    Assertion.NotNull(track);
                     if (track.HasTrackLane(lane2.LaneIndex)) {
-                        Assertion.NotNull(track);
                         Assertion.NotNull(tags1);
                         if (track.LaneTags.Check(tags1.Flags)) {
-                            Log.Debug($"[p2]{track.LaneTags.Flags}.Check({tags1.Flags}) -> true");
                             return true;
                         }
                     }

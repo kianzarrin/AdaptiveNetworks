@@ -129,8 +129,9 @@ namespace AdaptiveRoads.Manager {
             [CustomizableProperty("Curve")]
             public Range Curve;
 
-            [Hint("Shift due track super-elevation. " +
-                "The amount of shift is proportional to sin(angle) and Catenary height which can be set in the network properties.")]
+            [Hint("Shift based on track super-elevation.\n" +
+                "The amount of shift is proportional to sin(angle) and Catenary height\n" +
+                "which can be set in the network properties.")]
             [CustomizableProperty("Catenary")]
             public bool Catenary;
 
