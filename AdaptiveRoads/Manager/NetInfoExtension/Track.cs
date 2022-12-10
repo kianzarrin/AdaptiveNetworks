@@ -47,6 +47,12 @@ namespace AdaptiveRoads.Manager {
                                 LaneIndeces |= 1ul << laneIndex;
                         }
                     }
+                    if (LaneIndeces == 0) {
+                        for (int laneIndex = 0; laneIndex < lanes.Length; ++laneIndex) {
+                            if (lanes[laneIndex].m_laneType == NetInfo.LaneType.Pedestrian)
+                                LaneIndeces |= 1ul << laneIndex;
+                        }
+                    }
                 } catch (Exception ex) {
                     ex.Log();
                     throw;

@@ -144,32 +144,8 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             m_flags = m_flags.SetFlags(Flags.WindWires, SegmentD.Info.WireHasWind());
 
             {
-                float pos1 = laneInfoA.m_position;
-                float pos2 = laneInfoD.m_position;
-                bool nearCurb = false;
-                if (pos1 != 0 && pos2 != 0) {
-                    SegmentA.GetLeftAndRightSegments(NodeID, out ushort leftSegemntID, out ushort rightSegmentID);
-                    bool left = leftSegemntID == segmentID_D;
-                    bool right = rightSegmentID == segmentID_D;
-                     
-                    bool head1 = SegmentA.IsInvert() == SegmentA.IsStartNode(NodeID);
-                    bool head2 = SegmentD.IsInvert() == SegmentD.IsStartNode(NodeID);
-
-                    bool neightbor = false;
-                    if (pos1 < 0) {
-                        neightbor = (head1 && left) || (!head1 && right);
-                    } else if (pos1 > 0) {
-                        neightbor = (head1 && right) || (!head1 && left);
-                    }
-
-                    if (neightbor) {
-                        if (head1 != head2) {
-                            nearCurb = (pos1 < 0 && pos2 < 0) || (pos1 > 0 && pos2 > 0);
-                        } else {
-                            nearCurb = (pos1 < 0 && pos2 > 0) || (pos1 > 0 && pos2 < 0);
-                        }
-                    }
-                }
+                bool nearCurb = RoadUtils.IsNearCurb(
+                    LaneIDSource.ToLaneExt().LaneData, LaneIDTarget.ToLaneExt().LaneData, NodeID);
                 m_flags = m_flags.SetFlags(Flags.NearCurb, nearCurb);
             }
 

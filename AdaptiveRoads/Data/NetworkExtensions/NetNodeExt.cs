@@ -352,8 +352,8 @@ namespace AdaptiveRoads.Manager {
                         var infoExt1 = segment1.Info?.GetMetaData();
                         foreach (var lane1 in new LaneDataIterator(segmentId1, null, NetInfo.LaneType.Vehicle, VehicleInfo.VehicleType.Bicycle)) {
                             bool hasTrackLane1 = infoExt1?.HasTrackLane(lane1.LaneIndex) ?? false;
-                            NetInfo.Direction goutoingDir = headNode1 ? NetInfo.Direction.Forward : NetInfo.Direction.Backward;
-                            bool outgoing = lane1.LaneInfo.m_finalDirection.IsFlagSet(goutoingDir);
+                            NetInfo.Direction outoingDir = headNode1 ? NetInfo.Direction.Forward : NetInfo.Direction.Backward;
+                            bool outgoing = lane1.LaneInfo.m_finalDirection.IsFlagSet(outoingDir);
                             //Log.Debug($"{lane1.LaneID} outgoing={outgoing}");
                             if (!outgoing) {
                                 continue;
@@ -387,7 +387,48 @@ namespace AdaptiveRoads.Manager {
                     }
                 }
 
-                // None/Pedestrian Transitions based on lane tags
+                // pedestrian transitions
+                {
+                    //Log.Debug("pedestrian transitions at node:" + NodeID);
+                    foreach (ushort segmentId1 in SegmentIDs) {
+                        //Log.Debug($"source: {segmentId1}");
+                        ref NetSegment segment1 = ref segmentId1.ToSegment();
+                        bool headNode1 = segment1.GetHeadNode() == NodeID;
+                        var infoExt1 = segment1.Info?.GetMetaData();
+                        foreach (var lane1 in new LaneDataIterator(segmentId1, null, NetInfo.LaneType.Pedestrian)) {
+                            if (lane1.LaneInfo.m_centerPlatform) continue;
+                            bool hasTrackLane1 = infoExt1?.HasTrackLane(lane1.LaneIndex) ?? false;
+                            //Log.Debug($"lane1={lane1.LaneID}");
+                            foreach (ushort segmentId2 in SegmentIDs) {
+                                if (segmentId2 == segmentId1) continue;
+                                //Log.Debug(message: $"target: {segmentId2}");
+                                ref NetSegment segment2 = ref segmentId2.ToSegment();
+                                var infoExt2 = segment2.Info?.GetMetaData();
+                                bool headNode2 = segment2.GetHeadNode() == NodeID;
+                                foreach (var lane2 in new LaneDataIterator(segmentId2, null, NetInfo.LaneType.Pedestrian)) {
+                                    if (lane2.LaneInfo.m_centerPlatform) continue;
+                                    //Log.Debug($"lane2={lane2.LaneID}");
+                                    bool hasTrackLane2 = infoExt2?.HasTrackLane(lane2.LaneIndex) ?? false;
+                                    if (!(hasTrackLane1 || hasTrackLane2)) {
+                                        //Log.Debug($"skipping hasTrackLane1={hasTrackLane1} hasTrackLane2={hasTrackLane2}");
+                                        continue;
+                                    }
+
+                                    if (!RoadUtils.IsNearCurb(lane1, lane2, NodeID)) {
+                                        //Log.Debug($"skipping because {lane1.LaneID} -> {lane2.LaneID} is not near curb");
+                                        continue;
+                                    }
+
+                                    //Log.Debug($"{lane1} -> {lane2}");
+                                    var key = new Connection { LaneID1 = lane1.LaneID, LaneID2 = lane2.LaneID };
+                                    tempConnections_.Add(key);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // None Transitions based on lane tags
                 {
                     foreach (ushort segmentId1 in SegmentIDs) {
                         ref NetSegment segment1 = ref segmentId1.ToSegment();
@@ -405,8 +446,8 @@ namespace AdaptiveRoads.Manager {
                                         continue;
                                     }
                                     if (
-                                        (lane1.LaneInfo.m_laneType is NetInfo.LaneType.None or NetInfo.LaneType.Pedestrian) ||
-                                        (lane2.LaneInfo.m_laneType is NetInfo.LaneType.None or NetInfo.LaneType.Pedestrian)) {
+                                        (lane1.LaneInfo.m_laneType == NetInfo.LaneType.None) ||
+                                        (lane2.LaneInfo.m_laneType == NetInfo.LaneType.None)) {
                                         if (CheckTagsNoneLanes(lane1, lane2)) {
                                             var key = new Connection { LaneID1 = lane1.LaneID, LaneID2 = lane2.LaneID };
                                             tempConnections_.Add(key);
