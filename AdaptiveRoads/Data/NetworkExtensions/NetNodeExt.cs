@@ -479,8 +479,8 @@ namespace AdaptiveRoads.Manager {
         /// </summary>
         public static bool CheckTagsNoneLanes(LaneData lane1, LaneData lane2) {
             bool none =
-                (lane1.LaneInfo.m_laneType is NetInfo.LaneType.None or NetInfo.LaneType.Pedestrian) ||
-                (lane2.LaneInfo.m_laneType is NetInfo.LaneType.None or NetInfo.LaneType.Pedestrian);
+                (lane1.LaneInfo.m_laneType is NetInfo.LaneType.None) ||
+                (lane2.LaneInfo.m_laneType is NetInfo.LaneType.None);
             if (!none) return false;
 
             var infoExt1 = lane1.Segment.Info?.GetMetaData();
