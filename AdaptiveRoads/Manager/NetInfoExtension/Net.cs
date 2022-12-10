@@ -615,13 +615,14 @@ namespace AdaptiveRoads.Manager {
             }
 
             public void LoadVanillaTags(NetInfo info) {
-                info.m_tags = Tags;
+                string[] EMPTY = DynamicFlagsUtil.EMPTY_TAGS;
+                info.m_tags = Tags ?? EMPTY;
                 NetInfo.AddTags(info.m_tags);
                 info.m_netTags = NetInfo.GetFlags(info.m_tags);
                 foreach (var node in info.m_nodes) {
                     if (node?.GetMetaData() is Node metadata) {
-                        node.m_tagsRequired = metadata.TagsInfo.Required;
-                        node.m_tagsForbidden = metadata.TagsInfo.Forbidden;
+                        node.m_tagsRequired = metadata.TagsInfo.Required ?? EMPTY;
+                        node.m_tagsForbidden = metadata.TagsInfo.Forbidden ?? EMPTY;
                         node.m_minSameTags = metadata.TagsInfo.MinMatch;
                         node.m_maxSameTags = metadata.TagsInfo.MaxMatch;
                         node.m_minOtherTags = metadata.TagsInfo.MinMismatch;
