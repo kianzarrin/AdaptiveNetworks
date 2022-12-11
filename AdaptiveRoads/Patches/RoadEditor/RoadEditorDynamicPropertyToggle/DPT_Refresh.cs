@@ -25,8 +25,10 @@ namespace AdaptiveRoads.Patches {
         static string GetTitle(object obj) {
             if (obj is NetInfo.Node node) {
                 return node.GetMetaData()?.Title;
-            } else if(obj is NetInfo.Segment segment) {
+            } else if (obj is NetInfo.Segment segment) {
                 return segment.GetMetaData()?.Title;
+            } else if (obj is IModel model) {
+                return model?.Title;
             } else {
                 return null;
             }

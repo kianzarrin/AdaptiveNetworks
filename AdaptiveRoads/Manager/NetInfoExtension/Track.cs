@@ -7,6 +7,7 @@ namespace AdaptiveRoads.Manager {
     using ColossalFramework;
     using JetBrains.Annotations;
     using KianCommons;
+    using KianCommons.Serialization;
     using System;
     using System.Linq;
     using System.Reflection;
@@ -19,7 +20,7 @@ namespace AdaptiveRoads.Manager {
 
     public static partial class NetInfoExtionsion {
         [Serializable]
-        public class Track : ICloneable, ISerializable {
+        public class Track : ICloneable, ISerializable, IModel {
             [Obsolete("only useful for the purpose of shallow clone", error: true)]
             public Track() { }
             public Track Clone() {
@@ -289,6 +290,13 @@ namespace AdaptiveRoads.Manager {
 
             [NonSerialized]
             public int m_layer;
+
+            [CustomizableProperty("Title")]
+            [Hint("title to display(asset editor only)")]
+            public string Title;
+            [XmlIgnore][NonSerialized2] string IModel.Title => Title;
+
+
             [CustomizableProperty("Vertical Offset")]
             public float VerticalOffset;
 
