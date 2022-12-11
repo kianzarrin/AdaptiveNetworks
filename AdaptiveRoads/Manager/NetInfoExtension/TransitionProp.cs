@@ -102,7 +102,6 @@ namespace AdaptiveRoads.Manager {
             public TreeInfo m_finalTree;
 
             [CustomizableProperty("Position")]
-            [NonSerialized] [XmlIgnore]
             public Vector3 m_position;
 
             [CustomizableProperty("Angle")]
