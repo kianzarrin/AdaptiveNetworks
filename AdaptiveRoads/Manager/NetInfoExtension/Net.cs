@@ -23,6 +23,8 @@ namespace AdaptiveRoads.Manager {
         [Serializable]
         [Optional(AR_MODE)]
         public class Net : IMetaData {
+            public const string FLAGS_GROUP = "Flags";
+
             [Obsolete("only useful for the purpose of shallow clone", error: true)]
             public Net() { }
             public Net Clone() {

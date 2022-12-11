@@ -26,6 +26,7 @@ namespace AdaptiveRoads.Manager {
                 try {
                     var ret = this.ShalowClone();
                     ret.SegmentUserData = ret.SegmentUserData?.ShalowClone();
+                    ret.CustomConnectGroups = ret.CustomConnectGroups?.Clone();
                     return ret;
                 } catch (Exception ex) {
                     ex.Log();
@@ -332,35 +333,40 @@ namespace AdaptiveRoads.Manager {
             //[CustomizableProperty("Preferred Transition Only")]
             //public bool RequireMatching = false;
 
-            [CustomizableProperty("Segment")]
+            [CustomizableProperty("Segment", Net.FLAGS_GROUP)]
             public VanillaSegmentInfoFlags VanillaSegmentFlags;
 
-            [CustomizableProperty("Segment Extension")]
+            [CustomizableProperty("Segment Extension", Net.FLAGS_GROUP)]
             [Hint("checked on segments.\n" +
                 "flags for source segment is also checked on all nodes (both junction and bend).")]
             public SegmentInfoFlags SegmentFlags;
 
-            //[CustomizableProperty("Lane")]
+            //[CustomizableProperty("Lane", Net.FLAGS_GROUP)]
             public VanillaLaneInfoFlags VanillaLaneFlags;
 
-            [CustomizableProperty("Lane Extension")]
+            [CustomizableProperty("Lane Extension", Net.FLAGS_GROUP)]
             [Hint("checked on segment lanes.\n" +
                 "flags for source lane is also checked on all nodes (both junction and bend) transitions.")]
             public LaneInfoFlags LaneFlags;
 
-            [CustomizableProperty("Node")]
+            [CustomizableProperty("Node", Net.FLAGS_GROUP)]
             public VanillaNodeInfoFlagsLong VanillaNodeFlags;
 
-            [CustomizableProperty("Node Extension")]
+            [CustomizableProperty("Node Extension", Net.FLAGS_GROUP)]
             [Hint("Only checked on junctions ")] // (not bend nodes if bend nodes as treated as segments)
             public NodeInfoFlags NodeFlags;
 
-            [CustomizableProperty("Transition")]
+            [CustomizableProperty("Transition", Net.FLAGS_GROUP)]
             [Hint("TMPE routing between 2 lanes.")] 
             public LaneTransitionInfoFlags LaneTransitionFlags;
 
             [CustomizableProperty("Tags")]
             public TagsInfo Tags = new TagsInfo();
+
+            [BitMask]
+            [CustomizableProperty("Connect Group")]
+            public NetInfo.ConnectGroup ConnectGroup;
+            public CustomConnectGroupT CustomConnectGroups = new CustomConnectGroupT(null);
 
             [CustomizableProperty("Lane Tags")]
             [Hint("Match with target lane tags")]
@@ -403,6 +409,19 @@ namespace AdaptiveRoads.Manager {
 
             public bool CheckLaneTransitionFlag(LaneTransition.Flags flags) =>
                 LaneTransitionFlags.CheckFlags(flags);
+
+            public bool CheckConnectGroups(NetInfo info) {
+                if (info == null) return false;
+                if (ConnectGroup.IsFlagSet(info.m_connectGroup)) return true;
+                var ccg = info.GetMetaData()?.CustomConnectGroups;
+                if (ccg == null) return false;
+                return CustomConnectGroups.Check(ccg.Flags);
+            }
+
+            public bool CheckConnectGroupsOrNone(NetInfo info) {
+                bool none = ConnectGroup == 0 && CustomConnectGroups.IsNullOrNone();
+                return none || CheckConnectGroups(info);
+            }
 
             internal CustomFlags UsedCustomFlags {
                 get {

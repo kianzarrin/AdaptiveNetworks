@@ -8,6 +8,18 @@ namespace AdaptiveRoads.UI {
         public override SavedString SavedVersion => new SavedString("WhatsNewVersion", ModSettings.FILE_NAME, def: "0.0.0", autoUpdate: true);
         public override WhatsNewEntry[] Messages { get; } = new WhatsNewEntry[] {
             new WhatsNewEntry {
+                version = new Version(3, 16, 14),
+                messages = new string[] {
+                    "Feature: Track connect groups",
+                    "Feature: Global in game thin wire slider",
+                    "Bug-fix: track lane tags",
+                    "Bug-fix: track transition prop position.x",
+                    "Bug-fix: track transition prop upgrade trees",
+                    "Bug-fix: null version",
+                    "Bug-fix: backward compatibility with tags",
+                }
+            },
+            new WhatsNewEntry {
                 version = new Version(3, 16, 8),
                 messages = new string[] {
                     "Feature: Has Unbroken median flags for node and transition",

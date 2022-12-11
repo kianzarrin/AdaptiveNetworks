@@ -529,7 +529,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         public static void CreateConnectGroupComponent(
             RoadEditorPanel roadEditorPanel, string groupName, object target, FieldInfo fieldInfo) {
             Assert(fieldInfo.FieldType == typeof(NetInfo.ConnectGroup), "field type is connect group");
-            Assert(fieldInfo.Name == nameof(NetInfo.m_connectGroup));
+            //Assert(fieldInfo.Name == nameof(NetInfo.m_connectGroup));
             Log.Called(roadEditorPanel, groupName, target, fieldInfo);
 
             CustomConnectGroupT tagSource = null;
@@ -537,6 +537,8 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 tagSource = nodeInfo.GetOrCreateMetaData().CustomConnectGroups;
             else if (target is NetInfo netInfo)
                 tagSource = netInfo.GetOrCreateMetaData().CustomConnectGroups;
+            else if (target is NetInfoExtionsion.Track track)
+                tagSource = track.CustomConnectGroups;
             Assertion.NotNull(tagSource, "tagSource");
 
             var container = GetContainer(roadEditorPanel, groupName);

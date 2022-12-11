@@ -114,6 +114,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         internal NetInfoExtionsion.Net InfoExtA => segmentID_A.ToSegment().Info?.GetMetaData();
         internal NetInfo.Lane laneInfoA => LaneExtA.LaneData.LaneInfo;
         internal int laneIndexA => LaneExtA.LaneData.LaneIndex;
+        internal NetInfo InfoD => SegmentD.Info;
         internal NetInfoExtionsion.Net InfoExtD => segmentID_D.ToSegment().Info?.GetMetaData();
         internal NetInfo.Lane laneInfoD => LaneExtD.LaneData.LaneInfo;
         internal int laneIndexD => LaneExtD.LaneData.LaneIndex;
@@ -236,6 +237,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             }
             ret = ret && trackInfo.CheckLaneTransitionFlag(this.m_flags);
             ret = ret && trackInfo.Tags.CheckTags(NodeID, SegmentA.Info);
+            ret = ret && trackInfo.CheckConnectGroupsOrNone(InfoD);
             return ret;
         }
 
