@@ -1,10 +1,8 @@
-- parking props on lane
-
-- connect group filter for tracks.
 - lane/track templates
 - smartCustomFlags for templates
-
 - fix the gap (skew lane if junction is not straight)
+- parking props on lane
+
 - optimizations:
     - remove default metadata in game
     - flag for simpler props to avoid further checks.
