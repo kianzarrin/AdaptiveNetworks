@@ -273,6 +273,7 @@ namespace AdaptiveRoads.Manager {
 
         }
 
+        [Serializable]
         public class CustomConnectGroupT : TagBase {
             public static TagSource TagSource = new TagSource();
             public override TagSource Source => TagSource;
