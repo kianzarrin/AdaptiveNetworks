@@ -268,7 +268,8 @@ namespace AdaptiveRoads.Manager {
             public override TagSource Source => TagSource;
 
             public LaneTagsT(SerializationInfo info, StreamingContext context) : base(info, context) { }
-            public LaneTagsT (string []tags) : base(tags){}
+            public LaneTagsT(string[] tags) : base(tags) { }
+            public LaneTagsT() : base(null) { }
             public LaneTagsT Clone() => new LaneTagsT(Selected);
 
         }
@@ -280,6 +281,7 @@ namespace AdaptiveRoads.Manager {
 
             public CustomConnectGroupT(SerializationInfo info, StreamingContext context) : base(info, context) { }
             public CustomConnectGroupT(string[] tags) : base(tags) { }
+            public CustomConnectGroupT() : base(null) { }
             public CustomConnectGroupT Clone() => new CustomConnectGroupT(Selected);
         }
     }

@@ -73,6 +73,14 @@ namespace AdaptiveRoads.Manager {
                 }
             }
 
+            public void InitializeEmpty(NetInfo parentInfo) {
+                Shader shader = Shader.Find("Custom/Net/Road");
+                m_mesh ??= new Mesh();
+                m_material ??= new Material(shader);
+                m_lodMesh ??= new Mesh();
+                m_lodMaterial ??= new Material(shader);
+            }
+
             #region serialization
             //serialization
             public void GetObjectData(SerializationInfo info, StreamingContext context) {
@@ -247,55 +255,59 @@ namespace AdaptiveRoads.Manager {
             }
 
             #region materials
+            [XmlIgnore]
             public Mesh m_mesh;
 
+            [XmlIgnore]
             public Mesh m_lodMesh;
 
+            [XmlIgnore]
             public Material m_material;
 
+            [XmlIgnore]
             public Material m_lodMaterial;
 
-            [NonSerialized]
+            [NonSerialized, XmlIgnore]
             public NetInfo.LodValue m_combinedLod;
 
-            [NonSerialized]
+            [NonSerialized, XmlIgnore]
             public Mesh m_trackMesh;
 
-            [NonSerialized]
+            [NonSerialized, XmlIgnore]
             public Material m_trackMaterial;
             #endregion
 
-            [NonSerialized]
+            [NonSerialized, XmlIgnore]
             public NetInfo ParentInfo;
 
-            [NonSerialized]
+            [NonSerialized, XmlIgnore]
             public int CachedArrayIndex;
 
-            [NonSerialized]
+            [NonSerialized, XmlIgnore]
             public float m_lodRenderDistance;
 
-            [NonSerialized]
+            [NonSerialized, XmlIgnore]
             public bool m_requireWindSpeed;
 
-            [NonSerialized]
+            [NonSerialized, XmlIgnore]
             public bool m_requireSurfaceMaps;
 
-            [NonSerialized]
+            [NonSerialized, XmlIgnore]
             public bool m_requireHeightMap;
 
-            [NonSerialized]
+            [NonSerialized, XmlIgnore]
             public bool m_preserveUVs;
 
-            [NonSerialized]
+            [NonSerialized, XmlIgnore]
             public bool m_generateTangents;
 
-            [NonSerialized]
+            [NonSerialized, XmlIgnore]
             public int m_layer;
 
             [CustomizableProperty("Title")]
             [Hint("title to display(asset editor only)")]
             public string Title;
-            [XmlIgnore][NonSerialized2] string IModel.Title => Title;
+            [XmlIgnore, NonSerialized2] string IModel.Title => Title;
 
 
             [CustomizableProperty("Vertical Offset")]
@@ -318,7 +330,7 @@ namespace AdaptiveRoads.Manager {
             [BitMaskLanes]
             public UInt64 LaneIndeces;
 
-            [NonSerialized]
+            [NonSerialized, XmlIgnore]
             public int LaneCount;
 
             public bool HasTrackLane(int laneIndex) => ((1ul << laneIndex) & LaneIndeces) != 0;

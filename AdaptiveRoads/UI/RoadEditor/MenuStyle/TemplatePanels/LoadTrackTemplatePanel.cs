@@ -1,4 +1,5 @@
 using AdaptiveRoads.DTO;
+using AdaptiveRoads.Util;
 using ColossalFramework.UI;
 using KianCommons;
 using KianCommons.UI;
@@ -21,6 +22,8 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
 
         public override void Load(TrackTemplate template) {
             var tracks = template.GetTracks();
+            var info = RoadEditorUtils.GetSelectedNetInfo(out var _);
+            foreach (var track in tracks) track.InitializeEmpty(info);
             OnLoaded(tracks);
         }
     }
