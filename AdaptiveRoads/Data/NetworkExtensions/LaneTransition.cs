@@ -31,6 +31,11 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
 
             [Hint("transition is between two segments with unbroken median.")]
             UnbrokenMedian = 1 << 10,
+
+            [Hint("transition is between two matching lanes with similar lane index.")]
+            SimilarLaneIndex = 1 << 11,
+
+            Uturn = 1 << 12,
         }
 
         public Flags m_flags; // TODO complete
@@ -101,6 +106,9 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         internal ref NetLane LaneD => ref LaneIDTarget.ToLane();
         internal ref NetLaneExt LaneExtA => ref LaneIDSource.ToLaneExt();
         internal ref NetLaneExt LaneExtD => ref LaneIDTarget.ToLaneExt();
+        internal LaneData LaneDataA => LaneExtA.LaneData;
+        internal LaneData LaneDataD => LaneExtD.LaneData;
+
         internal ref NetSegment SegmentA => ref LaneA.m_segment.ToSegment();
         internal ref NetSegment SegmentD => ref LaneD.m_segment.ToSegment();
         internal ref NetSegmentExt SegmentExtA => ref LaneA.m_segment.ToSegmentExt();
@@ -112,13 +120,13 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         internal NetInfo Info => Node.Info;
         internal NetInfo InfoA => SegmentA.Info;
         internal NetInfoExtionsion.Net InfoExtA => segmentID_A.ToSegment().Info?.GetMetaData();
-        internal NetInfo.Lane laneInfoA => LaneExtA.LaneData.LaneInfo;
-        internal int laneIndexA => LaneExtA.LaneData.LaneIndex;
+        internal NetInfo.Lane LaneInfoA => LaneExtA.LaneData.LaneInfo;
+        internal int LaneIndexA => LaneExtA.LaneData.LaneIndex;
         internal NetInfo InfoD => SegmentD.Info;
         internal NetInfoExtionsion.Net InfoExtD => segmentID_D.ToSegment().Info?.GetMetaData();
-        internal NetInfo.Lane laneInfoD => LaneExtD.LaneData.LaneInfo;
-        internal int laneIndexD => LaneExtD.LaneData.LaneIndex;
-        internal float Width => laneInfoA.m_width;
+        internal NetInfo.Lane LaneInfoD => LaneExtD.LaneData.LaneInfo;
+        internal int LaneIndexD => LaneExtD.LaneData.LaneIndex;
+        internal float Width => LaneInfoA.m_width;
         #endregion
 
         public bool Nodeless => OutLine.Empty;
@@ -130,7 +138,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 foreach (var scriptedFlag in Flags.ExpressionMask.ExtractPow2Flags()) {
                     bool condition = false;
                     if (net.ScriptedFlags.TryGetValue(scriptedFlag, out var expression)) {
-                        condition = expression.Condition(segmentID: segmentID_A, nodeID: NodeID, laneIndex: laneIndexA, index);
+                        condition = expression.Condition(segmentID: segmentID_A, nodeID: NodeID, laneIndex: LaneIndexA, index);
                     }
                     m_flags = m_flags.SetFlags(scriptedFlag, condition);
                 }
@@ -146,7 +154,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
 
             {
                 bool nearCurb = RoadUtils.IsNearCurb(
-                    LaneIDSource.ToLaneExt().LaneData, LaneIDTarget.ToLaneExt().LaneData, NodeID);
+                    LaneDataA, LaneDataD, NodeID);
                 m_flags = m_flags.SetFlags(Flags.NearCurb, nearCurb);
             }
 
@@ -154,6 +162,21 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 bool unBrokenMedian = !DirectConnectUtil.OpenMedian(segmentID_A, segmentID_D);
                 m_flags = m_flags.SetFlags(Flags.UnbrokenMedian, on: unBrokenMedian);
             }
+
+            {
+                var laneInfoA = this.LaneInfoA;
+                var laneInfoD = this.LaneInfoD;
+                bool similar = laneInfoA.m_finalDirection == laneInfoD.m_finalDirection &&
+                    laneInfoA.m_laneType == laneInfoD.m_laneType &&
+                    LaneInfoA.m_vehicleType == LaneInfoD.m_vehicleType &&
+                    laneInfoA.m_similarLaneIndex == laneInfoD.m_similarLaneIndex;
+                m_flags = m_flags.SetFlags(Flags.SimilarLaneIndex, on: similar);
+            }
+
+            {
+                m_flags = m_flags.SetFlags(Flags.Uturn, on: segmentID_A == segmentID_D);
+            }
+
             Bezier3 bezierA = LaneExtA.LaneData.GetBezier(NodeID);
             Bezier3 bezierD = LaneExtD.LaneData.GetBezier(NodeID);
 
@@ -181,7 +204,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             ret.MeshScale = new Vector4(1f / Width, 1f / InfoA.m_segmentLength, 1f, 1f);
 
             float vScale = InfoA.m_netAI.GetVScale();
-            ret.TurnAround = laneInfoA.IsGoingBackward();
+            ret.TurnAround = LaneInfoA.IsGoingBackward();
             ret.TurnAround ^= SegmentA.IsInvert();
             ret.CalculateControlMatrix(outline, vScale);
 
@@ -216,7 +239,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         }
 
         private bool Check(NetInfoExtionsion.Track trackInfo) {
-            if (!trackInfo.HasTrackLane(laneIndexA))
+            if (!trackInfo.HasTrackLane(LaneIndexA))
                 return false;
             
             bool junction = Node.m_flags.IsFlagSet(NetNode.Flags.Junction);
@@ -242,7 +265,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
         }
 
         private DynamicFlags LaneTagsFlagsD =>
-            InfoExtD?.Lanes?[laneInfoD]?.LaneTags?.Flags ?? DynamicFlagsUtil.NONE;
+            InfoExtD?.Lanes?[LaneInfoD]?.LaneTags?.Flags ?? DynamicFlagsUtil.NONE;
 
         public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo, int layerMask) {
             if(Nodeless) return;
