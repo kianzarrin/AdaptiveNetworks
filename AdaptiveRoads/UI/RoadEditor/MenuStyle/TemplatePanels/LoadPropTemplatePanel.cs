@@ -49,7 +49,7 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
                 lbl.text = "Displacement:";
                 Displacement = panel2.AddUIComponent<MenuTextFieldFloat>();
                 Displacement.width = panel.width - Displacement.relativePosition.x;
-                Displacement.tooltip = "put a posetive number to move props sideways.";
+                Displacement.tooltip = "put a positive number to move props sideways.";
                 lbl.height = Displacement.height;
                 lbl.verticalAlignment = UIVerticalAlignment.Middle;
                 panel2.FitChildren();

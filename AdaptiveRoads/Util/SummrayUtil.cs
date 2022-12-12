@@ -240,5 +240,52 @@ namespace AdaptiveRoads.Util {
             return ret;
         }
         #endregion
+
+        #region transition prop
+        public static string DisplayName(this NetInfoExtionsion.TransitionProp prop) {
+            if (prop.m_prop != null) {
+                return prop.m_prop.name;
+            } else if (prop.m_tree != null) {
+                return prop.m_tree.name;
+            } else {
+                return "New prop";
+            }
+        }
+
+        public static string Summary(this IEnumerable<NetInfoExtionsion.TransitionProp> props) {
+            return props.Select(p => p.Summary()).JoinLines();
+        }
+
+        public static string Summary(this NetInfoExtionsion.TransitionProp prop) {
+            return Summary(prop, prop.DisplayName());
+        }
+
+        public static string Summary(
+            NetInfoExtionsion.TransitionProp prop,
+            string name) {
+            string ret = name ?? "New prop";
+
+            string required = MergeFlagText(
+                prop?.TransitionFlags.Required,
+                prop?.VanillaNodeFlags.Required,
+                prop?.NodeFlags.Required,
+                prop?.SegmentEndFlags.Required,
+                prop?.VanillaSegmentFlags.Required,
+                prop?.SegmentFlags.Required);
+            string forbidden = MergeFlagText(
+                prop?.TransitionFlags.Forbidden,
+                prop?.VanillaNodeFlags.Forbidden,
+                prop?.NodeFlags.Forbidden,
+                prop?.SegmentEndFlags.Forbidden,
+                prop?.VanillaSegmentFlags.Forbidden,
+                prop?.SegmentFlags.Forbidden);
+            if (!string.IsNullOrEmpty(required))
+                ret += "\n  Required:" + required;
+            if (!string.IsNullOrEmpty(forbidden))
+                ret += "\n  Forbidden:" + forbidden;
+            return ret;
+        }
+        #endregion
+
     }
 }

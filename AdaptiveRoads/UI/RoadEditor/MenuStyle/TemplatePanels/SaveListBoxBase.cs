@@ -15,6 +15,9 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
     public class SaveListBoxProp : SaveListBoxBase<PropTemplate> {
         public override IEnumerable<PropTemplate> LoadAll() => PropTemplate.LoadAllFiles();
     }
+    public class SaveListBoxTransitionProp : SaveListBoxBase<TransitionPropTemplate> {
+        public override IEnumerable<TransitionPropTemplate> LoadAll() => TransitionPropTemplate.LoadAllFiles();
+    }
     public class SaveListBoxRoad : SaveListBoxBase<RoadAssetInfo> {
         public override IEnumerable<RoadAssetInfo> LoadAll() => RoadAssetInfo.LoadAllFiles();
 

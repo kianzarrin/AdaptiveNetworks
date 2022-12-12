@@ -184,6 +184,17 @@ namespace AdaptiveRoads.Manager {
                     ex.Log();
                 }
             }
+
+            public void Displace(float x) {
+                var pos = m_position;
+                if (pos.x == 0)
+                    return;
+                else if (pos.x < 0)
+                    pos.x -= x;
+                else
+                    pos.x += x;
+                m_position = pos;
+            }
         }
     }
 }
