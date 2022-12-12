@@ -1,3 +1,4 @@
+- bug: refresh side panel after displacing prop/tprop
 - lane/track templates
 - smartCustomFlags for templates
 - fix the gap (skew lane if junction is not straight)

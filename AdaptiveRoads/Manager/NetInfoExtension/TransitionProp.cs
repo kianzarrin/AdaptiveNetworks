@@ -186,6 +186,7 @@ namespace AdaptiveRoads.Manager {
             }
 
             public void Displace(float x) {
+                Log.Called(x);
                 var pos = m_position;
                 if (pos.x == 0)
                     return;
