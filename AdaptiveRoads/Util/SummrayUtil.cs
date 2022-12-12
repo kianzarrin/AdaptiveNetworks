@@ -5,6 +5,8 @@ namespace AdaptiveRoads.Util {
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using static AdaptiveRoads.DTO.NetInfoDTO;
+    using static AdaptiveRoads.Manager.NetInfoExtionsion;
 
     public static class SummrayUtil {
         public static string MergeFlagText(params IConvertible[] flags) {
@@ -241,8 +243,55 @@ namespace AdaptiveRoads.Util {
         }
         #endregion
 
+        #region track
+        public static string DisplayName(this Track track) {
+            string ret = track?.Title;
+            if (ret.IsNullorEmpty())
+                ret = track?.m_mesh?.name;
+            if (ret.IsNullorEmpty())
+                ret = "New Track";
+            return ret;
+        }
+
+        public static string Summary(this IEnumerable<Track> tracks) {
+            return tracks.Select(track => track.Summary()).JoinLines();
+        }
+
+        public static string Summary(this Track track) {
+            return Summary(track, track.DisplayName());
+        }
+
+        public static string Summary(
+            Track track,
+            string name) {
+            string ret = name ?? "New prop";
+
+            string required = MergeFlagText(
+                track?.VanillaLaneFlags.Required,
+                track?.LaneFlags.Required,
+                track?.LaneTransitionFlags.Required,
+                track?.VanillaNodeFlags.Required,
+                track?.NodeFlags.Required,
+                track?.VanillaSegmentFlags.Required,
+                track?.SegmentFlags.Required);
+            string forbidden = MergeFlagText(
+                track?.VanillaLaneFlags.Forbidden,
+                track?.LaneFlags.Forbidden,
+                track?.LaneTransitionFlags.Forbidden,
+                track?.VanillaNodeFlags.Forbidden,
+                track?.NodeFlags.Forbidden,
+                track?.VanillaSegmentFlags.Forbidden,
+                track?.SegmentFlags.Forbidden);
+            if (!string.IsNullOrEmpty(required))
+                ret += "\n  Required:" + required;
+            if (!string.IsNullOrEmpty(forbidden))
+                ret += "\n  Forbidden:" + forbidden;
+            return ret;
+        }
+        #endregion
+
         #region transition prop
-        public static string DisplayName(this NetInfoExtionsion.TransitionProp prop) {
+        public static string DisplayName(this TransitionProp prop) {
             if (prop.m_prop != null) {
                 return prop.m_prop.name;
             } else if (prop.m_tree != null) {
@@ -252,16 +301,16 @@ namespace AdaptiveRoads.Util {
             }
         }
 
-        public static string Summary(this IEnumerable<NetInfoExtionsion.TransitionProp> props) {
+        public static string Summary(this IEnumerable<TransitionProp> props) {
             return props.Select(p => p.Summary()).JoinLines();
         }
 
-        public static string Summary(this NetInfoExtionsion.TransitionProp prop) {
+        public static string Summary(this TransitionProp prop) {
             return Summary(prop, prop.DisplayName());
         }
 
         public static string Summary(
-            NetInfoExtionsion.TransitionProp prop,
+            TransitionProp prop,
             string name) {
             string ret = name ?? "New prop";
 

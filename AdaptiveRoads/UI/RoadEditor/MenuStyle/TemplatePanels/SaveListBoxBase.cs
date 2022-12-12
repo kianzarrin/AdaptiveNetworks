@@ -18,6 +18,9 @@ namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
     public class SaveListBoxTransitionProp : SaveListBoxBase<TransitionPropTemplate> {
         public override IEnumerable<TransitionPropTemplate> LoadAll() => TransitionPropTemplate.LoadAllFiles();
     }
+    public class SaveListBoxTrack : SaveListBoxBase<TrackTemplate> {
+        public override IEnumerable<TrackTemplate> LoadAll() => TrackTemplate.LoadAllFiles();
+    }
     public class SaveListBoxRoad : SaveListBoxBase<RoadAssetInfo> {
         public override IEnumerable<RoadAssetInfo> LoadAll() => RoadAssetInfo.LoadAllFiles();
 
