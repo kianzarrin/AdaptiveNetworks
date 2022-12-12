@@ -10,6 +10,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
     using System.Linq;
     using static Util.DPTHelpers;
     using static AdaptiveRoads.Util.RoadEditorUtils;
+    using static AdaptiveRoads.Manager.NetInfoExtionsion;
 
     //[HarmonyPatch(typeof(RoadEditorCollapsiblePanel))]
     //[HarmonyPatch("OnButtonClick")]
@@ -65,6 +66,30 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             "Displace all",
                             null,
                             () => DisplaceAll(m_props));
+                    }
+                } else if (groupPanel.GetArray() is TransitionProp[] tprops) {
+                    bool hasItems = tprops.Length > 0;
+                    bool clipBoardHasData = ClipBoard.HasData<TransitionProp>();
+                    if (hasItems || clipBoardHasData) {
+                        var panel = MiniPanel.Display();
+                        if (hasItems) {
+                            panel.AddButton("Copy all props", null,
+                            () => ClipBoard.SetData(tprops));
+                            panel.AddButton("Clear all props", null,
+                                () => ClearAll(groupPanel));
+                            panel.AddButton("Save Template", null, () => {
+                                SaveTransitionPropTemplatePanel.Display(tprops);
+                            });
+                        }
+                        if (clipBoardHasData) {
+                            string strItems = Str("prop", ClipBoard.Count);
+                            panel.AddButton("Paste " + strItems, null,
+                                () => PasteAllTransitionProps(groupPanel));
+                        }
+                        panel.AddButton(
+                            "Displace all",
+                            null,
+                            () => DisplaceAll(tprops));
                     }
                 } else if (groupPanel.GetArray() is NetInfo.Node[] m_nodes) {
                     bool hasItems = !m_nodes.IsNullorEmpty();
@@ -150,6 +175,10 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             } catch (Exception ex) {
                 Log.Exception(ex);
             }
+        }
+        static void PasteAllTransitionProps(RoadEditorCollapsiblePanel groupPanel) {
+            Log.Called();
+            AddTransitionProps(groupPanel, ClipBoard.GetTransitionProps(), ClipBoard.SourceTrack);
         }
 
         static void PasteAllProps(RoadEditorCollapsiblePanel groupPanel) {

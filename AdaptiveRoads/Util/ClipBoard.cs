@@ -3,20 +3,27 @@ using System.Linq;
 using System.Collections;
 using System;
 using KianCommons;
+using static AdaptiveRoads.Manager.NetInfoExtionsion;
+using AdaptiveRoads.Manager;
 
 namespace AdaptiveRoads.Util {
     internal static class ClipBoard {
         private static object Data;
         public static NetInfo SourceInfo { get; private set; }
         public static NetInfo.Lane SourceLane { get; private set; }
+        public static Track SourceTrack { get; private set; }
 
         private static void SetSource(object target) {
             if(target == null) {
                 return;
-            }else if (target is NetLaneProps.Prop prop) {
+            } else if (target is NetLaneProps.Prop prop) {
                 SourceInfo = prop.GetParent(out int laneIndex, out _);
                 SourceLane = SourceInfo?.m_lanes?[laneIndex];
                 Log.Debug($"SourceInfo set to {SourceInfo}, laneInex={laneIndex}");
+            } else if (target is TransitionProp tprop) {
+                SourceInfo = tprop.GetParent(out int trackIndex, out _);
+                SourceTrack = SourceInfo?.GetMetaData().Tracks[trackIndex];
+                Log.Debug($"SourceInfo set to {SourceInfo}, trackIndex={trackIndex}");
             } else if( target is NetInfo.Node node) {
                 SourceInfo = node.GetParent(out _);
                 SourceLane = null;
@@ -42,6 +49,21 @@ namespace AdaptiveRoads.Util {
             // that is why I convert to array.
             SetSource(props.FirstOrDefault());
             var data = props.Select(prop => prop.Clone()).ToArray();
+            Data = data;
+            Count = data.Length;
+            Log.Debug("ClipBoard.SetData() -> Data.count=" + Count /*+ Environment.StackTrace*/);
+        }
+
+        public static void SetData(TransitionProp prop) {
+            SetSource(prop);
+            Data = prop.Clone();
+            Count = 1;
+            Log.Debug("ClipBoard.SetData() -> Data=" + Data /*+ Environment.StackTrace*/);
+        }
+
+        public static void SetData(IEnumerable<TransitionProp> props) {
+            SetSource(props.FirstOrDefault());
+            var data = props.Select(prop => prop.Clone()).ToArray(); // keep my own copy
             Data = data;
             Count = data.Length;
             Log.Debug("ClipBoard.SetData() -> Data.count=" + Count /*+ Environment.StackTrace*/);
@@ -83,7 +105,8 @@ namespace AdaptiveRoads.Util {
             return
                 (Array)GetProps() ??
                 (Array)GetNodes() ??
-                (Array)GetSegments();
+                (Array)GetSegments() ??
+                (Array)GetTransitionProps();
         }
 
         public static NetLaneProps.Prop[] GetProps() {
@@ -106,6 +129,15 @@ namespace AdaptiveRoads.Util {
             if (Data is NetInfo.Segment segment) {
                 return new NetInfo.Segment[1] { segment.Clone() };
             } else if (Data is IEnumerable<NetInfo.Segment> segments) {
+                return segments.Select(segment => segment.Clone()).ToArray();
+            }
+            return null;
+        }
+
+        public static TransitionProp[] GetTransitionProps() {
+            if (Data is TransitionProp segment) {
+                return new TransitionProp[1] { segment.Clone() };
+            } else if (Data is IEnumerable<TransitionProp> segments) {
                 return segments.Select(segment => segment.Clone()).ToArray();
             }
             return null;

@@ -9,6 +9,7 @@ namespace AdaptiveRoads.Manager {
     using KianCommons;
     using KianCommons.Serialization;
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using System.Runtime.Serialization;
@@ -321,6 +322,12 @@ namespace AdaptiveRoads.Manager {
             public int LaneCount;
 
             public bool HasTrackLane(int laneIndex) => ((1ul << laneIndex) & LaneIndeces) != 0;
+            public IEnumerable<int> GetTrackLanes() {
+                for (int laneIndex = 0; laneIndex < ParentInfo.m_lanes.Length; ++laneIndex)
+                    if (HasTrackLane(laneIndex))
+                        yield return laneIndex;
+            }
+
 
             #region flags
             [Hint("Renders on segments + bend nodes)")]
