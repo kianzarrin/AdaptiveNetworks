@@ -41,6 +41,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
         static void OnShowOptions(RoadEditorCollapsiblePanel groupPanel) {
             try {
                 static string Str(string item, int count) => count == 1 ? item : $"all {item}s";
+                RoadEditorPanel sidePanel = groupPanel.GetComponentInParent<RoadEditorPanel>();
                 Array array = groupPanel.GetArray();
                 var target = groupPanel.GetTarget();
                 if (groupPanel.GetArray() is NetLaneProps.Prop[] m_props) {
@@ -65,7 +66,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         panel.AddButton(
                             "Displace all",
                             null,
-                            () => DisplaceAll(m_props));
+                            () => DisplaceAll(m_props, sidePanel));
                     }
                 } else if (groupPanel.GetArray() is TransitionProp[] tprops) {
                     bool hasItems = tprops.Length > 0;
@@ -89,7 +90,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                         panel.AddButton(
                             "Displace all",
                             null,
-                            () => DisplaceAll(tprops));
+                            () => DisplaceAll(tprops, sidePanel));
                     }
                 } else if (groupPanel.GetArray() is NetInfo.Node[] m_nodes) {
                     bool hasItems = !m_nodes.IsNullorEmpty();
@@ -147,7 +148,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     panel.AddButton(
                         "Displace all",
                         null,
-                        () => RoadEditorUtils.DisplaceAllProps(m_lanes));
+                        () => RoadEditorUtils.DisplaceAllProps(m_lanes, sidePanel));
                 }
             } catch (Exception ex) {
                 Log.Exception(ex);

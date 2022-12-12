@@ -309,7 +309,7 @@ internal static class RoadEditorUtils {
             });
             if(cloned_props.Count() >= 2) {
                 panel.AddButton("Displace all", null, delegate () {
-                    DisplaceAll(original_props);
+                    DisplaceAll(original_props, sidePanel);
                 });
             }
         } else if(element is NetInfo.Lane lane && lane.HasProps()
@@ -388,6 +388,11 @@ internal static class RoadEditorUtils {
             panel.AddButton("Add" + strAll + " to Template", null, delegate () {
                 SaveTransitionPropTemplatePanel.Display(cloned_items);
             });
+            if (cloned_items.Count() >= 2) {
+                panel.AddButton("Displace all", null, delegate () {
+                    DisplaceAll(cloned_items, sidePanel);
+                });
+            }
         }
     }
 
@@ -549,17 +554,18 @@ internal static class RoadEditorUtils {
             Log.Exception(ex);
         }
     }
-    public static void DisplaceAll(IEnumerable<TransitionProp> props) {
+    public static void DisplaceAll(IEnumerable<TransitionProp> props, RoadEditorPanel sidePanel) {
         var panel = MiniPanel.Display();
         var floatField = panel.AddFloatField();
         panel.AddButton("Displace", null, () =>
-            DisplaceAll(props, floatField.Number));
+            DisplaceAll(props, floatField.Number, sidePanel));
     }
 
-    public static void DisplaceAll(IEnumerable<TransitionProp> props, float z) {
+    public static void DisplaceAll(IEnumerable<TransitionProp> props, float z, RoadEditorPanel sidePanel) {
         Log.Debug(ThisMethod + $" props={props.ToSTR()} z={z}");
         foreach (var prop in props)
             prop.Displace(z);
+        sidePanel?.OnObjectModified();
         LogSucceeded();
     }
     #endregion
@@ -620,24 +626,25 @@ internal static class RoadEditorUtils {
         }
     }
 
-    public static void DisplaceAllProps(NetInfo.Lane[] lanes) {
+    public static void DisplaceAllProps(NetInfo.Lane[] lanes, RoadEditorPanel sidePanel) {
         var props = (from lane in lanes
                      from prop in lane.m_laneProps.m_props
                      select prop);
-        DisplaceAll(props);
+        DisplaceAll(props, sidePanel);
     }
 
-    public static void DisplaceAll(IEnumerable<NetLaneProps.Prop> props) {
+    public static void DisplaceAll(IEnumerable<NetLaneProps.Prop> props, RoadEditorPanel sidePanel) {
         var panel = MiniPanel.Display();
         var floatField = panel.AddFloatField();
         panel.AddButton("Displace", null, () =>
-            DisplaceAll(props, floatField.Number));
+            DisplaceAll(props, floatField.Number, sidePanel));
     }
 
-    public static void DisplaceAll(IEnumerable<NetLaneProps.Prop> props, float z) {
+    public static void DisplaceAll(IEnumerable<NetLaneProps.Prop> props, float z, RoadEditorPanel sidePanel) {
         Log.Debug(ThisMethod + $" props={props.ToSTR()} z={z}");
         foreach(var prop in props)
             prop.Displace(z);
+        sidePanel?.OnObjectModified();
         LogSucceeded();
     }
     #endregion prop
