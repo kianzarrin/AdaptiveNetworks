@@ -18,6 +18,8 @@ using static KianCommons.ReflectionHelpers;
 using Object = UnityEngine.Object;
 using TransitionProp = AdaptiveRoads.Manager.NetInfoExtionsion.TransitionProp;
 using Track = AdaptiveRoads.Manager.NetInfoExtionsion.Track;
+using AdaptiveRoads.NSInterface;
+using static AdaptiveRoads.Manager.NetInfoExtionsion;
 
 internal static class DPTDrag {
     static UIPanel Bar;
@@ -370,10 +372,27 @@ internal static class RoadEditorUtils {
             panel.AddButton("Add" + strAll + " to Template", null, delegate () {
                 SaveSegmentTemplatePanel.Display(cloned_items);
             });
+        } else if (element is Track track) {
+            var netInfo = sidePanel.GetTarget() as NetInfo;
+            Assertion.NotNull(netInfo, "MainPanel.target is netInfo");
+            var panel = MiniPanel.Display();
+            var original_items = elements.Select(_p => _p as Track);
+            var cloned_items = original_items.Select(_p => _p.Clone());
+            string strAll = cloned_items.Count() > 1 ? " all" : "";
+
+            panel.AddButton("Duplicate" + strAll, null, delegate () {
+                AddTracks(groupPanel, cloned_items.ToArray());
+            });
+            panel.AddButton("Copy" + strAll, null, delegate () {
+                ClipBoard.SetData(original_items);
+            });
+            panel.AddButton("Add" + strAll + " to Template", null, delegate () {
+                SaveTrackTemplatePanel.Display(cloned_items);
+            });
         } else if (element is TransitionProp tprop) {
-            var track = sidePanel.GetTarget() as Track;
-            Assertion.NotNull(track, "sidePanel.target is track");
-            var netInfo = track.ParentInfo;
+            Track track2 = sidePanel.GetTarget() as Track;
+            Assertion.NotNull(track2, "sidePanel.target is track");
+            var netInfo = track2.ParentInfo;
             var panel = MiniPanel.Display();
             var original_items = elements.Select(_p => _p as TransitionProp);
             var cloned_items = original_items.Select(_p => _p.Clone());
@@ -433,7 +452,7 @@ internal static class RoadEditorUtils {
 
                 // copy custom flag names
                 CustomFlags customFlags = default;
-                foreach (var prop in items) customFlags |= prop.GetMetaData().UsedCustomFlags;
+                foreach (var item in items) customFlags |= item.GetMetaData().UsedCustomFlags;
                 PropHelpers.CopyCustomFlagNames(
                     customFlags, overwrite: false,
                     sourceInfo, -1,
@@ -486,7 +505,7 @@ internal static class RoadEditorUtils {
 
                 // copy custom flag names
                 CustomFlags customFlags = default;
-                foreach (var prop in items) customFlags |= prop.GetMetaData().UsedCustomFlags;
+                foreach (var item in items) customFlags |= item.GetMetaData().UsedCustomFlags;
                 PropHelpers.CopyCustomFlagNames(
                     customFlags, overwrite: false,
                     sourceInfo, -1,
@@ -502,6 +521,47 @@ internal static class RoadEditorUtils {
             groupPanel.SetArray(m_items2);
             foreach (var item in items) {
                 sidePanel.AddToggle(groupPanel, item, arrayField, target);
+            }
+
+            foreach (var info in NetInfoExtionsion.EditedNetInfos) info?.GetMetaData().Recalculate(info);
+            sidePanel.OnObjectModified();
+        } catch (Exception ex) {
+            Log.Exception(ex);
+        }
+    }
+    public static void AddTracks(
+        RoadEditorCollapsiblePanel groupPanel,
+        Track[] items,
+        NetInfo sourceInfo = null) {
+        try {
+            Log.Called(items, sourceInfo);
+            if (items == null || items.Length == 0) return;
+            Track[] m_items = groupPanel.GetArray() as Track[];
+
+            var m_items2 = m_items.AddRangeToArray(items);
+            NetInfo targetInfo = groupPanel.GetTarget() as NetInfo;
+
+            if (sourceInfo != null) {
+                // copy custom flag names
+                foreach (var track in items) {
+                    foreach(int laneIndex in track.GetTrackLanes()) {
+                        CustomFlags customFlags = track.UsedCustomFlags;
+                        PropHelpers.CopyCustomFlagNames(
+                            customFlags, overwrite: false,
+                            sourceInfo, laneIndex,
+                            targetInfo, laneIndex);
+                    }
+                }
+
+            }
+
+            var sidePanel = groupPanel.component.GetComponentInParent<RoadEditorPanel>();
+            var arrayField = groupPanel.GetField();
+
+            Log.Debug($"Adding Tracks {items.Length}+{m_items.Length}={m_items2.Length}");
+            groupPanel.SetArray(m_items2);
+            foreach (var item in items) {
+                sidePanel.AddToggle(groupPanel, item, arrayField, targetInfo);
             }
 
             foreach (var info in NetInfoExtionsion.EditedNetInfos) info?.GetMetaData().Recalculate(info);
@@ -527,15 +587,16 @@ internal static class RoadEditorUtils {
 
             if (sourceInfo != null && sourceTrack != null) {
                 // copy custom flag names
-                CustomFlags customFlags = default;
-                foreach (var prop in props) customFlags |= prop.UsedCustomFlags;
-
-                foreach(var sourceLaneIndex  in sourceTrack.GetTrackLanes())
-                    foreach (var targetLaneIndex in targetTrack.GetTrackLanes())
+                foreach (var sourceLaneIndex in sourceTrack.GetTrackLanes()) {
+                    CustomFlags customFlags = default;
+                    foreach (var prop in props) customFlags |= prop.UsedCustomFlags;
+                    foreach (var targetLaneIndex in targetTrack.GetTrackLanes()) {
                         PropHelpers.CopyCustomFlagNames(
-                    customFlags, overwrite: false,
-                    sourceInfo, sourceLaneIndex,
-                    targetTrack.ParentInfo, targetLaneIndex);
+                            customFlags, overwrite: false,
+                            sourceInfo, sourceLaneIndex,
+                            targetTrack.ParentInfo, targetLaneIndex);
+                    }
+                }
             }
 
 

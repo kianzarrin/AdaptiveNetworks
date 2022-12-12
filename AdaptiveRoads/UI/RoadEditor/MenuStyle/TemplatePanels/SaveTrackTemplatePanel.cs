@@ -8,15 +8,15 @@ using System.Linq;
 using static AdaptiveRoads.Manager.NetInfoExtionsion;
 
 namespace AdaptiveRoads.UI.RoadEditor.MenuStyle {
-    public class SavetrackTemplatePanel : SaveTemplatePanel<SaveListBoxTrack, TrackTemplate> {
+    public class SaveTrackTemplatePanel : SaveTemplatePanel<SaveListBoxTrack, TrackTemplate> {
         public List<Track> tracks;
 
-        public static SavetrackTemplatePanel Display(IEnumerable<Track> tracks) {
+        public static SaveTrackTemplatePanel Display(IEnumerable<Track> tracks) {
             Log.Called();
             if (tracks.IsNullorEmpty()) {
                 return null;
             }
-            var ret = UIView.GetAView().AddUIComponent<SavetrackTemplatePanel>();
+            var ret = UIView.GetAView().AddUIComponent<SaveTrackTemplatePanel>();
             ret.tracks = tracks.ToList();
             return ret;
         }

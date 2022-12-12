@@ -50,6 +50,14 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 button.width = 200;
                 button.eventClicked += OnLoadFromTransitionPropTempalteClicked;
             }
+            if (name == "Tracks") {
+                Log.Debug("creating `Add from template` button");
+                var button = groupPanel.m_Panel.AddUIComponent<EditorButon>();
+                button.zOrder = int.MaxValue;
+                button.text = "Add from template";
+                button.width = 200;
+                button.eventClicked += OnLoadFromTrackTempalteClicked;
+            }
 
         }
 
@@ -105,7 +113,19 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 var groupPanel = component.GetComponentInParent<RoadEditorCollapsiblePanel>();
                 var roadEditor = component.GetComponentInParent<RoadEditorPanel>();
                 LoadTransitionPropTemplatePanel.Display(
-                    loadedSegments => RoadEditorUtils.AddTransitionProps(groupPanel, loadedSegments));
+                    loadedItems => RoadEditorUtils.AddTransitionProps(groupPanel, loadedItems));
+            } catch (Exception ex) {
+                Log.Exception(ex);
+            }
+        }
+
+        public static void OnLoadFromTrackTempalteClicked(
+    UIComponent component, UIMouseEventParameter eventParam) {
+            try {
+                var groupPanel = component.GetComponentInParent<RoadEditorCollapsiblePanel>();
+                var roadEditor = component.GetComponentInParent<RoadEditorPanel>();
+                LoadTrackTemplatePanel.Display(
+                    loadedItems => RoadEditorUtils.AddTracks(groupPanel, loadedItems));
             } catch (Exception ex) {
                 Log.Exception(ex);
             }

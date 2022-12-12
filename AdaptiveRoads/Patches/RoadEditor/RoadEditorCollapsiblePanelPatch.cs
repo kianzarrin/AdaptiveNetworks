@@ -92,6 +92,26 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                             null,
                             () => DisplaceAll(tprops, sidePanel));
                     }
+                } else if (groupPanel.GetArray() is NetInfoExtionsion.Track[] m_tracks) {
+                    bool hasItems = !m_tracks.IsNullorEmpty();
+                    bool clipBoardHasData = ClipBoard.HasData<NetInfoExtionsion.Track>();
+                    if (hasItems || clipBoardHasData) {
+                        var panel = MiniPanel.Display();
+                        if (hasItems) {
+                            panel.AddButton("Copy all tracks", null,
+                            () => ClipBoard.SetData(m_tracks));
+                            panel.AddButton("Clear all tracks", null,
+                                () => ClearAll(groupPanel));
+                            panel.AddButton("Save Template", null, () => {
+                                SaveTrackTemplatePanel.Display(m_tracks);
+                            });
+                        }
+                        if (clipBoardHasData) {
+                            string strItems = Str("track", ClipBoard.Count);
+                            panel.AddButton("Paste " + strItems, null,
+                                () => PasteAllTracks(groupPanel));
+                        }
+                    }
                 } else if (groupPanel.GetArray() is NetInfo.Node[] m_nodes) {
                     bool hasItems = !m_nodes.IsNullorEmpty();
                     bool clipBoardHasData = ClipBoard.HasData<NetInfo.Node>();
@@ -159,7 +179,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
             try {
                 var roadEditor = instance.component.GetComponentInParent<RoadEditorPanel>();
                 var sidePanel = roadEditor.GetSidePanel();
-                if (sidePanel != null && sidePanel.GetTarget() is NetLaneProps.Prop) {
+                if (sidePanel != null) {
                     Log.Debug("Destroying prop side panel");
                     roadEditor.DestroySidePanel();
                 }
@@ -170,12 +190,18 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     UnityEngine.Object.Destroy(toggle.gameObject);
                 }
 
-
-                instance.SetArray(new NetLaneProps.Prop[0]);
+                var arrayType = instance.GetField().FieldType.GetElementType();
+                var emptyArray = Array.CreateInstance(arrayType, 0);
+                instance.SetArray(emptyArray);
                 roadEditor.OnObjectModified();
             } catch (Exception ex) {
                 Log.Exception(ex);
             }
+        }
+
+        static void PasteAllTracks(RoadEditorCollapsiblePanel groupPanel) {
+            Log.Called();
+            AddTracks(groupPanel, ClipBoard.GetTracks(), ClipBoard.SourceInfo);
         }
         static void PasteAllTransitionProps(RoadEditorCollapsiblePanel groupPanel) {
             Log.Called();
