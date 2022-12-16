@@ -13,6 +13,7 @@ namespace AdaptiveRoads.Manager {
     using AdaptiveRoads.Data.NetworkExtensions;
     using AdaptiveRoads.LifeCycle;
     using System.Diagnostics;
+    using AdaptiveRoads.Patches.Node;
 
     public static class NetworkExtensionManagerExtensions {
         static NetworkExtensionManager man_ => NetworkExtensionManager.Instance;
@@ -208,7 +209,7 @@ namespace AdaptiveRoads.Manager {
                     if(!NetUtil.IsNodeValid(nodeID)) continue;
                     timer2?.Start();
                     counter2++;
-                    nodeID.ToNode().CalculateNode(nodeID);
+                    CalculateNodeHelper.FastCalculateNode(nodeID);
                     timer2?.Stop();
                     NetManager.instance.UpdateNodeRenderer(nodeID, false);
                 }
