@@ -220,7 +220,7 @@ namespace AdaptiveRoads.Manager {
 
         public void HotReload() {
             if (NetInfoExtionsion.EditedNetInfo == null) {
-                // don't do this in asset editor. It's done when when road editor refreshes.
+                // don't do this in asset editor. It's done when road editor refreshes.
                 NetManager.instance.RebuildLods(); 
             }
             RecalculateARPrefabs();
