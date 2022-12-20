@@ -1,0 +1,31 @@
+namespace AdaptiveRoads.Patches.Segment;
+using HarmonyLib;
+using KianCommons;
+using System;
+
+// not called in after deserialize
+internal static class UpdateSegmentsCommons {
+    internal static void Postfix(ushort segmentID, bool startNode) {
+        try {
+            if (!NetUtil.IsSegmentValid(segmentID)) return;
+            ref NetSegment segment = ref segmentID.ToSegment();
+            ushort nodeID = segment.GetNode(startNode);
+            if (nodeID.ToNode().Info.IsAdaptive()) {
+                BuilidingManger_SimulationStep_Patch.FixPillarNodeIDs.Add(nodeID);
+            }
+        } catch (Exception ex) { ex.Log($"segment:{segmentID}"); }
+    }
+}
+
+
+// also called in after deserialize
+[HarmonyPatch(typeof(NetSegment), nameof(NetSegment.UpdateStartSegments))]
+static class UpdateStartSegments {
+    static void Postfix(ushort segmentID) => UpdateSegmentsCommons.Postfix(segmentID, true);
+}
+
+// also called in after deserialize
+[HarmonyPatch(typeof(NetSegment), nameof(NetSegment.UpdateEndSegments))]
+static class UpdateEndSegments {
+    static void Postfix(ushort segmentID) => UpdateSegmentsCommons.Postfix(segmentID, false);
+}

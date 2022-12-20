@@ -156,9 +156,6 @@ namespace AdaptiveRoads.Manager {
 
                     GetTrackConnections();
                 }
-                if (VanillaNode.Info.IsAdaptive()) {
-                    ShiftAndRotatePillar();
-                }
                 if (Log.VERBOSE) Log.Debug($"NetNodeExt.UpdateFlags() succeeded for {this}" /*Environment.StackTrace*/, false);
             } catch (Exception ex) {
                 ex.Log("node=" + this);
