@@ -135,8 +135,8 @@ namespace AdaptiveRoads.Manager {
             private static DynamicFlags NONE => DynamicFlagsUtil.NONE;
             public string[] Required = EMPTY, Forbidden = EMPTY;
             public bool ForbidAll = false;
-            public byte MinMatch = 0, MaxMatch = 7;
-            public byte MinMismatch = 0, MaxMismatch = 7;
+            public byte MinMatch = 0, MaxMatch = MAX_TAG_COUNT;
+            public byte MinMismatch = 0, MaxMismatch = MAX_TAG_COUNT;
 
             [NonSerialized]
             internal DynamicFlags FlagsRequired = NONE, FlagsForbidden = NONE;
@@ -152,7 +152,7 @@ namespace AdaptiveRoads.Manager {
                 FlagsRequired = NetInfo.GetFlags(Required);
                 FlagsForbidden = NetInfo.GetFlags(Forbidden);
 
-                needCheckLimits_ = MaxMismatch < 7 || MaxMatch < 7 || MinMatch > 0 || MinMismatch > 0;
+                needCheckLimits_ = MaxMismatch < MAX_TAG_COUNT || MaxMatch < MAX_TAG_COUNT || MinMatch > 0 || MinMismatch > 0;
                 needCheck_ = needCheckLimits_ || !Required.IsNullorEmpty() || !Forbidden.IsNullorEmpty();
             }
 

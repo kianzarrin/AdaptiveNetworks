@@ -13,6 +13,8 @@ namespace AdaptiveRoads.Manager {
 
     public static partial class NetInfoExtionsion {
         #region static
+        public static byte MAX_TAG_COUNT = 8;
+
         private static IEnumerable<NetLaneProps.Prop> IterateProps(NetInfo.Lane lane)
         => lane?.m_laneProps?.m_props ?? Enumerable.Empty<NetLaneProps.Prop>();
 

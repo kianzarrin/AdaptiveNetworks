@@ -79,9 +79,9 @@ namespace AdaptiveRoads.DTO {
             public string[] m_tagsRequired = new string[0];
             public string[] m_tagsForbidden = new string[0];
             public byte m_minSameTags;
-            public byte m_maxSameTags = 7;
+            public byte m_maxSameTags = NetInfoExtionsion.MAX_TAG_COUNT;
             public byte m_minOtherTags;
-            public byte m_maxOtherTags = 7;
+            public byte m_maxOtherTags = NetInfoExtionsion.MAX_TAG_COUNT;
             public bool m_forbidAnyTags;
 
             public NetInfoExtionsion.Node MetaData;

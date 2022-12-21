@@ -133,14 +133,14 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                     roadEditorPanel: roadEditorPanel,
                     container: container,
                     label: "match         count",
-                    hint: "number of segments that match required/forbidden criteria",
+                    hint: "number of segments that match required/forbidden criteria (inclusive)",
                     from: RefChain.Create(nodeInfo).Field<byte>(nameof(NetInfo.Node.m_minSameTags)),
                     to: RefChain.Create(nodeInfo).Field<byte>(nameof(NetInfo.Node.m_maxSameTags)));
                     RangePanel8.Add(
                     roadEditorPanel: roadEditorPanel,
                     container: container,
                     label: "mismatch count",
-                    hint: "number of segments that do not match required/forbidden criteria",
+                    hint: "number of segments that do not match required/forbidden criteria (inclusive)",
                     from: RefChain.Create(nodeInfo).Field<byte>(nameof(NetInfo.Node.m_minOtherTags)),
                     to: RefChain.Create(nodeInfo).Field<byte>(nameof(NetInfo.Node.m_maxOtherTags)));
                     return true;
@@ -190,14 +190,14 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 roadEditorPanel: roadEditorPanel,
                 container: container,
                 label: "match         count",
-                hint: "number of segments that match required/forbidden criteria",
+                hint: "number of segments that match required/forbidden criteria (inclusive)",
                 from: refChainRoot.Field<byte>(nameof(TagsInfo.MinMatch)),
                 to: refChainRoot.Field<byte>(nameof(TagsInfo.MaxMatch)));
             RangePanel8.Add(
                 roadEditorPanel: roadEditorPanel,
                 container: container,
                 label: "mismatch count",
-                hint: "number of segments that do not match required/forbidden criteria",
+                hint: "number of segments that do not match required/forbidden criteria (inclusive)",
                 from: refChainRoot.Field<byte>(nameof(TagsInfo.MinMismatch)),
                 to: refChainRoot.Field<byte>(nameof(TagsInfo.MaxMismatch)));
         }
