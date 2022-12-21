@@ -35,6 +35,9 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             [Hint("transition is between two matching lanes with similar lane index.")]
             SimilarLaneIndex = 1 << 11,
 
+            [Hint("transition is between the same lane on a two-segment node of the same prefab.")]
+            SameLanePosition = 1 << 11,
+
             Uturn = 1 << 12,
         }
 
@@ -168,9 +171,25 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                 var laneInfoD = this.LaneInfoD;
                 bool similar = laneInfoA.m_finalDirection == laneInfoD.m_finalDirection &&
                     laneInfoA.m_laneType == laneInfoD.m_laneType &&
-                    LaneInfoA.m_vehicleType == LaneInfoD.m_vehicleType &&
+                    laneInfoA.m_vehicleType == laneInfoD.m_vehicleType &&
                     laneInfoA.m_similarLaneIndex == laneInfoD.m_similarLaneIndex;
                 m_flags = m_flags.SetFlags(Flags.SimilarLaneIndex, on: similar);
+            }
+
+            {
+                var laneInfoA = this.LaneInfoA;
+                var laneInfoD = this.LaneInfoD;
+                var similar = SegmentA.GetHeadNode() == SegmentD.GetTailNode() && //sameDirection
+                    Node.CountSegments() == 2 && // twoSegments
+                    laneInfoA.m_position == laneInfoD.m_position &&
+                    laneInfoA.m_finalDirection == laneInfoD.m_finalDirection &&
+                    laneInfoA.m_laneType == laneInfoD.m_laneType &&
+                    laneInfoA.m_vehicleType == laneInfoD.m_vehicleType &&
+                    (InfoA == InfoD // Same road
+                        || (InfoA.m_netAI as RoadAI)?.m_elevatedInfo == InfoD
+                        || (InfoD.m_netAI as RoadAI)?.m_elevatedInfo == InfoA);
+
+                m_flags = m_flags.SetFlags(Flags.SameLanePosition, on: similar);
             }
 
             {
