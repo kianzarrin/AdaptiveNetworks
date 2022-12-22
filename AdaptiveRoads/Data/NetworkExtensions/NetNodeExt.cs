@@ -437,27 +437,23 @@ namespace AdaptiveRoads.Manager {
                         var infoExt1 = segment1.Info?.GetMetaData();
                         bool headNode1 = segment1.GetHeadNode() == NodeID;
                         foreach (var lane1 in new LaneDataIterator(segmentId1)) {
+                            if (lane1.LaneInfo.m_laneType != NetInfo.LaneType.None) continue;
                             bool hasTrackLane1 = infoExt1?.HasTrackLane(lane1.LaneIndex) ?? false;
                             foreach (ushort segmentId2 in SegmentIDs) {
                                 if (segmentId2 == segmentId1) continue;
                                 ref NetSegment segment2 = ref segmentId2.ToSegment();
                                 var infoExt2 = segment2.Info?.GetMetaData();
                                 foreach (var lane2 in new LaneDataIterator(segmentId2)) {
+                                    if (lane2.LaneInfo.m_laneType != NetInfo.LaneType.None) continue;
                                     bool hasTrackLane2 = infoExt2?.HasTrackLane(lane2.LaneIndex) ?? false;
-                                    if (!(hasTrackLane1 || hasTrackLane2)) {
-                                        continue;
-                                    }
-                                    if (
-                                        (lane1.LaneInfo.m_laneType == NetInfo.LaneType.None) ||
-                                        (lane2.LaneInfo.m_laneType == NetInfo.LaneType.None)) {
-                                        if (CheckTagsNoneLanes(lane1, lane2)) {
-                                            Log.Debug($"{lane1} -> {lane2}");
-                                            var key = new Connection { LaneID1 = lane1.LaneID, LaneID2 = lane2.LaneID };
-                                            Log.Debug(message: "NONE " + key);
-                                            tempConnections_.Add(key);
-                                        }
-                                    }
-                                }
+                                    if (!(hasTrackLane1 || hasTrackLane2)) continue;
+                                    
+                                    if (CheckTagsNoneLanes(lane1, lane2)) {
+                                        Log.Debug($"{lane1} -> {lane2}");
+                                        var key = new Connection { LaneID1 = lane1.LaneID, LaneID2 = lane2.LaneID };
+                                        Log.Debug(message: "NONE " + key);
+                                        tempConnections_.Add(key);
+                                    }                                }
                             }
                         }
                     }
@@ -482,40 +478,25 @@ namespace AdaptiveRoads.Manager {
         /// checks if any track has lane tags of the other lane.
         /// </summary>
         public static bool CheckTagsNoneLanes(LaneData lane1, LaneData lane2) {
-            bool none =
-                (lane1.LaneInfo.m_laneType is NetInfo.LaneType.None) ||
-                (lane2.LaneInfo.m_laneType is NetInfo.LaneType.None);
-            if (!none) return false;
+            return CheckAB(lane1, lane2) || CheckAB(lane2, lane1);
+            static bool CheckAB(LaneData laneA, LaneData laneB) {
+                var infoExtA = laneA.Segment.Info?.GetMetaData();
+                var infoExtB = laneB.Segment.Info?.GetMetaData();
+                var tracksA = infoExtA?.Tracks;
+                var tagsB = infoExtB?.Lanes[laneB.LaneInfo]?.LaneTags;
 
-            var infoExt1 = lane1.Segment.Info?.GetMetaData();
-            var infoExt2 = lane2.Segment.Info?.GetMetaData();
-            var tracks1 = infoExt1?.Tracks;
-            var tracks2 = infoExt2?.Tracks;
-            var tags1 = infoExt1?.Lanes[lane1.LaneInfo]?.LaneTags;
-            var tags2 = infoExt2?.Lanes[lane2.LaneInfo]?.LaneTags;
-            if (tracks1 != null && tags2 != null) {
-                foreach (var track in tracks1) {
-                    Assertion.NotNull(track);
-                    if (track.HasTrackLane(lane1.LaneIndex)) {
-                        Assertion.NotNull(tags2);
-                        if (track.LaneTags.Check(tags2.Flags)) {
-                            return true;
+                if (tracksA != null && tagsB != null) {
+                    foreach (var track in tracksA) {
+                        if (track == null) continue;
+                        if (track.HasTrackLane(laneA.LaneIndex)) {
+                            if (track.LaneTags.Check(tagsB.Flags)) {
+                                return true;
+                            }
                         }
                     }
                 }
+                return false;
             }
-            if (tracks2 != null && tags1 != null) {
-                foreach (var track in tracks2) {
-                    Assertion.NotNull(track);
-                    if (track.HasTrackLane(lane2.LaneIndex)) {
-                        Assertion.NotNull(tags1);
-                        if (track.LaneTags.Check(tags1.Flags)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
         }
 
         public static bool IsNodeless(ushort segmentID, ushort nodeID) {
