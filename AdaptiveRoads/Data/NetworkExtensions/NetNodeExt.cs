@@ -431,6 +431,7 @@ namespace AdaptiveRoads.Manager {
                 }
 
                 // None Transitions based on lane tags
+                // None Lanes can only connect to None lanes
                 {
                     foreach (ushort segmentId1 in SegmentIDs) {
                         ref NetSegment segment1 = ref segmentId1.ToSegment();
@@ -447,7 +448,6 @@ namespace AdaptiveRoads.Manager {
                                     if (lane2.LaneInfo.m_laneType != NetInfo.LaneType.None) continue;
                                     bool hasTrackLane2 = infoExt2?.HasTrackLane(lane2.LaneIndex) ?? false;
                                     if (!(hasTrackLane1 || hasTrackLane2)) continue;
-                                    
                                     if (CheckTagsNoneLanes(lane1, lane2)) {
                                         Log.Debug($"{lane1} -> {lane2}");
                                         var key = new Connection { LaneID1 = lane1.LaneID, LaneID2 = lane2.LaneID };
