@@ -177,11 +177,11 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             }
 
             {
-                var sameDir = (SegmentA.IsInvert() == SegmentD.IsInvert()) ^ (SegmentA.IsStartNode(NodeId) != SegmentD.IsStartNode(NodeId));
                 var laneInfoA = this.LaneInfoA;
                 var laneInfoD = this.LaneInfoD;
-                var similar = sameDir,
+                var similar = SegmentA.GetHeadNode() == SegmentD.GetTailNode() && //sameDirection
                     Node.CountSegments() == 2 && // twoSegments
+                    SegmentA.IsInvert() == SegmentD.IsInvert() &&
                     laneInfoA.m_position == laneInfoD.m_position &&
                     laneInfoA.m_finalDirection == laneInfoD.m_finalDirection &&
                     laneInfoA.m_laneType == laneInfoD.m_laneType &&
@@ -190,7 +190,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                         || (InfoA.m_netAI as RoadAI)?.m_elevatedInfo == InfoD
                         || (InfoD.m_netAI as RoadAI)?.m_elevatedInfo == InfoA);
 
-                m_flags = m_flags.SetFlags(Flags.SameLanePosition, on: similar);
+                m_flags = m_flags.SetFlags(Flags.SimilarLaneIndex, on: similar);
             }
 
             {
