@@ -177,9 +177,10 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             }
 
             {
+                var sameDirection = SegmentA.GetHeadNode() == SegmentD.GetTailNode() || SegmentD.GetHeadNode() == SegmentA.GetTailNode();
                 var laneInfoA = this.LaneInfoA;
                 var laneInfoD = this.LaneInfoD;
-                var similar = SegmentA.GetHeadNode() == SegmentD.GetTailNode() && //sameDirection
+                var similar = sameDirection &&
                     Node.CountSegments() == 2 && // twoSegments
                     SegmentA.IsInvert() == SegmentD.IsInvert() &&
                     laneInfoA.m_position == laneInfoD.m_position &&
