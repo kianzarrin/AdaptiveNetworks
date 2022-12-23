@@ -35,8 +35,8 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             [Hint("transition is between two matching lanes with similar lane index.")]
             SimilarLaneIndex = 1 << 11,
 
-            [Hint("transition is between the same lane on a two-segment node of the same prefab.")]
-            SameLanePosition = 1 << 11,
+            [Hint("transition is between the same lane on a two-segment node.")]
+            SameLane = 1 << 11,
 
             Uturn = 1 << 12,
         }
@@ -177,9 +177,10 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             }
 
             {
+                var sameDir = (SegmentA.IsInvert() == SegmentD.IsInvert()) ^ (SegmentA.IsStartNode(NodeId) != SegmentD.IsStartNode(NodeId));
                 var laneInfoA = this.LaneInfoA;
                 var laneInfoD = this.LaneInfoD;
-                var similar = SegmentA.GetHeadNode() == SegmentD.GetTailNode() && //sameDirection
+                var similar = sameDir,
                     Node.CountSegments() == 2 && // twoSegments
                     laneInfoA.m_position == laneInfoD.m_position &&
                     laneInfoA.m_finalDirection == laneInfoD.m_finalDirection &&
