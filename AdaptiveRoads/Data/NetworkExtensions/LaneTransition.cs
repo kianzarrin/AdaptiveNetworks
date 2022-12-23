@@ -190,7 +190,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
                         || (InfoA.m_netAI as RoadAI)?.m_elevatedInfo == InfoD
                         || (InfoD.m_netAI as RoadAI)?.m_elevatedInfo == InfoA);
 
-                m_flags = m_flags.SetFlags(Flags.SimilarLaneIndex, on: similar);
+                m_flags = m_flags.SetFlags(Flags.SameLane, on: similar);
             }
 
             {
