@@ -35,10 +35,10 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
             [Hint("transition is between two matching lanes with similar lane index.")]
             SimilarLaneIndex = 1 << 11,
 
-            Uturn = 1 << 12,
-
             [Hint("transition is between the same lane on a two-segment node.")]
             SameLane = 1 << 13,
+
+            Uturn = 1 << 12,
         }
 
         public Flags m_flags; // TODO complete
