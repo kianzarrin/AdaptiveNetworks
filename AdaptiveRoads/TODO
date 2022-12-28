@@ -1,4 +1,4 @@
-- lane/track templates
+- lane templates
 - smartCustomFlags for templates
 - fix the gap (skew lane if junction is not straight)
 - parking props on lane

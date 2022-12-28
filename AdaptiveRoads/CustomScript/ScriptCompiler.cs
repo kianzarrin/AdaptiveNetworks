@@ -23,7 +23,7 @@ namespace AdaptiveRoads.CustomScript {
             "UnityEngine.dll",
         };
 
-        private static Dictionary<string,Assembly> LoadedAssemblies = new ();
+        private static Dictionary<string, Assembly> LoadedAssemblies = new();
 
         public static Assembly AddAssembly(byte[] data) {
             Log.Called();

@@ -88,7 +88,8 @@ namespace AdaptiveRoads.Manager {
                     if(Log.VERBOSE) Log.Called();
                     var package = PackageManagerUtil.SavingPackage;
                     Assertion.NotNull(package, "package");
-                    var fields = this.GetType().GetFields(ReflectionHelpers.COPYABLE).Where(field => !field.HasAttribute<NonSerializedAttribute>());
+                    var fields = this.GetType().GetFields(ReflectionHelpers.COPYABLE).
+                        Where(field => !field.HasAttribute<NonSerializedAttribute>());
                     foreach(FieldInfo field in fields) {
                         var type = field.GetType();
                         object value = field.GetValue(this);
