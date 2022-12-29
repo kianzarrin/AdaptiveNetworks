@@ -203,7 +203,7 @@ namespace AdaptiveRoads.Manager {
                 }
                 for (ushort segmentID = 0; segmentID < NetManager.MAX_SEGMENT_COUNT; ++segmentID) {
                     if(!NetUtil.IsSegmentValid(segmentID)) continue;
-                    NetManager.instance.UpdateSegmentRenderer(segmentID, false);
+                    NetManager.instance.UpdateSegmentRenderer(segmentID, true);
                 }
                 for(ushort nodeID = 0; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID) {
                     if(!NetUtil.IsNodeValid(nodeID)) continue;
@@ -211,7 +211,7 @@ namespace AdaptiveRoads.Manager {
                     counter2++;
                     CalculateNodeHelper.FastCalculateNode(nodeID);
                     timer2?.Stop();
-                    NetManager.instance.UpdateNodeRenderer(nodeID, false);
+                    NetManager.instance.UpdateNodeRenderer(nodeID, true);
                 }
             } catch(Exception ex) {
                 ex.Log();
@@ -345,7 +345,7 @@ namespace AdaptiveRoads.Manager {
                         for (int bitIndex = 0; bitIndex < 64; bitIndex++) {
                             if ((bitmask & 1UL << bitIndex) != 0UL) {
                                 ushort segmentID = (ushort)(maskIndex << 6 | bitIndex);
-                                NetManager.instance.UpdateSegmentRenderer(segmentID, false);
+                                NetManager.instance.UpdateSegmentRenderer(segmentID, true);
                             }
                         }
                     }
@@ -360,7 +360,7 @@ namespace AdaptiveRoads.Manager {
                         for(int bitIndex = 0; bitIndex < 64; bitIndex++) {
                             if((bitmask & 1UL << bitIndex) != 0) {
                                 ushort nodeID = (ushort)(maskIndex << 6 | bitIndex);
-                                NetManager.instance.UpdateNodeRenderer(nodeID, false);
+                                NetManager.instance.UpdateNodeRenderer(nodeID, true);
                             }
                         }
 
