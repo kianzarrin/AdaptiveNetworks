@@ -536,10 +536,15 @@ internal static class RoadEditorUtils {
         try {
             Log.Called(items, sourceInfo);
             if (items == null || items.Length == 0) return;
+            Net targetInfoExt = groupPanel.GetTarget() as Net;
+            NetInfo targetInfo = targetInfoExt.ParentInfo;
+            Assertion.NotNull(targetInfo, "targetInfo");
             Track[] m_items = groupPanel.GetArray() as Track[];
 
-            var m_items2 = m_items.AddRangeToArray(items);
-            NetInfo targetInfo = groupPanel.GetTarget() as NetInfo;
+            // update parent info before copying custom flag names.
+            foreach (var item in m_items) item.Recalculate(targetInfo);
+
+            Track[] m_items2 = m_items.AddRangeToArray(items);
 
             if (sourceInfo != null) {
                 // copy custom flag names
@@ -561,7 +566,7 @@ internal static class RoadEditorUtils {
             Log.Debug($"Adding Tracks {items.Length}+{m_items.Length}={m_items2.Length}");
             groupPanel.SetArray(m_items2);
             foreach (var item in items) {
-                sidePanel.AddToggle(groupPanel, item, arrayField, targetInfo);
+                sidePanel.AddToggle(groupPanel, item, arrayField, targetInfoExt);
             }
 
             foreach (var info in NetInfoExtionsion.EditedNetInfos) info?.GetMetaData().Recalculate(info);
