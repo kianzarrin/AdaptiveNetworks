@@ -123,7 +123,7 @@ namespace AdaptiveRoads.Patches.AsymPavements {
                     segment_A.CalculateCorner(segmentID_A, heightOffset: true, bStartNode, leftSide: true, out cornerPosA_right, out cornerDirA_right, out smooth);
                     segment_A.CalculateCorner(segmentID_A, heightOffset: true, bStartNode, leftSide: false, out cornerPosA_left, out cornerDirA_left, out smooth);
                     float pavementRatioA = Commons.ModifyPavement(infoA.m_pavementWidth, segmentID_A, segmentId, 2) / infoA.m_halfWidth * 0.5f;
-                    if (dot_A > -0.5f && Fix(segmentId, segmentID_A, true)) {
+                    if (dot_A > -0.5f && info.m_pavementWidth > 0 && Fix(segmentId, segmentID_A, true)) {
                         startRatioA = Mathf.Clamp(startRatioA * (2f * pavementRatioA / (pavementRatio_avgA + pavementRatioA)), 0.05f, 0.7f);
                         endRatioA = Mathf.Clamp(endRatioA * (2f * pavementRatio_avgA / (pavementRatio_avgA + pavementRatioA)), 0.05f, 0.7f);
                     }
@@ -141,7 +141,7 @@ namespace AdaptiveRoads.Patches.AsymPavements {
                     segment_B.CalculateCorner(segmentID_B, heightOffset: true, bStartNode, leftSide: true, out cornerPos5, out cornerDirection5, out smooth);
                     segment_B.CalculateCorner(segmentID_B, heightOffset: true, bStartNode, leftSide: false, out cornerPos6, out cornerDirection6, out smooth);
                     float pavementRatioB = Commons.ModifyPavement(infoB.m_pavementWidth, segmentID_B, segmentId, 4) / infoB.m_halfWidth * 0.5f;
-                    if (dot_B > -0.5f && Fix(segmentId, segmentID_B, false)) {
+                    if (dot_B > -0.5f && info.m_pavementWidth > 0 && Fix(segmentId, segmentID_B, false)) {
                         startRatioB = Mathf.Clamp(startRatioB * (2f * pavementRatioB / (pavementRatio_avgB + pavementRatioB)), 0.05f, 0.7f);
                         endRatioB = Mathf.Clamp(endRatioB * (2f * pavementRatio_avgB / (pavementRatio_avgB + pavementRatioB)), 0.05f, 0.7f);
                     }

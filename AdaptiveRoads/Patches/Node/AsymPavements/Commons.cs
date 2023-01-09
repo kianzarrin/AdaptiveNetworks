@@ -111,11 +111,13 @@ namespace AdaptiveRoads.Patches.AsymPavements {
                 case Util.Operation.PWSmall:
                     return pwSmall;
                 case Util.Operation.PWAR: {
+                        if (pwSmall == 0) return width; // protect against division by 0
                         float A = pwBig / pwSmall - 1;
                         float r = info2.PW(reverse2 == reverse) * info.m_halfWidth / info2.m_halfWidth;
                         return A * r + pwBig;
                     }
                 case Util.Operation.PWAR2: {
+                        if (pwSmall == 0) return width; // protect against division by 0
                         float A = pwBig / pwSmall - 1;
                         float r = info2.PW(reverse2 != reverse) * info.m_halfWidth / info2.m_halfWidth;
                         return A * r + pwBig;
