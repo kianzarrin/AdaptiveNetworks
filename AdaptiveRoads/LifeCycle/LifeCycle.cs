@@ -181,11 +181,13 @@ namespace AdaptiveRoads.LifeCycle {
 
                 ARTool.Create().enabled = false;
 
+#if DEBUG
                 const bool testPWValues = false;
                 if (testPWValues) {
                     UI.Debug.PWSelector.Create();
                     UI.Debug.PWModifier.Create();
                 }
+#endif
 
                 if (tmpeLoaded_) {
                     // wait to load TMPE
@@ -203,8 +205,10 @@ namespace AdaptiveRoads.LifeCycle {
             try {
                 LogCalled();
                 loaded_ = tmpeLoaded_ = false;
+#if DEBUG
                 UI.Debug.PWSelector.Release();
                 UI.Debug.PWModifier.Release();
+#endif
                 VBSTool.Release();
                 ARTool.Release();
                 HintBox.Release();

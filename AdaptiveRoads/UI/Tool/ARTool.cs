@@ -10,7 +10,6 @@ namespace AdaptiveRoads.UI.Tool {
     using UnifedUILib::UnifiedUI.Helpers;
     using System.Linq;
     using static KianCommons.ReflectionHelpers;
-    using Patches.AsymPavements;
     using System.Collections.Generic;
     using ColossalFramework;
 

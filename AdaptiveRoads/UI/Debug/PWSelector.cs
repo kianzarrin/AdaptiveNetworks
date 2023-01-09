@@ -1,3 +1,4 @@
+#if DEBUG
 namespace AdaptiveRoads.UI.Debug {
     using System;
     using System.Collections.Generic;
@@ -94,3 +95,4 @@ namespace AdaptiveRoads.UI.Debug {
         }
     }
 }
+#endif
