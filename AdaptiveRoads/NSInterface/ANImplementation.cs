@@ -146,7 +146,7 @@ namespace AdaptiveRoads.NSInterface {
                         int laneIndex = pair.Value;
                         string key = GetFlagKey(flag, laneIndex);
                         bool? value = ActiveSelectionData.Instance.GetBoolValue(elevation, key);
-                        if (value.HasValue && value == true && shared.HasFlag(flag)) {
+                        if (value.HasValue && value == true && shared.HasFlag(flag, laneIndex)) {
                             ARCustomFlags.AddFlag(flag, laneIndex);
                         }
                     }
