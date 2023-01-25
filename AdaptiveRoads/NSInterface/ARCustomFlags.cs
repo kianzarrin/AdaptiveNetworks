@@ -76,7 +76,7 @@ namespace AdaptiveRoads.NSInterface {
             } else if (flag is NetSegmentEnd.Flags segmentEndFlag) {
                 return SegmentEnd.IsFlagSet(segmentEndFlag);
             } else if (flag is NetLaneExt.Flags laneFlag) {
-                return Lanes[laneIndex].IsFlagSet(laneFlag);
+                return laneIndex >= 0 && laneIndex < Lanes.Length && Lanes[laneIndex].IsFlagSet(laneFlag);
             } else {
                 throw new ArgumentException("flag: " + flag);
             }

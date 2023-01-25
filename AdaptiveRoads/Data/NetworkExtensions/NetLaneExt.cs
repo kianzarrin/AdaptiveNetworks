@@ -215,6 +215,10 @@ namespace AdaptiveRoads.Manager{
 
         public TrackRenderData GenerateRenderData(ref OutlineData outline, Vector3? pos = null) {
             TrackRenderData ret = default;
+
+            if (LaneData.LaneID < 0 || LaneData.LaneID >= NetUtil.netMan.m_lanes.m_buffer.Length)
+                return ret;
+
             ref var segment = ref LaneData.Segment;
             NetInfo netInfo = segment.Info;
             ref NetNode startNode = ref segment.m_startNode.ToNode();
