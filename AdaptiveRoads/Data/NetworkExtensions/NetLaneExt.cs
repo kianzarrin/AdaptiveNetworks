@@ -259,13 +259,17 @@ namespace AdaptiveRoads.Manager{
             ref var segment = ref LaneData.Segment;
             ref var lane = ref LaneData.Lane;
             return
+                trackInfo != null &&
                 trackInfo.HasTrackLane(LaneData.LaneIndex) &&
                 trackInfo.CheckSegmentFlags(segmentExt.m_flags,
                 segment.m_flags, this.m_flags, lane.Flags(),
                 segmentExt.UserData);
         }
         public void RenderTrackInstance(RenderManager.CameraInfo cameraInfo) {
-            var tracks = LaneData.SegmentID.ToSegmentExt().NetInfoExt.Tracks;
+            var tracks = LaneData.SegmentID.ToSegmentExt().NetInfoExt?.Tracks;
+
+            if (tracks == null || cameraInfo == null) return;
+
             foreach(var trackInfo in tracks) {
                 if(Check(trackInfo)) {
                     TrackRenderData renderData;
