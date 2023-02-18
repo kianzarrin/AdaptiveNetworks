@@ -220,12 +220,20 @@ namespace AdaptiveRoads.Manager {
                         }
                     }
                 }
-            } catch(Exception ex) { ex.Log(); }
+            }
+            catch(Exception ex)
+            {
+#if DEBUG
+                ex.Log(true);
+#else
+                ex.Log(false);
+#endif
+            }
         }
 
-        #endregion
+#endregion
 
-        #region overlay
+#region overlay
         private struct OverlayData {
             public OutlineData Outline;
             public bool turnAround;
@@ -268,7 +276,7 @@ namespace AdaptiveRoads.Manager {
         }
 
         public void UndergroundOverlay(RenderManager.CameraInfo cameraInfo) { }
-        #endregion
+#endregion
 
         public void CheckReferences() { }
 
