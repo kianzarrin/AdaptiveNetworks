@@ -216,41 +216,51 @@ namespace AdaptiveRoads.Manager{
         public TrackRenderData GenerateRenderData(ref OutlineData outline, Vector3? pos = null) {
             TrackRenderData ret = default;
 
-            if (LaneData.LaneID < 0 || LaneData.LaneID >= NetUtil.netMan.m_lanes.m_buffer.Length)
-                return ret;
+            try {
+                if (LaneData.LaneID < 0 || LaneData.LaneID >= NetUtil.netMan.m_lanes.m_buffer.Length)
+                    return ret;
 
-            ref var segment = ref LaneData.Segment;
-            NetInfo netInfo = segment.Info;
-            ref NetNode startNode = ref segment.m_startNode.ToNode();
-            ref NetNode endNode = ref segment.m_endNode.ToNode();
-            ref var bezier = ref LaneData.Lane.m_bezier;
-            ref var lane = ref LaneData.Lane;
-            var laneInfo = LaneData.LaneInfo;
-            Vector3 startPos = bezier.a;
-            Vector3 endPos = bezier.d;
+                ref var segment = ref LaneData.Segment;
+                NetInfo netInfo = segment.Info;
+                ref NetNode startNode = ref segment.m_startNode.ToNode();
+                ref NetNode endNode = ref segment.m_endNode.ToNode();
+                ref var bezier = ref LaneData.Lane.m_bezier;
+                ref var lane = ref LaneData.Lane;
+                var laneInfo = LaneData.LaneInfo;
+                Vector3 startPos = bezier.a;
+                Vector3 endPos = bezier.d;
 
-            ret.Position = pos ?? (startPos + endPos) * 0.5f;
-            ret.Color = netInfo.m_color;
-            ret.Color.a = 0f;
-            ret.WindSpeed = Singleton<WeatherManager>.instance.GetWindSpeed(ret.Position);
-            ret.MeshScale = new Vector4(1f / laneInfo.m_width, 1f / netInfo.m_segmentLength, 1f, 1f);
+                ret.Position = pos ?? (startPos + endPos) * 0.5f;
+                ret.Color = netInfo.m_color;
+                ret.Color.a = 0f;
+                ret.WindSpeed = Singleton<WeatherManager>.instance.GetWindSpeed(ret.Position);
+                ret.MeshScale = new Vector4(1f / laneInfo.m_width, 1f / netInfo.m_segmentLength, 1f, 1f);
 
-            Vector4 colorLocationStart = RenderManager.GetColorLocation(TrackManager.SEGMENT_HOLDER + LaneData.SegmentID);
-            Vector4 colorLocationEnd = colorLocationStart;
-            if(NetNode.BlendJunction(segment.m_startNode)) {
-                colorLocationStart = RenderManager.GetColorLocation(TrackManager.NODE_HOLDER + segment.m_startNode);
+                Vector4 colorLocationStart = RenderManager.GetColorLocation(TrackManager.SEGMENT_HOLDER + LaneData.SegmentID);
+                Vector4 colorLocationEnd = colorLocationStart;
+                if (NetNode.BlendJunction(segment.m_startNode)) {
+                    colorLocationStart = RenderManager.GetColorLocation(TrackManager.NODE_HOLDER + segment.m_startNode);
+                }
+                if (NetNode.BlendJunction(segment.m_endNode)) {
+                    colorLocationEnd = RenderManager.GetColorLocation(TrackManager.NODE_HOLDER + segment.m_endNode);
+                }
+                ret.ObjectIndex = new Vector4(colorLocationStart.x, colorLocationStart.y, colorLocationEnd.x, colorLocationEnd.y); // object index
+                float vScale = netInfo.m_netAI.GetVScale();
+                ret.TurnAround = LaneData.LaneInfo.IsGoingBackward(); // TODO is this logic sufficient?
+                ret.TurnAround ^= LaneData.Segment.IsInvert();
+                ret.CalculateControlMatrix(outline, vScale);
+
+                ret.CalculateMapping(netInfo);
             }
-            if(NetNode.BlendJunction(segment.m_endNode)) {
-                colorLocationEnd = RenderManager.GetColorLocation(TrackManager.NODE_HOLDER + segment.m_endNode);
+            catch (Exception ex) {
+#if DEBUG
+                ex.Log(true);
+#else
+                ex.Log(false);
+#endif
+                return default;
             }
-            ret.ObjectIndex = new Vector4(colorLocationStart.x, colorLocationStart.y, colorLocationEnd.x, colorLocationEnd.y); // object index
-            float vScale = netInfo.m_netAI.GetVScale();
-            ret.TurnAround = LaneData.LaneInfo.IsGoingBackward(); // TODO is this logic sufficient?
-            ret.TurnAround ^= LaneData.Segment.IsInvert();
-            ret.CalculateControlMatrix(outline, vScale);
 
-
-            ret.CalculateMapping(netInfo);
             return ret;
         }
 
