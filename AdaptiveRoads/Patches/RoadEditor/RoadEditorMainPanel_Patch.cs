@@ -156,7 +156,7 @@ namespace AdaptiveRoads.Patches.RoadEditor {
                 Log.Called(fieldName, elevationInfo);
                 NetAI editAI = EditNetInfo.m_netAI;
                 if(elevationInfo != null) {
-                    elevationInfo = AssetEditorRoadUtils.InstantiatePrefab(elevationInfo);
+                    elevationInfo = AssetEditorRoadUtils.InstantiatePrefab(elevationInfo, false);
                 }
                 editAI.GetType().GetField(fieldName)?.SetValue(editAI, elevationInfo);
 

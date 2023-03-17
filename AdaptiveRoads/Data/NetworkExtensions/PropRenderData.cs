@@ -313,7 +313,7 @@ namespace AdaptiveRoads.Data.NetworkExtensions {
 
                                         var currentData = data[propIndex++];
 
-                                        global::TreeInstance.RenderInstance(cameraInfo, variation, currentData.Position, scale, brightness, RenderManager.DefaultColorLocation);
+                                        global::TreeInstance.RenderInstance(cameraInfo, variation, currentData.Position, scale, brightness, RenderManager.DefaultColorLocation, true);
                                     }
                                 }
                             }

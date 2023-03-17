@@ -114,7 +114,7 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
         // the next instruction is brfalse which automatically takes a not of the above phrase so at the end it will be
         // (ConnectGroup == None && MetaData.ConnectGroups == null) ||
         public static bool CheckConnectGroup(NetInfo.ConnectGroup cg, NetInfo info) {
-            var ccg = info.GetMetaData()?.CustomConnectGroups;
+            var ccg = info?.GetMetaData()?.CustomConnectGroups;
             return !(cg == 0 && ccg.IsNullOrNone());
         }
 
@@ -157,13 +157,13 @@ namespace AdaptiveRoads.Patches.Node.ConnectGroup {
         public static bool CheckConnectGroup(bool flagsMatch, NetInfo sourceInfo, NetInfo targetInfo) {
             if (flagsMatch)
                 return true;
-            if(sourceInfo.TrackLaneCount() > 0 && targetInfo.TrackLaneCount() == 0) {
+            if((sourceInfo?.TrackLaneCount() ?? 0) > 0 && (targetInfo?.TrackLaneCount() ?? 0) == 0) {
                 //networks with tracks act as if they can connect to networks without tracks.
-                return true; 
+                return false; 
             }
             return DirectConnectUtil.ConnectGroupsMatch(
-                sourceInfo.GetMetaData()?.NodeCustomConnectGroups,
-                targetInfo.GetMetaData()?.CustomConnectGroups);
+                sourceInfo?.GetMetaData()?.NodeCustomConnectGroups,
+                targetInfo?.GetMetaData()?.CustomConnectGroups);
         }
 
         static FieldInfo fNetNodeConnectGroups => typeof(NetInfo).GetField(nameof(NetInfo.m_nodeConnectGroups));

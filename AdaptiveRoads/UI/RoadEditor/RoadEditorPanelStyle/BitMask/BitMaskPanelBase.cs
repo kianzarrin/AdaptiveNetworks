@@ -12,6 +12,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
     using KianCommons.Plugins;
     using System.Collections.Generic;
     using AdaptiveRoads.CustomScript;
+    using System.Diagnostics;
 
     internal struct FlagDataT {
         public delegate void SetHandlerD(IConvertible flag);
@@ -84,8 +85,7 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
         public event REPropertySet.PropertyChangedHandler EventPropertyChanged;
 
         public override void OnDestroy() {
-            NetInfoExtionsion.Net.OnCustomFlagRenamed -= Refresh;
-            ReflectionHelpers.SetAllDeclaredFieldsToNull(this);
+            //ReflectionHelpers.SetAllDeclaredFieldsToNull(this);
             base.OnDestroy();
         }
 
