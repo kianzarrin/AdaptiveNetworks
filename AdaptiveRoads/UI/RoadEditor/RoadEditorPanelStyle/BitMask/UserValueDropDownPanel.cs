@@ -86,6 +86,8 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
                 EditorDropDown.Init(DropDown);
                 DropDown.relativePosition = new Vector2(width - DropDown.width, 28);
                 DropDown.eventSelectedIndexChanged += DropDown_eventSelectedIndexChanged;
+                NetInfoExtionsion.Net.OnCustomFlagRenamed += Refresh;
+
 
                 isInteractive = true;
             } catch (Exception ex) {
@@ -112,6 +114,8 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
 
         public void OnDestroy() {
             Log.Called();
+            NetInfoExtionsion.Net.OnCustomFlagRenamed += Refresh;
+            ReflectionHelpers.SetAllDeclaredFieldsToNull(this);
         }
 
         internal static UserValueDropDownPanel Add(
@@ -149,9 +153,6 @@ namespace AdaptiveRoads.UI.RoadEditor.Bitmask {
 
         protected void Initialize() {
             try {
-                if (Data?.Names == null || DropDown == null)
-                    return;
-
                 Log.Called();
                 //Disable();
                 DropDown.items = new string[0];
